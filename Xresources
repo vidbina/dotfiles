@@ -341,3 +341,5 @@ URxvt*perl-ext:
 ! URxvt*remote-clipboard.fetch:         string
 ! URxvt*remote-clipboard.store:         string
 
+! Import theme colors
+#include "./Xresources.d/theme"
