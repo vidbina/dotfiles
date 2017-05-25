@@ -3,9 +3,7 @@
 ! special
 *.foreground:   #8bc34a
 *.background:   #090300
-!*.cursorColor:  #a5a2a2
-! deep orange
-*.cursorColor:  #ff5722
+!*.cursorColor:  #fff45b
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! blacks
 
