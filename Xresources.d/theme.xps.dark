@@ -47,10 +47,9 @@
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! magentas
 
-! deep purple
-*.color5:       #673ab7
+*.color5:       #a042ff
 ! purple
-*.color13:      #9c27b0
+*.color13:      #da47ff
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cyans
 
