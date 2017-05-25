@@ -1,3 +1,5 @@
+!*.colorN: rgb:ff/ff/ff
+
 ! special
 *.foreground:   #8bc34a
 *.background:   #090300
@@ -5,46 +7,59 @@
 ! deep orange
 *.cursorColor:  #ff5722
 
-! black
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! blacks
+
 *.color0:       #090300
 *.color8:       #5c5855
 
-! red
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! reds
+
 ! red
 *.color1:       #f44336
 ! pink
 *.color9:       #e91e63
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! greens
+
+! apple green
+*.color2:       #4cd90a
 ! green
-! green
-*.color2:      #8bc34a
+!#8bc34a
 ! light green
-*.color10:       #4caf50
+*.color10:      #4caf50
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! yellows
 
 ! yellow
+!*.color3:      #ffeb3b
+! orange
+*.color3:       #ff9800
 ! amber
-*.color3:       #ffc107
-! yellow
-*.color11:      #ffeb3b
+*.color11:      #ffc107
 
-! blue
-! blue
-*.color4:       #2196f3
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! blues
+
 ! light blue
-*.color12:      #03a9f4
+*.color4:       #03a9f4
+! blue
+*.color12:      #2196f3
 
-! magenta
-! purple
-*.color5:       #9c27b0
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! magentas
+
 ! deep purple
-*.color13:      #673ab7
+*.color5:       #673ab7
+! purple
+*.color13:      #9c27b0
 
-! cyan
-*.color6:       #00bcd4
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cyans
+
 ! light green
+*.color6:       #00bcd4
 *.color14:      #8bc34a
 
-! white
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! whites
+
 *.color7:       #a5a2a2
 *.color15:      #f7f7f7
 
