@@ -9,7 +9,7 @@
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! blacks
 
-*.color0:       #090300
+*.color0:       #000000
 *.color8:       #5c5855
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! reds
@@ -56,10 +56,10 @@
 
 ! light green
 *.color6:       #00bcd4
-*.color14:      #8bc34a
+*.color14:      #b2ebf2
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! whites
 
-*.color7:       #a5a2a2
-*.color15:      #f7f7f7
+*.color7:       #f7f7f7
+*.color15:      #a5a2a2
 
