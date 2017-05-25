@@ -8,7 +8,7 @@ Xft.lcdfilter: lcddeffault
 !Xcursor.size:  32
 
 #include "./Xresources.d/urxvt"
-#include "./Xresources.d/dzen2"
+!#include "./Xresources.d/dzen2"
 
 ! Import theme colors
 #include "./Xresources.d/theme"
