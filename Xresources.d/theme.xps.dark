@@ -12,42 +12,29 @@
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! reds
 
-! red
-*.color1:       #ff2626
-! pink
-*.color9:       #e91e63
+*.color1:       #ff2211
+*.color9:       #ff0056
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! greens
 
-! apple green
 *.color2:       #4cd90a
-! green
-!#8bc34a
-! light green
 *.color10:      #4caf50
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! yellows
 
-! yellow
-!*.color3:      #ffeb3b
-! orange
-*.color3:       #ff9800
-! amber
-*.color11:      #ffc107
+*.color3:       #ffb71c
+*.color11:      #fcf123
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! blues
 
-! light blue
-*.color4:       #03a9f4
-! blue
-*.color12:      #2196f3
+*.color4:       #2bbeff
+*.color12:      #49c5ff
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! magentas
 
-*.color5:       #a042ff
-! purple
-*.color13:      #da47ff
+*.color5:       #e879fc
+*.color13:      #fc8df3
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cyans
 
