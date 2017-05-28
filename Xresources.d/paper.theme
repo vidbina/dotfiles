@@ -1,0 +1,73 @@
+#define _foreground  black
+#define _background  white
+#define _cursor      deep pink
+#define _color0     _foreground
+#define _color1     _foreground
+#define _color2     _foreground
+#define _color3     _foreground
+#define _color4     _foreground
+#define _color5     _foreground
+#define _color6     _foreground
+#define _color7     _foreground
+#define _color8     _foreground
+#define _color9     _foreground
+#define _color10    _foreground
+#define _color11    _foreground
+#define _color12    _foreground
+#define _color13    _foreground
+#define _color14    _foreground
+#define _color15    _background
+#define _color16    _background
+
+xterm*foreground:   _foreground
+xterm*background:   _foreground
+xterm*cursorColor:  _cursor
+
+URxvt*foreground:   _foreground
+URxvt*background:   _background
+URxvt*cursorColor:  _cursor
+
+! special
+*foreground:   black
+*background:   white
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! blacks
+
+*color0:       _color0
+*color8:       _color8
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! reds
+
+*color1:       _color1
+*color9:       _color9
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! greens
+
+*color2:       _color2
+*color10:      _color10
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! yellows
+
+*color3:       _color3
+*color11:      _color11
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! blues
+
+*color4:       _color4
+*color12:      _color12
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! magentas
+
+*color5:       _color5
+*color13:      _color13
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cyans
+
+*color6:       _color6
+*color14:      _color14
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! whites
+
+*color7:       _color7
+*color15:      _color15
