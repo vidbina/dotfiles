@@ -20,7 +20,7 @@
 #define _color16    _background
 
 xterm*foreground:   _foreground
-xterm*background:   _foreground
+xterm*background:   _background
 xterm*cursorColor:  _cursor
 
 URxvt*foreground:   _foreground
@@ -28,8 +28,8 @@ URxvt*background:   _background
 URxvt*cursorColor:  _cursor
 
 ! special
-*foreground:   black
-*background:   white
+*foreground:   _foreground
+*background:   _background
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! blacks
 

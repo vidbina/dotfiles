@@ -5,6 +5,7 @@ Xft.hinting:   true
 Xft.hintstyle: hintslight
 Xft.lcdfilter: lcddeffault
 
+xterm*dynamicColors: true
 !Xcursor.size:  32
 
 #include "./Xresources.d/urxvt"

@@ -1,52 +1,84 @@
 !*.colorN: rgb:ff/ff/ff
 
+!#define font xft:DejaVu Sans Mono:pixelsize=10
+!URxvt.font:     xft:DejaVu Sans:style=Book:pixelsize=15
+!URxvt.font:     xft:DejaVu Sans:style=Bold:pixelsize=15
+!URxvt.font:     xft:DejaVu Sans Mono:style=Bold Italic:pixelsize=15
+
+#define typeface       xft:DejaVu Sans Mono
+
+URxvt.font:            xft:DejaVu Sans Mono:style=Book:pixelsize=16
+URxvt.boldFont:        xft:DejaVu Sans Mono:style=Bold:pixelsize=16
+URxvt.boldItalicFont:  xft:DejaVu Sans Mono:style=Bold Oblique:pixelsize=16
+URxvt.italicFont:      xft:DejaVu Sans Mono:style=Oblique:pixelsize=16
+
+!URxvt.font:            xft:DejaVu Sans Mono:style=Bold Oblique:pixelsize=15
+!1URxvt.font:            xft:Liberation Serif:pixelsize=20
+!URxvt.font:            font
+!URxvt.font:           font
+!URxvt.font:           font
+!URxvt.boldfont:       font
+!URxvt.italicfont:     font
+!Urxvt.boldItalicFont: font
+!*faceName:        xft:DejaVu Sans Mono
+!*faceName:       DejaVu Sans Mono Italic
+*letterSpace: 0
+!*letterSpace: -2
+
 ! special
-*.foreground:   #8bc34a
-*.background:   #090300
-!*.cursorColor:  #fff45b
+*.foreground:   black
+*.background:   white
+*.cursorColor:  magenta
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! blacks
 
-*.color0:       #000000
-*.color8:       #5c5855
+*.color0:       black
+*.color8:       gray8
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! reds
 
-*.color1:       #ffffff
-!#ff2211
-*.color9:       #ffffff
-!#ff0056
+*.color1:       crimson
+*.color9:       orange red
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! greens
 
-*.color2:       #4cd90a
-*.color10:      #4caf50
+*.color2:       green
+*.color10:      lawn green
+!lawn green
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! yellows
 
-*.color3:       #ffd014
-*.color11:      #fcf123
+*.color3:       gold
+*.color11:      yellow
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! blues
 
-*.color4:       #2bbeff
-*.color12:      #49c5ff
+*.color4:       royal blue
+*.color12:      deep sky blue
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! magentas
 
-*.color5:       #ff2211
-*.color13:       #ff0056
-!*.color5:       #e879fc
-!*.color13:      #fc8df3
+*.color5:       deep pink
+*.color13:      dark magenta
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cyans
 
-*.color6:       #00bcd4
-*.color14:      #00e2ff
+*.color6:       sky blue
+*.color14:      cyan
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! whites
 
-*.color7:       #f7f7f7
-*.color15:      #a5a2a2
+*.color7:       white
+*.color15:      papaya whip
 
+*.color16: red
+*.color17: red
+*.color18: red
+*.color19: red
+*.color20: red
+*.color21: red
+*.color22: red
+*.color23: red
+*.color24: red
+*.color25: red
