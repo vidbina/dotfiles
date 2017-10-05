@@ -8,3 +8,7 @@ function kb_EU {
 function kb_US {
   setxkbmap -option -model dell -layout us
 }
+
+function kb_v {
+  setxkbmap -option -model dell -layout us -option caps:ctrl_modifier
+}
