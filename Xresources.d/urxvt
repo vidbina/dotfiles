@@ -96,7 +96,7 @@ URxvt*visualBell:                       true
 URxvt*mapAlert:                         true
 
 ! True: the mouse wheel scrolls a page full. False: the mouse wheel scrolls five lines [default]
-URxvt*mouseWheelScrollPage:             false
+URxvt*mouseWheelScrollPage:             true
 
 ! Change the meaning of triple-click selection with the left mouse button. Instead of selecting a full line it will extend the selection to the end of the logical line only
 ! URxvt*tripleclickwords:               boolean
