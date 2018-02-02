@@ -2,5 +2,3 @@ source ~/.defaults
 
 setopt histignorespace
 plugins=(pass, history-substring-search)
-
-bindkey -v # use vim key bindings
