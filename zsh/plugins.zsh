@@ -1,4 +1,5 @@
-plugins=(
-  pass,
-  history-substring-search
-  )
+#plugins=(
+#  networkmanager,
+#  pass,
+#  history-substring-search
+#  )
