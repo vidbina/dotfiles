@@ -176,7 +176,7 @@ URxvt*font:             xft:DejaVu Sans Mono:pixelsize=20:antialias=false:hintin
 ! Set source for the Perl libs
 URxvt.perl-lib:         $URXVT_PERL_LIB
 ! Select the plugins to be used.
-URxvt.perl-ext-common:  default,clipboard,font-size,keyboard-select,url-select
+URxvt.perl-ext-common:  default,font-size,keyboard-select,url-select
 
 ! font-size
 URxvt.keysym.C-minus:       perl:font-size:decrease
@@ -187,12 +187,8 @@ URxvt.keysym.C-0:           perl:font-size:reset
 URxvt.keysym.M-Escape:      perl:keyboard-select:activate
 URxvt.keysym.M-s:           perl:keyboard-select:search
 
-! clipboard
-URxvt.clipboard.copycmd:    xclip -i selection clipboard
-URxvt.clipboard.pastecmd:   xclip -o selection clipboard
-URxvt.keysym.M-c:           perl:clipboard:copy
-URxvt.keysym.M-v:           perl:clipboard:paste
-URxvt.keysym.M-C-v:         perl:clipboard:paste_escaped
+URxvt.keysym.C-M-c:         eval:selection_to_clipboard
+URxvt.keysym.C-M-v:         eval:paste_clipboard
 
 ! url-select
 URxvt.keysym.M-u:           perl:url-select:select_next
