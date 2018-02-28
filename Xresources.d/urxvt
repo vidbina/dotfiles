@@ -50,13 +50,13 @@ URxvt*secondaryScroll:                  true
 URxvt*skipScroll:                       false
 
 ! True: enable the scrollbar [default]; option -sb. False: disable the scrollbar
-URxvt*scrollBar:                        false
+URxvt*scrollBar:                        true
 
 ! place the scrollbar on the right of the window
-URxvt*scrollBar_right:                  false
+URxvt*scrollBar_right:                  true
 
 ! di5play an rxvt scrollbar with/without a trough
-URxvt*scrollBar_floating:               false
+URxvt*scrollBar_floating:               true
 
 ! Align the top, bottom or centre [default] of the scrollbar thumb with the pointer on middle button press/drag
 ! URxvt*scrollBar_align:                mode
@@ -141,7 +141,7 @@ URxvt*underlineColor:                   yellow
 !URxvt*cursorUnderline:                  false
 
 ! True: blink the cursor. False: do not blink the cursor [default];
-!URxvt*cursorBlink:                      true
+URxvt*cursorBlink:                      true
 
 ! Use the specified colour for the cursor.  The default is to use the foreground colour
 !URxvt*cursorColor:                      Magenta
@@ -170,24 +170,35 @@ URxvt*underlineColor:                   yellow
 ! Set window title string, the default title is the command-line specified after the -e option, if any, otherwise the application name
 ! URxvt*title:                          string
 
-
-
-
-
 ! Select the fonts to be used. This is a comma separated list of font names that are checked in order when trying to find glyphs for characters
-URxvt.font:             xft:DejaVu Sans Mono:pixelsize=16
-URxvt.perl-lib:         /store/vidbina.home/.urxvt-perl
-!/run/current-system/sw/lib/urxvt/perl,/home/vid/urxvt-perl-color-swap
+URxvt*font:             xft:DejaVu Sans Mono:pixelsize=20:antialias=false:hinting=true
 
-URxvt.perl-ext-common:  system/font-size,color-swap/color_swap.pl
+! Set source for the Perl libs
+URxvt.perl-lib:         $URXVT_PERL_LIB
+! Select the plugins to be used.
+URxvt.perl-ext-common:  default,clipboard,font-size,keyboard-select,url-select
 
-URxvt.keysym.C-minus:	perl:font-size:decrease
-URxvt.keysym.C-plus:	perl:font-size:increase
-URxvt.keysym.C-0:     perl:font-size:reset
+! font-size
+URxvt.keysym.C-minus:       perl:font-size:decrease
+URxvt.keysym.C-plus:        perl:font-size:increase
+URxvt.keysym.C-0:           perl:font-size:reset
 
-URxvt.keysym.C-9:     perl:color_swap.pl:toggle
-URxvt.keysym.C-8:     perl:color_swap.pl:light
-URxvt.keysym.C-7:     perl:color_swap.pl:dark
+! keyboard-select
+URxvt.keysym.M-Escape:      perl:keyboard-select:activate
+URxvt.keysym.M-s:           perl:keyboard-select:search
+
+! clipboard
+URxvt.clipboard.copycmd:    xclip -i selection clipboard
+URxvt.clipboard.pastecmd:   xclip -o selection clipboard
+URxvt.keysym.M-c:           perl:clipboard:copy
+URxvt.keysym.M-v:           perl:clipboard:paste
+URxvt.keysym.M-C-v:         perl:clipboard:paste_escaped
+
+! url-select
+URxvt.keysym.M-u:           perl:url-select:select_next
+URxvt.url-select.button:    2
+URxvt.url-select.launcher:  qutebrowser
+URxvt.url-select.underline: false
 
 !URxvt*boldFont:                         -xos4-terminus-bold-*-*-*-14-*-*-*-*-*-iso8859-15,xft:terminus:bold:pixelsize:12
 !URxvt*italicFont:                       xft:Bitstream Vera Sans Mono:italic:autohint=true:pixelsize=12
@@ -198,7 +209,7 @@ URxvt.keysym.C-7:     perl:color_swap.pl:dark
 ! URxvt*intensityStyles:                boolean
 
 ! Save number lines in the scrollback buffer [default 64]. This resource is limited on most machines to 65535
-URxvt*saveLines:                        0
+URxvt*saveLines:                        5000
 
 ! Double-buffering for xft (default enabled).  On some card/driver combination enabling it slightly decreases performance, on most it greatly helps it. The slowdown is small, so it should normally be enabled
 URxvt*buffered:                         true
@@ -264,8 +275,8 @@ URxvt*print-pipe:                       cat > $HOME/$(echo urxvt.dump.$(date +'%
 ! URxvt*perl-eval:                      perl-eval
 
 ! Comma-separated list(s) of perl extension scripts (default: "default") to use in this terminal instance, blank disables
-URxvt*perl-ext-common:
-URxvt*perl-ext:
+! URxvt*perl-ext-common:
+! URxvt*perl-ext:
 
 ! Specifies the program to be started with a URL argument. Used by the "selection-popup" and "matcher" perl extensions
 ! URxvt*url-launcher:                   string
