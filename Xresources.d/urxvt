@@ -50,7 +50,7 @@ URxvt*secondaryScroll:                  true
 URxvt*skipScroll:                       false
 
 ! True: enable the scrollbar [default]; option -sb. False: disable the scrollbar
-URxvt*scrollBar:                        true
+URxvt*scrollBar:                        false
 
 ! place the scrollbar on the right of the window
 URxvt*scrollBar_right:                  true
@@ -105,10 +105,10 @@ URxvt*mouseWheelScrollPage:             true
 ! URxvt*insecure:                       boolean
 
 ! Use the specified colour as the windows background colour [default White]
-URxvt*background:                       Black
+!URxvt*background:                       Black
 
 !  Use the specified colour as the windows foreground colour [default Black]
-URxvt*foreground:                       White
+!URxvt*foreground:                       White
 
 ! Use the specified colour to disp1ay bold characters when the foreground colour is the default.
 ! URxvt*colorBD:                        color
@@ -117,13 +117,13 @@ URxvt*foreground:                       White
 ! URxvt*colorIT:                        color
 
 ! Use the specified colour to disp1ay underlined characters when the foreground colour is the default.
-URxvt*colorUL:                          yellow
+!URxvt*colorUL:                          yellow
 
 ! Use the specified colour as the background for reverse video characters.
 ! URxvt*colorRV:                        color
 
 ! If set, use the specified colour as the colour for the underline itself. If unset, use the foreground colour
-URxvt*underlineColor:                   yellow
+!URxvt*underlineColor:                   yellow
 
 ! Use the specified colour for the scrollbar [default #B2B2B2]
 ! URxvt*scrollColor:                    color
@@ -195,6 +195,24 @@ URxvt.keysym.M-u:           perl:url-select:select_next
 URxvt.url-select.button:    2
 URxvt.url-select.launcher:  qutebrowser
 URxvt.url-select.underline: false
+
+!URxvt.color-themes.themedir:~/.themes/urxvt
+!URxvt.color-themes.themedir:~/base16-xresources/xresources
+!URxvt.color-themes.preprocessor: /run/current-system/sw/bin/cpp
+!URxvt.keysym.M-C-n:         perl:color-themes:next
+!URxvt.keysym.M-C-p:         perl:color-themes:prev
+!
+!URxvt.color-themes.state-file: ~/.urxvt-theme
+!URxvt.color-themes.autosave: 1
+!URxvt.keysym.M-C-l:          perl:color-themes:load-state
+!URxvt.keysym.M-C-s:          perl:color-themes:save-state
+
+URxvt.intensityStyles:      false
+URxvt*background:           #000000
+URxvt*foreground:           #ffffff
+!change unreadable blue
+URxvt*color4:               #268bd2
+URxvt*color0:               #232342
 
 !URxvt*boldFont:                         -xos4-terminus-bold-*-*-*-14-*-*-*-*-*-iso8859-15,xft:terminus:bold:pixelsize:12
 !URxvt*italicFont:                       xft:Bitstream Vera Sans Mono:italic:autohint=true:pixelsize=12

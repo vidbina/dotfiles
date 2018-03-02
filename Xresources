@@ -12,4 +12,4 @@ xterm*dynamicColors: true
 !#include "./Xresources.d/dzen2"
 
 ! Import theme colors
-#include "./Xresources.d/theme.solarized.dark"
+!#include "./Xresources.d/theme.solarized.dark"
