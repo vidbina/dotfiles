@@ -62,4 +62,4 @@ URxvt*saveLines:            5000
 URxvt*hold:                 false
 
 ! Specify a command pipe for vt100 printer [default lpr(1)].  Use Print to initiate a screen dump to the printer and Ctrl-Print or Shift-Print to include the scrollback
-URxvt*print-pipe:           cat > $HOME/$(echo urxvt.dump.$(date +'%Y%M%d%H%m%S'))
+URxvt*print-pipe:           cat > $HOME/$(echo urxvt.dump.$(date +'%Y%m%d%H%M%S'))
