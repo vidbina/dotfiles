@@ -23,7 +23,7 @@ URxvt*cursorBlink:          true
 URxvt*font:                 xft:DejaVu Sans Mono:pixelsize=20:antialias=false:hinting=true
 
 URxvt.perl-lib:             $URXVT_PERL_LIB
-URxvt.perl-ext-common:      default,font-size,keyboard-select,url-select
+URxvt.perl-ext-common:      default,font-size,keyboard-select,tabbedex,url-select
 
 URxvt.keysym.C-minus:       perl:font-size:decrease
 URxvt.keysym.C-plus:        perl:font-size:increase
@@ -34,6 +34,9 @@ URxvt.keysym.M-s:           perl:keyboard-select:search
 
 URxvt.keysym.C-M-c:         eval:selection_to_clipboard
 URxvt.keysym.C-M-v:         eval:paste_clipboard
+
+URxvt.tabbed.autohide:      true
+URxvt.tabbed.reopen-on-close:false
 
 URxvt.keysym.M-u:           perl:url-select:select_next
 URxvt.url-select.button:    2
