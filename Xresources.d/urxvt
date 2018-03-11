@@ -1,3 +1,4 @@
+! vim: ft=xdefaults
 ! See `urxvt --help` for documentation
 URxvt*termName:             screen-256color
 
