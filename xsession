@@ -4,9 +4,26 @@
 hsetroot -solid '#ff9800' # yellow
 #xsetroot -solid '#e91e62' # pink
 setxkbmap -option -model dell -layout us #-variant intl -option lv3:caps_switch
-trayer --edge top --align right --SetDockType true --SetPartialStrut true --monitor primary \
- --expand true --width 5 --transparent true --tint 0x21212121 --alpha 0 --height 24 &
+
+trayer \
+  --edge top \
+  --align right \
+  --width 5 \
+  --height 24 \
+  --SetDockType true \
+  --SetPartialStrut true \
+  --transparent true \
+  --alpha 0 \
+  --expand true \
+  --monitor primary \
+  --tint 0x21212121 \
+  &
+
 compton -b
+
 nm-applet --sm-disable &
+
 blueman-applet &
+
 exec xmonad
+# vim: syntax=sh
