@@ -1,6 +1,6 @@
 ! vim: ft=xdefaults
 ! See `urxvt --help` for documentation
-URxvt*termName:             screen-256color
+URxvt*termName:             rxvt-unicode-256color
 
 URxvt*geometry:             160x50
 !URxvt*loginShell:          true
