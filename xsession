@@ -25,7 +25,7 @@ nm-applet --sm-disable &
 
 blueman-applet &
 
-redshift-gtk &
+#redshift-gtk &
 
 exec xmonad
 # vim: syntax=sh
