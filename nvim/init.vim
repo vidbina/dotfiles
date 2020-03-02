@@ -4,26 +4,27 @@ set expandtab    " expand tabs to spaces
 colorscheme molokai
 
 call plug#begin("~/.local/share/nvim/plugged")
-  Plug 'derekwyatt/vim-scala'
-  Plug 'LnL7/vim-nix'
-  Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
-  Plug 'prettier/vim-prettier'
-  Plug 'tpope/vim-fugitive'
-  Plug 'majutsushi/tagbar'
   Plug 'airblade/vim-gitgutter'
-  Plug 'vim-scripts/openvpn'
-  Plug 'hashivim/vim-terraform'
-  Plug 'saltstack/salt-vim'
-  Plug 'isRuslan/vim-es6'
-  Plug 'https://github.com/plasticboy/vim-markdown.git'
-  Plug 'vim-airline/vim-airline'
-  Plug 'https://github.com/junegunn/goyo.vim.git'
+  Plug 'derekwyatt/vim-scala'
   Plug 'ElmCast/elm-vim'
-  Plug 'sigmike/vim-taskjuggler'
-  Plug 'jparise/vim-graphql'
-  Plug 'purescript-contrib/purescript-vim'
+  Plug 'godlygeek/tabular'
+  Plug 'hashivim/vim-terraform'
   " Plug 'https://github.com/hrother/offlineimaprc.vim.git'
+  Plug 'https://github.com/junegunn/goyo.vim.git'
+  Plug 'https://github.com/plasticboy/vim-markdown.git'
+  Plug 'isRuslan/vim-es6'
+  Plug 'jparise/vim-graphql'
+  Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+  Plug 'LnL7/vim-nix'
+  Plug 'majutsushi/tagbar'
+  Plug 'prettier/vim-prettier'
+  Plug 'purescript-contrib/purescript-vim'
+  Plug 'saltstack/salt-vim'
   " Plug 'sbdchd/neoformat'
+  Plug 'sigmike/vim-taskjuggler'
+  Plug 'tpope/vim-fugitive'
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-scripts/openvpn'
 call plug#end()
 
 let g:vim_markdown_frontmatter = 1
