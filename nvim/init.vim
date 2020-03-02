@@ -34,5 +34,8 @@ let g:vim_markdown_new_list_item_indent = 2
 let g:vim_markdown_auto_insert_bullets = 0
 
 set mouse=a
+set number
 ":map <ScrollWheelUp> <C-Y>
 ":map <ScrollWheelDown> <C-E>
+
+set nowrap
