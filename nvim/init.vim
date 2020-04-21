@@ -26,6 +26,7 @@ call plug#begin("~/.local/share/nvim/plugged")
   Plug 'tpope/vim-fugitive'
   Plug 'vim-airline/vim-airline'
   Plug 'vim-scripts/openvpn'
+  Plug 'aklt/plantuml-syntax'
 call plug#end()
 
 let g:vim_markdown_frontmatter = 1
