@@ -9,6 +9,7 @@ call plug#begin("~/.local/share/nvim/plugged")
   Plug 'ElmCast/elm-vim'
   Plug 'godlygeek/tabular'
   Plug 'hashivim/vim-terraform'
+  Plug 'hashicorp/sentinel.vim'
   " Plug 'https://github.com/hrother/offlineimaprc.vim.git'
   Plug 'https://github.com/junegunn/goyo.vim.git'
   Plug 'https://github.com/plasticboy/vim-markdown.git'
