@@ -1,0 +1,3 @@
+[record]
+command=/usr/bin/env bash --rcfile ~/.asciinema.bashrc
+maxwait = 2
