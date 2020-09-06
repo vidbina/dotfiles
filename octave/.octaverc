@@ -1,3 +1,11 @@
+## pretty prompt
+PS1 ("\\[\\033[01;31m\\]\\s:\\#> \\[\\033[0m\\]");
+## no > for multi-line input
+PS2 ("");
+
+EDITOR ("nvim");
+edit ("mode", "sync");
+
 graphics_toolkit("gnuplot")
 
 ## vim: syntax=matlab
