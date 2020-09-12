@@ -42,3 +42,4 @@ set number
 ":map <ScrollWheelDown> <C-E>
 
 set nowrap
+set nofoldenable
