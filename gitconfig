@@ -1,0 +1,18 @@
+[user]
+	name = David Asabina
+	email = vid@bina.me
+
+[color]
+	ui = true
+
+[core]
+	editor = nvim
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	required = true
+[gpg]
+	program = gpg2
+
+# vim: syntax=gitconfig
