@@ -5,6 +5,11 @@
 [color]
 	ui = true
 
+[color.grep]
+  match = red white
+  filename = blue
+  linenumber = yellow
+
 [core]
 	editor = nvim
 
