@@ -6,7 +6,7 @@
 	ui = true
 
 [color.grep]
-  match = red white
+  match = black red
   filename = blue
   linenumber = yellow
 
