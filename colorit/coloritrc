@@ -1,0 +1,19 @@
+# command arg1 arg2 ... argN
+# available commands:
+# - mark with 3 arguments: regexp, pre_string, post_string
+# - gensub with 2 arguments: # PARTIALLY IMPLEMENTED?
+# \033 is only escape seq that can be surrounded by double quotes
+
+# Highlight word itself
+mark "^\s{2}\w+$" \033[1;91m \033[0m
+
+# Highlight the dictionary identifier
+mark "\s\[dict\w*(-\w+)*\]" \033[1;92m \033[0m
+
+# Highlight source line
+mark "^From .*$" \033[94m \033[0m
+
+# Highlight reference line
+mark "\s{2}Ref: .*$" \033[33m \033[0m
+
+# vi: set ft=m4:
