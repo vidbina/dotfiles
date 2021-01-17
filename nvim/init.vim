@@ -41,5 +41,6 @@ set number
 ":map <ScrollWheelUp> <C-Y>
 ":map <ScrollWheelDown> <C-E>
 
-set nowrap
+set wrap
+set ignorecase
 set nofoldenable
