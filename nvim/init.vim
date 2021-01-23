@@ -5,12 +5,13 @@ colorscheme molokai
 
 call plug#begin("~/.local/share/nvim/plugged")
   Plug 'airblade/vim-gitgutter'
+  Plug 'aklt/plantuml-syntax'
   Plug 'derekwyatt/vim-scala'
   Plug 'ElmCast/elm-vim'
   Plug 'godlygeek/tabular'
-  Plug 'hashivim/vim-terraform'
   Plug 'hashicorp/sentinel.vim'
-  " Plug 'https://github.com/hrother/offlineimaprc.vim.git'
+  Plug 'hashivim/vim-terraform'
+  "Plug 'https://github.com/hrother/offlineimaprc.vim.git'
   Plug 'https://github.com/junegunn/goyo.vim.git'
   Plug 'https://github.com/plasticboy/vim-markdown.git'
   Plug 'isRuslan/vim-es6'
@@ -18,16 +19,15 @@ call plug#begin("~/.local/share/nvim/plugged")
   Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
   Plug 'LnL7/vim-nix'
   Plug 'majutsushi/tagbar'
+  Plug 'preservim/nerdtree'
   Plug 'prettier/vim-prettier'
   Plug 'purescript-contrib/purescript-vim'
   Plug 'saltstack/salt-vim'
-  " Plug 'sbdchd/neoformat'
+  "Plug 'sbdchd/neoformat'
   Plug 'sigmike/vim-taskjuggler'
   Plug 'tpope/vim-fugitive'
   Plug 'vim-airline/vim-airline'
   Plug 'vim-scripts/openvpn'
-  Plug 'aklt/plantuml-syntax'
-  Plug 'preservim/nerdtree'
 call plug#end()
 
 let g:vim_markdown_frontmatter = 1
