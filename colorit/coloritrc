@@ -16,4 +16,7 @@ mark "^From .*$" \033[94m \033[0m
 # Highlight reference line
 mark "\s{2}Ref: .*$" \033[33m \033[0m
 
+# Highlight group markers
+mark "{{|}}" \033[33m \033[0m
+
 # vi: set ft=m4:
