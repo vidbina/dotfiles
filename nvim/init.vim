@@ -14,7 +14,6 @@ call plug#begin("~/.local/share/nvim/plugged")
   "Plug 'https://github.com/hrother/offlineimaprc.vim.git'
   Plug 'https://github.com/junegunn/goyo.vim.git'
   Plug 'https://github.com/plasticboy/vim-markdown.git'
-  Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
   Plug 'isRuslan/vim-es6'
   Plug 'jparise/vim-graphql'
   Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
