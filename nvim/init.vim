@@ -25,6 +25,7 @@ call plug#begin("~/.local/share/nvim/plugged")
   Plug 'saltstack/salt-vim'
   "Plug 'sbdchd/neoformat'
   Plug 'sigmike/vim-taskjuggler'
+  Plug 'tomlion/vim-solidity'
   Plug 'tpope/vim-fugitive'
   Plug 'vim-airline/vim-airline'
   Plug 'vim-scripts/openvpn'
