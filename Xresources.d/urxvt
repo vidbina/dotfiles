@@ -42,8 +42,13 @@ URxvt.tabbed.reopen-on-close:false
 
 URxvt.keysym.M-u:           perl:url-select:select_next
 URxvt.url-select.button:    2
-URxvt.url-select.launcher:  qutebrowser
+URxvt.url-select.launcher:  /home/vidbina/bin/copy-into-clipboard
 URxvt.url-select.underline: true
+
+URxvt.keysym.M-p:           perl:matcher:last
+URxvt.keysym.M-n:           perl:matcher:list
+URxvt.matcher.button:       2
+URxvt.matcher.launcher:     /home/vidbina/bin/copy-into-clipboard
 
 !URxvt.color-themes.themedir:~/.themes/urxvt
 !URxvt.color-themes.themedir:~/base16-xresources/xresources
