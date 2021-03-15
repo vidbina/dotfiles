@@ -1,0 +1,146 @@
+/**
+ * rofi -dump-theme output.
+ * Rofi version: 1.5.4
+ **/
+* {
+    active-background:           var(background);
+    active-foreground:           var(blue);
+    alternate-active-background: var(lightbg);
+    alternate-active-foreground: var(blue);
+    alternate-normal-background: var(lightbg);
+    alternate-normal-foreground: var(foreground);
+    alternate-urgent-background: var(lightbg);
+    alternate-urgent-foreground: var(red);
+    background-color:            #212121;
+    background:                  #212121;
+    blue:                        SkyBlue;
+    border-color:                DeepPink;
+    foreground:                  #bdbdbd;
+    lightbg:                     #191919;
+    lightfg:                     #bdbdbd;
+    normal-background:           var(background);
+    normal-foreground:           var(foreground);
+    red:                         DarkRed;
+    selected-active-background:  var(background);
+    selected-active-foreground:  var(foreground);
+    selected-normal-background:  LimeGreen;
+    selected-normal-foreground:  Black;
+    selected-urgent-background:  var(background);
+    selected-urgent-foreground:  var(background);
+    separatorcolor:              var(foreground);
+    spacing:                     2;
+    urgent-background:           DeepPink;
+    urgent-foreground:           Black;
+}
+window {
+    padding:          5;
+    background-color: var(background);
+    border:           4;
+}
+mainbox {
+    padding: 0;
+    border:  0;
+}
+message {
+    padding:      1px ;
+    border-color: var(separatorcolor);
+    border:       2px dash 0px 0px ;
+}
+textbox {
+    text-color: var(foreground);
+}
+listview {
+    padding:      2px 0px 0px ;
+    scrollbar:    true;
+    border-color: var(separatorcolor);
+    spacing:      2px ;
+    fixed-height: 0;
+    border:       2px dash 0px 0px ;
+}
+element {
+    padding: 1px ;
+    border:  0;
+}
+element normal.normal {
+    background-color: var(normal-background);
+    text-color:       var(normal-foreground);
+}
+element normal.urgent {
+    background-color: var(urgent-background);
+    text-color:       var(urgent-foreground);
+}
+element normal.active {
+    background-color: var(active-background);
+    text-color:       var(active-foreground);
+}
+element selected.normal {
+    background-color: var(selected-normal-background);
+    text-color:       var(selected-normal-foreground);
+}
+element selected.urgent {
+    background-color: var(selected-urgent-background);
+    text-color:       var(selected-urgent-foreground);
+}
+element selected.active {
+    background-color: var(selected-active-background);
+    text-color:       var(selected-active-foreground);
+}
+element alternate.normal {
+    background-color: var(alternate-normal-background);
+    text-color:       var(alternate-normal-foreground);
+}
+element alternate.urgent {
+    background-color: var(alternate-urgent-background);
+    text-color:       var(alternate-urgent-foreground);
+}
+element alternate.active {
+    background-color: var(alternate-active-background);
+    text-color:       var(alternate-active-foreground);
+}
+scrollbar {
+    width:        4px ;
+    padding:      0;
+    handle-width: 8px ;
+    border:       0;
+    handle-color: var(normal-foreground);
+}
+mode-switcher {
+    border-color: var(separatorcolor);
+    border:       2px dash 0px 0px ;
+}
+button {
+    spacing:    0;
+    text-color: var(normal-foreground);
+}
+button selected {
+    background-color: var(selected-normal-background);
+    text-color:       var(selected-normal-foreground);
+}
+inputbar {
+    padding:    1px ;
+    spacing:    0px ;
+    text-color: var(normal-foreground);
+    children:   [ prompt,textbox-prompt-colon,entry,overlay,case-indicator ];
+}
+case-indicator {
+    spacing:    0;
+    text-color: var(normal-foreground);
+}
+entry {
+    spacing:    0;
+    text-color: var(normal-foreground);
+}
+prompt {
+    spacing:    0;
+    text-color: var(normal-foreground);
+}
+textbox-prompt-colon {
+    margin:     0px 0.3000em 0.0000em 0.0000em ;
+    expand:     false;
+    str:        ":";
+    text-color: inherit;
+}
+error-message {
+    background-color: rgba ( 0, 0, 0, 0 % );
+    text-color:       var(normal-foreground);
+}
