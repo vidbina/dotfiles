@@ -21,7 +21,8 @@ URxvt*mouseWheelScrollPage: false
 
 URxvt*cursorBlink:          true
 
-URxvt*font:                 xft:DejaVu Sans Mono:pixelsize=20:antialias=false:hinting=true, xft:Font Awesome 5 Free:size=9:antialias=true:style=Solid, xft:Noto Emoji:style=Regular, xft:Noto Mono for Powerline:style=Regular
+URxvt*font:                  xft:Noto Mono for Powerline:style=Regular:pixelsize=20:antialias=true, xft:Fira Code:style=Regular:pixelsize=20:antialias=true, xft:DejaVu Sans Mono:pixelsize=20:antialias=false:hinting=true, xft:Font Awesome 5 Free:size=9:antialias=true:style=Solid, xft:Noto Emoji:style=Regular
+!URxvt*font:                 xft:DejaVu Sans Mono:pixelsize=20:antialias=false:hinting=true, xft:Noto Emoji:style=Regular, xft:Noto Mono for Powerline:style=Regular
 
 URxvt.perl-lib:             $URXVT_PERL_LIB
 URxvt.perl-ext-common:      default,clipboard,font-size,keyboard-select,tabbedex,url-select,searchable-scrollback
