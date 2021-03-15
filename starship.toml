@@ -1,0 +1,23 @@
+[git_branch]
+symbol = ""
+
+[git_commit]
+tag_symbol = ""
+
+[python]
+symbol = "py"
+
+[ruby]
+symbol = "rb"
+
+[terraform]
+symbol = "tf"
+
+[nix_shell]
+symbol = "nix"
+
+[nodejs]
+symbol = "node"
+
+[kubernetes]
+symbol = "k8s"
