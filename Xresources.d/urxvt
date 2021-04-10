@@ -25,7 +25,7 @@ URxvt*font:                  xft:Noto Mono for Powerline:style=Regular:pixelsize
 !URxvt*font:                 xft:DejaVu Sans Mono:pixelsize=20:antialias=false:hinting=true, xft:Noto Emoji:style=Regular, xft:Noto Mono for Powerline:style=Regular
 
 URxvt.perl-lib:             $URXVT_PERL_LIB
-URxvt.perl-ext-common:      default,clipboard,font-size,keyboard-select,tabbedex,url-select,searchable-scrollback
+URxvt.perl-ext-common:      default,matcher,clipboard,font-size,keyboard-select,tabbedex,url-select,searchable-scrollback
 
 URxvt.keysym.C-minus:       perl:font-size:decrease
 URxvt.keysym.C-plus:        perl:font-size:increase
@@ -65,7 +65,9 @@ URxvt*saveLines:            5000
 
 URxvt*hold:                 false
 
-! Specify a command pipe for vt100 printer [default lpr(1)].  Use Print to initiate a screen dump to the printer and Ctrl-Print or Shift-Print to include the scrollback
+! Specify a command pipe for vt100 printer [default lpr(1)].
+! Use Print to initiate a screen dump to the printer and Ctrl-Print or
+! Shift-Print to include the scrollback
 URxvt*print-pipe:           cat > $HOME/$(echo urxvt.dump.$(date +'%Y%m%d%H%M%S'))
 
 #include "./theme.vidbina.dark"
