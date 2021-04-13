@@ -18,10 +18,10 @@
   :straight (evil
               :type git
               :host github
-              :repo "emacs-evil/evil"))
+              :repo "emacs-evil/evil")
+  :config
+  (evil-mode t))
 
-(require 'evil)
-(evil-mode t)
 
 (use-package doom-themes
   :straight (doom-themes
