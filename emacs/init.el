@@ -10,3 +10,17 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+
+; https://github.com/raxod502/straight.el#integration-with-use-package
+(straight-use-package 'use-package)
+
+(use-package evil
+  :straight (evil
+              :type git
+              :host github
+              :repo "emacs-evil/evil"
+              :fork (:host github
+                     :repo "emacs-evil/evil")))
+
+(require 'evil)
+(evil-mode t)
