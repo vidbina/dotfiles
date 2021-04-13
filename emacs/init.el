@@ -22,6 +22,15 @@
   :config
   (evil-mode t))
 
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :straight (evil-collection
+	     :type git
+	     :host github
+	     :repo "emacs-evil/evil-collection")
+  :config
+  (evil-collection-init))
 
 (use-package doom-themes
   :straight (doom-themes
