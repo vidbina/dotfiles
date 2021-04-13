@@ -18,9 +18,7 @@
   :straight (evil
               :type git
               :host github
-              :repo "emacs-evil/evil"
-              :fork (:host github
-                     :repo "emacs-evil/evil")))
+              :repo "emacs-evil/evil"))
 
 (require 'evil)
 (evil-mode t)
