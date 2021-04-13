@@ -1,3 +1,4 @@
+; https://github.com/raxod502/straight.el#getting-started
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -14,6 +15,7 @@
 ; https://github.com/raxod502/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 
+; https://github.com/emacs-evil/evil
 (use-package evil
   :straight (evil
               :type git
@@ -22,6 +24,7 @@
   :config
   (evil-mode t))
 
+; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
   :after evil
   :ensure t
@@ -32,6 +35,7 @@
   :config
   (evil-collection-init))
 
+; https://github.com/hlissner/emacs-doom-themes#manually
 (use-package doom-themes
   :straight (doom-themes
               :type git
@@ -44,4 +48,5 @@
   (doom-themes-visual-bell-config)
   (doom-themes-org-config))
 
+; https://orgmode.org/manual/Structure-Templates.html
 (load-package org-tempo)
