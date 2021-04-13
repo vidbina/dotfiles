@@ -43,3 +43,5 @@
   (load-theme 'doom-ayu-mirage t)
   (doom-themes-visual-bell-config)
   (doom-themes-org-config))
+
+(load-package org-tempo)
