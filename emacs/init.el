@@ -21,6 +21,10 @@
               :type git
               :host github
               :repo "emacs-evil/evil")
+  :init
+  ; https://github.com/emacs-evil/evil-collection#installation
+  ; pre-set some evil vars prior to package load
+  (setq evil-want-keybinding nil)
   :config
   (evil-mode t))
 
