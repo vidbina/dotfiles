@@ -53,4 +53,4 @@
   (doom-themes-org-config))
 
 ; https://orgmode.org/manual/Structure-Templates.html
-(load-package org-tempo)
+(load-library "org-tempo")
