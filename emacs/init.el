@@ -48,7 +48,7 @@
   :config
   (setq doom-themes-enable-bold t)
   (setq doom-themes-enable-italic t)
-  (load-theme 'doom-ayu-mirage t)
+  (load-theme 'doom-one t)
   (doom-themes-visual-bell-config)
   (doom-themes-org-config))
 
