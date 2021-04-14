@@ -38,6 +38,9 @@
   :config
   (evil-collection-init))
 
+(use-package elisp-format
+  :straight t)
+
 ; https://github.com/hlissner/emacs-doom-themes#manually
 (use-package doom-themes
   :straight (doom-themes
