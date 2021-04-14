@@ -53,6 +53,15 @@
   (doom-themes-visual-bell-config)
   (doom-themes-org-config))
 
+; https://github.com/justbur/emacs-which-key
+(use-package which-key
+  :straight (which-key
+              :type git
+              :host github
+              :repo "justbur/emacs-which-key")
+  :config
+  (which-key-mode))
+
 ; https://www.emacswiki.org/emacs/ScrollBar
 (scroll-bar-mode -1)
 
