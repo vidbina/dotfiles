@@ -48,6 +48,7 @@
   :config
   (setq doom-themes-enable-bold t)
   (setq doom-themes-enable-italic t)
+  ; https://github.com/hlissner/emacs-doom-themes/tree/screenshots
   (load-theme 'doom-one t)
   (doom-themes-visual-bell-config)
   (doom-themes-org-config))
