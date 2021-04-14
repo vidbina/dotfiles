@@ -62,6 +62,14 @@
   :config
   (which-key-mode))
 
+; https://github.com/iqbalansari/emacs-emojify
+(use-package emojify
+  :straight (emojify
+	     :type git
+	     :host github
+	     :repo "iqbalansari/emacs-emojify")
+  :hook (after-init . global-emojify-mode))
+
 ; https://www.emacswiki.org/emacs/ScrollBar
 (scroll-bar-mode -1)
 
