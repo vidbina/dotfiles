@@ -31,7 +31,6 @@
 ; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
   :after evil
-  :ensure t
   :straight (evil-collection
 	     :type git
 	     :host github
