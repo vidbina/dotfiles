@@ -2,7 +2,7 @@
 ! See `urxvt --help` for documentation
 URxvt*termName:             rxvt-unicode-256color
 
-URxvt*geometry:             160x50
+URxvt*geometry:             128x32
 !URxvt*loginShell:          true
 URxvt*scrollBar:            true
 URxvt*scrollColor:          #B2B2B2
