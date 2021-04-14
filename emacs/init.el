@@ -52,6 +52,15 @@
   (doom-themes-visual-bell-config)
   (doom-themes-org-config))
 
+; https://www.emacswiki.org/emacs/ScrollBar
+(scroll-bar-mode -1)
+
+; https://www.emacswiki.org/emacs/ToolBar
+(tool-bar-mode -1)
+
+; https://www.emacswiki.org/emacs/MenuBar
+(menu-bar-mode -1)
+
 ; https://orgmode.org/manual/Structure-Templates.html
 (load-library "org-tempo")
 
