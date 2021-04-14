@@ -54,3 +54,6 @@
 
 ; https://orgmode.org/manual/Structure-Templates.html
 (load-library "org-tempo")
+
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
