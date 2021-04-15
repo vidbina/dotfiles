@@ -75,6 +75,22 @@
 	     :repo "iqbalansari/emacs-emojify")
   :hook (after-init . global-emojify-mode))
 
+;(use-package org-roam
+;  :straight (org-roam
+;	     :type git
+;	     :host github
+;	     :repo "org-roam/org-roam")
+;  :hook
+;  (after-init . org-roam-mode)
+;  :custom
+;  (org-roam-directory "/home/vidbina/org/")
+;  :bind (:map org-roam-mode-map
+;	      (("C-c n l" . org-roam)
+;	       ("C-c n f" . org-roam-find-file)
+;	       ("C-c n g" . org-roam-graph)
+;	       :map org-mode-map (
+
+
 ; https://www.emacswiki.org/emacs/ScrollBar
 (scroll-bar-mode -1)
 
