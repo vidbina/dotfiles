@@ -89,6 +89,16 @@
 				 ("C-c n i" . org-roam-insert)
 				 ("C-c n I" . org-roam-insert-immediate))))
 
+(use-package dired-k
+  :straight (dired-k
+              :type git
+              :host github
+              :repo "emacsorphanage/dired-k")
+  :init
+  (setq dired-k-style 'git)
+  :config
+  (add-hook 'dired-initial-position-hook 'dired-k))
+
 ;; https://github.com/jrblevin/deft
 (use-package deft
   :straight (deft
