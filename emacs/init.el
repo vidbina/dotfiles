@@ -89,6 +89,17 @@
 				 ("C-c n i" . org-roam-insert)
 				 ("C-c n I" . org-roam-insert-immediate))))
 
+;; https://github.com/jrblevin/deft
+(use-package deft
+  :straight (deft
+	      :type git
+	      :host github
+	      :repo "jrblevin/deft")
+  :config
+  (setq deft-directory "~/org"
+        deft-extensions '("md" "org")
+        deft-recursive t))
+
 ;; https://www.emacswiki.org/emacs/ScrollBar
 (scroll-bar-mode -1)
 
