@@ -38,11 +38,11 @@
   :config
   (evil-collection-init))
 
-(use-package srefactor
-  :straight (srefactor
+(use-package lispy
+  :straight (lispy
 	     :type git
 	     :host github
-	     :repo "tuhdo/semantic-refactor"))
+	     :repo "abo-abo/lispy"))
 
 ; https://github.com/hlissner/emacs-doom-themes#manually
 (use-package doom-themes
