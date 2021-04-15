@@ -1,4 +1,6 @@
-; https://github.com/raxod502/straight.el#getting-started
+;; Format with indent-region
+
+;; https://github.com/raxod502/straight.el#getting-started
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -10,25 +12,25 @@
          'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+  (load bootstrap-file nil 'nomessage)) 
 
-; https://github.com/raxod502/straight.el#integration-with-use-package
+;; https://github.com/raxod502/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 
-; https://github.com/emacs-evil/evil
+;; https://github.com/emacs-evil/evil
 (use-package evil
   :straight (evil
-              :type git
-              :host github
-              :repo "emacs-evil/evil")
+             :type git
+             :host github
+             :repo "emacs-evil/evil")
   :init
-  ; https://github.com/emacs-evil/evil-collection#installation
-  ; pre-set some evil vars prior to package load
+  ;; https://github.com/emacs-evil/evil-collection#installation
+  ;; pre-set some evil vars prior to package load
   (setq evil-want-keybinding nil)
   :config
   (evil-mode t))
 
-; https://github.com/emacs-evil/evil-collection
+;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
   :after evil
   :straight (evil-collection
@@ -38,36 +40,30 @@
   :config
   (evil-collection-init))
 
-(use-package lispy
-  :straight (lispy
-	     :type git
-	     :host github
-	     :repo "abo-abo/lispy"))
-
-; https://github.com/hlissner/emacs-doom-themes#manually
+;; https://github.com/hlissner/emacs-doom-themes#manually
 (use-package doom-themes
   :straight (doom-themes
-              :type git
-              :host github
-              :repo "hlissner/emacs-doom-themes")
+             :type git
+             :host github
+             :repo "hlissner/emacs-doom-themes")
   :config
   (setq doom-themes-enable-bold t)
   (setq doom-themes-enable-italic t)
-  ; https://github.com/hlissner/emacs-doom-themes/tree/screenshots
+  ;; https://github.com/hlissner/emacs-doom-themes/tree/screenshots
   (load-theme 'doom-one t)
   (doom-themes-visual-bell-config)
   (doom-themes-org-config))
 
-; https://github.com/justbur/emacs-which-key
+;; https://github.com/justbur/emacs-which-key
 (use-package which-key
   :straight (which-key
-              :type git
-              :host github
-              :repo "justbur/emacs-which-key")
+             :type git
+             :host github
+             :repo "justbur/emacs-which-key")
   :config
   (which-key-mode))
 
-; https://github.com/iqbalansari/emacs-emojify
+;; https://github.com/iqbalansari/emacs-emojify
 (use-package emojify
   :straight (emojify
 	     :type git
@@ -75,36 +71,36 @@
 	     :repo "iqbalansari/emacs-emojify")
   :hook (after-init . global-emojify-mode))
 
-;(use-package org-roam
-;  :straight (org-roam
-;	     :type git
-;	     :host github
-;	     :repo "org-roam/org-roam")
-;  :hook
-;  (after-init . org-roam-mode)
-;  :custom
-;  (org-roam-directory "/home/vidbina/org/")
-;  :bind (:map org-roam-mode-map
-;	      (("C-c n l" . org-roam)
-;	       ("C-c n f" . org-roam-find-file)
-;	       ("C-c n g" . org-roam-graph)
-;	       :map org-mode-map (
+;;(use-package org-roam
+;;  :straight (org-roam
+;;	     :type git
+;;	     :host github
+;;	     :repo "org-roam/org-roam")
+;;  :hook
+;;  (after-init . org-roam-mode)
+;;  :custom
+;;  (org-roam-directory "/home/vidbina/org/")
+;;  :bind (:map org-roam-mode-map
+;;	      (("C-c n l" . org-roam)
+;;	       ("C-c n f" . org-roam-find-file)
+;;	       ("C-c n g" . org-roam-graph)
+;;	       :map org-mode-map (
 
 
-; https://www.emacswiki.org/emacs/ScrollBar
+;; https://www.emacswiki.org/emacs/ScrollBar
 (scroll-bar-mode -1)
 
-; https://www.emacswiki.org/emacs/ToolBar
+;; https://www.emacswiki.org/emacs/ToolBar
 (tool-bar-mode -1)
 
-; https://www.emacswiki.org/emacs/MenuBar
+;; https://www.emacswiki.org/emacs/MenuBar
 (menu-bar-mode -1)
 
-; https://orgmode.org/manual/Structure-Templates.html
+;; https://orgmode.org/manual/Structure-Templates.html
 (load-library "org-tempo")
 
 (load "~/.emacs.d/personal.el")
 
-; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
