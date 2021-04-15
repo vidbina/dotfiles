@@ -38,14 +38,11 @@
   :config
   (evil-collection-init))
 
-(use-package elisp-autofmt
-  :commands (elisp-autofmt-save-hook-for-this-buffer)
-  :hook (emacs-lisp-mode . elisp-autofmt-save-hook-for-this-buffer)
-  :straight (elisp-autofmt
+(use-package srefactor
+  :straight (srefactor
 	     :type git
-	     :host gitlab
-	     :files (:defaults "elisp-autofmt")
-	     :repo "ideasman42/emacs-elisp-autofmt"))
+	     :host github
+	     :repo "tuhdo/semantic-refactor"))
 
 ; https://github.com/hlissner/emacs-doom-themes#manually
 (use-package doom-themes
