@@ -1,5 +1,16 @@
 ;; Format with indent-region
 
+;; https://www.emacswiki.org/emacs/ScrollBar
+(scroll-bar-mode -1)
+
+;; https://www.emacswiki.org/emacs/ToolBar
+(tool-bar-mode -1)
+
+;; https://www.emacswiki.org/emacs/MenuBar
+(menu-bar-mode -1)
+
+;; https://www.reddit.com/r/emacs/comments/643dkt/use_package_vs_require_and_maybe_some_sorrowful/dfz3mtx
+
 ;; https://github.com/raxod502/straight.el#getting-started
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -110,15 +121,6 @@
   (setq deft-directory "~/org"
         deft-extensions '("md" "org")
         deft-recursive t))
-
-;; https://www.emacswiki.org/emacs/ScrollBar
-(scroll-bar-mode -1)
-
-;; https://www.emacswiki.org/emacs/ToolBar
-(tool-bar-mode -1)
-
-;; https://www.emacswiki.org/emacs/MenuBar
-(menu-bar-mode -1)
 
 ;; https://orgmode.org/manual/Structure-Templates.html
 (load-library "org-tempo")
