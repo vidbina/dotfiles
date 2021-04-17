@@ -9,6 +9,9 @@
 ;; https://www.emacswiki.org/emacs/MenuBar
 (menu-bar-mode -1)
 
+;; https://www.emacswiki.org/emacs/ShowParenMode
+(show-paren-mode 1)
+
 ;; https://www.reddit.com/r/emacs/comments/643dkt/use_package_vs_require_and_maybe_some_sorrowful/dfz3mtx
 
 ;; https://github.com/raxod502/straight.el#getting-started
