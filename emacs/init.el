@@ -31,6 +31,14 @@
 ;; https://github.com/raxod502/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 
+;; https://github.com/emacsmirror/undo-fu
+(use-package undo-fu
+  :straight
+  (undo-fu
+    :type git
+    :host github
+    :repo "emacsmirror/undo-fu"))
+
 ;; https://github.com/emacs-evil/evil
 (use-package evil
   :straight
