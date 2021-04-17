@@ -85,7 +85,8 @@
     :type git
     :host github
     :repo "iqbalansari/emacs-emojify")
-  :hook (after-init . global-emojify-mode))
+  :hook
+  (after-init . global-emojify-mode))
 
 ;; https://github.com/org-roam/org-roam
 (use-package org-roam
