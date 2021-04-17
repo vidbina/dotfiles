@@ -104,6 +104,9 @@
 
 ;; https://github.com/org-roam/org-roam
 (use-package org-roam
+  :after
+  org
+  org-protocol
   :straight
   (org-roam
     :type git
@@ -125,7 +128,9 @@
 (use-package org-roam-protocol
   :straight
   :after
-  org-protocol)
+  org-protocol
+  org-roam
+  )
 
 ;; https://github.com/dgutov/diff-hl
 (use-package diff-hl
