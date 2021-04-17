@@ -41,6 +41,8 @@
 
 ;; https://github.com/emacs-evil/evil
 (use-package evil
+  :after
+  undo-fu
   :straight
   (evil
     :type git
@@ -49,6 +51,7 @@
   :init
   ;; https://github.com/emacs-evil/evil-collection#installation
   ;; pre-set some evil vars prior to package load
+  (setq evil-undo-system 'undo-fu)
   (setq evil-want-keybinding nil)
   :config
   (evil-mode t))
