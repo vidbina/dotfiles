@@ -107,6 +107,11 @@
         (("C-c n i" . org-roam-insert)
          ("C-c n I" . org-roam-insert-immediate))))
 
+(use-package org-roam-protocol
+  :straight
+  :after
+  org-protocol)
+
 ;; https://github.com/emacsorphanage/dired-k
 (use-package dired-k
   :straight
