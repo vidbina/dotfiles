@@ -59,6 +59,16 @@
   :config
   (default-text-scale-mode))
 
+;; https://github.com/Fanael/rainbow-delimiters
+(use-package rainbow-delimiters
+  :straight
+  (rainbow-delimiters
+    :type git
+    :host github
+    :repo "Fanael/rainbow-delimiters")
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
+
 ;; https://github.com/emacs-evil/evil
 (use-package evil
   :after
