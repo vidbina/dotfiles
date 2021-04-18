@@ -27,6 +27,10 @@
 
 ;; https://www.reddit.com/r/emacs/comments/643dkt/use_package_vs_require_and_maybe_some_sorrowful/dfz3mtx
 
+;; https://orgmode.org/worg/org-contrib/org-protocol.html
+;; https://orgmode.org/worg/org-faq.html#mixed-install
+(add-to-list 'load-path "~/.emacs.d/straight/build/org")
+
 ;; https://github.com/raxod502/straight.el#getting-started
 (defvar bootstrap-version)
 (let ((bootstrap-file
