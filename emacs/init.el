@@ -197,6 +197,10 @@
   (add-hook 'after-init-hook 'global-company-mode)
   (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 
+;; https://github.com/akermu/emacs-libvterm
+(use-package vterm
+  :straight nil)
+
 ;; https://orgmode.org/manual/Structure-Templates.html
 (load-library "org-tempo")
 
