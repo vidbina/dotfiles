@@ -22,6 +22,9 @@
 ;; =describe-package ffap=
 (ffap-bindings)
 
+;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
+(setq whitespace-style '(empty face lines-tail tabs trailing))
+
 ;; https://www.reddit.com/r/emacs/comments/643dkt/use_package_vs_require_and_maybe_some_sorrowful/dfz3mtx
 
 ;; https://github.com/raxod502/straight.el#getting-started
