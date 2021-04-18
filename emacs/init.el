@@ -49,6 +49,16 @@
     :host github
     :repo "emacsmirror/undo-fu"))
 
+;; https://github.com/purcell/default-text-scale
+(use-package default-text-scale
+  :straight
+  (default-text-scale
+    :type git
+    :host github
+    :repo "purcell/default-text-scale")
+  :config
+  (default-text-scale-mode))
+
 ;; https://github.com/emacs-evil/evil
 (use-package evil
   :after
