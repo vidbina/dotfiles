@@ -186,6 +186,16 @@
         deft-extensions '("md" "org")
         deft-recursive t))
 
+;; http://company-mode.github.io/
+(use-package company
+  :straight
+  (company
+    :type git
+    :host github
+    :repo "company-mode/company-mode")
+  :config
+  (add-hook 'after-init-hook 'global-company-mode))
+
 ;; https://orgmode.org/manual/Structure-Templates.html
 (load-library "org-tempo")
 
