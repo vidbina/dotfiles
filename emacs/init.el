@@ -194,7 +194,8 @@
     :host github
     :repo "company-mode/company-mode")
   :config
-  (add-hook 'after-init-hook 'global-company-mode))
+  (add-hook 'after-init-hook 'global-company-mode)
+  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 
 ;; https://orgmode.org/manual/Structure-Templates.html
 (load-library "org-tempo")
