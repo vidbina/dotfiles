@@ -114,8 +114,11 @@
   :config
   (setq doom-themes-enable-bold t)
   (setq doom-themes-enable-italic t)
+  (setq doom-molokai-comment-bg t)
+  ;;(setq doom-molokai-brighter-comments t)
+  (setq doom-molokai-brighter-modeline t)
   ;; https://github.com/hlissner/emacs-doom-themes/tree/screenshots
-  (load-theme 'doom-one t)
+  (load-theme 'doom-molokai t)
   (doom-themes-visual-bell-config)
   (doom-themes-org-config))
 
