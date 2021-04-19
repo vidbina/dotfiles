@@ -48,6 +48,16 @@
 ;; https://github.com/raxod502/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 
+(use-package server
+  :straight nil
+  :config
+  (progn
+    (defun server-enable ()
+      (unless (server-running-p)
+        (server-start)))
+    (add-hook 'after-init-hook 'server-enable t)))
+;;(server-start)
+
 ;; https://github.com/emacsmirror/undo-fu
 (use-package undo-fu
   :straight
