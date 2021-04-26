@@ -156,6 +156,37 @@
   :hook
   (after-init . global-emojify-mode))
 
+;; https://orgmode.org/worg/org-contrib/org-protocol.html
+(use-package org
+  :straight nil
+  :config
+  (require 'org-protocol)
+  ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (setq
+   ;;org-protocol-default-template-key "l"
+   ;; %i initial content (region)
+   ;; %a annotation
+   ;; %c current kill ring head
+   org-capture-templates '(
+    ("w" "Default Template"
+     entry (file+headline "~/org/protocol/capture.org" "Notes")
+     "* %^{Title}\n\nSource: %u, %c\n\n%i"
+     :empty-lines 1)
+    ("p" "Link with Selected Text"
+     entry (file+headline "~/org/protocol/capture.org" "Links")
+     "* TODO Read %^{title}\n\n Source: %:annotation\n\n #+BEGIN_QUOTE\n\n %i\n\n #+END_QUOTE%?"
+     :empty-lines 2)
+    ("L" "Link Only"
+     entry (file+headline "~/org/protocol/capture.org" "Links")
+     "* TODO Read _%:description_\n\nSource: %:annotation%?"
+     :empty-lines 2)
+    ("t" "Todo"
+     entry (file+headline "~/org/todo.org" "Tasks")
+     "* TODO %?\n\n%i\n\n%a")
+    ;; ..
+    )))
+
 ;; https://github.com/org-roam/org-roam
 (use-package org-roam
   :after
