@@ -66,16 +66,6 @@
     :host github
     :repo "emacsmirror/undo-fu"))
 
-;; https://github.com/purcell/default-text-scale
-(use-package default-text-scale
-  :straight
-  (default-text-scale
-    :type git
-    :host github
-    :repo "purcell/default-text-scale")
-  :config
-  (default-text-scale-mode))
-
 ;; https://github.com/Fanael/rainbow-delimiters
 (use-package rainbow-delimiters
   :straight
@@ -113,6 +103,20 @@
     :repo "emacs-evil/evil-collection")
   :config
   (evil-collection-init))
+
+;; https://github.com/purcell/default-text-scale
+;; Doesn't work well in emacsclient
+(use-package default-text-scale
+  :straight
+  (default-text-scale
+    :type git
+    :host github
+    :repo "purcell/default-text-scale")
+    :hook
+    (after-init . default-text-scale-mode)
+  ;; :config
+  ;; (default-text-scale-mode)
+  )
 
 ;; https://github.com/hlissner/emacs-doom-themes#manually
 (use-package doom-themes
