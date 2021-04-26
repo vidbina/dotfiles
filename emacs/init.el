@@ -197,10 +197,12 @@
     :type git
     :host github
     :repo "org-roam/org-roam")
+  :init
+  (make-directory (file-truename "~/org/roam/") (file-truename "~/org/"))
+  (setq org-roam-directory (file-truename "~/org/roam/"))
+  (setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
   :hook
   (after-init . org-roam-mode)
-  :custom
-  (org-roam-directory "~/org/roam")
   :bind
   (:map org-roam-mode-map
         (("C-c n l" . org-roam)
