@@ -156,6 +156,11 @@
   :hook
   (after-init . global-emojify-mode))
 
+;; https://orgmode.org/manual/Hard-indentation.html
+(setq org-adapt-indentation nil
+      org-hide-leading-stars nil
+      org-odd-levels-only nil)
+
 ;; https://orgmode.org/worg/org-contrib/org-protocol.html
 (use-package org
   :straight nil
