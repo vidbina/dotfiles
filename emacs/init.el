@@ -154,7 +154,11 @@
     :host github
     :repo "iqbalansari/emacs-emojify")
   :hook
-  (after-init . global-emojify-mode))
+  (after-init . global-emojify-mode)
+  :config
+  ;; https://github.com/twitter/twemoji
+  ;; Copy or symlink the twemoji/assets to ~/.emacs.d/emojis/twemoji
+  (setq emojify-emoji-set "twemoji"))
 
 ;; https://orgmode.org/manual/Hard-indentation.html
 (setq org-adapt-indentation nil
