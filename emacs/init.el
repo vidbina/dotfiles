@@ -196,6 +196,19 @@
     ;; ..
     )))
 
+;; https://github.com/nobiot/md-roam
+(use-package md-roam
+  :straight
+  (md-roam
+    :type git
+    :host github
+    :repo "nobiot/md-roam")
+  :init
+  (setq md-roam-use-markdown-file-links t)
+  (setq md_roam-file_extension-single "md")
+  (setq org-roam-tag-sources '(prop md-frontmatter))
+  (setq org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
+
 ;; https://github.com/org-roam/org-roam
 (use-package org-roam
   :after
@@ -208,6 +221,7 @@
     :repo "org-roam/org-roam")
   :init
   (make-directory (file-truename "~/org/roam/") (file-truename "~/org/"))
+  (setq org-roam-file-extensions '("org" "md"))
   (setq org-roam-directory (file-truename "~/org/roam/"))
   (setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
   :hook
