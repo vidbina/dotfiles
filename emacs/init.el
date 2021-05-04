@@ -196,6 +196,20 @@
     ;; ..
     )))
 
+;; https://jblevins.org/projects/markdown-mode/
+(use-package markdown-mode
+  :straight
+  (markdown-mode
+    :type git
+    :host github
+    :repo "jrblevin/markdown-mode")
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init
+  (setq markdown-command "multimarkdown"))
+
 ;; https://github.com/nobiot/md-roam
 (use-package md-roam
   :straight
