@@ -210,6 +210,16 @@
   :init
   (setq markdown-command "multimarkdown"))
 
+;; https://github.com/skuro/plantuml-mode
+(use-package plantuml-mode
+  :straight
+  (plantuml-mode
+    :type git
+    :host github
+    :repo "skuro/plantuml-mode")
+  :init
+  (setq plantuml-default-exec-mode 'executable))
+
 ;; https://github.com/nobiot/md-roam
 (use-package md-roam
   :straight
