@@ -179,6 +179,8 @@
   (require 'org-protocol)
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
+  ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
+  (setq org-src-preserve-indentation t)
   (setq
    ;;org-protocol-default-template-key "l"
    ;; %i initial content (region)
