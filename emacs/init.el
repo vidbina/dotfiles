@@ -95,7 +95,10 @@
   (setq evil-undo-system 'undo-fu)
   (setq evil-want-keybinding nil)
   :config
-  (evil-mode t))
+  (evil-mode t)
+  (evil-set-initial-state 'info-mode 'emacs)
+  (evil-set-initial-state 'help-mode 'emacs)
+  )
 
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
