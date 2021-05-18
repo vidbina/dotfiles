@@ -77,6 +77,9 @@
     :type git
     :host github
     :repo "Fanael/rainbow-delimiters")
+  ;; :hook
+  ;; ;; https://github.com/patrickt/emacs
+  ;; ((prog-mode) . rainbow-delimiters-mode)
   :config
   (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
 
