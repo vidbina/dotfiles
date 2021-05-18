@@ -342,6 +342,22 @@
   (add-hook 'after-init-hook 'global-company-mode)
   (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 
+;; https://git.notmuchmail.org/git/notmuch
+;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
+(use-package notmuch
+  :straight t
+  :commands (notmuch-tree
+             notmuch-search
+             notmuch-hello)
+  ;;(notmuch
+  ;;  :type git
+  ;;  :host github
+  ;;  :repo "notmuch/notmuch")
+  :init
+  (evil-collection-notmuch-setup)
+  :config
+  (notmuch-address-harvest))
+
 ;; https://github.com/akermu/emacs-libvterm
 (use-package vterm
   :straight nil)
