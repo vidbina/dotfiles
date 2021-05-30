@@ -362,6 +362,18 @@
 (use-package vterm
   :straight nil)
 
+;; https://emacs-lsp.github.io/lsp-mode/page/installation/#vanilla-emacs
+(use-package lsp-mode
+  :straight
+  (lsp-mode
+    :type git
+    :host github
+    :repo "lsp-mode/lsp-mode")
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :commands
+  (lsp-deferred))
+
 ;; https://orgmode.org/manual/Structure-Templates.html
 (load-library "org-tempo")
 
