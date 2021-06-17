@@ -374,6 +374,15 @@
   :commands
   (lsp-deferred))
 
+;; https://github.com/jkitchin/ox-clip
+;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
+(use-package ox-clip
+  :straight
+  (ox-clip
+    :type git
+    :host github
+    :repo "jkitchin/ox-clip"))
+
 ;; https://orgmode.org/manual/Structure-Templates.html
 (load-library "org-tempo")
 
