@@ -383,6 +383,14 @@
     :host github
     :repo "jkitchin/ox-clip"))
 
+;; https://github.com/bastibe/annotate.el
+(use-package annotate
+  :straight
+  (annotate
+    :type git
+    :host github
+    :repo "bastibe/annotate.el"))
+
 ;; https://orgmode.org/manual/Structure-Templates.html
 (load-library "org-tempo")
 
