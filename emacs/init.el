@@ -96,9 +96,10 @@
   ;; https://github.com/emacs-evil/evil-collection#installation
   ;; pre-set some evil vars prior to package load
   (setq evil-undo-system 'undo-fu)
+  (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
   :config
-  (evil-mode t)
+  (evil-mode 1)
   (evil-set-initial-state 'info-mode 'emacs)
   (evil-set-initial-state 'help-mode 'emacs)
   )
