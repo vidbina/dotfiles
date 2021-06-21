@@ -383,6 +383,14 @@
     :host github
     :repo "jkitchin/ox-clip"))
 
+;; https://github.com/bbatsov/projectile/
+(use-package projectile
+  :straight
+  (projectile
+    :type git
+    :host github
+    :repo "bbatsov/projectile"))
+
 ;; https://github.com/bastibe/annotate.el
 (use-package annotate
   :straight
