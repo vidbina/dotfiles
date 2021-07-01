@@ -418,8 +418,17 @@
     :host github
     :repo "bastibe/annotate.el"))
 
-;; https://orgmode.org/manual/Structure-Templates.html
-(load-library "org-tempo")
+;; https://github.com/abo-abo/swiper
+(use-package swiper
+  :straight
+  (swiper
+    :type git
+    :host github
+    :repo "abo-abo/swiper")
+  :config
+  (ivy-mode)
+  (setq ivy-use-virtual-buffers t
+        enable-recursive-minibuffers t))
 
 (load "~/.emacs.d/personal.el")
 
