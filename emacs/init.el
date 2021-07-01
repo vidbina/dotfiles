@@ -99,6 +99,7 @@
   :init
   ;; https://github.com/emacs-evil/evil-collection#installation
   ;; pre-set some evil vars prior to package load
+  (setq evil-respect-visual-line-mode t)
   (setq evil-undo-system 'undo-fu)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
