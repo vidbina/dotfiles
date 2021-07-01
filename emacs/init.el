@@ -25,6 +25,10 @@
 ;; https://www.emacswiki.org/emacs/WhiteSpace
 ;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
 (setq whitespace-style '(empty face lines-tail tabs trailing))
+
+;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
+(setq-default indent-tabs-mode nil)
+
 ;; http://ergoemacs.org/emacs/whitespace-mode.html
 (global-whitespace-mode nil)
 
