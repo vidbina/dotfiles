@@ -108,6 +108,17 @@
   (evil-set-initial-state 'help-mode 'emacs)
   )
 
+;; https://github.com/joostkremers/visual-fill-column
+(use-package visual-fill-column
+  :straight
+  (visual-fill-column
+    :type git
+    :host github
+    :repo "joostkremers/visual-fill-column")
+  :config
+  ;;(add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
+  )
+
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
   :after evil
