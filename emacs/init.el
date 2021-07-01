@@ -199,6 +199,8 @@
   (require 'org-protocol)
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
+  ;; https://orgmode.org/manual/Structure-Templates.html
+  (load-library "org-tempo")
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
   (setq org-src-preserve-indentation t)
   (setq
