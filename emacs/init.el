@@ -427,7 +427,9 @@
     :host github
     :repo "abo-abo/swiper")
   :config
+  (straight-use-package 'counsel)
   (ivy-mode)
+  (counsel-mode)
   (setq ivy-use-virtual-buffers t
         enable-recursive-minibuffers t))
 
