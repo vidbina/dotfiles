@@ -88,14 +88,15 @@
   (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
 
 ;; https://github.com/emacs-evil/evil
+;; https://github.com/noctuid/evil-guide
 (use-package evil
-  :after
-  undo-fu
   :straight
   (evil
     :type git
     :host github
     :repo "emacs-evil/evil")
+  :after
+  undo-fu
   :init
   ;; https://github.com/emacs-evil/evil-collection#installation
   ;; pre-set some evil vars prior to package load
@@ -122,12 +123,12 @@
 
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
-  :after evil
   :straight
   (evil-collection
     :type git
     :host github
     :repo "emacs-evil/evil-collection")
+  :after evil
   :config
   (evil-collection-init))
 
@@ -266,14 +267,14 @@
 
 ;; https://github.com/org-roam/org-roam
 (use-package org-roam
-  :after
-  org
-  org-protocol
   :straight
   (org-roam
     :type git
     :host github
     :repo "org-roam/org-roam")
+  :after
+  org
+  org-protocol
   :init
   (make-directory (file-truename "~/org/roam/") (file-truename "~/org/"))
   (setq org-roam-file-extensions '("org" "md"))
