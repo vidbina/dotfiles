@@ -202,6 +202,10 @@
   (global-set-key (kbd "C-c c") 'org-capture)
   ;; https://orgmode.org/manual/Structure-Templates.html
   (load-library "org-tempo")
+  ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((dot . t))) ; this line activates dot
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
   (setq org-src-preserve-indentation t)
   (setq
