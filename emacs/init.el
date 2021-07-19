@@ -292,9 +292,10 @@
   org-protocol
   :init
   (make-directory (file-truename "~/org/roam/") (file-truename "~/org/"))
-  (setq org-roam-file-extensions '("org" "md"))
-  (setq org-roam-directory (file-truename "~/org/roam/"))
-  (setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
+  (setq org-roam-file-extensions '("org" "md")
+        org-roam-directory (file-truename "~/org/roam/")
+        org-roam-db-location (file-truename "~/org/roam/org-roam.db")
+        org-roam-buffer-width 0.20)
   :hook
   (after-init . org-roam-mode)
   :bind
