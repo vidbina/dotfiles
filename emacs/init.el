@@ -380,23 +380,17 @@
 
 ;; https://git.notmuchmail.org/git/notmuch
 ;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
+;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
 (use-package notmuch
-  :straight t
-  :commands (notmuch-tree
-             notmuch-search
-             notmuch-hello)
-  ;;(notmuch
-  ;;  :type git
-  ;;  :host github
-  ;;  :repo "notmuch/notmuch")
+  :straight nil
   :init
-  (evil-collection-notmuch-setup)
-  :config
-  (notmuch-address-harvest))
+  (evil-collection-notmuch-setup))
 
 ;; https://github.com/akermu/emacs-libvterm
-(use-package vterm
-  :straight nil)
+(use-package vterm :straight nil)
+
+;; https://github.com/politza/pdf-tools
+(use-package pdf-tools :straight nil)
 
 ;; https://emacs-lsp.github.io/lsp-mode/page/installation/#vanilla-emacs
 (use-package lsp-mode
