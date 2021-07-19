@@ -398,11 +398,13 @@
   (lsp-mode
     :type git
     :host github
-    :repo "lsp-mode/lsp-mode")
+    :repo "emacs-lsp/lsp-mode")
   :init
   (setq lsp-keymap-prefix "C-c l")
   :commands
-  (lsp-deferred))
+  (lsp lsp-deferred)
+  :config
+  (lsp-enable-which-key-integration t))
 
 ;; https://github.com/jkitchin/ox-clip
 ;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
@@ -443,7 +445,33 @@
   (setq ivy-use-virtual-buffers t
         enable-recursive-minibuffers t))
 
+;; https://emacs-lsp.github.io/lsp-mode/page/installation/#use-package
+(use-package lsp-ui :commands lsp-ui-mode)
+;; if you are ivy user
+(use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+;; optional if you want which-key integration
+(use-package which-key
+  :config
+  (which-key-mode))
+
 (load "~/.emacs.d/personal.el")
+
+;; https://github.com/emacs-lsp/lsp-docker
+(use-package lsp-docker
+  :straight
+  (lsp-docker
+   :type git
+   :host github
+   :repo "emacs-lsp/lsp-docker")
+  :init
+  (setq lsp-docker-client-packages '()
+        lsp-docker-client-configs '())
+  :config
+  (lsp-docker-init-clients
+   :path-mappings '(())
+   :client-packages lsp-docker-client-packages
+   :client-configs lsp-docker-client-configs))
 
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
