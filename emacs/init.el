@@ -121,6 +121,16 @@
   ;;(add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
   )
 
+;; https://elpa.gnu.org/packages/adaptive-wrap.html
+(use-package adaptive-wrap
+  :straight
+  (adaptive-wrap
+   :type git
+   :host github
+   :repo "emacs-straight/adaptive-wrap")
+  :config
+  (adaptive-wrap-prefix-mode))
+
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
   :straight
