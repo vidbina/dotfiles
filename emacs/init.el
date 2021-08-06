@@ -199,6 +199,14 @@
   :init
   (setq plantuml-default-exec-mode 'executable))
 
+;; https://github.com/emacsorphanage/gnuplot
+;; also https://github.com/bruceravel/gnuplot-mode
+;; also https://github.com/rudi/gnuplot-el
+(use-package gnuplot
+  :straight (gnuplot :type git
+                     :host github
+                     :repo "emacsorphanage/gnuplot"))
+
 ;; https://github.com/nobiot/md-roam
 (use-package md-roam
   :straight (md-roam :type git
@@ -324,6 +332,18 @@
   :straight (projectile :type git
                         :host github
                         :repo "bbatsov/projectile"))
+
+;; https://github.com/nex3/perspective-el
+(use-package perspective
+  :straight (perspective :type git
+                         :host github
+                         :repo "nex3/perspective-el")
+  :bind (("C-x C-b" . persp-ivy-switch-buffer)
+         ("C-x k" . persp-kill-buffer*))
+  :config
+  (persp-mode t)
+  :init
+  (setq persp-state-default-file "~/.emacs.d/perspective"))
 
 ;; https://github.com/bastibe/annotate.el
 (use-package annotate
