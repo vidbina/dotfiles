@@ -405,12 +405,13 @@
   (modus-themes-load-operandi)
   :init
   (setq modus-themes-bold-constructs t
-        modus-themes-mode-line '(padded accented borderless)
+        modus-themes-mode-line '(moody accented borderless)
         modus-themes-org-blocks 'gray-background
         modus-themes-region '(bg-only no-extend accented)
         modus-themes-prompts '(intense)
         modus-themes-fringes '(intense)
         modus-themes-hl-line '(accented)
+        modus-themes-paren-match '(bold intense)
         modus-themes-syntax '(yellow-comments green-strings alt-syntax)
         modus-themes-headings '((1 . (background overline))
                                 (2 . (background overline rainbow))
