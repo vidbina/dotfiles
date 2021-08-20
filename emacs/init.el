@@ -153,6 +153,8 @@
   ;; https://github.com/twitter/twemoji
   ;; Copy or symlink the twemoji/assets to ~/.emacs.d/emojis/twemoji
   (setq emojify-emoji-set "twemoji"))
+  :bind
+  ("C-c e" . emojify-insert-emoji))
 
 ;; https://orgmode.org/manual/Hard-indentation.html
 (setq org-adapt-indentation nil
