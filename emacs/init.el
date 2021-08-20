@@ -205,6 +205,15 @@
   :init
   (setq plantuml-default-exec-mode 'executable))
 
+;; https://github.com/ppareit/graphviz-dot-mode
+(use-package graphviz-dot-mode
+  :straight (graphviz-dot-mode :type git
+                               :host github
+                               :repo "ppareit/graphviz-dot-mode")
+  :ensure t
+  :config
+  (setq graphviz-dot-indent-width 2))
+
 ;; https://github.com/emacsorphanage/gnuplot
 ;; also https://github.com/bruceravel/gnuplot-mode
 ;; also https://github.com/rudi/gnuplot-el
