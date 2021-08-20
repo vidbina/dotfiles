@@ -174,7 +174,10 @@
   ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
   ;; activate dot
   (setq org-plantuml-exec-mode 'plantuml)
-  (org-babel-do-load-languages 'org-babel-load-languages '((dot . t) (plantuml . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((dot . t)
+                                 (plantuml . t)
+                                 (python . t)))
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
   (setq org-src-preserve-indentation t
         org-capture-templates '(("w" "Default Template" entry (file+headline "~/org/protocol/capture.org" "Notes") "* %^{Title}\n\nSource: %u, %c\n\n%i" :empty-lines 1)
