@@ -57,13 +57,13 @@
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html
 (use-package server
   :straight nil
-  ;;:config
+  :config
   ;;(progn
   ;;  (defun server-enable ()
   ;;    (unless (server-running-p)
   ;;      (server-start)))
   ;;  (add-hook 'after-init-hook 'server-enable t))
-  (server-mode 1))
+  (server-mode t))
 
 ;; https://github.com/emacsmirror/undo-fu
 (use-package undo-fu
