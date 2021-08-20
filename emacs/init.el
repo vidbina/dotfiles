@@ -360,6 +360,17 @@
   :init
   (setq persp-state-default-file "~/.emacs.d/perspective"))
 
+;; https://github.com/emacsorphanage/zoom-window
+(use-package zoom-window
+  :straight (zoom-window :type git
+                         :host github
+                         :repo "emacsorphanage/zoom-window")
+  :init
+  (setq ;;zoom-window-use-persp t
+   zoom-window-mode-line-color "LightPink")
+  :config
+  (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
+
 ;; https://github.com/bastibe/annotate.el
 (use-package annotate
   :straight (annotate :type git
