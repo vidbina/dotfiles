@@ -168,6 +168,7 @@
   (require 'org-protocol)
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
   ;; https://orgmode.org/manual/Structure-Templates.html
   (load-library "org-tempo")
   ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
