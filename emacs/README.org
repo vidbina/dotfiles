@@ -1,0 +1,88 @@
+* Emacs Configuration
+  
+A bare-bones Emacs config.
+
+** Bootstrap straight
+   
+Straight is a [[https://github.com/raxod502/straight.el#getting-started][package manager for Emacs]] 
+
+#+begin_src elisp
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+#+end_src
+
+that can be integrated with [[https://github.com/raxod502/straight.el#integration-with-use-package][=use-package=]]
+
+#+begin_src elisp
+(straight-use-package 'use-package)
+#+end_src
+
+** Evil
+   
+Being an avid vim user and already having done the Emacs pinky thing in college, opting for [[https://github.com/emacs-evil/evil][evil mode]] is the way to go. 😉
+
+#+begin_src elisp
+(use-package evil
+  :straight (evil
+              :type git
+              :host github
+              :repo "emacs-evil/evil")
+  :config
+  (evil-mode t))
+#+end_src
+
+*** Collection
+    
+Not completely sure what [[https://github.com/emacs-evil/evil-collection][evil collection]] does but here we go
+
+#+begin_src elisp
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :straight (evil-collection
+	     :type git
+	     :host github
+	     :repo "emacs-evil/evil-collection")
+  :config
+  (evil-collection-init))
+#+end_src
+
+** Load Doom Themes
+   
+Doom rocks, but after the first attempts to use it there issues in getting all packages to work smoothly, so a clean setup it became while still wanting the [[https://github.com/hlissner/emacs-doom-themes#manually][doom themes]] for eye candy.
+
+#+begin_src elisp
+(use-package doom-themes
+  :straight (doom-themes
+              :type git
+              :host github
+              :repo "hlissner/emacs-doom-themes")
+  :config
+  (setq doom-themes-enable-bold t)
+  (setq doom-themes-enable-italic t)
+  (load-theme 'doom-ayu-mirage t)
+  (doom-themes-visual-bell-config)
+  (doom-themes-org-config))
+#+end_src
+
+** Setup Org-mode
+   
+Org-mode is one of the primary reasons for using Emacs.
+
+*** Org-tempo
+    
+Given that lots of code will be written in Org, [[https://orgmode.org/manual/Structure-Templates.html][tempo]] for templating is a nice to have
+
+#+begin_src elisp
+(load-library "org-tempo")
+#+end_src

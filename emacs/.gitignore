@@ -1,0 +1,8 @@
+*
+!.gitignore
+!*.org
+!*.md
+!*.el
+personal.el
+custom.el
+srecode-map.el
