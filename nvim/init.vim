@@ -49,4 +49,5 @@ set wrap
 set ignorecase
 set nofoldenable
 
+" Configure the CoC plugin
 source ~/.config/nvim/coc.vim
