@@ -65,6 +65,12 @@
   ;;  (add-hook 'after-init-hook 'server-enable t))
   (server-mode t))
 
+;;;; https://github.com/jwiegley/emacs-async
+;;(use-package async
+;;  :straight (async :type git
+;;                         :host github
+;;                         :repo "jwiegley/emacs-async"))
+
 ;; https://github.com/emacsmirror/undo-fu
 (use-package undo-fu
   :straight (undo-fu :type git
@@ -98,9 +104,10 @@
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
   :config
-  (evil-mode 1)
+  (evil-mode t)
   (evil-set-initial-state 'info-mode 'emacs)
-  (evil-set-initial-state 'help-mode 'emacs))
+  (evil-set-initial-state 'help-mode 'emacs)
+  (evil-set-initial-state 'special-mode 'emacs))
 
 ;; https://github.com/joostkremers/visual-fill-column
 (use-package visual-fill-column
@@ -152,7 +159,8 @@
   :config
   ;; https://github.com/twitter/twemoji
   ;; Copy or symlink the twemoji/assets to ~/.emacs.d/emojis/twemoji
-  (setq emojify-emoji-set "twemoji"))
+  ;;(setq emojify-emoji-set "twemoji-v2")
+  (setq emojify-emoji-set "emojione-v2.2.6")
   :bind
   ("C-c e" . emojify-insert-emoji))
 
@@ -274,18 +282,18 @@
         deft-extensions '("md" "org")
         deft-recursive t))
 
-;; http://company-mode.github.io/
-(use-package company
-  :straight (company :type git
-                     :host github
-                     :repo "company-mode/company-mode")
-  :config
-  (add-hook 'after-init-hook 'global-company-mode)
-  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
-
-;; https://git.notmuchmail.org/git/notmuch
-;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
-;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
+;;;; http://company-mode.github.io/
+;;(use-package company
+;;  :straight (company :type git
+;;                     :host github
+;;                     :repo "company-mode/company-mode")
+;;  :config
+;;  (add-hook 'after-init-hook 'global-company-mode)
+;;  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
+;;
+;;;; https://git.notmuchmail.org/git/notmuch
+;;;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
+;;;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
 (use-package notmuch
   :straight nil
   :init
@@ -363,7 +371,8 @@
   :config
   (persp-mode t)
   :init
-  (setq persp-state-default-file "~/.emacs.d/perspective"))
+  (setq persp-state-default-file "~/.emacs.d/perspective"
+        persp-modestring-short t))
 
 ;; https://github.com/emacsorphanage/zoom-window
 (use-package zoom-window
@@ -435,4 +444,5 @@
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
-;;(put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
