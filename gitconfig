@@ -20,4 +20,12 @@
 [gpg]
 	program = gpg2
 
+[sendemail]
+  annotate = true
+  smtpServer = /run/current-system/sw/bin/msmtp
+  smtpServerOption = -a
+  smtpServerOption = vidbina
+
 # vim: syntax=gitconfig
+[init]
+	defaultBranch = main
