@@ -6,6 +6,7 @@ colorscheme molokai
 call plug#begin("~/.local/share/nvim/plugged")
   Plug 'airblade/vim-gitgutter'
   Plug 'aklt/plantuml-syntax'
+  Plug 'dense-analysis/ale'
   Plug 'derekwyatt/vim-scala'
   Plug 'ElmCast/elm-vim'
   Plug 'godlygeek/tabular'
@@ -19,6 +20,7 @@ call plug#begin("~/.local/share/nvim/plugged")
   Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
   Plug 'LnL7/vim-nix'
   Plug 'majutsushi/tagbar'
+  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'preservim/nerdtree'
   Plug 'prettier/vim-prettier'
   Plug 'purescript-contrib/purescript-vim'
@@ -46,3 +48,5 @@ set number
 set wrap
 set ignorecase
 set nofoldenable
+
+source ~/.config/nvim/coc.vim
