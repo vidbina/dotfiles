@@ -161,4 +161,4 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
 
 *** Languages or Language-based Tooling
 
-Populate a =lang.el= file which defines all of the major-modes and language-related tooling that are relevant to you. In my case I have simply defined a symlink from [[file:lang.example.el][lang.example.el]] to lang.el. YMFV!
+Populate a =lang.el= file which defines all of the major-modes and language-related tooling that are relevant to you. In my case I have simply defined a symlink from [[file:lang.example.el][lang.example.el]] to lang.el. YMMV!
