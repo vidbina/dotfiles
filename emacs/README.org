@@ -4,9 +4,13 @@ Definitely not an Emacs distro but a somewhat wieldable Emacs config.
 
 ** Setup
 
+Populate all necessary files in the =~/.emacs.d= directory to get started. Emacs will be looking for =init.el= which, in this repo, also sources =lang.el= and =personal.el=, so beware.
+
+Here be dragons. 🐉
+
 *** Personal Details
 
-Populate a =personal.el= file which defines your name, your e-mail details and some other /very personal/ configuration bits such as theme customizations or personalized keybindings.
+Populate a =personal.el= file which defines your name, your e-mail details and some other /very personal/ configuration bits such as theme customizations or personalized keybindings. Use the following snippet as an example of a configuration that may work.
 
 #+begin_src elisp
 (setq user-full-name "David Asabina"
@@ -14,6 +18,7 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
       smtpmail-debug-info t
       message-send-mail-function 'message-send-mail-with-sendmail)
 
+;; TODO fill in the blanks for mu4e-contexts
 (use-package mu4e
   :straight nil
   :config
@@ -91,56 +96,6 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Position-Info.html
 (setq column-number-mode t)
 
-;; https://github.com/hlissner/emacs-doom-themes/issues/79
-(defun make-xpm-bar (color height width)
-  "Create an XPM bitmap of a bar."
-  (propertize
-   " " 'display
-   (let ((data (make-list height (make-list width 1)))
-         (color (or color "None")))
-     (create-image
-      (concat
-       (format "/* XPM */\nstatic char * percent[] = {\n\"%i %i 2 1\",\n\". c %s\",\n\"  c %s\","
-               (length (car data))
-               (length data)
-               color
-               color)
-       (apply #'concat
-              (cl-loop with idx = 0
-                       with len = (length data)
-                       for dl in data
-                       do (cl-incf idx)
-                       collect
-                       (concat "\""
-                               (cl-loop for d in dl
-                                        if (= d 0) collect (string-to-char " ")
-                                        else collect (string-to-char "."))
-                               (if (eq idx len) "\"};" "\",\n")))))
-      'xpm t :ascent 'center))))
-
-(defun my-tabbar-display-tab (tab)
-  (let ((label (if tabbar--buffer-show-groups
-                   (format "[%s]" (tabbar-tab-tabset tab))
-                 (format "%s" (tabbar-tab-value tab))))
-        ;;(bar-color "#51afef")
-        (bar-color "#ff0000")
-        (bar-height 35)
-        (bar-width 10)
-        (selected-p (eq tab (tabbar-selected-tab (tabbar-current-tabset)))))
-    (concat (when (and (display-graphic-p) selected-p)
-              (make-xpm-bar bar-color bar-height bar-width))
-            " "
-            (if tabbar-auto-scroll-flag
-                label
-              (tabbar-shorten
-               label (max 1 (/ (window-width)
-                               (length (tabbar-view
-                                        (tabbar-current-tabset)))))))
-            " ")))
-
-(setq tabbar-tab-label-function #'my-tabbar-display-tab)
-
-
 ;; https://joy.pm/post/2017-09-17-a_graphviz_primer/
 (defun my/fix-inline-images ()
   (when org-inline-image-overlays
@@ -151,40 +106,6 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
 ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-gnuplot.html
 (org-babel-do-load-languages 'org-babel-load-languages '((gnuplot . t)
                                                          (shell . t)))
-
-;; https://emacs-lsp.github.io/lsp-java/
-(use-package lsp-java
-  :straight (lsp-java :type git
-                      :host github
-                      :repo "emacs-lsp/lsp-java"))
-
-;; https://github.com/dominikh/go-mode.el
-(use-package go-mode
-  :straight (go-mode :type git
-                     :host github
-                     :repo "dominikh/go-mode.el"))
-
-;; https://github.com/NixOS/nix-mode
-(use-package nix-mode
-  :straight (nix-mode :type git
-                      :host github
-                      :repo "NixOS/nix-mode"))
-
-;;(setq mode-line-format (list
-;;                        "%e"
-;;                        mode-line-front-space mode-line-mule-info
-;;                        mode-line-client
-;;                        mode-line-modified
-;;                        mode-line-remote
-;;                        mode-line-frame-identification
-;;                        mode-line-buffer-identification
-;;                        "   "
-;;                        mode-line-position evil-mode-line-tag
-;;                        (vc-mode vc-mode)
-;;                        "  "
-;;                        mode-line-modes
-;;                        mode-line-misc-info mode-line-end-spaces))
-
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html
 ;; http://emacs-fu.blogspot.com/2011/08/customizing-mode-line.html
 (setq-default mode-line-format

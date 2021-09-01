@@ -41,6 +41,24 @@
                      :host github
                      :repo "emacsorphanage/gnuplot"))
 
+;; https://github.com/NixOS/nix-mode
+(use-package nix-mode
+  :straight (nix-mode :type git
+                      :host github
+                      :repo "NixOS/nix-mode"))
+
+;; https://github.com/dominikh/go-mode.el
+(use-package go-mode
+  :straight (go-mode :type git
+                     :host github
+                     :repo "dominikh/go-mode.el"))
+
+;; https://emacs-lsp.github.io/lsp-java/
+(use-package lsp-java
+  :straight (lsp-java :type git
+                      :host github
+                      :repo "emacs-lsp/lsp-java"))
+
 ;; https://emacs-lsp.github.io/lsp-mode/page/installation/#vanilla-emacs
 (use-package lsp-mode
   :straight (lsp-mode :type git
