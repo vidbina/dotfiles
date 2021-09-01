@@ -10,6 +10,12 @@
   :init
   (setq markdown-command "multimarkdown"))
 
+;; https://github.com/yoshiki/yaml-mode
+(use-package yaml-mode
+  :straight (yaml-mode :type git
+                       :host github
+                       :repo "yoshiki/yaml-mode"))
+
 ;; https://github.com/skuro/plantuml-mode
 (use-package plantuml-mode
   :straight (plantuml-mode :type git
