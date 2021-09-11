@@ -1,0 +1,37 @@
+! vim: set syntax=xdefaults:
+*background: #ffffff
+*foreground: #000000
+*cursorColor: #00ff00
+
+! black, Black
+*color0: #ffffff
+! red, Red3
+*color1: #ff0000
+! green, Green3
+*color2: #55ff55
+! yellow, Yellow3
+*color3: #ffd42a
+! blue, Blue3
+*color4: #2a7fff
+! magenta, Magenta3
+*color5: #dd55ff
+! cyan, Cyan3
+*color6: #00aad4
+! white, AntiqueWhite
+*color7: #cccccc
+! bright black, Grey25
+*color8: #333333
+! bright red, Red
+*color9: #ff0066
+! bright green, Green
+*color10: #00ff00
+! bright yellow, Yellow
+*color11: #ff6600
+! bright blue, Blue
+*color12: #00b3ff
+! bright magenta, Magenta
+*color13: #ff2ad4
+! bright cyan, Cyan
+*color14: #00ffcc
+! bright white, White
+*color15: #000000
