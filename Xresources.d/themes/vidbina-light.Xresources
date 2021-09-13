@@ -6,32 +6,32 @@
 ! black, Black
 *color0: #ffffff
 ! red, Red3
-*color1: #ea0000
+*color1: #d40000
 ! green, Green3
-*color2: #55d400
+*color2: #44aa00
 ! yellow, Yellow3
-*color3: #ffab00
+*color3: #cb9000
 ! blue, Blue3
 *color4: #0000d4
 ! magenta, Magenta3
-*color5: #ab37c8
+*color5: #8800aa
 ! cyan, Cyan3
-*color6: #00aa88
+*color6: #008066
 ! white, AntiqueWhite
-*color7: #808080
+*color7: #cccccc
 ! bright black, Grey25
-*color8: #b3b3b3
+*color8: #999999
 ! bright red, Red
 *color9: #ff0066
 ! bright green, Green
-*color10: #00ff00
+*color10: #00a300
 ! bright yellow, Yellow
-*color11: #ffcc00
+*color11: #ed5f00
 ! bright blue, Blue
 *color12: #2a7fff
 ! bright magenta, Magenta
-*color13: #ff2ad4
+*color13: #2a7fff
 ! bright cyan, Cyan
-*color14: #00ccff
+*color14: #00abff
 ! bright white, White
 *color15: #000000

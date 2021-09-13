@@ -6,32 +6,32 @@
 ! black, Black
 *color0: #000000
 ! red, Red3
-*color1: #333333
+*color1: #666666
 ! green, Green3
-*color2: #333333
+*color2: #666666
 ! yellow, Yellow3
-*color3: #333333
+*color3: #666666
 ! blue, Blue3
-*color4: #333333
+*color4: #666666
 ! magenta, Magenta3
-*color5: #333333
+*color5: #666666
 ! cyan, Cyan3
-*color6: #333333
+*color6: #666666
 ! white, AntiqueWhite
 *color7: #cccccc
 ! bright black, Grey25
-*color8: #333333
+*color8: #666666
 ! bright red, Red
-*color9: #999999
+*color9: #aaaaaa
 ! bright green, Green
-*color10: #999999
+*color10: #aaaaaa
 ! bright yellow, Yellow
-*color11: #999999
+*color11: #aaaaaa
 ! bright blue, Blue
-*color12: #999999
+*color12: #aaaaaa
 ! bright magenta, Magenta
-*color13: #999999
+*color13: #aaaaaa
 ! bright cyan, Cyan
-*color14: #999999
+*color14: #aaaaaa
 ! bright white, White
 *color15: #ffffff
