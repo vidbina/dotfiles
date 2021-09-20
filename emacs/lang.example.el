@@ -59,6 +59,32 @@
                       :host github
                       :repo "emacs-lsp/lsp-java"))
 
+;; https://github.com/clojure-emacs/clojure-mode
+(use-package clojure-mode
+  :straight (clojure-mode :type git
+                          :host github
+                          :repo "clojure-emacs/clojure-mode"))
+
+;; https://github.com/clojure-emacs/cider
+(use-package cider
+  :straight (cider :type git
+                   :host github
+                   :repo "clojure-emacs/cider"))
+
+;; https://github.com/purcell/inheritenv
+(use-package inheritenv
+  :straight (inheritenv :type git
+                        :host github
+                        :repo "purcell/inheritenv"))
+
+;; https://github.com/purcell/envrc
+(use-package envrc
+  :straight (envrc :type git
+                   :host github
+                   :repo "purcell/envrc")
+  :hook
+  (clojure-mode . envrc-mode))
+
 ;; https://emacs-lsp.github.io/lsp-mode/page/installation/#vanilla-emacs
 (use-package lsp-mode
   :straight (lsp-mode :type git

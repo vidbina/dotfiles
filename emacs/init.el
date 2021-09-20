@@ -184,6 +184,7 @@
   (setq org-plantuml-exec-mode 'plantuml)
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((dot . t)
+                                 (clojure .  t)
                                  (plantuml . t)
                                  (makefile . t)
                                  (python . t)))
