@@ -11,4 +11,7 @@ perspective
 projectile-bookmarks.eld
 recentf
 srecode-map.el
+straight/build
+straight/build-cache.el
+straight/repos
 url
