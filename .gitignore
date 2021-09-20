@@ -1,1 +1,5 @@
 xkb.dump*
+org-roam.db
+*~
+.#*
+*.el#
