@@ -59,6 +59,12 @@
                       :host github
                       :repo "emacs-lsp/lsp-java"))
 
+;; https://github.com/emacsmirror/paredit
+(use-package paredit
+  :straight (paredit :type git
+                          :host github
+                          :repo "emacsmirror/paredit"))
+
 ;; https://github.com/clojure-emacs/clojure-mode
 (use-package clojure-mode
   :straight (clojure-mode :type git
