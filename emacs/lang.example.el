@@ -75,7 +75,10 @@
 (use-package cider
   :straight (cider :type git
                    :host github
-                   :repo "clojure-emacs/cider"))
+                   :repo "clojure-emacs/cider")
+  :config
+  (setq org-babel-clojure-backend 'cider
+        cider-lein-parameters "with-profile -user repl :headless :host localhost"))
 
 ;; https://github.com/purcell/inheritenv
 (use-package inheritenv
