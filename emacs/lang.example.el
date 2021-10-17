@@ -82,6 +82,15 @@
   (setq org-babel-clojure-backend 'cider
         cider-lein-parameters "with-profile -user repl :headless :host localhost"))
 
+;; https://github.com/haskell/haskell-mode
+(use-package haskell-mode
+  :straight (haskell-mode :type git
+                          :host github
+                          :repo "haskell/haskell-mode")
+  ;;:init
+  ;;(add-hook 'haskell-mode-hook 'haskell-unicode-input-method-enable)
+  )
+
 ;; https://github.com/purcell/inheritenv
 (use-package inheritenv
   :straight (inheritenv :type git
