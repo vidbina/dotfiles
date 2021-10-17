@@ -69,7 +69,9 @@
 (use-package clojure-mode
   :straight (clojure-mode :type git
                           :host github
-                          :repo "clojure-emacs/clojure-mode"))
+                          :repo "clojure-emacs/clojure-mode")
+  :config
+  (require 'ob-clojure))
 
 ;; https://github.com/clojure-emacs/cider
 (use-package cider
