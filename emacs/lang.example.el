@@ -1,3 +1,16 @@
+;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Hooks-for-Loading.html
+;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-gnuplot.html#sec-4
+(with-eval-after-load 'org
+  (message "Loading org-babel-language mappings")
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((clojure .  t)
+                                 (dot . t)
+                                 (gnuplot . t)
+                                 (haskell . t)
+                                 (makefile . t)
+                                 (plantuml . t)
+                                 (python . t))))
+
 ;; https://jblevins.org/projects/markdown-mode/
 (use-package markdown-mode
   :straight (markdown-mode :type git
