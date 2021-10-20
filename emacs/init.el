@@ -55,15 +55,11 @@
 (straight-use-package 'use-package)
 
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html
+;; https://www.emacswiki.org/emacs/EmacsClient
 (use-package server
   :straight nil
   :config
-  ;;(progn
-  ;;  (defun server-enable ()
-  ;;    (unless (server-running-p)
-  ;;      (server-start)))
-  ;;  (add-hook 'after-init-hook 'server-enable t))
-  (server-mode t))
+  (server-mode))
 
 ;;;; https://github.com/jwiegley/emacs-async
 ;;(use-package async
