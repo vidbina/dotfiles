@@ -58,7 +58,9 @@
 (use-package nix-mode
   :straight (nix-mode :type git
                       :host github
-                      :repo "NixOS/nix-mode"))
+                      :repo "NixOS/nix-mode")
+  :init
+  (setq nix-nixfmt-bin "nixpkgs-fmt"))
 
 ;; https://github.com/dominikh/go-mode.el
 (use-package go-mode
