@@ -4,7 +4,7 @@ URxvt*termName:             rxvt-unicode-256color
 
 URxvt*geometry:             128x32
 !URxvt*loginShell:          true
-URxvt*scrollBar:            true
+URxvt*scrollBar:            false
 URxvt*scrollColor:          #B2B2B2
 URxvt*highlightColor:       #FF1493
 
