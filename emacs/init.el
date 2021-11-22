@@ -156,7 +156,8 @@
   ;; https://github.com/twitter/twemoji
   ;; Copy or symlink the twemoji/assets to ~/.emacs.d/emojis/twemoji
   ;;(setq emojify-emoji-set "twemoji-v2")
-  (setq emojify-emoji-set "emojione-v2.2.6")
+  (setq emojify-composed-text-p nil
+        emojify-emoji-set "emojione-v2.2.6")
   :bind
   ("C-c e" . emojify-insert-emoji))
 
@@ -198,6 +199,7 @@
         org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
 
 ;; https://github.com/org-roam/org-roam
+;; TODO: Update to use new *breaking* org-roam v2 format along with the new viz tooling
 (use-package org-roam
   :straight (org-roam :type git
                       :host github

@@ -16,19 +16,6 @@
 (unless (file-exists-p ispell-personal-dictionary)
   (write-region "" nil ispell-personal-dictionary nil 0))
 
-;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Hooks-for-Loading.html
-;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-gnuplot.html#sec-4
-(with-eval-after-load 'org
-  (message "Loading org-babel-language mappings")
-  (org-babel-do-load-languages 'org-babel-load-languages
-                               '((clojure .  t)
-                                 (dot . t)
-                                 (gnuplot . t)
-                                 (haskell . t)
-                                 (makefile . t)
-                                 (plantuml . t)
-                                 (python . t))))
-
 ;; https://jblevins.org/projects/markdown-mode/
 (use-package markdown-mode
   :straight (markdown-mode :type git
@@ -106,23 +93,22 @@
   :config
   (require 'ob-clojure))
 
-;; https://github.com/clojure-emacs/cider
-(use-package cider
-  :straight (cider :type git
-                   :host github
-                   :repo "clojure-emacs/cider")
-  :config
-  (setq org-babel-clojure-backend 'cider
-        cider-lein-parameters "with-profile -user repl :headless :host localhost"))
+;;;; https://github.com/clojure-emacs/cider
+;;(use-package cider
+;;  :straight (cider :type git
+;;                   :host github
+;;                   :repo "clojure-emacs/cider")
+;;  :config
+;;  (setq org-babel-clojure-backend 'cider
+;;        cider-lein-parameters "with-profile -user repl :headless :host localhost"))
 
 ;; https://github.com/haskell/haskell-mode
 (use-package haskell-mode
   :straight (haskell-mode :type git
                           :host github
                           :repo "haskell/haskell-mode")
-  ;;:init
-  ;;(add-hook 'haskell-mode-hook 'haskell-unicode-input-method-enable)
-  )
+  :init
+  (add-hook 'haskell-mode-hook 'haskell-unicode-input-method-enable))
 
 ;; https://github.com/purcell/inheritenv
 (use-package inheritenv
@@ -137,6 +123,20 @@
                    :repo "purcell/envrc")
   :hook
   (clojure-mode . envrc-mode))
+
+;; https://github.com/joaotavora/eglot
+(use-package eglot
+  :straight (eglot :type git
+                   :host github
+                   :repo "joaotavora/eglot"))
+
+;; eldoc.el / eldoc-display-message-no-interference-p
+;;   refers to
+;; paren.el / show-paren--overlay and
+;; paren.el / show-paren-context-when-offscreen
+;;   which are bleeding edge
+
+;; https://github.com/emacs-mirror/emacs/commit/9f505c476eb1a8e85ba26964abf218cab7db0e57
 
 ;; https://emacs-lsp.github.io/lsp-mode/page/installation/#vanilla-emacs
 ;;(use-package lsp-mode
@@ -209,3 +209,17 @@
 ;;                           ;;                              :docker-container-name "vidbina-lsp-clangd"
 ;;                           ;;                              :server-command "ccls"
 ;;                           ))
+
+;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Hooks-for-Loading.html
+;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-gnuplot.html#sec-4
+(with-eval-after-load 'org
+  (message "Loading org-babel-language mappings")
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((clojure .  t)
+                                 (dot . t)
+                                 (gnuplot . t)
+                                 (haskell . t)
+                                 (makefile . t)
+                                 ;; (nix . t) ;; TODO: Figure out why broken
+                                 (plantuml . t)
+                                 (python . t))))
