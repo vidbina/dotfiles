@@ -33,6 +33,14 @@
     })
   ];
 
+  manual = {
+    # Use `home-manager-help`
+    html.enable = true;
+
+    # Use `man home-configuration.nix`
+    manpages.enable = true;
+  };
+
   nixpkgs.overlays = [
     (self: super: {
       xsel-copy-url = pkgs.writeScriptBin "xsel-copy-url" ''
