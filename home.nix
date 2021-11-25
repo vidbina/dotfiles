@@ -78,6 +78,11 @@
     };
   };
 
+  programs.tmux = {
+    enable = true;
+    extraConfig = builtins.readFile (./. + "/tmux.conf");
+  };
+
   programs.urxvt = {
     enable = true;
     package = pkgs.rxvt-unicode;
