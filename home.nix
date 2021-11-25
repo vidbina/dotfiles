@@ -160,4 +160,16 @@
       "x-scheme-handler/ftp" = [ "xsel-copy-url.desktop" ];
     };
   };
+
+  xsession = {
+    enable = true;
+    pointerCursor = {
+      name = "Vanilla-DMZ";
+      package = pkgs.vanilla-dmz;
+      size = 64;
+    };
+    profileExtra = ''
+      hsetroot -solid '#ff9800'
+    '';
+  };
 }
