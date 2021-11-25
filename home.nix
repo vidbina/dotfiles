@@ -83,6 +83,7 @@
     package = pkgs.rxvt-unicode;
     iso14755 = false;
     extraConfig = {
+      "geometry" = "128x32";
       "perl-lib" = "${pkgs.rxvt-unicode}/lib/urxvt/perl";
       "perl-ext-common" = builtins.concatStringsSep "," [
         "default"
