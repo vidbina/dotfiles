@@ -48,6 +48,23 @@
         echo "$url" | ${pkgs.xsel}/bin/xsel -ib
         ${pkgs.libnotify}/bin/notify-send --category=url --urgency=low "🌍 Link Copied" "Paste to enter $url"
       '';
+      vidbina-urxvt-themes =
+        let
+          readTheme = x:
+            let
+              text = builtins.readFile (./. + "/Xresources.d/themes/${x}");
+            in
+            pkgs.writeTextDir "share/${x}" text;
+        in
+        pkgs.symlinkJoin {
+          name = "vidbina-urxvt-themes";
+          paths = map readTheme [
+            "minichrome-dark.Xresources"
+            "minichrome-light.Xresources"
+            "vidbina-dark.Xresources"
+            "vidbina-light.Xresources"
+          ];
+        };
     })
   ];
 
@@ -77,8 +94,7 @@
       "url-select.launcher" = "${pkgs.xsel-copy-url}/bin/xsel-copy-url";
       "url-select.underline" = true;
 
-      # TODO: Use themes from dotfiles repo
-      "color-themes.themedir" = "~/.themes/urxvt";
+      "color-themes.themedir" = "${pkgs.vidbina-urxvt-themes}/share";
       "color-themes.state-file" = "~/.urxvt-theme";
       "color-themes.autosave" = 1;
 
