@@ -150,6 +150,19 @@
 
   services.blueman-applet.enable = true;
   services.network-manager-applet.enable = true;
+  services.trayer = {
+    enable = true;
+    settings = {
+      align = "right";
+      alpha = 0;
+      edge = "top";
+      #height = 24;
+      tint = "0x00000000";
+      transparent = true;
+      #width = 150;
+      widthtype = "pixel";
+    };
+  };
 
   xdg.mimeApps = {
     enable = true;
