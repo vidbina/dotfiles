@@ -7,6 +7,7 @@ trayer \
   --edge top \
   --align right \
   --width 5 \
+  --widthtype pixel \
   --height 24 \
   --SetDockType true \
   --SetPartialStrut true \
@@ -14,7 +15,7 @@ trayer \
   --alpha 0 \
   --expand true \
   --monitor primary \
-  --tint 0x21212121 \
+  --tint 0x00000000 \
   &
 
 compton -b
