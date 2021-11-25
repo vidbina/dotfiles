@@ -1,8 +1,6 @@
 # Set background color
-#xsetroot -solid '#5ac8fa'
-#xsetroot -solid '#03a9f4' # blue
-hsetroot -solid '#ff9800' # yellow
-#xsetroot -solid '#e91e62' # pink
+hsetroot -solid '#ff9800'
+
 setxkbmap -option -model dell -layout us #-variant intl -option lv3:caps_switch
 
 trayer \
