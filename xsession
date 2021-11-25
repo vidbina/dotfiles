@@ -1,7 +1,7 @@
 # Set background color
 hsetroot -solid '#ff9800'
 
-setxkbmap -option -model dell -layout us #-variant intl -option lv3:caps_switch
+setxkbmap -option -model dell -layout us -variant intl -option lv3:caps_switch
 
 trayer \
   --edge top \

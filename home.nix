@@ -181,6 +181,9 @@
       package = pkgs.vanilla-dmz;
       size = 64;
     };
+    initExtra = ''
+      setxkbmap -option -model dell -layout us -variant intl -option lv3:caps_switch
+    '';
     profileExtra = ''
       hsetroot -solid '#ff9800'
     '';
