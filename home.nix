@@ -95,7 +95,7 @@
       "url-select.underline" = true;
 
       "color-themes.themedir" = "${pkgs.vidbina-urxvt-themes}/share";
-      "color-themes.state-file" = "~/.urxvt-theme";
+      "color-themes.state-file" = "${config.home.homeDirectory}/.urxvt-theme";
       "color-themes.autosave" = 1;
 
       # See `man urxvt` for guidance on the colors
