@@ -20,11 +20,6 @@ trayer \
 
 compton -b
 
-nm-applet --sm-disable &
-
-blueman-applet &
-
-#redshift-gtk &
-
 exec xmonad
+
 # vim: syntax=sh
