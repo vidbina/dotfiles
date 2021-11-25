@@ -18,8 +18,6 @@ trayer \
   --tint 0x00000000 \
   &
 
-compton -b
-
 exec xmonad
 
 # vim: syntax=sh
