@@ -78,6 +78,16 @@
     };
   };
 
+  programs.neovim = {
+    enable = true;
+    plugins = with pkgs.vimPlugins; [
+    ];
+    viAlias = true;
+    vimAlias = true;
+    vimdiffAlias = true;
+    withRuby = true;
+  };
+
   programs.tmux = {
     enable = true;
     extraConfig = builtins.readFile (./. + "/tmux.conf");
