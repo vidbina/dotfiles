@@ -203,11 +203,12 @@
 
   services.gammastep = {
     enable = true;
-    dawnTime = "6:00-7:45";
-    duskTime = "18:35-20:15";
+    dawnTime = "5:00-6:00";
+    duskTime = "17:35-19:00";
     temperature = {
-      day = 5500;
-      night = 3700;
+      # https://www.eizo.com/library/basics/color_temperature_on_an_LCD_monitor/
+      day = 6500;
+      night = 2500;
     };
     tray = true;
   };
