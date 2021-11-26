@@ -68,6 +68,13 @@
     })
   ];
 
+  programs.bat = {
+    enable = true;
+    config = {
+      theme = "base-16";
+    };
+  };
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
