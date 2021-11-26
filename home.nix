@@ -114,6 +114,29 @@
     withRuby = true;
   };
 
+  programs.rofi = {
+    enable = true;
+    package = pkgs.rofi.override {
+      plugins = with pkgs; [
+        rofi-calc
+        rofi-emoji
+      ];
+    };
+    extraConfig = {
+      modi = "run,emoji,calc";
+      theme =
+        let
+          getRofiThemePath = x:
+            let
+              text = builtins.readFile (./. + "/rofi/${x}");
+              target = "share/${x}";
+            in
+            "${pkgs.writeTextDir target text}/${target}";
+        in
+        getRofiThemePath "vidbina.theme";
+    };
+  };
+
   programs.tmux = {
     enable = true;
     extraConfig = builtins.readFile (./. + "/tmux.conf");
