@@ -101,7 +101,12 @@
 
   programs.neovim = {
     enable = true;
+    extraConfig = builtins.readFile (./. + "/nvim/init.vim");
     plugins = with pkgs.vimPlugins; [
+      {
+        plugin = vim-plug;
+        optional = false;
+      }
     ];
     viAlias = true;
     vimAlias = true;

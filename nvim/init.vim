@@ -1,7 +1,6 @@
 set tabstop=2    " tab stop to 2 spaces
 set shiftwidth=2 " shift width by 2 spaces
 set expandtab    " expand tabs to spaces
-colorscheme molokai
 
 call plug#begin("~/.local/share/nvim/plugged")
   Plug 'airblade/vim-gitgutter'
@@ -34,7 +33,10 @@ call plug#begin("~/.local/share/nvim/plugged")
   Plug 'vim-airline/vim-airline'
   Plug 'vim-scripts/openvpn'
   Plug 'wannesm/wmgraphviz.vim'
+  Plug 'jeffkreeftmeijer/vim-dim', { 'branch': 'main' }
 call plug#end()
+
+colorscheme dim
 
 let g:vim_markdown_frontmatter = 1
 let g:vim_markdown_math = 1
@@ -50,6 +52,3 @@ set number
 set wrap
 set ignorecase
 set nofoldenable
-
-" Configure the CoC plugin
-source ~/.config/nvim/coc.vim
