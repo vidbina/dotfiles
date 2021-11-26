@@ -71,7 +71,7 @@
   programs.bat = {
     enable = true;
     config = {
-      theme = "base-16";
+      theme = "base16";
     };
   };
 
