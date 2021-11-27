@@ -17,6 +17,8 @@
   home.stateVersion = "21.05";
 
   home.packages = [
+    pkgs.xsel-copy-url
+
     (pkgs.writeScriptBin "colors" ''
       # https://askubuntu.com/questions/27314/script-to-display-all-terminal-colors
 
