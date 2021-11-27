@@ -3,48 +3,54 @@
  * Rofi version: 1.5.4
  **/
 * {
-    active-background:           var(background);
-    active-foreground:           var(blue);
-    alternate-active-background: var(lightbg);
-    alternate-active-foreground: var(blue);
+    red:                         #FF1493;
+    blue:                        SkyBlue;
+    yellow:                      #ECBE13;
+    fg-on-light:                 #000000;
+    fg-on-dark:                  #ffffff;
+    accent:                      var(red);
+
+    active-background:           var(accent);
+    active-foreground:           var(fg-on-light);
+    alternate-active-background: var(accent);
+    alternate-active-foreground: var(fg-on-light);
     alternate-normal-background: var(lightbg);
     alternate-normal-foreground: var(foreground);
-    alternate-urgent-background: var(lightbg);
-    alternate-urgent-foreground: var(red);
-    background-color:            #212121;
-    background:                  #212121;
-    blue:                        SkyBlue;
-    border-color:                DeepPink;
-    foreground:                  #bdbdbd;
+    alternate-urgent-background: var(yellow); //var(lightbg);
+    alternate-urgent-foreground: var(fg-on-light);
+    background-color:            #000000;
+    background:                  #000000;
+    foreground:                  #ffffff;
     lightbg:                     #191919;
     lightfg:                     #bdbdbd;
     normal-background:           var(background);
     normal-foreground:           var(foreground);
-    red:                         DarkRed;
+    text-color:                  var(normal-foreground);
     selected-active-background:  var(background);
-    selected-active-foreground:  var(foreground);
-    selected-normal-background:  LimeGreen;
-    selected-normal-foreground:  Black;
-    selected-urgent-background:  var(background);
-    selected-urgent-foreground:  var(background);
-    separatorcolor:              var(foreground);
+    selected-active-foreground:  var(accent);
+    selected-normal-background:  var(accent);
+    selected-normal-foreground:  var(fg-on-light);
+    selected-urgent-background:  var(yellow);
+    selected-urgent-foreground:  var(fg-on-light);
+    separatorcolor:              var(lightbg);
     spacing:                     2;
-    urgent-background:           DeepPink;
-    urgent-foreground:           Black;
+    urgent-background:           var(accent);
+    urgent-foreground:           var(fg-on-light);
 }
 window {
     padding:          5;
     background-color: var(background);
-    border:           4;
+    border-color:     var(red);
+    border:           4px;
 }
 mainbox {
     padding: 0;
     border:  0;
 }
 message {
-    padding:      1px ;
+    padding:      4px ;
     border-color: var(separatorcolor);
-    border:       2px dash 0px 0px ;
+    border:       4px dash 4px 4px ;
 }
 textbox {
     text-color: var(foreground);
@@ -53,9 +59,14 @@ listview {
     padding:      2px 0px 0px ;
     scrollbar:    true;
     border-color: var(separatorcolor);
-    spacing:      2px ;
+    spacing:      4px ;
     fixed-height: 0;
-    border:       2px dash 0px 0px ;
+    border:       4px;
+    text-color:   var(foreground);
+}
+element-text {
+  background-color: inherit;
+  text-color: inherit;
 }
 element {
     padding: 1px ;
@@ -102,7 +113,7 @@ scrollbar {
     padding:      0;
     handle-width: 8px ;
     border:       0;
-    handle-color: var(normal-foreground);
+    handle-color: var(accent);
 }
 mode-switcher {
     border-color: var(separatorcolor);
@@ -117,7 +128,7 @@ button selected {
     text-color:       var(selected-normal-foreground);
 }
 inputbar {
-    padding:    1px ;
+    padding:    4px ;
     spacing:    0px ;
     text-color: var(normal-foreground);
     children:   [ prompt,textbox-prompt-colon,entry,overlay,case-indicator ];
@@ -128,7 +139,7 @@ case-indicator {
 }
 entry {
     spacing:    0;
-    text-color: var(normal-foreground);
+    text-color: var(red);
 }
 prompt {
     spacing:    0;
@@ -138,7 +149,7 @@ textbox-prompt-colon {
     margin:     0px 0.3000em 0.0000em 0.0000em ;
     expand:     false;
     str:        ":";
-    text-color: inherit;
+    text-color: var(normal-foreground);
 }
 error-message {
     background-color: rgba ( 0, 0, 0, 0 % );

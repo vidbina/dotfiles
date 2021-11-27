@@ -124,6 +124,7 @@
     };
     extraConfig = {
       modi = "run,emoji,calc";
+      font = "mono 25";
       theme =
         let
           getRofiThemePath = x:
