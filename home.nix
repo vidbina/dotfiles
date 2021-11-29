@@ -7,7 +7,7 @@
   home.homeDirectory = "/home/vidbina";
 
   home.file.".emacs.d" = {
-    source = builtins.toPath ./emacs;
+    source = config.lib.file.mkOutOfStoreSymlink ./emacs;
   };
 
   # This value determines the Home Manager release that your
