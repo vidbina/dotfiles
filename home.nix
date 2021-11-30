@@ -223,6 +223,40 @@
     };
   };
 
+  programs.zsh = {
+    enable = true;
+    enableAutosuggestions = true;
+    enableSyntaxHighlighting = true;
+    #dotDir = ".config/zsh";
+
+    initExtraBeforeCompInit = ''
+      export EDITOR=nvim
+      export VISUAL="emacsclient -c -a emacs"
+
+      setopt histignorespace # keeps lines preceded with SPACE out of history
+
+      zmodload -i zsh/complist
+      source ${./zsh/zstyle.zsh}
+
+      autoload -U promptinit && \
+      promptinit && \
+      prompt adam2 8bit yellow red blue
+
+      # enable bash completion
+      autoload -U +X bashcompinit && \
+      bashcompinit
+    '';
+    initExtra = ''
+      bindkey -v # use vim key bindings
+      source ${./zsh/keybindings.zsh}
+
+      source ${./zsh/functions.zsh}
+
+      source ${pkgs.fzf}/share/fzf/completion.zsh
+      source ${pkgs.fzf}/share/fzf/key-bindings.zsh
+    '';
+  };
+
   services.gammastep = {
     enable = true;
     dawnTime = "5:00-6:00";
