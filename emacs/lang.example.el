@@ -93,6 +93,12 @@
   :config
   (require 'ob-clojure))
 
+;; https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode
+(use-package kotlin-mode
+  :straight (kotlin-mode :type git
+                         :host github
+                         :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
+
 ;;;; https://github.com/clojure-emacs/cider
 ;;(use-package cider
 ;;  :straight (cider :type git
