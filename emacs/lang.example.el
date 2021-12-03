@@ -99,6 +99,12 @@
                          :host github
                          :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
 
+;; https://github.com/swift-emacs/swift-mode
+(use-package swift-mode
+  :straight (swift-mode :type git
+                        :host github
+                        :repo "swift-emacs/swift-mode"))
+
 ;;;; https://github.com/clojure-emacs/cider
 ;;(use-package cider
 ;;  :straight (cider :type git
