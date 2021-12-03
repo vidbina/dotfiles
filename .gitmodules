@@ -1,3 +1,7 @@
 [submodule "org-macros"]
 	path = emacs/org-macros
 	url = https://github.com/fniessen/org-macros.git
+[submodule "bin"]
+	path = bin
+	url = https://github.com/vidbina/term-helpers.git
+	branch = main

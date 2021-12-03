@@ -14,6 +14,10 @@
   home.username = "vidbina";
   home.homeDirectory = "/home/vidbina";
 
+  home.sessionPath = [
+    (toString ./bin)
+  ];
+
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
   # when a new Home Manager release introduces backwards
