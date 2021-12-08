@@ -25,7 +25,7 @@ in
     (self: super: {
       my-emacs =
         let
-          current-emacs = pkgs.emacsGit;
+          current-emacs = pkgs.emacsGcc;
           bundle = (pkgs.emacsPackagesNgGen current-emacs).emacsWithPackages;
           bundled-emacs = bundle (epkgs: (
             with epkgs; [
