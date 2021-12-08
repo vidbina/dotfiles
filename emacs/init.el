@@ -38,6 +38,11 @@
 ;; https://orgmode.org/worg/org-faq.html#mixed-install
 (add-to-list 'load-path "~/.emacs.d/straight/build/org")
 
+;; TODO: Reeval if this compat hack is still needed
+;; Issue is that straight
+;; https://github.com/raxod502/straight.el/issues/757#issuecomment-839764260
+(defvar comp-deferred-compilation-deny-list ())
+
 ;; https://github.com/raxod502/straight.el#getting-started
 (defvar bootstrap-version)
 (let ((bootstrap-file (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
