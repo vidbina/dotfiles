@@ -15,6 +15,11 @@
         # https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb
         id = "dbepggeogbaibhgnhhndojpepiihcmeb";
       }
+      {
+        # Darkreader
+        # https://chrome.google.com/webstore/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh
+        id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";
+      }
     ];
   };
 }
