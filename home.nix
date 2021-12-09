@@ -7,7 +7,7 @@
     ./x.nix
 
     ./emacs
-  ];
+  ] ++ (if (builtins.pathExists ./personal.nix) then [ ./personal.nix ] else [ ]);
 
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
