@@ -67,11 +67,11 @@
   :config
   (server-mode))
 
-;;;; https://github.com/jwiegley/emacs-async
-;;(use-package async
-;;  :straight (async :type git
-;;                         :host github
-;;                         :repo "jwiegley/emacs-async"))
+;; https://github.com/jwiegley/emacs-async
+(use-package async
+  :straight (async :type git
+                         :host github
+                         :repo "jwiegley/emacs-async"))
 
 ;; https://github.com/emacsmirror/undo-fu
 (use-package undo-fu

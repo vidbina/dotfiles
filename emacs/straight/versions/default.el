@@ -15,6 +15,7 @@
  ("eglot" . "9665359bb6bfb6a96b0c3b307d4abea9fcbff7a5")
  ("el-get" . "84dd1837f9ac80a329ab0c2de6859777f445f8ff")
  ("eldoc" . "036b9478ca77b29733fa4405c89dae28d0894818")
+ ("emacs-async" . "9a8cd0c3d5c120bfa03187c54dba6e33f6e3ca19")
  ("emacs-emojify" . "1b726412f19896abf5e4857d4c32220e33400b55")
  ("emacs-htmlize" . "49205105898ba8993b5253beec55d8bddd820a70")
  ("emacs-leuven-theme" . "b8b5076d643046008ea1496559acdd4ddfdb649a")
