@@ -60,12 +60,12 @@
 ;; https://github.com/raxod502/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 
-;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html
-;; https://www.emacswiki.org/emacs/EmacsClient
-(use-package server
-  :straight nil
-  :config
-  (server-mode))
+;;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html
+;;; https://www.emacswiki.org/emacs/EmacsClient
+;(use-package server
+;  :straight nil
+;  :config
+;  (server-mode))
 
 ;; https://github.com/jwiegley/emacs-async
 (use-package async
@@ -111,37 +111,37 @@
   (evil-set-initial-state 'help-mode 'emacs)
   (evil-set-initial-state 'special-mode 'emacs))
 
-;; https://github.com/joostkremers/visual-fill-column
-(use-package visual-fill-column
-  :straight (visual-fill-column :type git
-                                :host github
-                                :repo "joostkremers/visual-fill-column"))
+;;; https://github.com/joostkremers/visual-fill-column
+;(use-package visual-fill-column
+;  :straight (visual-fill-column :type git
+;                                :host github
+;                                :repo "joostkremers/visual-fill-column"))
+;
+;;; https://elpa.gnu.org/packages/adaptive-wrap.html
+;(use-package adaptive-wrap
+;  :straight (adaptive-wrap :type git
+;                           :host github
+;                           :repo "emacs-straight/adaptive-wrap")
+;  :config
+;  (adaptive-wrap-prefix-mode))
 
-;; https://elpa.gnu.org/packages/adaptive-wrap.html
-(use-package adaptive-wrap
-  :straight (adaptive-wrap :type git
-                           :host github
-                           :repo "emacs-straight/adaptive-wrap")
-  :config
-  (adaptive-wrap-prefix-mode))
+;;; https://github.com/emacs-evil/evil-collection
+;(use-package evil-collection
+;  :straight (evil-collection :type git
+;                             :host github
+;                             :repo "emacs-evil/evil-collection")
+;  :after evil
+;  :config
+;  (evil-collection-init))
 
-;; https://github.com/emacs-evil/evil-collection
-(use-package evil-collection
-  :straight (evil-collection :type git
-                             :host github
-                             :repo "emacs-evil/evil-collection")
-  :after evil
-  :config
-  (evil-collection-init))
-
-;; https://github.com/purcell/default-text-scale
-;; Doesn't work well in emacsclient
-(use-package default-text-scale
-  :straight (default-text-scale :type git
-              :host github
-              :repo "purcell/default-text-scale")
-  :hook
-  (after-init . default-text-scale-mode))
+;;; https://github.com/purcell/default-text-scale
+;;; Doesn't work well in emacsclient
+;(use-package default-text-scale
+;  :straight (default-text-scale :type git
+;              :host github
+;              :repo "purcell/default-text-scale")
+;  :hook
+;  (after-init . default-text-scale-mode))
 
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
