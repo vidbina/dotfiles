@@ -39,7 +39,8 @@
 (add-to-list 'load-path "~/.emacs.d/straight/build/org")
 
 ;; TODO: Reeval if this compat hack is still needed
-;; Issue is that straight
+;; Issue is that straight relies on vars with prefixes that have been
+;; renamed from comp to native-comp on the Emacs side.
 ;; https://github.com/raxod502/straight.el/issues/757#issuecomment-839764260
 (defvar comp-deferred-compilation-deny-list ())
 
