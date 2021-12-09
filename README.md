@@ -3,6 +3,39 @@
 These dotfiles make my life slightly more convenient.
 Not promising they'll do the same for yours though :wink:.
 
+This setup is managed with home-manager.
+
+## Personal Home-Manager settings
+
+We all have parts of our configs that are for our eyes only and the
+personal.nix file can be populated to contain sensitive and private parts of
+your configuration. This home-configuration will load a personal.nix file if
+found so the use of this file is optional (your configuration should work
+without it).
+
+Observe the snippet below for an example of a valid personal.nix file.
+
+```nix
+{ config, pkgs, lib, options, ... }:
+
+{
+  home.shellAliases = {
+    chromea = "chromium --user-data-dir=$HOME/orga/chromium-profile";
+    chromeb = "chromium --user-data-dir=$HOME/orgb/chromium-profile";
+    chromec = "chromium --user-data-dir=$HOME/orgc/chromium-profile";
+  };
+
+  programs.zsh.dirHashes = {
+    a-src = "$HOME/orga/src";
+    a-notes = "$HOME/orga/notes";
+    b-src = "$HOME/src/orgb/src";
+    b-notes = "$HOME/org/roam/orgb";
+  };
+
+  home.packages = [ ];
+}
+```
+
 ## Inventory on Dell XPS 13 (my reference machine)
 
 ### Overview of everything (left is symlink file, right is destination)
