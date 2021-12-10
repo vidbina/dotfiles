@@ -25,9 +25,12 @@ in
     (self: super: {
       my-emacs =
         let
-          current-emacs = pkgs.emacsGcc;
-          bundle = (pkgs.emacsPackagesNgGen current-emacs).emacsWithPackages;
-          bundled-emacs = bundle (epkgs: (
+          emacs = (pkgs.emacsGcc.override {
+            withGTK2 = false;
+            withGTK3 = false;
+          });
+          emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+          bundled-emacs = emacsWithPackages (epkgs: (
             with epkgs; [
               notmuch
               vterm
