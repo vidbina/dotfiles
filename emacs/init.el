@@ -60,18 +60,18 @@
 ;; https://github.com/raxod502/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 
-;;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html
-;;; https://www.emacswiki.org/emacs/EmacsClient
-;(use-package server
-;  :straight nil
-;  :config
-;  (server-mode))
+;;;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html
+;;;; https://www.emacswiki.org/emacs/EmacsClient
+;;(use-package server
+;;  :straight nil
+;;  :config
+;;  (server-mode))
 
 ;; https://github.com/jwiegley/emacs-async
 (use-package async
   :straight (async :type git
-                         :host github
-                         :repo "jwiegley/emacs-async"))
+                   :host github
+                   :repo "jwiegley/emacs-async"))
 
 ;; https://github.com/emacsmirror/undo-fu
 (use-package undo-fu
@@ -111,35 +111,35 @@
   (evil-set-initial-state 'help-mode 'emacs)
   (evil-set-initial-state 'special-mode 'emacs))
 
-;;; https://github.com/joostkremers/visual-fill-column
-;(use-package visual-fill-column
-;  :straight (visual-fill-column :type git
-;                                :host github
-;                                :repo "joostkremers/visual-fill-column"))
-;
-;;; https://elpa.gnu.org/packages/adaptive-wrap.html
-;(use-package adaptive-wrap
-;  :straight (adaptive-wrap :type git
-;                           :host github
-;                           :repo "emacs-straight/adaptive-wrap")
-;  :config
-;  (adaptive-wrap-prefix-mode))
+;;;; https://github.com/joostkremers/visual-fill-column
+;;(use-package visual-fill-column
+;;  :straight (visual-fill-column :type git
+;;                                :host github
+;;                                :repo "joostkremers/visual-fill-column"))
 
-;;; https://github.com/emacs-evil/evil-collection
-;(use-package evil-collection
-;  :straight (evil-collection :type git
-;                             :host github
-;                             :repo "emacs-evil/evil-collection")
-;  :after evil
-;  :config
-;  (evil-collection-init))
+;;; https://elpa.gnu.org/packages/adaptive-wrap.html
+;;(use-package adaptive-wrap
+;;  :straight (adaptive-wrap :type git
+;;                           :host github
+;;                           :repo "emacs-straight/adaptive-wrap")
+;;  :config
+;;  (adaptive-wrap-prefix-mode))
+
+;; https://github.com/emacs-evil/evil-collection
+(use-package evil-collection
+  :straight (evil-collection :type git
+                             :host github
+                             :repo "emacs-evil/evil-collection")
+  :after evil
+  :config
+  (evil-collection-init))
 
 ;; https://github.com/purcell/default-text-scale
 ;; Doesn't work well in emacsclient
 (use-package default-text-scale
   :straight (default-text-scale :type git
-              :host github
-              :repo "purcell/default-text-scale")
+                                :host github
+                                :repo "purcell/default-text-scale")
   :hook
   (after-init . default-text-scale-mode))
 
@@ -205,7 +205,6 @@
         org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
 
 ;; https://github.com/org-roam/org-roam
-;; TODO: Update to use new *breaking* org-roam v2 format along with the new viz tooling
 (use-package org-roam
   :straight (org-roam :type git
                       :host github
@@ -219,7 +218,10 @@
   (setq org-roam-file-extensions '("org" "md")
         org-roam-directory (file-truename "~/org/roam/")
         org-roam-db-location (file-truename "~/org/roam/org-roam.db")
+        org-roam-v2-ack t
         org-roam-buffer-width 0.20)
+  ;;:config
+  ;;(require 'org-roam-protocol)
   :hook
   (after-init . org-roam-mode)
   :bind
@@ -229,29 +231,20 @@
   (:map org-mode-map (("C-c n i" . org-roam-insert)
                       ("C-c n I" . org-roam-insert-immediate))))
 
-(use-package org-roam-protocol
-  ;; TODO: Remove :straight to use system org-roam-protocol
+;; https://github.com/org-roam/org-roam-ui
+(use-package org-roam-ui
   :straight
-  :after
-  org-protocol
-  org-roam)
-
-(use-package org-roam-server
-  :straight (org-roam-server :type git
-                             :host github
-                             :repo "org-roam/org-roam-server")
-  :config
-  (setq org-roam-server-host "127.0.0.1"
-        org-roam-server-port 6003
-        org-roam-server-authenticate nil
-        org-roam-server-export-inline-images t
-        org-roam-server-serve-files nil
-        org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
-        org-roam-server-network-poll t
-        org-roam-server-network-arrows nil
-        org-roam-server-network-label-truncate t
-        org-roam-server-network-label-truncate-length 60
-        org-roam-server-network-label-wrap-length 20))
+    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+    :after org-roam
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start t))
 
 ;; https://github.com/dgutov/diff-hl
 (use-package diff-hl
@@ -274,8 +267,8 @@
 ;; https://github.com/jrblevin/deft
 (use-package deft
   :straight (deft :type git
-              :host github
-              :repo "jrblevin/deft")
+                  :host github
+                  :repo "jrblevin/deft")
   :config
   (setq deft-directory "~/org"
         deft-extensions '("md" "org")
@@ -293,52 +286,52 @@
 ;;;; https://git.notmuchmail.org/git/notmuch
 ;;;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
 ;;;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
-(use-package notmuch
-  :straight nil
-  :init
-  (evil-collection-notmuch-setup))
-
-;; https://github.com/akermu/emacs-libvterm
-(use-package vterm :straight nil)
-
-;; https://github.com/suonlight/multi-vterm
-(use-package multi-vterm
-  :straight (multi-vterm :type git
-                         :host github
-                         :repo "suonlight/multi-vterm")
-  :config
-  ;;(add-hook 'vterm-mode-hook
-  ;;          (lambda ()
-  ;;            (setq-local evil-insert-state-cursor 'box)
-  ;;            (evil-insert-state)))
-  (define-key vterm-mode-map [return]                      #'vterm-send-return)
-
-  (setq vterm-keymap-exceptions nil)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-e")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-f")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-a")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-v")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-b")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-w")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-u")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-n")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-m")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-p")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-j")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-k")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-r")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-t")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-g")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-c")      #'vterm--self-insert)
-  (evil-define-key 'insert vterm-mode-map (kbd "C-SPC")    #'vterm--self-insert)
-  (evil-define-key 'normal vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
-  (evil-define-key 'normal vterm-mode-map (kbd ",c")       #'multi-vterm)
-  (evil-define-key 'normal vterm-mode-map (kbd ",n")       #'multi-vterm-next)
-  (evil-define-key 'normal vterm-mode-map (kbd ",p")       #'multi-vterm-prev)
-  (evil-define-key 'normal vterm-mode-map (kbd "i")        #'evil-insert-resume)
-  (evil-define-key 'normal vterm-mode-map (kbd "o")        #'evil-insert-resume)
-  (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
+;;(use-package notmuch
+;;  :straight nil
+;;  :init
+;;  (evil-collection-notmuch-setup))
+;;
+;term
+;;(use-package vterm :straight nil)
+;;
+;term
+;;(use-package multi-vterm
+;;  :straight (multi-vterm :type git
+;;                         :host github
+;;                         :repo "suonlight/multi-vterm")
+;;  :config
+;;  ;;(add-hook 'vterm-mode-hook
+;;  ;;          (lambda ()
+;;  ;;            (setq-local evil-insert-state-cursor 'box)
+;;  ;;            (evil-insert-state)))
+;;  (define-key vterm-mode-map [return]                      #'vterm-send-return)
+;;
+;;  (setq vterm-keymap-exceptions nil)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-e")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-f")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-a")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-v")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-b")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-w")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-u")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-n")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-m")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-p")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-j")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-k")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-r")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-t")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-g")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-c")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-SPC")    #'vterm--self-insert)
+;;  (evil-define-key 'normal vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
+;;  (evil-define-key 'normal vterm-mode-map (kbd ",c")       #'multi-vterm)
+;;  (evil-define-key 'normal vterm-mode-map (kbd ",n")       #'multi-vterm-next)
+;;  (evil-define-key 'normal vterm-mode-map (kbd ",p")       #'multi-vterm-prev)
+;;  (evil-define-key 'normal vterm-mode-map (kbd "i")        #'evil-insert-resume)
+;;  (evil-define-key 'normal vterm-mode-map (kbd "o")        #'evil-insert-resume)
+;;  (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
 
 
 ;; https://github.com/politza/pdf-tools
@@ -384,12 +377,6 @@
   :config
   (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
 
-;; https://github.com/bastibe/annotate.el
-(use-package annotate
-  :straight (annotate :type git
-                      :host github
-                      :repo "bastibe/annotate.el"))
-
 ;; https://github.com/abo-abo/swiper
 (use-package swiper
   :straight (swiper :type git
@@ -430,12 +417,6 @@
                                 (2 . (background overline rainbow))
                                 (t . (background overline rainbow)))
         modus-themes-scale-headings t))
-
-;; optional if you want which-key integration
-(use-package which-key
-  :straight nil
-  :config
-  (which-key-mode))
 
 (load "~/.emacs.d/lang.el")
 (load "~/.emacs.d/personal.el")
