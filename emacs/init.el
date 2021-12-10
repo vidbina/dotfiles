@@ -295,10 +295,10 @@
 ;;  :init
 ;;  (evil-collection-notmuch-setup))
 ;;
-;term
+
 ;;(use-package vterm :straight nil)
 ;;
-;term
+
 ;;(use-package multi-vterm
 ;;  :straight (multi-vterm :type git
 ;;                         :host github
