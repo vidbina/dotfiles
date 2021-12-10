@@ -111,6 +111,15 @@
   (evil-set-initial-state 'help-mode 'emacs)
   (evil-set-initial-state 'special-mode 'emacs))
 
+;; https://github.com/emacs-evil/evil-collection
+(use-package evil-collection
+  :straight (evil-collection :type git
+                             :host github
+                             :repo "emacs-evil/evil-collection")
+  :after evil
+  :config
+  (evil-collection-init))
+
 ;;;; https://github.com/joostkremers/visual-fill-column
 ;;(use-package visual-fill-column
 ;;  :straight (visual-fill-column :type git
@@ -124,15 +133,6 @@
 ;;                           :repo "emacs-straight/adaptive-wrap")
 ;;  :config
 ;;  (adaptive-wrap-prefix-mode))
-
-;; https://github.com/emacs-evil/evil-collection
-(use-package evil-collection
-  :straight (evil-collection :type git
-                             :host github
-                             :repo "emacs-evil/evil-collection")
-  :after evil
-  :config
-  (evil-collection-init))
 
 ;; https://github.com/purcell/default-text-scale
 ;; Doesn't work well in emacsclient
