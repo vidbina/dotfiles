@@ -134,14 +134,14 @@
 ;  :config
 ;  (evil-collection-init))
 
-;;; https://github.com/purcell/default-text-scale
-;;; Doesn't work well in emacsclient
-;(use-package default-text-scale
-;  :straight (default-text-scale :type git
-;              :host github
-;              :repo "purcell/default-text-scale")
-;  :hook
-;  (after-init . default-text-scale-mode))
+;; https://github.com/purcell/default-text-scale
+;; Doesn't work well in emacsclient
+(use-package default-text-scale
+  :straight (default-text-scale :type git
+              :host github
+              :repo "purcell/default-text-scale")
+  :hook
+  (after-init . default-text-scale-mode))
 
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
