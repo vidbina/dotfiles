@@ -141,7 +141,9 @@
                                 :host github
                                 :repo "purcell/default-text-scale")
   :hook
-  (after-init . default-text-scale-mode))
+  (after-init . default-text-scale-mode)
+  :config
+  (default-text-scale-increment 120))
 
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
