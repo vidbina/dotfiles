@@ -246,7 +246,20 @@
     (setq org-roam-ui-sync-theme t
           org-roam-ui-follow t
           org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
+          org-roam-ui-open-on-start t)
+    (setq org-roam-ui-custom-theme
+    '((bg . "#1E2029")
+        (bg-alt . "#282a36")
+        (fg . "#f8f8f2")
+        (fg-alt . "#6272a4")
+        (red . "#ff5555")
+        (orange . "#f1fa8c")
+        (yellow ."#ffb86c")
+        (green . "#50fa7b")
+        (cyan . "#8be9fd")
+        (blue . "#ff79c6")
+        (violet . "#8be9fd")
+        (magenta . "#bd93f9"))))
 
 ;; https://github.com/dgutov/diff-hl
 (use-package diff-hl
