@@ -220,10 +220,7 @@
   (setq org-roam-file-extensions '("org" "md")
         org-roam-directory (file-truename "~/org/roam/")
         org-roam-db-location (file-truename "~/org/roam/org-roam.db")
-        org-roam-v2-ack t
-        org-roam-buffer-width 0.20)
-  ;;:config
-  ;;(require 'org-roam-protocol)
+        org-roam-v2-ack t)
   :bind
   (:map org-roam-mode-map (("C-c n l" . org-roam)
                            ("C-c n f" . org-roam-find-file)
