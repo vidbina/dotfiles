@@ -224,8 +224,6 @@
         org-roam-buffer-width 0.20)
   ;;:config
   ;;(require 'org-roam-protocol)
-  :hook
-  (after-init . org-roam-mode)
   :bind
   (:map org-roam-mode-map (("C-c n l" . org-roam)
                            ("C-c n f" . org-roam-find-file)
