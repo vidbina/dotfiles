@@ -211,7 +211,7 @@
                       :repo "org-roam/org-roam")
   :after
   org
-  org-protocol
+  ;;org-protocol
   :init
   (make-directory (file-truename "~/org/roam/")
                   (file-truename "~/org/"))
@@ -222,12 +222,12 @@
   (org-roam-v2-ack t)
   :config
   (message "📔 org-roam is loaded")
-  (org-roam-db-autosync-mode)
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-node-insert)
-         (:map org-mode-map (("C-M i" . completion-at-point)
-                             ("C-c n I" . org-roam-insert-immediate)))))
+  (org-roam-db-autosync-mode))
+  ;;:bind (("C-c n l" . org-roam-buffer-toggle)
+  ;;       ("C-c n f" . org-roam-node-find)
+  ;;       ("C-c n i" . org-roam-node-insert)
+  ;;       (:map org-mode-map (("C-M i" . completion-at-point)
+  ;;                           ("C-c n I" . org-roam-insert-immediate))))
 
 ;; https://github.com/org-roam/org-roam-ui
 (use-package org-roam-ui
