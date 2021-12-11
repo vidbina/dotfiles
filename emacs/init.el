@@ -211,15 +211,15 @@
                       :repo "org-roam/org-roam")
   :after
   org
-  ;;org-protocol
+  org-protocol
   :init
+  (setq org-roam-v2-ack t)
   (make-directory (file-truename "~/org/roam/")
                   (file-truename "~/org/"))
   :custom
   (org-roam-file-extensions '("org" "md"))
   (org-roam-directory (file-truename "~/org/roam/"))
   (org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
-  (org-roam-v2-ack t)
   :config
   (message "📔 org-roam is loaded")
   (org-roam-db-autosync-mode))
