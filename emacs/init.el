@@ -143,6 +143,11 @@
   :hook
   (after-init . default-text-scale-mode))
 
+;; TODO: Figure out if we can do this in default-text-scale :hook
+(add-hook 'server-after-make-frame-hook
+          (lambda () (progn (message "🎨 Time to dress up the GUI")
+                            (default-text-scale-increment 120))))
+
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
   :straight (which-key :type git
