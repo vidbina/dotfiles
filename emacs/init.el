@@ -141,12 +141,12 @@
                                 :host github
                                 :repo "purcell/default-text-scale")
   :hook
-  (after-init . default-text-scale-mode))
-
-;; TODO: Figure out if we can do this in default-text-scale :hook
-(add-hook 'server-after-make-frame-hook
-          (lambda () (progn (message "🎨 Time to dress up the GUI")
-                            (default-text-scale-increment 120))))
+  (after-init . default-text-scale-mode)
+  :init
+  (add-hook 'server-after-make-frame-hook
+            (lambda () (progn (message "🎨 Time to dress up the GUI")
+                              (default-text-scale-reset)
+                              (default-text-scale-increment 140)))))
 
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
