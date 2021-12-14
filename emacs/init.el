@@ -120,19 +120,19 @@
   :config
   (evil-collection-init))
 
-;;;; https://github.com/joostkremers/visual-fill-column
-;;(use-package visual-fill-column
-;;  :straight (visual-fill-column :type git
-;;                                :host github
-;;                                :repo "joostkremers/visual-fill-column"))
+;; https://github.com/joostkremers/visual-fill-column
+(use-package visual-fill-column
+  :straight (visual-fill-column :type git
+                                :host github
+                                :repo "joostkremers/visual-fill-column"))
 
-;;; https://elpa.gnu.org/packages/adaptive-wrap.html
-;;(use-package adaptive-wrap
-;;  :straight (adaptive-wrap :type git
-;;                           :host github
-;;                           :repo "emacs-straight/adaptive-wrap")
-;;  :config
-;;  (adaptive-wrap-prefix-mode))
+; https://elpa.gnu.org/packages/adaptive-wrap.html
+(use-package adaptive-wrap
+  :straight (adaptive-wrap :type git
+                           :host github
+                           :repo "emacs-straight/adaptive-wrap")
+  :config
+  (adaptive-wrap-prefix-mode))
 
 ;; https://github.com/purcell/default-text-scale
 ;; Doesn't work well in emacsclient
