@@ -51,11 +51,30 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
   (modus-themes-load-operandi)
   (setq org-format-latex-options `(:scale 1.5 :foreground "Black" :background "Transparent")))
 
-(defun vidbina-wrap ()
-  "Load vidbina's wrapping setup"
+(setq vidbina-theme-dark-flag nil)
+(defun vidbina-theme-toggle ()
+  "Toggle theme"
   (interactive)
-  (visual-line-mode)
-  (adaptive-wrap-prefix-mode))
+  (setq vidbina-theme-dark-flag (not vidbina-theme-dark-flag))
+  (if vidbina-theme-dark-flag (vidbina-theme-dark) (vidbina-theme-light)))
+
+(setq-local vidbina-wrap--state nil)
+(defun vidbina-wrap ()
+  "Configure wrapping"
+  (interactive)
+  (let ((vidbina-wrap-set
+         (lambda (state)
+           (progn
+             (if state
+                 (progn
+                   (visual-line-mode +1)
+                   (adaptive-wrap-prefix-mode +1))
+               (progn
+                 (visual-line-mode -1)
+                 (adaptive-wrap-prefix-mode -1)))
+             (setq-local vidbina-wrap--state state)
+             (message (format "🎁 state=%s wrap -> %s and line -> %s" state adaptive-wrap-prefix-mode visual-line-mode))))))
+    (funcall vidbina-wrap-set (not vidbina-wrap--state))))
 
 (defun vidbina-browse-url-xsel (url &optional ignored)
   (shell-command (format "echo \"%s\" | xsel -ib" url)))
@@ -64,11 +83,18 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
 
 (setq whitespace-style '(trailing tabs newline tab-mark newline-mark))
 
+(defun vidbina-browse-to-current-file-after-safe-hook ()
+  "Open saved HTML file with default browser"
+  (progn
+    (when (derived-mode-p 'html-mode)
+      (progn
+        (message (concat "Browse " buffer-file-name))
+        (browse-url (file-truename buffer-file-name))))))
+
 (global-set-key (kbd "C-x D") 'deft)
 (global-set-key (kbd "C-c v l") 'vidbina-theme-light)
 (global-set-key (kbd "C-c v d") 'vidbina-theme-dark)
 (global-set-key (kbd "C-c v TAB") 'vidbina-wrap)
-(global-set-key (kbd "C-c v t") 'toggle-truncate-lines)
 (global-set-key (kbd "C-c v c") 'completion-at-point)
 
 (global-set-key (kbd "C-c l") 'org-store-link)
