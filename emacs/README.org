@@ -58,9 +58,8 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
   (setq vidbina-theme-dark-flag (not vidbina-theme-dark-flag))
   (if vidbina-theme-dark-flag (vidbina-theme-dark) (vidbina-theme-light)))
 
-(setq-local vidbina-wrap--state nil)
 (defun vidbina-wrap ()
-  "Configure wrapping"
+  "Toggle wrapping using adaptive-wrap-prefix-mode and visual-line-mode"
   (interactive)
   (let ((vidbina-wrap-set
          (lambda (state)
@@ -69,11 +68,12 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
                  (progn
                    (visual-line-mode +1)
                    (adaptive-wrap-prefix-mode +1))
-               (progn
-                 (visual-line-mode -1)
-                 (adaptive-wrap-prefix-mode -1)))
+               (visual-line-mode -1)
+               (adaptive-wrap-prefix-mode -1))
              (setq-local vidbina-wrap--state state)
              (message (format "🎁 state=%s wrap -> %s and line -> %s" state adaptive-wrap-prefix-mode visual-line-mode))))))
+    (unless (boundp 'vidbina-wrap--state)
+      (setq-local vidbina-wrap--state nil))
     (funcall vidbina-wrap-set (not vidbina-wrap--state))))
 
 (defun vidbina-browse-url-xsel (url &optional ignored)
