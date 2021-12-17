@@ -91,7 +91,6 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
         (message (concat "Browse " buffer-file-name))
         (browse-url (file-truename buffer-file-name))))))
 
-(global-set-key (kbd "C-x D") 'deft)
 (global-set-key (kbd "C-c v l") 'vidbina-theme-light)
 (global-set-key (kbd "C-c v d") 'vidbina-theme-dark)
 (global-set-key (kbd "C-c v TAB") 'vidbina-wrap)
