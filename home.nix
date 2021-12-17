@@ -219,7 +219,7 @@
       #height = 24;
       tint = "0x00000000";
       transparent = true;
-      #width = 150;
+      width = 150;
       widthtype = "pixel";
     };
   };
