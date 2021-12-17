@@ -156,22 +156,6 @@
   :config
   (which-key-mode))
 
-;; https://github.com/iqbalansari/emacs-emojify
-(use-package emojify
-  :straight (emojify :type git
-                     :host github
-                     :repo "iqbalansari/emacs-emojify")
-  :hook
-  (after-init . global-emojify-mode)
-  :config
-  ;; https://github.com/twitter/twemoji
-  ;; Copy or symlink the twemoji/assets to ~/.emacs.d/emojis/twemoji
-  ;;(setq emojify-emoji-set "twemoji-v2")
-  (setq emojify-composed-text-p nil
-        emojify-emoji-set "emojione-v2.2.6")
-  :bind
-  ("C-c e" . emojify-insert-emoji))
-
 ;; https://orgmode.org/manual/Hard-indentation.html
 (setq org-adapt-indentation nil
       org-hide-leading-stars nil
