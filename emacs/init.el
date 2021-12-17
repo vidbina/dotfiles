@@ -257,10 +257,15 @@
   :straight (deft :type git
                   :host github
                   :repo "jrblevin/deft")
-  :config
-  (setq deft-directory "~/org"
-        deft-extensions '("md" "org")
-        deft-recursive t))
+  :after org
+  :bind
+  ("C-c n d" . deft)
+  :custom
+  (deft-directory "~/org")
+  (deft-extensions '("md" "org"))
+  (deft-recursive t)
+  (deft-use-filename-as-title t)
+  (deft-use-filter-string-for-filename t))
 
 ;;;; http://company-mode.github.io/
 ;;(use-package company
