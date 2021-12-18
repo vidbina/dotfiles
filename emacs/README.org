@@ -39,24 +39,43 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
 (add-to-list 'mu4e-view-actions
              '("ViewInBrowser" . mu4e-action-view-in-browser) t)
 
-(defun vidbina-theme-dark ()
-  "Load vidbina's dark theme of choice"
+(defcustom vidbina-theme-should-be-dark nil
+  "Non-nil means that the theme should be dark"
+  :type 'boolean
+  :group 'display)
+
+(defun vidbina-theme-switch-to-choice ()
+  "Switch to the theme of choice"
+  (if vidbina-theme-should-be-dark
+      (vidbina-theme-switch-to-dark)
+    (vidbina-theme-switch-to-light)))
+
+(defun vidbina-theme-switch-to-dark ()
+  "Switch to the dark theme"
   (interactive)
   (modus-themes-load-vivendi)
-  (setq org-format-latex-options `(:scale 1.5 :foreground "White" :background "Transparent")))
+  (setq org-format-latex-options
+        `(:scale 1.5 :foreground "White" :background "Transparent"))
+  (message "🌑 Theme is dark")
+  (customize-save-variable 'vidbina-theme-should-be-dark t))
 
-(defun vidbina-theme-light ()
-  "Load vidbina's light theme of choice"
+(defun vidbina-theme-switch-to-light ()
+  "Switch to the light theme"
   (interactive)
   (modus-themes-load-operandi)
-  (setq org-format-latex-options `(:scale 1.5 :foreground "Black" :background "Transparent")))
+  (setq org-format-latex-options
+        `(:scale 1.5 :foreground "Black" :background "Transparent"))
+  (message "🌕 Theme is light")
+  (customize-save-variable 'vidbina-theme-should-be-dark nil))
 
-(setq vidbina-theme-dark-flag nil)
 (defun vidbina-theme-toggle ()
   "Toggle theme"
   (interactive)
-  (setq vidbina-theme-dark-flag (not vidbina-theme-dark-flag))
-  (if vidbina-theme-dark-flag (vidbina-theme-dark) (vidbina-theme-light)))
+  (if vidbina-theme-should-be-dark
+      (vidbina-theme-switch-to-light)
+    (vidbina-theme-switch-to-dark)))
+
+(add-hook 'server-after-make-frame-hook 'vidbina-theme-switch-to-choice)
 
 (defun vidbina-wrap ()
   "Toggle wrapping using adaptive-wrap-prefix-mode and visual-line-mode"
