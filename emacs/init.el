@@ -180,7 +180,9 @@
         org-capture-templates '(("w" "Default Template" entry (file+headline "~/org/protocol/capture.org" "Notes") "* %^{Title}\n\nSource: %u, %c\n\n%i" :empty-lines 1)
                                 ("p" "Link with Selected Text" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read %^{title}\n\n Source: %:annotation\n\n #+BEGIN_QUOTE\n\n %i\n\n #+END_QUOTE%?" :empty-lines 2)
                                 ("L" "Link Only" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read _%:description_\n\nSource: %:annotation%?" :empty-lines 2)
-                                ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks") "* TODO %?\n\n%i\n\n%a"))))
+                                ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks") "* TODO %?\n\n%i\n\n%a")))
+  :custom
+  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
 
 ;; https://github.com/nobiot/md-roam
 (use-package md-roam
