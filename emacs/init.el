@@ -226,12 +226,21 @@
   :config
   (message "📔 org-roam is loaded")
   (org-roam-db-autosync-mode 1)
+  ;;(add-to-list 'display-buffer-alist
+  ;;             '("\\*org-roam\\*"
+  ;;               (display-buffer-in-direction)
+  ;;               (direction . right)
+  ;;               ;;(window-width . 0.33)
+  ;;               (window-height . fit-window-to-buffer)))
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n i" . org-roam-node-insert)))
 
 ;; https://github.com/org-roam/org-roam-ui
 (use-package org-roam-ui
+  :delight
+  (org-roam-ui-mode " orui")
+  (org-roam-ui-follow-mode " 👀")
   :straight (org-roam-ui :host github
                          :repo "org-roam/org-roam-ui"
                          :branch "main"
@@ -388,6 +397,9 @@
   :straight (swiper :type git
                     :host github
                     :repo "abo-abo/swiper")
+  :delight
+  (counsel-mode)
+  (ivy-mode)
   :config
   (straight-use-package 'counsel)
   (ivy-mode)
