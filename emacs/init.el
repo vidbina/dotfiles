@@ -67,6 +67,17 @@
 ;;  :config
 ;;  (server-mode))
 
+(use-package delight
+  :straight (delight :type git
+                     :host nil
+                     :repo "https://git.savannah.nongnu.org/git/delight.git"))
+
+(use-package diminish
+  :disabled
+  :straight (diminish :type git
+                      :host github
+                      :repo "myrjola/diminish.el"))
+
 ;; https://github.com/jwiegley/emacs-async
 (use-package async
   :straight (async :type git
