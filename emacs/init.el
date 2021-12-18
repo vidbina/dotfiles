@@ -141,8 +141,7 @@
   :straight (visual-fill-column :type git
                                 :host github
                                 :repo "joostkremers/visual-fill-column"))
-
-; https://elpa.gnu.org/packages/adaptive-wrap.html
+;; https://elpa.gnu.org/packages/adaptive-wrap.html
 (use-package adaptive-wrap
   :straight (adaptive-wrap :type git
                            :host github
@@ -372,7 +371,9 @@
 (use-package projectile
   :straight (projectile :type git
                         :host github
-                        :repo "bbatsov/projectile"))
+                        :repo "bbatsov/projectile")
+  :custom
+  (projectile-mode-line-prefix " 🗄️"))
 
 ;; https://github.com/nex3/perspective-el
 (use-package perspective
@@ -426,7 +427,6 @@
                           :repo "protesilaos/modus-themes")
   :config
   (modus-themes-load-themes)
-  (modus-themes-load-operandi)
   :init
   (setq modus-themes-bold-constructs t
         modus-themes-mode-line '(moody accented borderless)
