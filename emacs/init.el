@@ -70,7 +70,10 @@
 (use-package delight
   :straight (delight :type git
                      :host nil
-                     :repo "https://git.savannah.nongnu.org/git/delight.git"))
+                     :repo "https://git.savannah.nongnu.org/git/delight.git")
+  :delight
+  (eldoc-mode " el📖")
+  (global-whitespace-mode))
 
 (use-package diminish
   :disabled
@@ -129,7 +132,9 @@
                              :repo "emacs-evil/evil-collection")
   :after evil
   :config
-  (evil-collection-init))
+  (evil-collection-init)
+  :delight
+  (evil-collection-unimpaired-mode))
 
 ;; https://github.com/joostkremers/visual-fill-column
 (use-package visual-fill-column
@@ -161,6 +166,7 @@
 
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
+  :delight
   :straight (which-key :type git
                        :host github
                        :repo "justbur/emacs-which-key")
