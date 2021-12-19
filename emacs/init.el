@@ -429,7 +429,7 @@
   (modus-themes-load-themes)
   :init
   (setq modus-themes-bold-constructs t
-        modus-themes-mode-line '(moody accented borderless)
+        modus-themes-mode-line '(3d accented)
         modus-themes-org-blocks 'gray-background
         modus-themes-region '(bg-only no-extend accented)
         modus-themes-prompts '(intense)
