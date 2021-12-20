@@ -261,6 +261,12 @@
         org-roam-ui-update-on-save t
         org-roam-ui-open-on-start nil))
 
+;; https://github.com/magit/magit.git
+(use-package magit
+  :straight (magit :type git
+                   :host github
+                   :repo "magit/magit"))
+
 ;; https://github.com/dgutov/diff-hl
 (use-package diff-hl
   :straight (diff-hl :type git
