@@ -1,13 +1,16 @@
 { config, pkgs, ... }:
 
 # TODO: Config mutt
+let
+  pathIfExists = (p: if (builtins.pathExists p) then [ p ] else [ ]);
+in
 {
   imports = [
     ./browser.nix
     ./x.nix
 
     ./emacs
-  ] ++ (if (builtins.pathExists ./personal.nix) then [ ./personal.nix ] else [ ]);
+  ] ++ (pathIfExists ./personal.nix);
 
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
