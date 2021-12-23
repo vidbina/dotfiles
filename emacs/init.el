@@ -73,7 +73,8 @@
                      :repo "https://git.savannah.nongnu.org/git/delight.git")
   :delight
   (eldoc-mode " el📖")
-  (global-whitespace-mode))
+  (global-whitespace-mode)
+  (visual-line-mode " 🌯"))
 
 (use-package diminish
   :disabled
