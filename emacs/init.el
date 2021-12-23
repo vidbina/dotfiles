@@ -72,9 +72,13 @@
                      :host nil
                      :repo "https://git.savannah.nongnu.org/git/delight.git")
   :delight
+  (auto-revert-mode "♻️")
   (eldoc-mode " el📖")
   (global-whitespace-mode)
-  (visual-line-mode " 🌯"))
+  (visual-line-mode " 🌯")
+  (mu4e-main-mode "📫")
+  (mu4e-headers-mode "📬")
+  (mu4e-view-mode "📧"))
 
 (use-package diminish
   :disabled
@@ -245,8 +249,8 @@
 ;; https://github.com/org-roam/org-roam-ui
 (use-package org-roam-ui
   :delight
-  (org-roam-ui-mode " orui")
-  (org-roam-ui-follow-mode " 👀")
+  (org-roam-ui-mode "🕸️")
+  (org-roam-ui-follow-mode "👀")
   :straight (org-roam-ui :host github
                          :repo "org-roam/org-roam-ui"
                          :branch "main"
@@ -380,7 +384,7 @@
                         :host github
                         :repo "bbatsov/projectile")
   :custom
-  (projectile-mode-line-prefix " 🗄️"))
+  (projectile-mode-line-prefix "🗄️"))
 
 ;; https://github.com/nex3/perspective-el
 (use-package perspective
