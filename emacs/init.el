@@ -364,9 +364,15 @@
 ;;  (evil-define-key 'normal vterm-mode-map (kbd "o")        #'evil-insert-resume)
 ;;  (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
 
+;; https://github.com/vedang/pdf-tools/
+(use-package pdf-occur
+  :straight nil)
 
-;; https://github.com/politza/pdf-tools
-(use-package pdf-tools :straight nil)
+(use-package pdf-tools
+  :after pdf-occur
+  :straight nil
+  :config
+  (pdf-tools-install nil t nil nil))
 
 ;; https://github.com/jkitchin/ox-clip
 ;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
