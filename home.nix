@@ -6,6 +6,7 @@ let
 in
 {
   imports = [
+    ./doc.nix
     ./browser.nix
     ./x.nix
 
