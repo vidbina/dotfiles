@@ -5,3 +5,4 @@ org-roam.db
 *.el#
 ghorg
 personal.nix
+result
