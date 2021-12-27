@@ -412,7 +412,7 @@
                          :repo "emacsorphanage/zoom-window")
   :init
   (setq ;;zoom-window-use-persp t
-   zoom-window-mode-line-color "LightPink")
+   zoom-window-mode-line-color "DarkRed")
   :config
   (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
 
