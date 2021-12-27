@@ -416,6 +416,9 @@
   :config
   (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
 
+;; https://github.com/abo-abo/ace-window
+(global-set-key (kbd "M-o") 'ace-window)
+
 ;; https://github.com/abo-abo/swiper
 (use-package swiper
   :straight (swiper :type git
