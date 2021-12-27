@@ -236,12 +236,6 @@
   :config
   (message "📔 org-roam is loaded")
   (org-roam-db-autosync-mode 1)
-  ;;(add-to-list 'display-buffer-alist
-  ;;             '("\\*org-roam\\*"
-  ;;               (display-buffer-in-direction)
-  ;;               (direction . right)
-  ;;               ;;(window-width . 0.33)
-  ;;               (window-height . fit-window-to-buffer)))
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n i" . org-roam-node-insert)))
@@ -262,7 +256,7 @@
   :hook (after-init . org-roam-ui-mode)
   :config
   (setq org-roam-ui-sync-theme t
-        org-roam-ui-follow t
+        org-roam-ui-follow nil
         org-roam-ui-update-on-save t
         org-roam-ui-open-on-start nil))
 
