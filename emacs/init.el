@@ -166,8 +166,7 @@
   :init
   (add-hook 'server-after-make-frame-hook
             (lambda () (progn (message "🎨 Time to dress up the GUI")
-                              (default-text-scale-reset)
-                              (default-text-scale-increment 140)))))
+                              (default-text-scale-reset)))))
 
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
