@@ -74,6 +74,7 @@
   :delight
   (auto-revert-mode "♻️")
   (eldoc-mode " el📖")
+  (edebug-mode "🐞")
   (global-whitespace-mode)
   (visual-line-mode " 🌯")
   (mu4e-main-mode "📫")
