@@ -456,7 +456,7 @@
                                 (t . (background overline rainbow)))
         modus-themes-scale-headings t))
 
-(setq display-buffer-alist
+(add-to-list 'display-buffer-alist
       (list
        (cons
         (regexp-opt-group '("*org-roam*"))
@@ -468,6 +468,13 @@
         (regexp-opt-group '("*Help*" "*Info*" "*info*"))
         (cons #'display-buffer-in-side-window
               '((slot . 5)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))
+       (cons
+        (regexp-opt-group '("*Shortdoc"))
+        (cons #'display-buffer-in-side-window
+              '((slot . 6)
                 (side . left)
                 (window-width . 80)
                 (window-parameters . ((no-other-window . t))))))
