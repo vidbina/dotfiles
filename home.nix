@@ -13,6 +13,7 @@ in
     ./emacs
   ] ++ (pathIfExists ./personal.nix);
 
+  home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
 
   home.sessionPath = [
     (toString ./bin)
