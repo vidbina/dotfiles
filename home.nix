@@ -10,6 +10,8 @@ in
     ./browser.nix
     ./x.nix
 
+    ./rofi
+
     ./emacs
   ] ++ (pathIfExists ./personal.nix);
 
@@ -61,30 +63,6 @@ in
     vimAlias = true;
     vimdiffAlias = true;
     withRuby = true;
-  };
-
-  programs.rofi = {
-    enable = true;
-    package = pkgs.rofi.override {
-      plugins = with pkgs; [
-        rofi-calc
-        rofi-emoji
-      ];
-    };
-    extraConfig = {
-      modi = "run,emoji,calc";
-      font = "mono 25";
-      theme =
-        let
-          getRofiThemePath = x:
-            let
-              text = builtins.readFile (./. + "/rofi/${x}");
-              target = "share/${x}";
-            in
-            "${pkgs.writeTextDir target text}/${target}";
-        in
-        getRofiThemePath "vidbina.theme";
-    };
   };
 
   programs.tmux = {
