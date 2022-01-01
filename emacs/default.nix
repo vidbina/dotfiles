@@ -1,10 +1,8 @@
 { config, pkgs, lib, options, ... }:
 
 let
-  rev = "2a3c3959436d97ff2db0cb765336f2747d875fb8";
-  emacs-overlay = import (builtins.fetchTarball {
-    url = "https://github.com/nix-community/emacs-overlay/archive/${rev}.tar.gz";
-  });
+  sources = import ../nix/sources.nix;
+  emacs-overlay-src = sources."emacs-overlay";
 in
 {
   home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
@@ -23,7 +21,8 @@ in
   };
 
   nixpkgs.overlays = [
-    emacs-overlay
+    (import emacs-overlay-src)
+
     (self: super: {
       my-emacs =
         let
