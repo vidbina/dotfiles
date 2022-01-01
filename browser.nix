@@ -1,6 +1,10 @@
 { config, pkgs, lib, options, ... }:
 
 {
+  home.packages = with pkgs; [
+    nyxt
+  ];
+
   programs.chromium = {
     enable = true;
 
