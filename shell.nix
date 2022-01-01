@@ -4,10 +4,10 @@ let
 
   sources = import ./nix/sources.nix;
 
-  nixpkgs = sources."nixpkgs";
-  home-manager = sources."home-manager";
+  nixpkgs-src = sources."nixpkgs";
+  hm-src = sources."home-manager";
 
-  pkgs = import nixpkgs { };
+  pkgs = import nixpkgs-src { };
 
 in
 pkgs.mkShell rec {
@@ -16,7 +16,7 @@ pkgs.mkShell rec {
 
   buildInputs = with pkgs; [
     niv
-    (import sources.home-manager { inherit pkgs; }).home-manager
+    (import hm-src { inherit pkgs; }).home-manager
 
     cacert # to resolve CA cert issue
     git
@@ -26,7 +26,7 @@ pkgs.mkShell rec {
   ];
 
   shellHook = ''
-    export NIX_PATH="nixpkgs=${nixpkgs}:home-manager=${home-manager}"
+    export NIX_PATH="nixpkgs=${nixpkgs-src}:home-manager=${hm-src}"
     export HOME_MANAGER_CONFIG="./home.nix"
   '';
 }
