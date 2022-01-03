@@ -55,6 +55,7 @@ in
     libreoffice
     okular
     texlive-asabina
+    pandoc
     pdftk
     scim
     visidata
