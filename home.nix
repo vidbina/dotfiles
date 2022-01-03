@@ -60,8 +60,6 @@ in
         optional = false;
       }
     ];
-    viAlias = true;
-    vimAlias = true;
     vimdiffAlias = true;
     withRuby = true;
   };
@@ -193,5 +191,4 @@ in
       widthtype = "pixel";
     };
   };
-
 }
