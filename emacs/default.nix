@@ -26,7 +26,9 @@ in
     (self: super: {
       my-emacs =
         let
-          emacs = (pkgs.emacsGcc.override {
+          emacs = (pkgs.emacsGit.override {
+            nativeComp = true;
+            withSQLite3 = true;
             withGTK2 = false;
             withGTK3 = false;
           });
