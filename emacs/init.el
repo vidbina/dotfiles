@@ -452,13 +452,21 @@
                                 (t . (background overline rainbow)))
         modus-themes-scale-headings t))
 
-(add-to-list 'display-buffer-alist
+(setq display-buffer-alist
       (list
        (cons
         (regexp-opt-group '("*org-roam*"))
         (cons #'display-buffer-in-side-window
               '((slot . 0)
                 (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))
+       (cons
+        (regexp-opt-group '("*Dictionary*"))
+        (cons #'display-buffer-in-side-window
+              '((slot . -1)
+                (side . left)
+                (window-width . 80)
                 (window-parameters . ((no-other-window . t))))))
        (cons
         (regexp-opt-group '("*Help*" "*Info*" "*info*"))
@@ -475,10 +483,11 @@
                 (window-width . 80)
                 (window-parameters . ((no-other-window . t))))))
        (cons
-        "\\*Warnings\\*"
+        (regexp-opt-group '("*Warnings*"))
         (cons #'display-buffer-in-side-window
               '((slot . 10)
                 (side . left)
+                (window-width . 80)
                 (window-parameters . ((no-other-window . t))))))))
 
 (load "~/.emacs.d/lang.el")
