@@ -9,6 +9,7 @@ in
     ./doc.nix
     ./browser.nix
     ./x.nix
+    ./mail.nix
 
     ./rofi
 
