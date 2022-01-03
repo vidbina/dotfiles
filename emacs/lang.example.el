@@ -227,7 +227,8 @@
 (with-eval-after-load 'org
   (message "Loading org-babel-language mappings")
   (org-babel-do-load-languages 'org-babel-load-languages
-                               '((clojure .  t)
+                               '((shell . t)
+                                 (clojure .  t)
                                  (dot . t)
                                  (gnuplot . t)
                                  (haskell . t)
