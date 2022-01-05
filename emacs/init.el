@@ -182,11 +182,30 @@
       org-hide-leading-stars nil
       org-odd-levels-only nil)
 
+(use-package org-contrib
+  :straight (org-contrib :type git
+                         :host nil
+                         :repo "https://git.sr.ht/~bzg/org-contrib"))
+
 ;; https://orgmode.org/worg/org-contrib/org-protocol.html
 (use-package org
   :straight nil
   :config
   (require 'org-protocol)
+  (require 'org-contrib)
+  (require 'org-bibtex-extras)
+  (require 'ol-bibtex) ;; formerly org-bibtex
+
+  (require 'oc) ;; org-cite
+  (require 'oc-basic)
+  (require 'oc-csl)
+  (require 'oc-natbib)
+  (require 'oc-biblatex)
+
+  (require 'ox-bibtex)
+  (require 'ox-extra)
+  (require 'ox-latex)
+
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
   (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
