@@ -81,6 +81,158 @@
                       :host github
                       :repo "myrjola/diminish.el"))
 
+;; https://orgmode.org/worg/org-contrib/org-protocol.html
+;; https://github.com/org-roam/org-roam/issues/529
+;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
+(use-package org
+  :straight (org :type git
+                 :host nil
+                 :repo "https://git.savannah.gnu.org/git/emacs/org-mode.git"
+                 :branch "main"
+                 :commit "fbff082f733858e547a07ad452b6e3ed61a30099")
+  :init
+  (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
+        org-hide-leading-stars nil
+        org-odd-levels-only nil)
+  :config
+  ;;;;(require 'org)
+  ;;(require 'org-protocol)
+  ;;(require 'org-id)
+  ;;(require 'ol)
+  ;;;;(require 'org-element)
+  ;;(require 'org-capture)
+  ;; NOTE: Figure out if removing org-contrib breaks loading of
+  ;; - obe and
+  ;; - ol-bibtex, since these are all part of org-contrib
+  ;;(require 'org-contrib)
+  ;;(require 'org-bibtex-extras)
+  ;;(require 'ol-bibtex) ;; formerly org-bibtex
+
+                                        ; NOTE: Figure out if these are evne needed for basic citation demos to work
+  ;;(require 'oc) ;; org-cite
+  ;;(require 'oc-basic)
+  ;;(require 'oc-csl)
+  ;;(require 'oc-natbib)
+  ;;(require 'oc-biblatex)
+
+  ;;(require 'ox-bibtex)
+  ;;(require 'ox-extra)
+  ;;(require 'ox-latex)
+
+  ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
+  ;; https://orgmode.org/manual/Structure-Templates.html
+  (load-library "org-tempo")
+  ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
+  ;; activate dot
+  (setq org-plantuml-exec-mode 'plantuml)
+  ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
+  (setq org-src-preserve-indentation t
+        org-hide-block-startup t
+        org-capture-templates '(("w" "Default Template" entry (file+headline "~/org/protocol/capture.org" "Notes") "* %^{Title}\n\nSource: %u, %c\n\n%i" :empty-lines 1)
+                                ("p" "Link with Selected Text" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read %^{title}\n\n Source: %:annotation\n\n #+BEGIN_QUOTE\n\n %i\n\n #+END_QUOTE%?" :empty-lines 2)
+                                ("L" "Link Only" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read _%:description_\n\nSource: %:annotation%?" :empty-lines 2)
+                                ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks") "* TODO %?\n\n%i\n\n%a")))
+  :custom
+  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
+
+;;;; https://git.sr.ht/~bzg/org-contrib
+;;(use-package org-contrib
+;;  :straight (org-contrib :type git
+;;                         :host nil
+;;                         :repo "https://git.sr.ht/~bzg/org-contrib")
+;;  :after org
+;;  :config
+;;  ;;(require 'ox-bibtex)
+;;  (require 'oc-basic)
+;;  (require 'oc-csl)
+;;  (require 'oc-biblatex)
+;;  (require 'oc-natbib))
+
+;; TODO: Isolate into a bibliography file
+
+;;;; https://github.com/bdarcus/citar
+;;(use-package citar
+;;  :straight (citar :type git
+;;                   :host github
+;;                   :repo "bdarcus/citar")
+;;  :no-require
+;;  :custom
+;;  (org-cite-insert-processor 'citar)
+;;  (org-cite-follow-processor 'citar)
+;;  (org-cite-activate-processor 'citar)
+;;  :bind
+;;  (:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
+
+;; https://github.com/nobiot/md-roam
+(use-package md-roam
+  :straight (md-roam :type git
+                     :host github
+                     :repo "nobiot/md-roam")
+  :init
+  (setq md-roam-use-markdown-file-links t
+        md-roam-file_extension-single "md"
+        org-roam-tag-sources '(prop md-frontmatter)
+        org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
+
+;; https://github.com/org-roam/org-roam
+(use-package org-roam
+  :straight (org-roam :type git
+                      :host github
+                      :repo "org-roam/org-roam")
+  :init
+  (setq org-roam-v2-ack t)
+  (make-directory (file-truename "~/org/roam/") t)
+  :custom
+  (org-roam-file-extensions '("org" "md"))
+  (org-roam-directory (file-truename "~/org/roam/"))
+  (org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
+  :config
+  (message "📔 org-roam is loaded")
+  (org-roam-db-autosync-mode 1)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)))
+
+;; https://github.com/org-roam/org-roam-ui
+(use-package org-roam-ui
+  :delight
+  (org-roam-ui-mode "🕸️")
+  (org-roam-ui-follow-mode "👀")
+  :straight (org-roam-ui :host github
+                         :repo "org-roam/org-roam-ui"
+                         :branch "main"
+                         :files ("*.el" "out"))
+  :after org-roam
+  ;; normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;; a hookable mode anymore, you're advised to pick something yourself
+  ;; if you don't care about startup time, use
+  :bind (("C-c n ." . org-roam-ui-node-zoom)
+         ("C-c n ," . org-roam-ui-node-local))
+  :hook (after-init . org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow nil
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start nil))
+
+;;;;;; https://github.com/jkitchin/org-ref
+;;;;(use-package org-ref
+;;;;  :straight (org-ref :type git
+;;;;                     :host github
+;;;;                     :repo "jkitchin/org-ref")
+;;;;  :after org)
+;;;;
+;;;;;;;; https://github.com/org-roam/org-roam-bibtex
+;;;;;;(use-package org-roam-bibtex
+;;;;;;  :straight (org-roam-bibtex :type git
+;;;;;;                             :host github
+;;;;;;                             :repo "org-roam/org-roam-bibtex")
+;;;;;;  :after (org-roam org-ref)
+;;;;;;  :custom
+;;;;;;  (orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
+
 ;; https://github.com/jwiegley/emacs-async
 (use-package async
   :straight (async :type git
@@ -170,108 +322,6 @@
                        :repo "justbur/emacs-which-key")
   :config
   (which-key-mode))
-
-;; https://orgmode.org/manual/Hard-indentation.html
-(setq org-adapt-indentation nil
-      org-hide-leading-stars nil
-      org-odd-levels-only nil)
-
-(use-package org-contrib
-  :straight (org-contrib :type git
-                         :host nil
-                         :repo "https://git.sr.ht/~bzg/org-contrib"))
-
-;; https://orgmode.org/worg/org-contrib/org-protocol.html
-(use-package org
-  :straight nil
-  :config
-  (require 'org-protocol)
-  (require 'org-contrib)
-  (require 'org-bibtex-extras)
-  (require 'ol-bibtex) ;; formerly org-bibtex
-
-  (require 'oc) ;; org-cite
-  (require 'oc-basic)
-  (require 'oc-csl)
-  (require 'oc-natbib)
-  (require 'oc-biblatex)
-
-  (require 'ox-bibtex)
-  (require 'ox-extra)
-  (require 'ox-latex)
-
-  ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
-  (global-set-key (kbd "C-c c") 'org-capture)
-  (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
-  ;; https://orgmode.org/manual/Structure-Templates.html
-  (load-library "org-tempo")
-  ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
-  ;; activate dot
-  (setq org-plantuml-exec-mode 'plantuml)
-  ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
-  (setq org-src-preserve-indentation t
-        org-hide-block-startup t
-        org-capture-templates '(("w" "Default Template" entry (file+headline "~/org/protocol/capture.org" "Notes") "* %^{Title}\n\nSource: %u, %c\n\n%i" :empty-lines 1)
-                                ("p" "Link with Selected Text" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read %^{title}\n\n Source: %:annotation\n\n #+BEGIN_QUOTE\n\n %i\n\n #+END_QUOTE%?" :empty-lines 2)
-                                ("L" "Link Only" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read _%:description_\n\nSource: %:annotation%?" :empty-lines 2)
-                                ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks") "* TODO %?\n\n%i\n\n%a")))
-  :custom
-  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
-
-;; https://github.com/nobiot/md-roam
-(use-package md-roam
-  :straight (md-roam :type git
-                     :host github
-                     :repo "nobiot/md-roam")
-  :init
-  (setq md-roam-use-markdown-file-links t
-        md-roam-file_extension-single "md"
-        org-roam-tag-sources '(prop md-frontmatter)
-        org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
-
-;; https://github.com/org-roam/org-roam
-(use-package org-roam
-  :straight (org-roam :type git
-                      :host github
-                      :repo "org-roam/org-roam")
-  :after
-  org
-  org-protocol
-  :ensure t
-  :demand t
-  :init
-  (setq org-roam-v2-ack t)
-  (make-directory (file-truename "~/org/roam/") t)
-  :custom
-  (org-roam-file-extensions '("org" "md"))
-  (org-roam-directory (file-truename "~/org/roam/"))
-  (org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
-  :config
-  (message "📔 org-roam is loaded")
-  (org-roam-db-autosync-mode 1)
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-node-insert)))
-
-;; https://github.com/org-roam/org-roam-ui
-(use-package org-roam-ui
-  :delight
-  (org-roam-ui-mode "🕸️")
-  (org-roam-ui-follow-mode "👀")
-  :straight (org-roam-ui :host github
-                         :repo "org-roam/org-roam-ui"
-                         :branch "main"
-                         :files ("*.el" "out"))
-  :after org-roam
-  ;; normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-  ;; a hookable mode anymore, you're advised to pick something yourself
-  ;; if you don't care about startup time, use
-  :hook (after-init . org-roam-ui-mode)
-  :config
-  (setq org-roam-ui-sync-theme t
-        org-roam-ui-follow nil
-        org-roam-ui-update-on-save t
-        org-roam-ui-open-on-start nil))
 
 ;; https://github.com/magit/magit.git
 (use-package magit
