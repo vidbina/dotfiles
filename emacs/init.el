@@ -211,21 +211,23 @@
         org-roam-ui-update-on-save t
         org-roam-ui-open-on-start nil))
 
-;;;;;; https://github.com/jkitchin/org-ref
-;;;;(use-package org-ref
-;;;;  :straight (org-ref :type git
-;;;;                     :host github
-;;;;                     :repo "jkitchin/org-ref")
-;;;;  :after org)
-;;;;
-;;;;;;;; https://github.com/org-roam/org-roam-bibtex
-;;;;;;(use-package org-roam-bibtex
-;;;;;;  :straight (org-roam-bibtex :type git
-;;;;;;                             :host github
-;;;;;;                             :repo "org-roam/org-roam-bibtex")
-;;;;;;  :after (org-roam org-ref)
-;;;;;;  :custom
-;;;;;;  (orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
+;; https://github.com/jkitchin/org-ref
+(use-package org-ref
+  :straight (org-ref :type git
+                     :host github
+                     :repo "jkitchin/org-ref")
+  :after org)
+
+;; https://github.com/org-roam/org-roam-bibtex
+(use-package org-roam-bibtex
+  :straight (org-roam-bibtex :type git
+                             :host github
+                             :repo "org-roam/org-roam-bibtex")
+  :after org-roam)
+;;:config
+;;(require 'org-ref)
+;;:custom
+;;(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
 
 ;; https://github.com/jwiegley/emacs-async
 (use-package async
