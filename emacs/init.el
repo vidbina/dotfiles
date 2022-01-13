@@ -162,6 +162,7 @@
   :straight (md-roam :type git
                      :host github
                      :repo "nobiot/md-roam")
+  :after org-roam
   :init
   (setq md-roam-use-markdown-file-links t
         md-roam-file_extension-single "md"
@@ -173,6 +174,7 @@
   :straight (org-roam :type git
                       :host github
                       :repo "org-roam/org-roam")
+  :after org
   :init
   (setq org-roam-v2-ack t)
   (make-directory (file-truename "~/org/roam/") t)
@@ -424,6 +426,7 @@
   :straight (ox-clip :type git
                      :host github
                      :repo "jkitchin/ox-clip")
+  :after org
   :bind
   ("C-c y" . ox-clip-formatted-copy))
 
