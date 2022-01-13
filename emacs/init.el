@@ -466,7 +466,12 @@
   (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
 
 ;; https://github.com/abo-abo/ace-window
-(global-set-key (kbd "M-o") 'ace-window)
+;; https://jao.io/blog/2020-05-12-ace-window.html
+(use-package ace-window
+  :straight (ace-window :type git
+                        :host github
+                        :repo "abo-abo/ace-window")
+  :bind (("M-o" . ace-window)))
 
 ;; https://github.com/abo-abo/swiper
 (use-package swiper
