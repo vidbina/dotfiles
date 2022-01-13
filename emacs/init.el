@@ -46,7 +46,8 @@
 
 ;; https://github.com/raxod502/straight.el#getting-started
 (defvar bootstrap-version)
-(let ((bootstrap-file (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
       (bootstrap-version 5))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
@@ -59,13 +60,6 @@
 
 ;; https://github.com/raxod502/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
-
-;;;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html
-;;;; https://www.emacswiki.org/emacs/EmacsClient
-;;(use-package server
-;;  :straight nil
-;;  :config
-;;  (server-mode))
 
 (use-package delight
   :straight (delight :type git
@@ -334,10 +328,8 @@
 ;;  :straight nil
 ;;  :init
 ;;  (evil-collection-notmuch-setup))
-;;
 
 ;;(use-package vterm :straight nil)
-;;
 
 ;;(use-package multi-vterm
 ;;  :straight (multi-vterm :type git
