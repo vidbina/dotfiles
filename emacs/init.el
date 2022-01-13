@@ -419,7 +419,8 @@
   :straight nil
   :config
   (require 'pdf-occur)
-  (pdf-tools-install nil t nil nil))
+  (pdf-tools-install nil t nil nil)
+  (setq-default pdf-view-display-size 'fit-width))
 
 ;; https://github.com/jkitchin/ox-clip
 ;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
