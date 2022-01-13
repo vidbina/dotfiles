@@ -34,10 +34,6 @@
 
 ;; https://www.reddit.com/r/emacs/comments/643dkt/use_package_vs_require_and_maybe_some_sorrowful/dfz3mtx
 
-;; https://orgmode.org/worg/org-contrib/org-protocol.html
-;; https://orgmode.org/worg/org-faq.html#mixed-install
-(add-to-list 'load-path "~/.emacs.d/straight/build/org")
-
 ;; TODO: Reeval if this compat hack is still needed
 ;; Issue is that straight relies on vars with prefixes that have been
 ;; renamed from comp to native-comp on the Emacs side.
@@ -85,11 +81,7 @@
 ;; https://github.com/org-roam/org-roam/issues/529
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
 (use-package org
-  :straight (org :type git
-                 :host nil
-                 :repo "https://git.savannah.gnu.org/git/emacs/org-mode.git"
-                 :branch "main"
-                 :commit "fbff082f733858e547a07ad452b6e3ed61a30099")
+  :straight (:type built-in)
   :init
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
