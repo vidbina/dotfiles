@@ -355,6 +355,11 @@
   (deft-directory "~/org")
   (deft-extensions '("md" "org"))
   (deft-recursive t)
+  (deft-strip-summary-regexp
+   (concat "\\("
+           "[\n\t]" ;; blank
+           "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+           "\\)"))
   (deft-use-filename-as-title t)
   (deft-use-filter-string-for-filename t))
 
