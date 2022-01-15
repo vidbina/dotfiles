@@ -1,39 +1,3 @@
-;; Format with indent-region
-
-;; https://www.emacswiki.org/emacs/ScrollBar
-(scroll-bar-mode -1)
-
-;; https://www.emacswiki.org/emacs/ToolBar
-(tool-bar-mode -1)
-
-;; https://www.emacswiki.org/emacs/MenuBar
-(menu-bar-mode -1)
-
-;; https://www.emacswiki.org/emacs/ShowParenMode
-(show-paren-mode 1)
-
-;; https://www.emacswiki.org/emacs/FillColumnIndicator
-(global-display-fill-column-indicator-mode 1)
-
-;; https://www.emacswiki.org/emacs/LineNumbers
-(global-display-line-numbers-mode 1)
-
-;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
-;; =describe-package ffap=
-(ffap-bindings)
-
-;; https://www.emacswiki.org/emacs/WhiteSpace
-;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
-(setq whitespace-style '(empty face lines-tail tabs trailing))
-
-;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
-(setq-default indent-tabs-mode nil)
-
-;; http://ergoemacs.org/emacs/whitespace-mode.html
-(global-whitespace-mode nil)
-
-;; https://www.reddit.com/r/emacs/comments/643dkt/use_package_vs_require_and_maybe_some_sorrowful/dfz3mtx
-
 ;; TODO: Reeval if this compat hack is still needed
 ;; Issue is that straight relies on vars with prefixes that have been
 ;; renamed from comp to native-comp on the Emacs side.
@@ -56,26 +20,6 @@
 
 ;; https://github.com/raxod502/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
-
-(use-package delight
-  :straight (delight :type git
-                     :host nil
-                     :repo "https://git.savannah.nongnu.org/git/delight.git")
-  :delight
-  (auto-revert-mode "♻️")
-  (eldoc-mode " el📖")
-  (edebug-mode "🐞")
-  (global-whitespace-mode)
-  (visual-line-mode " 🌯")
-  (mu4e-main-mode "📫")
-  (mu4e-headers-mode "📬")
-  (mu4e-view-mode "📧"))
-
-(use-package diminish
-  :disabled
-  :straight (diminish :type git
-                      :host github
-                      :repo "myrjola/diminish.el"))
 
 ;; https://orgmode.org/worg/org-contrib/org-protocol.html
 ;; https://github.com/org-roam/org-roam/issues/529
@@ -229,17 +173,163 @@
 ;;:custom
 ;;(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
 
-;; https://github.com/jwiegley/emacs-async
-(use-package async
-  :straight (async :type git
-                   :host github
-                   :repo "jwiegley/emacs-async"))
+;; Format with indent-region
+
+;; https://www.emacswiki.org/emacs/ScrollBar
+(scroll-bar-mode -1)
+
+;; https://www.emacswiki.org/emacs/ToolBar
+(tool-bar-mode -1)
+
+;; https://www.emacswiki.org/emacs/MenuBar
+(menu-bar-mode -1)
+
+;; https://www.emacswiki.org/emacs/ShowParenMode
+(show-paren-mode 1)
+
+;; https://www.emacswiki.org/emacs/FillColumnIndicator
+(global-display-fill-column-indicator-mode 1)
+
+;; https://www.emacswiki.org/emacs/LineNumbers
+(global-display-line-numbers-mode 1)
+
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
+;; =describe-package ffap=
+(ffap-bindings)
+
+;; https://www.emacswiki.org/emacs/WhiteSpace
+;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
+(setq whitespace-style '(empty face lines-tail tabs trailing))
+
+;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
+(setq-default indent-tabs-mode nil)
+
+;; http://ergoemacs.org/emacs/whitespace-mode.html
+(global-whitespace-mode nil)
+
+(use-package delight
+  :straight (delight :type git
+                     :host nil
+                     :repo "https://git.savannah.nongnu.org/git/delight.git")
+  :delight
+  (auto-revert-mode "♻️")
+  (eldoc-mode " el📖")
+  (edebug-mode "🐞")
+  (global-whitespace-mode)
+  (visual-line-mode " 🌯")
+  (mu4e-main-mode "📫")
+  (mu4e-headers-mode "📬")
+  (mu4e-view-mode "📧"))
+
+(use-package diminish
+  :disabled
+  :straight (diminish :type git
+                      :host github
+                      :repo "myrjola/diminish.el"))
+
+;; https://github.com/joostkremers/visual-fill-column
+(use-package visual-fill-column
+  :straight (visual-fill-column :type git
+                                :host github
+                                :repo "joostkremers/visual-fill-column"))
+;; https://elpa.gnu.org/packages/adaptive-wrap.html
+(use-package adaptive-wrap
+  :straight (adaptive-wrap :type git
+                           :host github
+                           :repo "emacs-straight/adaptive-wrap")
+  :config
+  (adaptive-wrap-prefix-mode))
+
+;; https://github.com/purcell/default-text-scale
+;; Doesn't work well in emacsclient
+(use-package default-text-scale
+  :straight (default-text-scale :type git
+                                :host github
+                                :repo "purcell/default-text-scale")
+  :hook
+  (after-init . default-text-scale-mode)
+  :init
+  (add-hook 'server-after-make-frame-hook
+            (lambda () (progn (message "🎨 Time to dress up the GUI")
+                              (default-text-scale-reset)))))
+
+;; https://github.com/fniessen/emacs-leuven-theme
+(use-package leuven-theme
+  :straight (leuven-theme :type git
+                          :host github
+                          :repo "fniessen/emacs-leuven-theme"))
+
+;; https://gitlab.com/protesilaos/modus-themes
+(use-package modus-themes
+  :straight (modus-themes :type git
+                          :host gitlab
+                          :repo "protesilaos/modus-themes")
+  :config
+  (modus-themes-load-themes)
+  :init
+  (setq modus-themes-bold-constructs t
+        modus-themes-mode-line '(3d accented)
+        modus-themes-org-blocks 'gray-background
+        modus-themes-region '(bg-only no-extend accented)
+        modus-themes-prompts '(intense)
+        modus-themes-fringes '(intense)
+        modus-themes-hl-line '(accented)
+        modus-themes-paren-match '(bold intense)
+        modus-themes-syntax '(yellow-comments green-strings alt-syntax)
+        modus-themes-headings '((1 . (background overline))
+                                (2 . (background overline rainbow))
+                                (t . (background overline rainbow)))
+        modus-themes-scale-headings t))
+
+(setq display-buffer-alist
+      (list
+       (cons
+        (regexp-opt-group '("*org-roam*"))
+        (cons #'display-buffer-in-side-window
+              '((slot . 0)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))
+       (cons
+        (regexp-opt-group '("*Dictionary*"))
+        (cons #'display-buffer-in-side-window
+              '((slot . -1)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))
+       (cons
+        (regexp-opt-group '("*Help*" "*Info*" "*info*"))
+        (cons #'display-buffer-in-side-window
+              '((slot . 5)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))
+       (cons
+        (regexp-opt-group '("*Shortdoc"))
+        (cons #'display-buffer-in-side-window
+              '((slot . 6)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))
+       (cons
+        (regexp-opt-group '("*Warnings*"))
+        (cons #'display-buffer-in-side-window
+              '((slot . 10)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))))
 
 ;; https://github.com/emacsmirror/undo-fu
 (use-package undo-fu
   :straight (undo-fu :type git
                      :host github
                      :repo "emacsmirror/undo-fu"))
+
+;; https://github.com/jwiegley/emacs-async
+(use-package async
+  :straight (async :type git
+                   :host github
+                   :repo "jwiegley/emacs-async"))
 
 ;; https://github.com/Fanael/rainbow-delimiters
 (use-package rainbow-delimiters
@@ -283,32 +373,6 @@
   (evil-collection-init)
   :delight
   (evil-collection-unimpaired-mode))
-
-;; https://github.com/joostkremers/visual-fill-column
-(use-package visual-fill-column
-  :straight (visual-fill-column :type git
-                                :host github
-                                :repo "joostkremers/visual-fill-column"))
-;; https://elpa.gnu.org/packages/adaptive-wrap.html
-(use-package adaptive-wrap
-  :straight (adaptive-wrap :type git
-                           :host github
-                           :repo "emacs-straight/adaptive-wrap")
-  :config
-  (adaptive-wrap-prefix-mode))
-
-;; https://github.com/purcell/default-text-scale
-;; Doesn't work well in emacsclient
-(use-package default-text-scale
-  :straight (default-text-scale :type git
-                                :host github
-                                :repo "purcell/default-text-scale")
-  :hook
-  (after-init . default-text-scale-mode)
-  :init
-  (add-hook 'server-after-make-frame-hook
-            (lambda () (progn (message "🎨 Time to dress up the GUI")
-                              (default-text-scale-reset)))))
 
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
@@ -492,72 +556,6 @@
   (counsel-mode)
   (setq ivy-use-virtual-buffers t
         enable-recursive-minibuffers t))
-
-;; https://github.com/fniessen/emacs-leuven-theme
-(use-package leuven-theme
-  :straight (leuven-theme :type git
-                          :host github
-                          :repo "fniessen/emacs-leuven-theme"))
-
-;; https://gitlab.com/protesilaos/modus-themes
-(use-package modus-themes
-  :straight (modus-themes :type git
-                          :host gitlab
-                          :repo "protesilaos/modus-themes")
-  :config
-  (modus-themes-load-themes)
-  :init
-  (setq modus-themes-bold-constructs t
-        modus-themes-mode-line '(3d accented)
-        modus-themes-org-blocks 'gray-background
-        modus-themes-region '(bg-only no-extend accented)
-        modus-themes-prompts '(intense)
-        modus-themes-fringes '(intense)
-        modus-themes-hl-line '(accented)
-        modus-themes-paren-match '(bold intense)
-        modus-themes-syntax '(yellow-comments green-strings alt-syntax)
-        modus-themes-headings '((1 . (background overline))
-                                (2 . (background overline rainbow))
-                                (t . (background overline rainbow)))
-        modus-themes-scale-headings t))
-
-(setq display-buffer-alist
-      (list
-       (cons
-        (regexp-opt-group '("*org-roam*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 0)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Dictionary*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . -1)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Help*" "*Info*" "*info*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 5)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Shortdoc"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 6)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Warnings*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 10)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))))
 
 (load "~/.emacs.d/lang.el")
 (load "~/.emacs.d/personal.el")
