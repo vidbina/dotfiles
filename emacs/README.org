@@ -1,18 +1,701 @@
 * Emacs Configuration
   
-Definitely not an Emacs distro but a somewhat wieldable Emacs config.
+Definitely not an Emacs distro but aiming for a somewhat wieldable Emacs config.
+
+⚠️ Treat this file as the source of truth and tangle the needed elisp files from here using the ~(org-babel-tangle)~ function (which is mapped to =C-c C-v C-t= or =C-c C-v t= by default).
+
+This file defines the following outputs (produced through tangling):
+- init.el :: base configuration
+- personal-example.el :: example personal configuration which anyone can use to define their personal configurations or parts of their configurations that deviate from the /base configuration/
 
 ** Setup
 
-Populate all necessary files in the =~/.emacs.d= directory to get started. Emacs will be looking for =init.el= which, in this repo, also sources =lang.el= and =personal.el=, so beware.
+Populate all necessary files in the =~/.emacs.d= directory to get started. Emacs will be looking for =init.el= which, in this repo, also sources:
+- =lang.el= and
+- =personal.el=
+
+so, make sure to have these files available.
+
+# Figure out how to hide the code-block but display the image on forges
+
+#+begin_src dot :file .imgs/conf-setup.png
+digraph G {
+  node_this [shape=box, label="README.org"]
+  node_init [shape=box, label="init.el"]
+  node_personal_example [shape=box, label="personal-example.el"]
+  node_personal [shape=box, label="personal.el"]
+  node_lang [shape=box, label="lang.el"]
+
+  node_this -> node_init [label="tangles to"]
+  node_this -> node_personal_example [label="tangles to"]
+  node_personal_example -> node_personal [style=dotted]
+
+  node_init -> node_personal [label="loads"]
+  node_init -> node_lang [label="loads"]
+}
+#+end_src
+
+#+RESULTS:
+[[file:.imgs/conf-setup.png]]
 
 Here be dragons. 🐉
 
-*** Personal Details
+** Customizations
+
+*** Basics
+
+#+begin_src elisp :tangle init.el
+;; Format with indent-region
+
+;; https://www.emacswiki.org/emacs/ScrollBar
+(scroll-bar-mode -1)
+
+;; https://www.emacswiki.org/emacs/ToolBar
+(tool-bar-mode -1)
+
+;; https://www.emacswiki.org/emacs/MenuBar
+(menu-bar-mode -1)
+
+;; https://www.emacswiki.org/emacs/ShowParenMode
+(show-paren-mode 1)
+
+;; https://www.emacswiki.org/emacs/FillColumnIndicator
+(global-display-fill-column-indicator-mode 1)
+
+;; https://www.emacswiki.org/emacs/LineNumbers
+(global-display-line-numbers-mode 1)
+
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
+;; =describe-package ffap=
+(ffap-bindings)
+
+;; https://www.emacswiki.org/emacs/WhiteSpace
+;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
+(setq whitespace-style '(empty face lines-tail tabs trailing))
+
+;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
+(setq-default indent-tabs-mode nil)
+
+;; http://ergoemacs.org/emacs/whitespace-mode.html
+(global-whitespace-mode nil)
+
+;; https://www.reddit.com/r/emacs/comments/643dkt/use_package_vs_require_and_maybe_some_sorrowful/dfz3mtx
+
+#+end_src
+
+*** Package Management 📦
+
+Configure straight.el 🍀 as package manager.
+
+#+begin_src elisp :tangle init.el
+;; TODO: Reeval if this compat hack is still needed
+;; Issue is that straight relies on vars with prefixes that have been
+;; renamed from comp to native-comp on the Emacs side.
+;; https://github.com/raxod502/straight.el/issues/757#issuecomment-839764260
+(defvar comp-deferred-compilation-deny-list ())
+
+;; https://github.com/raxod502/straight.el#getting-started
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+;; https://github.com/raxod502/straight.el#integration-with-use-package
+(straight-use-package 'use-package)
+#+end_src
+
+*** Modeline
+
+The modeline is the bar typically at the bottom of a buffer which provides useful information about the system.
+
+Since the amount of textual information in the Modeline can get overwhelming at times, we provide shorted pictographic indicators in the Modeline instead.
+
+#+begin_src elisp :tangle init.el
+(use-package delight
+  :straight (delight :type git
+                     :host nil
+                     :repo "https://git.savannah.nongnu.org/git/delight.git")
+  :delight
+  (auto-revert-mode "♻️")
+  (eldoc-mode " el📖")
+  (edebug-mode "🐞")
+  (global-whitespace-mode)
+  (visual-line-mode " 🌯")
+  (mu4e-main-mode "📫")
+  (mu4e-headers-mode "📬")
+  (mu4e-view-mode "📧"))
+
+(use-package diminish
+  :disabled
+  :straight (diminish :type git
+                      :host github
+                      :repo "myrjola/diminish.el"))
+#+end_src
+
+*** Org
+
+#+begin_src elisp :tangle init.el
+;; https://orgmode.org/worg/org-contrib/org-protocol.html
+;; https://github.com/org-roam/org-roam/issues/529
+;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
+(use-package org
+  :straight (:type built-in)
+  :init
+  (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
+        org-hide-leading-stars nil
+        org-odd-levels-only nil)
+  :config
+  ;;;;(require 'org)
+  ;;(require 'org-protocol)
+  ;;(require 'org-id)
+  ;;(require 'ol)
+  ;;;;(require 'org-element)
+  ;;(require 'org-capture)
+  ;; NOTE: Figure out if removing org-contrib breaks loading of
+  ;; - obe and
+  ;; - ol-bibtex, since these are all part of org-contrib
+  ;;(require 'org-contrib)
+  ;;(require 'org-bibtex-extras)
+  ;;(require 'ol-bibtex) ;; formerly org-bibtex
+
+                                        ; NOTE: Figure out if these are evne needed for basic citation demos to work
+  ;;(require 'oc) ;; org-cite
+  ;;(require 'oc-basic)
+  ;;(require 'oc-csl)
+  ;;(require 'oc-natbib)
+  ;;(require 'oc-biblatex)
+
+  ;;(require 'ox-bibtex)
+  ;;(require 'ox-extra)
+  ;;(require 'ox-latex)
+
+  ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
+  ;; https://orgmode.org/manual/Structure-Templates.html
+  (load-library "org-tempo")
+  ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
+  ;; activate dot
+  (setq org-plantuml-exec-mode 'plantuml)
+  ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
+  (setq org-src-preserve-indentation t
+        org-hide-block-startup t
+        org-capture-templates '(("w" "Default Template" entry (file+headline "~/org/protocol/capture.org" "Notes") "* %^{Title}\n\nSource: %u, %c\n\n%i" :empty-lines 1)
+                                ("p" "Link with Selected Text" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read %^{title}\n\n Source: %:annotation\n\n #+BEGIN_QUOTE\n\n %i\n\n #+END_QUOTE%?" :empty-lines 2)
+                                ("L" "Link Only" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read _%:description_\n\nSource: %:annotation%?" :empty-lines 2)
+                                ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks") "* TODO %?\n\n%i\n\n%a")))
+  :custom
+  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
+
+;;;; https://git.sr.ht/~bzg/org-contrib
+;;(use-package org-contrib
+;;  :straight (org-contrib :type git
+;;                         :host nil
+;;                         :repo "https://git.sr.ht/~bzg/org-contrib")
+;;  :after org
+;;  :config
+;;  ;;(require 'ox-bibtex)
+;;  (require 'oc-basic)
+;;  (require 'oc-csl)
+;;  (require 'oc-biblatex)
+;;  (require 'oc-natbib))
+
+;; TODO: Isolate into a bibliography file
+
+;;;; https://github.com/bdarcus/citar
+;;(use-package citar
+;;  :straight (citar :type git
+;;                   :host github
+;;                   :repo "bdarcus/citar")
+;;  :no-require
+;;  :custom
+;;  (org-cite-insert-processor 'citar)
+;;  (org-cite-follow-processor 'citar)
+;;  (org-cite-activate-processor 'citar)
+;;  :bind
+;;  (:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
+
+;; https://github.com/nobiot/md-roam
+(use-package md-roam
+  :straight (md-roam :type git
+                     :host github
+                     :repo "nobiot/md-roam")
+  :after org-roam
+  :init
+  (setq md-roam-use-markdown-file-links t
+        md-roam-file_extension-single "md"
+        org-roam-tag-sources '(prop md-frontmatter)
+        org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
+
+;; https://github.com/org-roam/org-roam
+(use-package org-roam
+  :straight (org-roam :type git
+                      :host github
+                      :repo "org-roam/org-roam")
+  :after org
+  :init
+  (setq org-roam-v2-ack t)
+  (make-directory (file-truename "~/org/roam/") t)
+  :custom
+  (org-roam-file-extensions '("org" "md"))
+  (org-roam-directory (file-truename "~/org/roam/"))
+  (org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
+  :config
+  (message "📔 org-roam is loaded")
+  (org-roam-db-autosync-mode 1)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)))
+
+;; https://github.com/org-roam/org-roam-ui
+(use-package org-roam-ui
+  :delight
+  (org-roam-ui-mode "🕸️")
+  (org-roam-ui-follow-mode "👀")
+  :straight (org-roam-ui :host github
+                         :repo "org-roam/org-roam-ui"
+                         :branch "main"
+                         :files ("*.el" "out"))
+  :after org-roam
+  ;; normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;; a hookable mode anymore, you're advised to pick something yourself
+  ;; if you don't care about startup time, use
+  :bind (("C-c n ." . org-roam-ui-node-zoom)
+         ("C-c n ," . org-roam-ui-node-local))
+  :hook (after-init . org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow nil
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start nil))
+
+;; https://github.com/jkitchin/org-ref
+(use-package org-ref
+  :straight (org-ref :type git
+                     :host github
+                     :repo "jkitchin/org-ref")
+  :after org)
+
+;; https://github.com/org-roam/org-roam-bibtex
+(use-package org-roam-bibtex
+  :straight (org-roam-bibtex :type git
+                             :host github
+                             :repo "org-roam/org-roam-bibtex")
+  :after org-roam)
+;;:config
+;;(require 'org-ref)
+;;:custom
+;;(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
+#+end_src
+
+*** Async
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/jwiegley/emacs-async
+(use-package async
+  :straight (async :type git
+                   :host github
+                   :repo "jwiegley/emacs-async"))
+#+end_src
+
+*** Undo
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/emacsmirror/undo-fu
+(use-package undo-fu
+  :straight (undo-fu :type git
+                     :host github
+                     :repo "emacsmirror/undo-fu"))
+#+end_src
+
+*** Fin
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/Fanael/rainbow-delimiters
+(use-package rainbow-delimiters
+  :straight (rainbow-delimiters :type git
+                                :host github
+                                :repo "Fanael/rainbow-delimiters")
+  ;; :hook
+  ;; ;; https://github.com/patrickt/emacs
+  ;; ((prog-mode) . rainbow-delimiters-mode)
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
+#+end_src
+
+*** Evil
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/emacs-evil/evil
+;; https://github.com/noctuid/evil-guide
+(use-package evil
+  :straight (evil :type git
+                  :host github
+                  :repo "emacs-evil/evil")
+  :after
+  undo-fu
+  :init
+  ;; https://github.com/emacs-evil/evil-collection#installation
+  ;; pre-set some evil vars prior to package load
+  (setq evil-respect-visual-line-mode t)
+  (setq evil-undo-system 'undo-fu)
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  :config
+  (evil-mode t)
+  (evil-set-initial-state 'info-mode 'emacs)
+  (evil-set-initial-state 'help-mode 'emacs)
+  (evil-set-initial-state 'special-mode 'emacs))
+
+;; https://github.com/emacs-evil/evil-collection
+(use-package evil-collection
+  :straight (evil-collection :type git
+                             :host github
+                             :repo "emacs-evil/evil-collection")
+  :after evil
+  :config
+  (evil-collection-init)
+  :delight
+  (evil-collection-unimpaired-mode))
+#+end_src
+
+*** Appearance 💄
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/joostkremers/visual-fill-column
+(use-package visual-fill-column
+  :straight (visual-fill-column :type git
+                                :host github
+                                :repo "joostkremers/visual-fill-column"))
+;; https://elpa.gnu.org/packages/adaptive-wrap.html
+(use-package adaptive-wrap
+  :straight (adaptive-wrap :type git
+                           :host github
+                           :repo "emacs-straight/adaptive-wrap")
+  :config
+  (adaptive-wrap-prefix-mode))
+
+;; https://github.com/purcell/default-text-scale
+;; Doesn't work well in emacsclient
+(use-package default-text-scale
+  :straight (default-text-scale :type git
+                                :host github
+                                :repo "purcell/default-text-scale")
+  :hook
+  (after-init . default-text-scale-mode)
+  :init
+  (add-hook 'server-after-make-frame-hook
+            (lambda () (progn (message "🎨 Time to dress up the GUI")
+                              (default-text-scale-reset)))))
+#+end_src
+
+*** Fin
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/justbur/emacs-which-key
+(use-package which-key
+  :delight
+  :straight (which-key :type git
+                       :host github
+                       :repo "justbur/emacs-which-key")
+  :config
+  (which-key-mode))
+#+end_src
+
+*** Version Control
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/magit/magit.git
+(use-package magit
+  :straight (magit :type git
+                   :host github
+                   :repo "magit/magit"))
+
+;; https://github.com/dgutov/diff-hl
+(use-package diff-hl
+  :straight (diff-hl :type git
+                     :host github
+                     :repo "dgutov/diff-hl")
+  :hook
+  (after-init . global-diff-hl-mode))
+#+end_src
+
+*** Navigation 📁
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/emacsorphanage/dired-k
+(use-package dired-k
+  :straight (dired-k :type git
+                     :host github
+                     :repo "emacsorphanage/dired-k")
+  :init
+  (setq dired-k-style 'git)
+  :config
+  (add-hook 'dired-initial-position-hook 'dired-k))
+
+;; https://github.com/jrblevin/deft
+(use-package deft
+  :straight (deft :type git
+                  :host github
+                  :repo "jrblevin/deft")
+  :after org
+  :bind
+  ("C-c n d" . deft)
+  :custom
+  (deft-directory "~/org")
+  (deft-extensions '("md" "org"))
+  (deft-recursive t)
+  (deft-strip-summary-regexp
+   (concat "\\("
+           "[\n\t]" ;; blank
+           "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+           "\\)"))
+  (deft-use-filename-as-title t)
+  (deft-use-filter-string-for-filename t))
+
+;;;; http://company-mode.github.io/
+;;(use-package company
+;;  :straight (company :type git
+;;                     :host github
+;;                     :repo "company-mode/company-mode")
+;;  :config
+;;  (add-hook 'after-init-hook 'global-company-mode)
+;;  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
+#+end_src
+
+*** Mail?!?
+
+#+begin_src elisp :tangle init.el
+;;;; https://git.notmuchmail.org/git/notmuch
+;;;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
+;;;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
+;;(use-package notmuch
+;;  :straight nil
+;;  :init
+;;  (evil-collection-notmuch-setup))
+#+end_src
+
+*** Terminal 
+
+#+begin_src elisp :tangle init.el
+;;(use-package vterm :straight nil)
+
+;;(use-package multi-vterm
+;;  :straight (multi-vterm :type git
+;;                         :host github
+;;                         :repo "suonlight/multi-vterm")
+;;  :config
+;;  ;;(add-hook 'vterm-mode-hook
+;;  ;;          (lambda ()
+;;  ;;            (setq-local evil-insert-state-cursor 'box)
+;;  ;;            (evil-insert-state)))
+;;  (define-key vterm-mode-map [return]                      #'vterm-send-return)
+;;
+;;  (setq vterm-keymap-exceptions nil)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-e")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-f")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-a")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-v")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-b")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-w")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-u")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-n")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-m")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-p")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-j")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-k")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-r")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-t")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-g")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-c")      #'vterm--self-insert)
+;;  (evil-define-key 'insert vterm-mode-map (kbd "C-SPC")    #'vterm--self-insert)
+;;  (evil-define-key 'normal vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
+;;  (evil-define-key 'normal vterm-mode-map (kbd ",c")       #'multi-vterm)
+;;  (evil-define-key 'normal vterm-mode-map (kbd ",n")       #'multi-vterm-next)
+;;  (evil-define-key 'normal vterm-mode-map (kbd ",p")       #'multi-vterm-prev)
+;;  (evil-define-key 'normal vterm-mode-map (kbd "i")        #'evil-insert-resume)
+;;  (evil-define-key 'normal vterm-mode-map (kbd "o")        #'evil-insert-resume)
+;;  (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
+#+end_src
+
+*** PDF
+
+#+begin_src elisp :tangle init.el
+(use-package pdf-tools
+  :straight nil
+  :config
+  (require 'pdf-occur)
+  (pdf-tools-install nil t nil nil)
+  (setq-default pdf-view-display-size 'fit-width))
+
+;; https://github.com/jkitchin/ox-clip
+;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
+;; to copy org-mode file into HTML for rich-text input controls
+(use-package ox-clip
+  :straight (ox-clip :type git
+                     :host github
+                     :repo "jkitchin/ox-clip")
+  :after org
+  :bind
+  ("C-c y" . ox-clip-formatted-copy))
+#+end_src
+
+*** Project Management
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/bbatsov/projectile/
+(use-package projectile
+  :straight (projectile :type git
+                        :host github
+                        :repo "bbatsov/projectile")
+  :custom
+  (projectile-mode-line-prefix "🗄️"))
+
+;; https://github.com/nex3/perspective-el
+(use-package perspective
+  :straight (perspective :type git
+                         :host github
+                         :repo "nex3/perspective-el")
+  :bind (("C-x C-b" . persp-ivy-switch-buffer)
+         ("C-x k" . persp-kill-buffer*))
+  :config
+  (persp-mode t)
+  :init
+  (setq persp-state-default-file "~/.emacs.d/perspective"
+        persp-modestring-short t))
+#+end_src
+
+*** Convenience
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/emacsorphanage/zoom-window
+(use-package zoom-window
+  :straight (zoom-window :type git
+                         :host github
+                         :repo "emacsorphanage/zoom-window")
+  :init
+  (setq ;;zoom-window-use-persp t
+   zoom-window-mode-line-color "DarkRed")
+  :config
+  (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
+
+;; https://github.com/abo-abo/ace-window
+;; https://jao.io/blog/2020-05-12-ace-window.html
+(use-package ace-window
+  :straight (ace-window :type git
+                        :host github
+                        :repo "abo-abo/ace-window")
+  :bind (("M-o" . ace-window)))
+
+;; https://github.com/abo-abo/swiper
+(use-package swiper
+  :straight (swiper :type git
+                    :host github
+                    :repo "abo-abo/swiper")
+  :delight
+  (counsel-mode)
+  (ivy-mode)
+  :config
+  (straight-use-package 'counsel)
+  (ivy-mode)
+  (counsel-mode)
+  (setq ivy-use-virtual-buffers t
+        enable-recursive-minibuffers t))
+#+end_src
+
+*** Customization
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/fniessen/emacs-leuven-theme
+(use-package leuven-theme
+  :straight (leuven-theme :type git
+                          :host github
+                          :repo "fniessen/emacs-leuven-theme"))
+
+;; https://gitlab.com/protesilaos/modus-themes
+(use-package modus-themes
+  :straight (modus-themes :type git
+                          :host gitlab
+                          :repo "protesilaos/modus-themes")
+  :config
+  (modus-themes-load-themes)
+  :init
+  (setq modus-themes-bold-constructs t
+        modus-themes-mode-line '(3d accented)
+        modus-themes-org-blocks 'gray-background
+        modus-themes-region '(bg-only no-extend accented)
+        modus-themes-prompts '(intense)
+        modus-themes-fringes '(intense)
+        modus-themes-hl-line '(accented)
+        modus-themes-paren-match '(bold intense)
+        modus-themes-syntax '(yellow-comments green-strings alt-syntax)
+        modus-themes-headings '((1 . (background overline))
+                                (2 . (background overline rainbow))
+                                (t . (background overline rainbow)))
+        modus-themes-scale-headings t))
+
+(setq display-buffer-alist
+      (list
+       (cons
+        (regexp-opt-group '("*org-roam*"))
+        (cons #'display-buffer-in-side-window
+              '((slot . 0)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))
+       (cons
+        (regexp-opt-group '("*Dictionary*"))
+        (cons #'display-buffer-in-side-window
+              '((slot . -1)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))
+       (cons
+        (regexp-opt-group '("*Help*" "*Info*" "*info*"))
+        (cons #'display-buffer-in-side-window
+              '((slot . 5)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))
+       (cons
+        (regexp-opt-group '("*Shortdoc"))
+        (cons #'display-buffer-in-side-window
+              '((slot . 6)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))
+       (cons
+        (regexp-opt-group '("*Warnings*"))
+        (cons #'display-buffer-in-side-window
+              '((slot . 10)
+                (side . left)
+                (window-width . 80)
+                (window-parameters . ((no-other-window . t))))))))
+
+(load "~/.emacs.d/lang.el")
+(load "~/.emacs.d/personal.el")
+
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
+(put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
+#+end_src
+
+** Personal Details
 
 Populate a =personal.el= file which defines your name, your e-mail details and some other /very personal/ configuration bits such as theme customizations or personalized keybindings. Use the following snippet as an example of a configuration that may work.
 
-#+begin_src elisp
+#+begin_src elisp :tangle personal-example.el
 (setq user-full-name "David Asabina"
       inhibit-startup-screen t
       smtpmail-debug-info t

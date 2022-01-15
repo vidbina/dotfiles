@@ -371,7 +371,7 @@
 ;;  :config
 ;;  (add-hook 'after-init-hook 'global-company-mode)
 ;;  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
-;;
+
 ;;;; https://git.notmuchmail.org/git/notmuch
 ;;;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
 ;;;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
