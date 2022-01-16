@@ -1,4 +1,6 @@
 * Emacs Configuration
+#+OPTIONS: html5-fancy:t
+#+HTML_DOCTYPE: html5
   
 Definitely not an Emacs distro but aiming for a somewhat wieldable Emacs config.
 
@@ -50,9 +52,80 @@ digraph G {
 ** Customizations
 *** 📦 Package Management
 
-Configure straight.el 🍀 as package manager.
+**** Straight 🍀
+Straight.el 🍀 is a popular package manager used to manage Emacs packages.
 
-**** ⚠️ Pre-bootstrap Work-around
+***** Background
+****** Package pinning
+The primary advantage of using *straight.el* is the ability to _pin package version in a [[file:straight/versions/default.el][lockfile]]_ (e.g.: =~/.emacs.d/straight/versions/default.el=) in manner quite similar to how popular package managers such as Bundler (Ruby) and NPM (JavaScript) or Yarn (JavaScript) improve reproducibility of a configuration by pinning the versions of their packages in a file (e.g.: Gemfile.lock for Bundler, package.lock for NPM and yarn.lock for Yarn).
+
+****** Commonly-used interface: use-package
+A "widely-used" package configuration interface within the Emacs users community is *use-package* and *straight.el* allows us to use this interface to manage a configuration. You have likely seen a use-package declaration before as it makes use of an association list (alist) style interface (of keyword[fn:1]-value pairs) to make it easier for us to discern what the meaning of some parts of the configuration are while keeping configurations pertaining one package localized.
+
+#+begin_src elisp :results none
+;; Just an example of a use-package form
+(use-package my-package-y
+  :after
+  (:all my-package-a my-package-x)
+
+  :init
+  (setq my-package-coefficient 42)
+  (message "Just a heads-up: we'll be setting up package y")
+
+  :config
+  (my-package-y-run-checks-after-load)
+  (my-package-y-check-data-on-filesystem)
+  (my-package-y-mode t)
+
+  :bind (("C-c y 1" . my-package-y-do-thing-in-buffer)
+         ("C-c y 2" . my-package-y-do-another-thing-in-buffer)))
+#+end_src
+
+#+BEGIN_details
+#+HTML: <summary>Historic Context: Before use-package, package-specific configuration declarations may have been spread throughout a configuration and thus difficult to associate or debug.</summary>
+For those familiar with classical Emacs configurations, you may recall that it wasn't uncommon to intersperse fragments of configurations of multiple packages in order to get everything loaded in the right order.
+
+Compared to the earlier snippet in which the use of the *use-package* macro was demonstrated, a pre-*use-package* era configuration may have had the relevant declarations for a single package spread throughout a configuration.
+
+#+begin_src elisp :results none
+(setq my-package-coefficient 42)
+(message "Just a heads-up: we'll be setting up package y")
+
+;; ...
+
+(require 'my-package-a)
+(require 'my-package-x)
+
+;; ...
+
+(require 'my-package-y)
+(my-package-y-run-checks-after-load)
+(my-package-y-check-data-on-filesystem)
+(my-package-y-mode t)
+
+(add-hook 'my-package-y-mode
+          (lambda ()
+            (local-set-key (kbd "C-c y 1") 'my-package-y-do-thing-in-buffer)
+            (local-set-key (kbd "C-c y 2") 'my-package-y-do-another-thing-in-buffer))
+#+end_src
+
+#+END_details
+
+The *use-package* macro helps one organize (think: tidy-up) and optimize (think: boost the UX) a configuration.
+
+******* Organization
+On the tidying up front, for example, you'll find that the *use-package* macro provides mechanisms to:
+1. order the load sequence of packages by defining a dependencies by means of the =:after= keyword
+2. time application of parts of a configurations before or after /package load/ by means of the =:init= (i.e.: before load) and =:config= (i.e.: after load) keywords
+3. bind keychords using the =:bind= keyword
+
+******* Peformance
+On the performance front, you'll find that the *use-package* macro provides mechanisms to:
+1. delay loading of packages by means of the =:defer= or =:demand= keywords
+1. delay loading of packages needed in a particular mode or interpreter by means of the =:mode= or =:interpreter= keywords
+2. define "as-of-yet not seen" symbols that will be needed for compilation by means of the =:functions= and =:defines= keywords
+
+***** ⚠️ Pre-bootstrap Work-around
 
 #+begin_src elisp :tangle init.el
 ;; TODO: Reeval if this compat hack is still needed
@@ -62,7 +135,7 @@ Configure straight.el 🍀 as package manager.
 (defvar comp-deferred-compilation-deny-list ())
 #+end_src
 
-**** 🥾 Bootstrap
+***** 🥾 Bootstrap
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/raxod502/straight.el#getting-started
@@ -909,3 +982,7 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
 *** Languages or Language-based Tooling
 
 Populate a =lang.el= file which defines all of the major-modes and language-related tooling that are relevant to you. In my case I have simply defined a symlink from [[file:lang.example.el][lang.example.el]] to lang.el. YMMV!
+
+* Footnotes
+
+[fn:1] Keywords can be recognized by the =:= (colon character) prefix. 
