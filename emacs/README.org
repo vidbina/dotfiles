@@ -125,15 +125,18 @@ On the performance front, you'll find that the *use-package* macro provides mech
 1. delay loading of packages needed in a particular mode or interpreter by means of the =:mode= or =:interpreter= keywords
 2. define "as-of-yet not seen" symbols that will be needed for compilation by means of the =:functions= and =:defines= keywords
 
-***** ⚠️ Pre-bootstrap Work-around
+***** COMMENT ⚠️ Pre-bootstrap Work-around
+
+The issue is that straight relies on the existence of variables with prefixes that have been renamed from =comp= to =native-comp=. So, if the installed variant of Emacs lacks native compilation capability, then straight will be bumping into undefined symbols.
 
 #+begin_src elisp :tangle init.el
-;; TODO: Reeval if this compat hack is still needed
-;; Issue is that straight relies on vars with prefixes that have been
-;; renamed from comp to native-comp on the Emacs side.
 ;; https://github.com/raxod502/straight.el/issues/757#issuecomment-839764260
 (defvar comp-deferred-compilation-deny-list ())
 #+end_src
+
+****** TODO ⚠️ Reevaluate if this compatability hack is still needed.
+
+I believe that the nix configuration now installs a version of Emacs native compilation capability, rendering this moot. Just have to confirm that this still works without this work-around.
 
 ***** 🥾 Bootstrap
 
