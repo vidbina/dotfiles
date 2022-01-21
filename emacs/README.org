@@ -1,35 +1,32 @@
-* Emacs Configuration
 #+OPTIONS: html5-fancy:t
 #+HTML_DOCTYPE: html5
+#+TITLE: Emacs Configuration
   
 Definitely not an Emacs distro but aiming for a somewhat wieldable Emacs config.
 
-⚠️ Treat this file as the source of truth and tangle the needed elisp files from here using the ~(org-babel-tangle)~ function (which is mapped to =C-c C-v C-t= or =C-c C-v t= by default).
+⚠️ Treat this file (not [[file:init.el]]) as the source of truth and tangle the needed elisp files ([[file.init.el]], [[file:lang.el]] and [[file.personal-example.el]] which you can use as a example to populate your own [[file:personal.el]]) from here using the ~(org-babel-tangle)~ function which is mapped to =C-c C-v C-t= or =C-c C-v t= by default.
 
 This file defines the following outputs (produced through tangling):
 - init.el :: base configuration
 - personal-example.el :: example personal configuration which anyone can use to define their personal configurations or parts of their configurations that deviate from the /base configuration/
 
-** Usage
-Populate all necessary files in the =~/.emacs.d= directory to get started. Emacs will be looking for =init.el= which, in this repo, also sources:
-- =lang.el= and
-- =personal.el=
+* Usage
 
-You can populate the files in =~/.emacs.d= by cloning this config into that path, or by cloning this config into a submodule or subdirectory to =~/.emacs.d=.
+Populate your configuration in the =~/.emacs.d= directory to get started. Emacs will be looking for =~/.emacs.d/init.el= which, in this repo, also sources:
+- =lang.el= where we specify our language-specific configurations (e.g.: language major modes, language servers, reference utilities like dictionaries) and
+- =personal.el= where we specify our personal information (e.g.: mail configuration details).
 
-*** Clone into =~/.emacs.d=
-1. Clone this repo to a path of choice and symlink =~/.emacs.d= to the your previously selected path.
-3. Populate personal.el
-*** Use this configuration as a submodule or subdirectory
-1. If you already have a repository at =~/.emacs.d=, add this project as a submodule, otherwise add symlink a symlink from =~/.emacs.d/a-config= to this repository.
-2. Symlink =init.el= from =~/.emacs.d/init.el= to init.el within the configuration directory.
-3. Populate personal.el
+⚠️ Note that we are in a subdirectory (=emacs=)of a repository here. 
 
-** Design
+Before you can test-drive this config, you'll need to clone this repository and symlink your =~/.emacs.d= into the =emacs= directory of this configuration:
+1. Clone this repo to a path of choice (e.g.: =~/src/THIS_REPO=) and symlink =~/.emacs.d= to the location to which this repo has been cloned (e.g.: =ln -s ~/src/THIS_REPO/emacs ~/.emacs.d=).
+3. Populate =~/.emacs.d/personal.el=
+
+* Design
 
 # Figure out how to hide the code-block but display the image on forges
 
-#+begin_src dot :file .imgs/conf-setup.png
+#+begin_src dot :file images/conf-setup.png :exports results
 digraph G {
   node_this [shape=box, label="README.org"]
   node_init [shape=box, label="init.el"]
@@ -47,19 +44,19 @@ digraph G {
 #+end_src
 
 #+RESULTS:
-[[file:.imgs/conf-setup.png]]
+[[file:images/conf-setup.png]]
 
-** Customizations
-*** 📦 Package Management
+* Customizations
+** 📦 Package Management
 
-**** Straight 🍀
+*** Straight 🍀
 Straight.el 🍀 is a popular package manager used to manage Emacs packages.
 
-***** Background
-****** Package pinning
+**** Background
+***** Package pinning
 The primary advantage of using *straight.el* is the ability to _pin package version in a [[file:straight/versions/default.el][lockfile]]_ (e.g.: =~/.emacs.d/straight/versions/default.el=) in manner quite similar to how popular package managers such as Bundler (Ruby) and NPM (JavaScript) or Yarn (JavaScript) improve reproducibility of a configuration by pinning the versions of their packages in a file (e.g.: Gemfile.lock for Bundler, package.lock for NPM and yarn.lock for Yarn).
 
-****** Commonly-used interface: use-package
+***** Commonly-used interface: use-package
 A "widely-used" package configuration interface within the Emacs users community is *use-package* and *straight.el* allows us to use this interface to manage a configuration. You have likely seen a use-package declaration before as it makes use of an association list (alist) style interface (of keyword[fn:1]-value pairs) to make it easier for us to discern what the meaning of some parts of the configuration are while keeping configurations pertaining one package localized.
 
 #+begin_src elisp :results none
@@ -113,19 +110,19 @@ Compared to the earlier snippet in which the use of the *use-package* macro was 
 
 The *use-package* macro helps one organize (think: tidy-up) and optimize (think: boost the UX) a configuration.
 
-******* Organization
+****** Organization
 On the tidying up front, for example, you'll find that the *use-package* macro provides mechanisms to:
 1. order the load sequence of packages by defining a dependencies by means of the =:after= keyword
 2. time application of parts of a configurations before or after /package load/ by means of the =:init= (i.e.: before load) and =:config= (i.e.: after load) keywords
 3. bind keychords using the =:bind= keyword
 
-******* Peformance
+****** Peformance
 On the performance front, you'll find that the *use-package* macro provides mechanisms to:
 1. delay loading of packages by means of the =:defer= or =:demand= keywords
 1. delay loading of packages needed in a particular mode or interpreter by means of the =:mode= or =:interpreter= keywords
 2. define "as-of-yet not seen" symbols that will be needed for compilation by means of the =:functions= and =:defines= keywords
 
-***** COMMENT ⚠️ Pre-bootstrap Work-around
+**** COMMENT ⚠️ Pre-bootstrap Work-around
 
 The issue is that straight relies on the existence of variables with prefixes that have been renamed from =comp= to =native-comp=. So, if the installed variant of Emacs lacks native compilation capability, then straight will be bumping into undefined symbols.
 
@@ -134,11 +131,11 @@ The issue is that straight relies on the existence of variables with prefixes th
 (defvar comp-deferred-compilation-deny-list ())
 #+end_src
 
-****** TODO ⚠️ Reevaluate if this compatability hack is still needed.
+***** TODO ⚠️ Reevaluate if this compatability hack is still needed.
 
 I believe that the nix configuration now installs a version of Emacs native compilation capability, rendering this moot. Just have to confirm that this still works without this work-around.
 
-***** 🥾 Bootstrap
+**** 🥾 Bootstrap
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/raxod502/straight.el#getting-started
@@ -159,7 +156,12 @@ I believe that the nix configuration now installs a version of Emacs native comp
 (straight-use-package 'use-package)
 #+end_src
 
-*** 📓 Org
+** 📓 Org
+
+Org is probably the killer app of Emacs and provides a nifty solution to manage the following with a pretty solid and clearly standardized format:
+- notes
+- dates
+- links to resources (websites, E-mails, files, etc.)
 
 #+begin_src elisp :tangle init.el
 ;; https://orgmode.org/worg/org-contrib/org-protocol.html
@@ -172,37 +174,12 @@ I believe that the nix configuration now installs a version of Emacs native comp
         org-hide-leading-stars nil
         org-odd-levels-only nil)
   :config
-  ;;;;(require 'org)
-  ;;(require 'org-protocol)
-  ;;(require 'org-id)
-  ;;(require 'ol)
-  ;;;;(require 'org-element)
-  ;;(require 'org-capture)
-  ;; NOTE: Figure out if removing org-contrib breaks loading of
-  ;; - obe and
-  ;; - ol-bibtex, since these are all part of org-contrib
-  ;;(require 'org-contrib)
-  ;;(require 'org-bibtex-extras)
-  ;;(require 'ol-bibtex) ;; formerly org-bibtex
-
-                                        ; NOTE: Figure out if these are evne needed for basic citation demos to work
-  ;;(require 'oc) ;; org-cite
-  ;;(require 'oc-basic)
-  ;;(require 'oc-csl)
-  ;;(require 'oc-natbib)
-  ;;(require 'oc-biblatex)
-
-  ;;(require 'ox-bibtex)
-  ;;(require 'ox-extra)
-  ;;(require 'ox-latex)
-
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
   (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
   ;; https://orgmode.org/manual/Structure-Templates.html
   (load-library "org-tempo")
   ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
-  ;; activate dot
   (setq org-plantuml-exec-mode 'plantuml)
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
   (setq org-src-preserve-indentation t
@@ -315,7 +292,7 @@ I believe that the nix configuration now installs a version of Emacs native comp
 ;;(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
 #+end_src
 
-*** 👁️ Appearance
+** 👁️ Appearance
 
 #+begin_src elisp :tangle init.el
 ;; Format with indent-region
@@ -353,7 +330,7 @@ I believe that the nix configuration now installs a version of Emacs native comp
 (global-whitespace-mode nil)
 #+end_src
 
-**** 🎛️ Modeline
+*** 🎛️ Modeline
 
 The modeline is the bar typically at the bottom of a buffer which provides useful information about the system.
 
@@ -381,7 +358,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                       :repo "myrjola/diminish.el"))
 #+end_src
 
-**** 🔤 Text
+*** 🔤 Text
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/joostkremers/visual-fill-column
@@ -411,7 +388,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                               (default-text-scale-reset)))))
 #+end_src
 
-**** 💄 Themes
+*** 💄 Themes
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/fniessen/emacs-leuven-theme
@@ -443,48 +420,30 @@ Since the amount of textual information in the Modeline can get overwhelming at 
         modus-themes-scale-headings t))
 #+end_src
 
-**** 🏗️ Buffer Placement
+*** 🏗️ Buffer Placement
 
 #+begin_src elisp :tangle init.el
 (setq display-buffer-alist
-      (list
-       (cons
-        (regexp-opt-group '("*org-roam*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 0)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Dictionary*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . -1)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Help*" "*Info*" "*info*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 5)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Shortdoc"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 6)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Warnings*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 10)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))))
+      (let* ((sidebar-width '(window-width . 85))
+             (sidebar-parameters '(window-parameters . ((no-other-window . t))))
+             (sidebar (list '(side . left) sidebar-width sidebar-parameters)))
+        (list (cons (regexp-opt-group '("*org-roam*"))
+                    (cons #'display-buffer-in-side-window
+                          `((slot . 0) ,@sidebar)))
+              (cons (regexp-opt-group '("*Dictionary*"))
+                    (cons #'display-buffer-in-side-window
+                          `((slot . -1) ,@sidebar)))
+              (cons (regexp-opt-group '("*Help*" "*Info*" "*info*"))
+                    (cons #'display-buffer-in-side-window
+                          `((slot . 5) ,@sidebar)))
+              (cons (regexp-opt-group '("*Shortdoc"))
+                    (cons #'display-buffer-in-side-window
+                          `((slot . 6) ,@sidebar)))
+              (cons (regexp-opt-group '("*Warnings*"))
+                    (cons #'display-buffer-in-side-window
+                          `((slot . 10) ,@sidebar))))))
 #+end_src
-*** TODO Undo
+** TODO Undo
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsmirror/undo-fu
@@ -494,7 +453,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                      :repo "emacsmirror/undo-fu"))
 #+end_src
 
-*** TODO Async
+** TODO Async
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/jwiegley/emacs-async
@@ -504,7 +463,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                    :repo "jwiegley/emacs-async"))
 #+end_src
 
-*** TODO Rainbow
+** TODO Rainbow
 
 #+begin_comment
 ⚠️ Move to Langauge config
@@ -523,7 +482,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
 #+end_src
 
-*** TODO Evil
+** TODO Evil
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacs-evil/evil
@@ -559,7 +518,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   (evil-collection-unimpaired-mode))
 #+end_src
 
-*** TODO Fin
+** TODO Fin
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/justbur/emacs-which-key
@@ -572,7 +531,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   (which-key-mode))
 #+end_src
 
-*** TODO Version Control
+** TODO Version Control
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/magit/magit.git
@@ -590,7 +549,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   (after-init . global-diff-hl-mode))
 #+end_src
 
-*** TODO Navigation 📁
+** TODO Navigation 📁
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsorphanage/dired-k
@@ -633,7 +592,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 ;;  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 #+end_src
 
-*** TODO Mail?!?
+** TODO Mail?!?
 
 #+begin_src elisp :tangle init.el
 ;;;; https://git.notmuchmail.org/git/notmuch
@@ -645,7 +604,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 ;;  (evil-collection-notmuch-setup))
 #+end_src
 
-*** TODO Terminal
+** TODO Terminal
 
 #+begin_src elisp :tangle init.el
 ;;(use-package vterm :straight nil)
@@ -689,7 +648,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 ;;  (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
 #+end_src
 
-*** TODO 📕 PDF
+** TODO 📕 PDF
 
 #+begin_src elisp :tangle init.el
 (use-package pdf-tools
@@ -711,7 +670,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   ("C-c y" . ox-clip-formatted-copy))
 #+end_src
 
-*** TODO Project Management
+** TODO Project Management
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/bbatsov/projectile/
@@ -736,7 +695,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
         persp-modestring-short t))
 #+end_src
 
-*** TODO Convenience
+** TODO Convenience
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsorphanage/zoom-window
@@ -774,7 +733,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
         enable-recursive-minibuffers t))
 #+end_src
 
-*** 🏁 Finale
+** 🏁 Finale
 
 #+begin_src elisp :tangle init.el
 (load "~/.emacs.d/lang.el")
@@ -787,7 +746,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 (put 'narrow-to-page 'disabled nil)
 #+end_src
 
-** Personal Details
+* Personal Details
 
 Populate a =personal.el= file which defines your name, your e-mail details and some other /very personal/ configuration bits such as theme customizations or personalized keybindings. Use the following snippet as an example of a configuration that may work.
 
@@ -982,7 +941,7 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
                ""))
 #+end_src
 
-*** Languages or Language-based Tooling
+** Languages or Language-based Tooling
 
 Populate a =lang.el= file which defines all of the major-modes and language-related tooling that are relevant to you. In my case I have simply defined a symlink from [[file:lang.example.el][lang.example.el]] to lang.el. YMMV!
 
