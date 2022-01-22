@@ -25,37 +25,12 @@
         org-hide-leading-stars nil
         org-odd-levels-only nil)
   :config
-  ;;;;(require 'org)
-  ;;(require 'org-protocol)
-  ;;(require 'org-id)
-  ;;(require 'ol)
-  ;;;;(require 'org-element)
-  ;;(require 'org-capture)
-  ;; NOTE: Figure out if removing org-contrib breaks loading of
-  ;; - obe and
-  ;; - ol-bibtex, since these are all part of org-contrib
-  ;;(require 'org-contrib)
-  ;;(require 'org-bibtex-extras)
-  ;;(require 'ol-bibtex) ;; formerly org-bibtex
-
-                                        ; NOTE: Figure out if these are evne needed for basic citation demos to work
-  ;;(require 'oc) ;; org-cite
-  ;;(require 'oc-basic)
-  ;;(require 'oc-csl)
-  ;;(require 'oc-natbib)
-  ;;(require 'oc-biblatex)
-
-  ;;(require 'ox-bibtex)
-  ;;(require 'ox-extra)
-  ;;(require 'ox-latex)
-
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
   (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
   ;; https://orgmode.org/manual/Structure-Templates.html
   (load-library "org-tempo")
   ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
-  ;; activate dot
   (setq org-plantuml-exec-mode 'plantuml)
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
   (setq org-src-preserve-indentation t
@@ -276,42 +251,24 @@
         modus-themes-scale-headings t))
 
 (setq display-buffer-alist
-      (list
-       (cons
-        (regexp-opt-group '("*org-roam*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 0)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Dictionary*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . -1)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Help*" "*Info*" "*info*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 5)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Shortdoc"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 6)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))
-       (cons
-        (regexp-opt-group '("*Warnings*"))
-        (cons #'display-buffer-in-side-window
-              '((slot . 10)
-                (side . left)
-                (window-width . 80)
-                (window-parameters . ((no-other-window . t))))))))
+      (let* ((sidebar-width '(window-width . 85))
+             (sidebar-parameters '(window-parameters . ((no-other-window . t))))
+             (sidebar (list '(side . left) sidebar-width sidebar-parameters)))
+        (list (cons (regexp-opt-group '("*org-roam*"))
+                    (cons #'display-buffer-in-side-window
+                          `((slot . 0) ,@sidebar)))
+              (cons (regexp-opt-group '("*Dictionary*"))
+                    (cons #'display-buffer-in-side-window
+                          `((slot . -1) ,@sidebar)))
+              (cons (regexp-opt-group '("*Help*" "*Info*" "*info*"))
+                    (cons #'display-buffer-in-side-window
+                          `((slot . 5) ,@sidebar)))
+              (cons (regexp-opt-group '("*Shortdoc"))
+                    (cons #'display-buffer-in-side-window
+                          `((slot . 6) ,@sidebar)))
+              (cons (regexp-opt-group '("*Warnings*"))
+                    (cons #'display-buffer-in-side-window
+                          `((slot . 10) ,@sidebar))))))
 
 ;; https://github.com/emacsmirror/undo-fu
 (use-package undo-fu

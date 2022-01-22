@@ -1,63 +1,124 @@
 #+OPTIONS: html5-fancy:t
 #+HTML_DOCTYPE: html5
-#+TITLE: Emacs Configuration
+#+TITLE: Emacs 🦬 Configuration
   
-Definitely not an Emacs distro but aiming for a somewhat wieldable Emacs config.
+This is an emoji-heavy 😅 literal[fn:1] configuration form Emacs which is definitely not as feature complete like some distros out there (think: DOOM Emacs or Spacemacs) but may still provide you a pragmatic and easily parsable configuration that sticks to standard tooling and patterns while providing sufficient context as to what is happening such that beginners[fn:2] can also have a good time cooking up or tweaking their configurations.
 
-⚠️ Treat this file (not [[file:init.el]]) as the source of truth and tangle the needed elisp files ([[file.init.el]], [[file:lang.el]] and [[file.personal-example.el]] which you can use as a example to populate your own [[file:personal.el]]) from here using the ~(org-babel-tangle)~ function which is mapped to =C-c C-v C-t= or =C-c C-v t= by default.
+* Installation
 
-This file defines the following outputs (produced through tangling):
-- init.el :: base configuration
-- personal-example.el :: example personal configuration which anyone can use to define their personal configurations or parts of their configurations that deviate from the /base configuration/
+<<emacsconfdir>>
+⚠️ For this configuration we will refer to your /emacs configuration directory/ as =~/.emacs.d= for historic and didactic reasons, but it may be =~/.config/emacs= in your case. Consult [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Find-Init.html][How Emacs Finds Your Init File]] for explanation on how Emacs loads configurations and note that every mention of =~/.emacs.d= in this literate config assumes that you substitute it for your actual /emacs configuration directory/.
+
+Clone this repository and symlink =~/.emacs.d= into the =emacs= directory of this configuration:
+1. clone this repo to a path of choice (e.g.: =~/src/THIS_REPO=)
+2. symlink =~/.emacs.d=[fn:3] to the =emacs= subdirectory of the cloned project (e.g.: =ln -s ~/src/THIS_REPO/emacs ~/.emacs.d=)
+3. optionally, populate =~/.emacs.d/lang.el= or =~/.emacs.d/personal.el= (refer to [[*Usage][Usage]] for instructions)
+4. reload your config or restart Emacs (e.g.: I have to run =systemctl --restart emacs.service= on NixOS since I am running Emacs as a systemd-managed service)
+
+⚠️ Note that we are in subdirectory =emacs= of a dotfiles repository here which is all examples of commands or paths are written from the perspective of the [[file:..][top-level]] directory of this repository.
 
 * Usage
 
-Populate your configuration in the =~/.emacs.d= directory to get started. Emacs will be looking for =~/.emacs.d/init.el= which, in this repo, also sources:
-- =lang.el= where we specify our language-specific configurations (e.g.: language major modes, language servers, reference utilities like dictionaries) and
-- =personal.el= where we specify our personal information (e.g.: mail configuration details).
+Use this configuration by changing [[README.org][this README.org file]], the only source of truth, and tangling it to produce Elisp files [[file:early-init.el]], [[file:init.el]], [[file:lang.el]] and [[file:personal-example.el]] using the ~(org-babel-tangle)~ function which is mapped to =C-c C-v C-t= or =C-c C-v t= by default.
 
-⚠️ Note that we are in a subdirectory (=emacs=)of a repository here. 
-
-Before you can test-drive this config, you'll need to clone this repository and symlink your =~/.emacs.d= into the =emacs= directory of this configuration:
-1. Clone this repo to a path of choice (e.g.: =~/src/THIS_REPO=) and symlink =~/.emacs.d= to the location to which this repo has been cloned (e.g.: =ln -s ~/src/THIS_REPO/emacs ~/.emacs.d=).
-3. Populate =~/.emacs.d/personal.el=
-
-* Design
-
-# Figure out how to hide the code-block but display the image on forges
+The files of this configuration are as follows:
+- [[file:README.org]] :: source of truth that describes the entire configuration and tangles into the Elisp files listed below
+- [[file:early-init.el]] :: configuration that is loaded before the GUI and package system are started (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html][The Early Init File]])
+- [[file:init.el]] :: primary configuration file that Emacs loads on start (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Init-File.html][The Emacs Initialization File]]),
+- [[file:lang.el]] :: optional configuration file for language-specific settings, and
+- [[file:personal-example.el]] :: reference for [[file:personal.el]] where you can add your personally sensitive configuration.
+- [[file:personal.el]] :: optional configuration file for personal setting which can be populated by copying [[file:personal-example.el]] for to get started and modifying the code as necessary
 
 #+begin_src dot :file images/conf-setup.png :exports results
 digraph G {
-  node_this [shape=box, label="README.org"]
-  node_init [shape=box, label="init.el"]
-  node_personal_example [shape=box, label="personal-example.el"]
-  node_personal [shape=box, label="personal.el"]
-  node_lang [shape=box, label="lang.el"]
+  subgraph cluster_emacs {
+    label="Emacs load process"
+    node_earlyinit [shape=box, label="early-init.el", style=filled]
+    node_init [shape=box, label="init.el", style=filled]
+    node_personal [shape=box, label="personal.el", style=filled]
+    node_lang [shape=box, label="lang.el", style=filled]
 
+    node_init -> node_personal [label="loads"]
+    node_init -> node_lang [label="loads"]
+  }
+
+  node_this [shape=box, label="README.org"]
+  node_personal_example [shape=box, label="personal-example.el"]
+
+  node_this -> node_earlyinit [label="tangles to"]
   node_this -> node_init [label="tangles to"]
   node_this -> node_personal_example [label="tangles to"]
   node_personal_example -> node_personal [style=dotted]
-
-  node_init -> node_personal [label="loads"]
-  node_init -> node_lang [label="loads"]
 }
 #+end_src
 
 #+RESULTS:
 [[file:images/conf-setup.png]]
 
-* Customizations
-** 📦 Package Management
+* 📦 Package Management
 
-*** Straight 🍀
+Setting =package-enable-at-startup= to =nil= before the Emacs default package system even loads (i.e.: before *early-init.el*) minimizes the potential for global state to affect the configuration which ends up simplifying this configuration's use[fn:4].
+
+#+begin_src elisp :tangle early-init.el
+(setq package-enable-at-startup nil)
+#+end_src
+
+** Straight 🍀
+
 Straight.el 🍀 is a popular package manager used to manage Emacs packages.
 
-**** Background
-***** Package pinning
-The primary advantage of using *straight.el* is the ability to _pin package version in a [[file:straight/versions/default.el][lockfile]]_ (e.g.: =~/.emacs.d/straight/versions/default.el=) in manner quite similar to how popular package managers such as Bundler (Ruby) and NPM (JavaScript) or Yarn (JavaScript) improve reproducibility of a configuration by pinning the versions of their packages in a file (e.g.: Gemfile.lock for Bundler, package.lock for NPM and yarn.lock for Yarn).
+The primary advantage of using *straight.el* is the ability to _pin package version in a [[file:straight/versions/default.el][lockfile]]_ (e.g.: =~/.emacs.d/straight/versions/default.el=) in manner quite similar to how popular package managers such as Bundler (Ruby) and NPM (JavaScript) or Yarn (JavaScript) improve reproducibility of a configuration by pinning the versions of their packages in a dependency manifest (e.g.: Gemfile.lock for Bundler, package.lock for NPM and yarn.lock for Yarn).
 
-***** Commonly-used interface: use-package
-A "widely-used" package configuration interface within the Emacs users community is *use-package* and *straight.el* allows us to use this interface to manage a configuration. You have likely seen a use-package declaration before as it makes use of an association list (alist) style interface (of keyword[fn:1]-value pairs) to make it easier for us to discern what the meaning of some parts of the configuration are while keeping configurations pertaining one package localized.
+*** COMMENT ⚠️ Pre-bootstrap Work-around
+
+The issue is that straight relies on the existence of variables with prefixes that have been renamed from =comp= to =native-comp=. So, if the installed variant of Emacs lacks native compilation capability, then straight will be bumping into undefined symbols.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/raxod502/straight.el/issues/757#issuecomment-839764260
+(defvar comp-deferred-compilation-deny-list ())
+#+end_src
+
+**** TODO ⚠️ Reevaluate if this compatability hack is still needed.
+
+I believe that the nix configuration now installs a version of Emacs native compilation capability, rendering this moot. Just have to confirm that this still works without this work-around.
+
+*** 🥾 Bootstrap
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/raxod502/straight.el#getting-started
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+#+end_src
+
+*** Enabling the commonly-used use-package interface
+
+For [[use-package-format][convenience]], we configure *straight.el* to use the *use-package* interface.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/raxod502/straight.el#integration-with-use-package
+(straight-use-package 'use-package)
+#+end_src
+
+In order to improve visibility over package-related issues, we configure =use-package-verbose= such that loading and configuration information is verbosely reported. The reporting output can be examined in the =*Messages*= buffer or in the logging output (.e.g: systemd journal in case Emacs is run as a systemd user unit or service).
+
+#+begin_src elisp :tangle early-init.el
+(setq use-package-verbose t)
+#+end_src
+
+**** Why use use-package?
+
+<<use-package-format>>
+A "widely-used" package configuration interface within the Emacs community is *use-package*. If you've used Emacs for a while or have read through a few configurations, you have likely encountered a =use-package= declaration before. An association list (alist) style interface (of keyword[fn:5]-value pairs) is used by *use-package* to simplify identifying the purpose and meaning of some parts of a package configuration, while keeping configurations pertaining to one package conveniently localized.
 
 #+begin_src elisp :results none
 ;; Just an example of a use-package form
@@ -108,60 +169,26 @@ Compared to the earlier snippet in which the use of the *use-package* macro was 
 
 #+END_details
 
-The *use-package* macro helps one organize (think: tidy-up) and optimize (think: boost the UX) a configuration.
+The *use-package* macro helps you organize (think: tidy-up) and optimize (think: boost your UX and performance) a configuration.
 
-****** Organization
+***** Organization
 On the tidying up front, for example, you'll find that the *use-package* macro provides mechanisms to:
 1. order the load sequence of packages by defining a dependencies by means of the =:after= keyword
 2. time application of parts of a configurations before or after /package load/ by means of the =:init= (i.e.: before load) and =:config= (i.e.: after load) keywords
 3. bind keychords using the =:bind= keyword
 
-****** Peformance
+***** Peformance
 On the performance front, you'll find that the *use-package* macro provides mechanisms to:
 1. delay loading of packages by means of the =:defer= or =:demand= keywords
 1. delay loading of packages needed in a particular mode or interpreter by means of the =:mode= or =:interpreter= keywords
 2. define "as-of-yet not seen" symbols that will be needed for compilation by means of the =:functions= and =:defines= keywords
 
-**** COMMENT ⚠️ Pre-bootstrap Work-around
+* TODO 📓 Org
 
-The issue is that straight relies on the existence of variables with prefixes that have been renamed from =comp= to =native-comp=. So, if the installed variant of Emacs lacks native compilation capability, then straight will be bumping into undefined symbols.
-
-#+begin_src elisp :tangle init.el
-;; https://github.com/raxod502/straight.el/issues/757#issuecomment-839764260
-(defvar comp-deferred-compilation-deny-list ())
-#+end_src
-
-***** TODO ⚠️ Reevaluate if this compatability hack is still needed.
-
-I believe that the nix configuration now installs a version of Emacs native compilation capability, rendering this moot. Just have to confirm that this still works without this work-around.
-
-**** 🥾 Bootstrap
-
-#+begin_src elisp :tangle init.el
-;; https://github.com/raxod502/straight.el#getting-started
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-;; https://github.com/raxod502/straight.el#integration-with-use-package
-(straight-use-package 'use-package)
-#+end_src
-
-** 📓 Org
-
-Org is probably the killer app of Emacs and provides a nifty solution to manage the following with a pretty solid and clearly standardized format:
-- notes
-- dates
-- links to resources (websites, E-mails, files, etc.)
+Org is probably the killer app of Emacs and is effectively rather clearly standardized markup format. Three ways in which Org discerns itself from Markdown are in that it:
+1. is a single clear standard (that is widely used) as opposed to Markdown that has a few variants floating about that exhibit slightly differing behavior[fn:6] and may present a bit of challenge for application developers that wish to implement the standard
+2. natively allows for the notation of dates and times which allow for things like time-tracking and planning within a single document.
+3. natively provides table support
 
 #+begin_src elisp :tangle init.el
 ;; https://orgmode.org/worg/org-contrib/org-protocol.html
@@ -190,7 +217,11 @@ Org is probably the killer app of Emacs and provides a nifty solution to manage 
                                 ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks") "* TODO %?\n\n%i\n\n%a")))
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
+#+end_src
 
+** TODO Bibliography
+
+#+begin_src elisp :tangle init.el
 ;;;; https://git.sr.ht/~bzg/org-contrib
 ;;(use-package org-contrib
 ;;  :straight (org-contrib :type git
@@ -218,7 +249,11 @@ Org is probably the killer app of Emacs and provides a nifty solution to manage 
 ;;  (org-cite-activate-processor 'citar)
 ;;  :bind
 ;;  (:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
+#+end_src
 
+** TODO Org-Roam
+
+#+begin_src elisp :tangle init.el
 ;; https://github.com/nobiot/md-roam
 (use-package md-roam
   :straight (md-roam :type git
@@ -292,7 +327,7 @@ Org is probably the killer app of Emacs and provides a nifty solution to manage 
 ;;(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
 #+end_src
 
-** 👁️ Appearance
+* 👁️ Appearance
 
 #+begin_src elisp :tangle init.el
 ;; Format with indent-region
@@ -330,7 +365,7 @@ Org is probably the killer app of Emacs and provides a nifty solution to manage 
 (global-whitespace-mode nil)
 #+end_src
 
-*** 🎛️ Modeline
+** 🎛️ Modeline
 
 The modeline is the bar typically at the bottom of a buffer which provides useful information about the system.
 
@@ -358,7 +393,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                       :repo "myrjola/diminish.el"))
 #+end_src
 
-*** 🔤 Text
+** 🔤 Text
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/joostkremers/visual-fill-column
@@ -388,7 +423,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                               (default-text-scale-reset)))))
 #+end_src
 
-*** 💄 Themes
+** 💄 Themes
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/fniessen/emacs-leuven-theme
@@ -420,7 +455,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
         modus-themes-scale-headings t))
 #+end_src
 
-*** 🏗️ Buffer Placement
+** 🏗️ Buffer Placement
 
 #+begin_src elisp :tangle init.el
 (setq display-buffer-alist
@@ -443,7 +478,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                     (cons #'display-buffer-in-side-window
                           `((slot . 10) ,@sidebar))))))
 #+end_src
-** TODO Undo
+* TODO Undo
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsmirror/undo-fu
@@ -453,7 +488,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                      :repo "emacsmirror/undo-fu"))
 #+end_src
 
-** TODO Async
+* TODO Async
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/jwiegley/emacs-async
@@ -463,7 +498,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                    :repo "jwiegley/emacs-async"))
 #+end_src
 
-** TODO Rainbow
+* TODO Rainbow
 
 #+begin_comment
 ⚠️ Move to Langauge config
@@ -482,7 +517,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
 #+end_src
 
-** TODO Evil
+* TODO Evil
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacs-evil/evil
@@ -518,7 +553,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   (evil-collection-unimpaired-mode))
 #+end_src
 
-** TODO Fin
+* TODO Fin
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/justbur/emacs-which-key
@@ -531,7 +566,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   (which-key-mode))
 #+end_src
 
-** TODO Version Control
+* TODO Version Control
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/magit/magit.git
@@ -549,7 +584,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   (after-init . global-diff-hl-mode))
 #+end_src
 
-** TODO Navigation 📁
+* TODO Navigation 📁
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsorphanage/dired-k
@@ -592,7 +627,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 ;;  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 #+end_src
 
-** TODO Mail?!?
+* TODO Mail?!?
 
 #+begin_src elisp :tangle init.el
 ;;;; https://git.notmuchmail.org/git/notmuch
@@ -604,7 +639,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 ;;  (evil-collection-notmuch-setup))
 #+end_src
 
-** TODO Terminal
+* TODO Terminal
 
 #+begin_src elisp :tangle init.el
 ;;(use-package vterm :straight nil)
@@ -648,7 +683,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 ;;  (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
 #+end_src
 
-** TODO 📕 PDF
+* TODO 📕 PDF
 
 #+begin_src elisp :tangle init.el
 (use-package pdf-tools
@@ -670,7 +705,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   ("C-c y" . ox-clip-formatted-copy))
 #+end_src
 
-** TODO Project Management
+* TODO Project Management
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/bbatsov/projectile/
@@ -695,7 +730,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
         persp-modestring-short t))
 #+end_src
 
-** TODO Convenience
+* TODO Convenience
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsorphanage/zoom-window
@@ -733,7 +768,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
         enable-recursive-minibuffers t))
 #+end_src
 
-** 🏁 Finale
+* 🏁 Finale
 
 #+begin_src elisp :tangle init.el
 (load "~/.emacs.d/lang.el")
@@ -947,4 +982,14 @@ Populate a =lang.el= file which defines all of the major-modes and language-rela
 
 * Footnotes
 
-[fn:1] Keywords can be recognized by the =:= (colon character) prefix. 
+[fn:6] Different variants of Markdown may have slightly differing and sometimes conflicting notation for some simple formatting markers such as the ones needed to underline, boldface or italicize text.
+
+[fn:4] By allowing the Emacs package system to load packages prior to engaging our selected package manager, it becomes harder to establish where package-related state gets introduced. By choosing to manage all packages declaratively (through code) through a single package manager, one creates a situation that is easier to debug (single actor to observe) and reproduce (by reevaluating the configuration) while being a tad more deterministic (reduced ability of imperatively grown global state to break the configuration).
+
+[fn:3] Remember that we're just using =~/.emacs.d= to simplify the text, but if you use another [[emacsconfdir][/emacs configuration directory/]] you'll need to substitute every occurence of that path accordingly)
+
+[fn:2] I am the /perpetual beginner/ 🌱 so I'm mostly writing this for my future self. 😅
+
+[fn:1] Literal in the "Literal Programming" way as coined by Donald Knuth
+
+[fn:5] Keywords can be recognized by the =:= (colon character) prefix. 
