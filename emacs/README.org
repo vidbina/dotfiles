@@ -19,7 +19,7 @@ Clone this repository and symlink =~/.emacs.d= into the =emacs= directory of thi
 
 * Usage
 
-Use this configuration by changing [[README.org][this README.org file]], the only source of truth, and tangling it to produce Elisp files [[file:early-init.el]], [[file:init.el]], [[file:lang.el]] and [[file:personal-example.el]] using the ~(org-babel-tangle)~ function which is mapped to =C-c C-v C-t= or =C-c C-v t= by default.
+Use this configuration by changing [[file:README.org][this README.org file]], the only source of truth, and tangling it to produce Elisp files [[file:early-init.el]], [[file:init.el]], [[file:lang.el]] and [[file:personal-example.el]] using the ~(org-babel-tangle)~ function which is mapped to =C-c C-v C-t= or =C-c C-v t= by default.
 
 The files of this configuration are as follows:
 - [[file:README.org]] :: source of truth that describes the entire configuration and tangles into the Elisp files listed below
@@ -65,7 +65,7 @@ Setting =package-enable-at-startup= to =nil= before the Emacs default package sy
 
 ** Straight 🍀
 
-Straight.el 🍀 is a popular package manager used to manage Emacs packages.
+[[https://github.com/raxod502/straight.el#getting-started][Straight.el]] 🍀 is a popular package manager used to manage Emacs packages.
 
 The primary advantage of using *straight.el* is the ability to _pin package version in a [[file:straight/versions/default.el][lockfile]]_ (e.g.: =~/.emacs.d/straight/versions/default.el=) in manner quite similar to how popular package managers such as Bundler (Ruby) and NPM (JavaScript) or Yarn (JavaScript) improve reproducibility of a configuration by pinning the versions of their packages in a dependency manifest (e.g.: Gemfile.lock for Bundler, package.lock for NPM and yarn.lock for Yarn).
 
@@ -100,7 +100,7 @@ I believe that the nix configuration now installs a version of Emacs native comp
   (load bootstrap-file nil 'nomessage))
 #+end_src
 
-*** Enabling the commonly-used use-package interface
+*** Enabling the commonly-used *use-package* interface
 
 For [[use-package-format][convenience]], we configure *straight.el* to use the *use-package* interface.
 
@@ -115,10 +115,10 @@ In order to improve visibility over package-related issues, we configure =use-pa
 (setq use-package-verbose t)
 #+end_src
 
-**** Why use use-package?
-
 <<use-package-format>>
-A "widely-used" package configuration interface within the Emacs community is *use-package*. If you've used Emacs for a while or have read through a few configurations, you have likely encountered a =use-package= declaration before. An association list (alist) style interface (of keyword[fn:5]-value pairs) is used by *use-package* to simplify identifying the purpose and meaning of some parts of a package configuration, while keeping configurations pertaining to one package conveniently localized.
+If you've used Emacs for a while or have read through a few configurations, you have likely encountered a =use-package= declaration before. An association list (alist) style interface (of keyword[fn:5]-value pairs) is used by *use-package* to provide a pleasantly readable configuration structure.
+
+The [[https://jwiegley.github.io/use-package/keywords/][Keywords]] page provides guidance as to how to use =use-package= keywords and the following snippet demonstrates the general structure of a =use-package= declaration:
 
 #+begin_src elisp :results none
 ;; Just an example of a use-package form
@@ -169,15 +169,13 @@ Compared to the earlier snippet in which the use of the *use-package* macro was 
 
 #+END_details
 
-The *use-package* macro helps you organize (think: tidy-up) and optimize (think: boost your UX and performance) a configuration.
-
-***** Organization
+**** Organization
 On the tidying up front, for example, you'll find that the *use-package* macro provides mechanisms to:
 1. order the load sequence of packages by defining a dependencies by means of the =:after= keyword
 2. time application of parts of a configurations before or after /package load/ by means of the =:init= (i.e.: before load) and =:config= (i.e.: after load) keywords
 3. bind keychords using the =:bind= keyword
 
-***** Peformance
+**** Performance
 On the performance front, you'll find that the *use-package* macro provides mechanisms to:
 1. delay loading of packages by means of the =:defer= or =:demand= keywords
 1. delay loading of packages needed in a particular mode or interpreter by means of the =:mode= or =:interpreter= keywords
@@ -185,8 +183,8 @@ On the performance front, you'll find that the *use-package* macro provides mech
 
 * TODO 📓 Org
 
-Org is probably the killer app of Emacs and is effectively rather clearly standardized markup format. Three ways in which Org discerns itself from Markdown are in that it:
-1. is a single clear standard (that is widely used) as opposed to Markdown that has a few variants floating about that exhibit slightly differing behavior[fn:6] and may present a bit of challenge for application developers that wish to implement the standard
+[[https://orgmode.org/worg/org-contrib/org-protocol.html][Org]] is probably the killer app of Emacs and is actually just a clearly standardized markup format. Three ways in which Org discerns itself from Markdown are in that it:
+1. has a single clear standard (that is widely used) as opposed to Markdown that has a few variants floating about that exhibit slightly differing behavior[fn:6] and may present a bit of challenge for application developers that wish to implement the standard
 2. natively allows for the notation of dates and times which allow for things like time-tracking and planning within a single document.
 3. natively provides table support
 
@@ -424,6 +422,14 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 #+end_src
 
 ** 💄 Themes
+
+In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.com/protesilaos/modus-themes][Modus themes]] which offers a highly readable color scheme from an accessibility perspective.
+
+#+CAPTION: Screenshot of this Emacs configuration in dark-mode
+[[file:images/screenshot-README-dark.png]]
+
+#+CAPTION: Screenshot of this Emacs configuration in light-mode
+[[file:images/screenshot-README-light.png]]
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/fniessen/emacs-leuven-theme
