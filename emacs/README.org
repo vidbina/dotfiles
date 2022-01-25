@@ -2,7 +2,7 @@
 #+HTML_DOCTYPE: html5
 #+TITLE: Emacs 🦬 Configuration
   
-This is an emoji-heavy 😅 literal[fn:1] configuration form Emacs which is definitely not as feature complete like some distros out there (think: DOOM Emacs or Spacemacs) but may still provide you a pragmatic and easily parsable configuration that sticks to standard tooling and patterns while providing sufficient context as to what is happening such that beginners[fn:2] can also have a good time cooking up or tweaking their configurations.
+This is an emoji-heavy 😅 literal[fn:1] configuration for [[https://www.gnu.org/software/emacs/][Emacs]] which is definitely not as feature complete like some distros out there (think: [[https://github.com/hlissner/doom-emacs][Doom Emacs]] or [[https://www.spacemacs.org/][Spacemacs]]) but may still provide you a pragmatic and easily parsable configuration that sticks to standard tooling 🧰 and patterns while providing sufficient context as to what is happening such that beginners[fn:2] can also have a good time cooking 👨🏿‍🔬 up or tweaking 👨🏿‍🔧 their configurations.
 
 * Installation
 
@@ -181,7 +181,7 @@ On the performance front, you'll find that the *use-package* macro provides mech
 1. delay loading of packages needed in a particular mode or interpreter by means of the =:mode= or =:interpreter= keywords
 2. define "as-of-yet not seen" symbols that will be needed for compilation by means of the =:functions= and =:defines= keywords
 
-* TODO 📓 Org
+* 📓 Org
 
 [[https://orgmode.org/worg/org-contrib/org-protocol.html][Org]] is probably the killer app of Emacs and is actually just a clearly standardized markup format. Three ways in which Org discerns itself from Markdown are in that it:
 1. has a single clear standard (that is widely used) as opposed to Markdown that has a few variants floating about that exhibit slightly differing behavior[fn:6] and may present a bit of challenge for application developers that wish to implement the standard
@@ -216,6 +216,10 @@ On the performance front, you'll find that the *use-package* macro provides mech
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
 #+end_src
+
+** TODO Refactor Org-capture templates out of this section
+
+Org-capture templates are a personal thing and should be defined in the personal.el?!? 🤷
 
 ** TODO Bibliography
 
@@ -356,11 +360,15 @@ Org-ref has provisions for cross-referencing that Org-cite doesn't quite provide
   :after org)
 #+end_src
 
-* TODO 👁️ Appearance
+* 👁️ Appearance
+
+This section will deal with some of the visual trappings of Emacs. My design goal is to arrive at a rather minimal, or rather clean, design while providing the needed information scope perhaps through toggles (i.e.: showing whitespace characters at command).
+
+** 🙈 Hide GUI Elements
+
+In order to minimize visual noise, let's disable the graphical scroll bars, tool bars and menu bars.
 
 #+begin_src elisp :tangle init.el
-;; Format with indent-region
-
 ;; https://www.emacswiki.org/emacs/ScrollBar
 (scroll-bar-mode -1)
 
@@ -372,23 +380,38 @@ Org-ref has provisions for cross-referencing that Org-cite doesn't quite provide
 
 ;; https://www.emacswiki.org/emacs/ShowParenMode
 (show-paren-mode 1)
+#+end_src
 
+** 🧱 Column Indicator
+
+Display a border at the position to indicate where the right margin is drawn. This should provide authors a sense of where lines should be broken to keep the text relatively readable.
+
+#+begin_src elisp :tangle init.el
 ;; https://www.emacswiki.org/emacs/FillColumnIndicator
 (global-display-fill-column-indicator-mode 1)
+#+end_src
 
+#+begin_quote
+💡 Even if we have extremely wide displays, reading is a lot easier if the text is width-constrained so do yourself a favor and don't write lines that are painfully long to read.
+#+end_quote
+
+** 🏷️ Show Line Numbers
+
+For the sake of ease of navigation and spatial orientation we display line numbers in the left margin.
+
+#+begin_src elisp :tangle init.el
 ;; https://www.emacswiki.org/emacs/LineNumbers
 (global-display-line-numbers-mode 1)
+#+end_src
 
-;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
-;; =describe-package ffap=
-(ffap-bindings)
+** 🏳️ Whitespace
 
+Visualize white spaces (tabs, spaces, trailing whitespace). The global whitespace mode can be toggled through =(global-whitespace-mode)= in order to reduce the visual noise or enable the whitespace indication.
+
+#+begin_src elisp :tangle init.el
 ;; https://www.emacswiki.org/emacs/WhiteSpace
 ;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
 (setq whitespace-style '(empty face lines-tail tabs trailing))
-
-;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
-(setq-default indent-tabs-mode nil)
 
 ;; http://ergoemacs.org/emacs/whitespace-mode.html
 (global-whitespace-mode nil)
@@ -454,6 +477,18 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 
 ** 💄 Themes
 
+*** COMMENT Leuven Theme
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/fniessen/emacs-leuven-theme
+(use-package leuven-theme
+  :straight (leuven-theme :type git
+                          :host github
+                          :repo "fniessen/emacs-leuven-theme"))
+#+end_src
+
+*** Modus Themes
+
 In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.com/protesilaos/modus-themes][Modus themes]] which offers a highly readable color scheme from an accessibility perspective.
 
 #+CAPTION: Screenshot of this Emacs configuration in dark-mode
@@ -463,12 +498,6 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 [[file:images/screenshot-README-light.png]]
 
 #+begin_src elisp :tangle init.el
-;; https://github.com/fniessen/emacs-leuven-theme
-(use-package leuven-theme
-  :straight (leuven-theme :type git
-                          :host github
-                          :repo "fniessen/emacs-leuven-theme"))
-
 ;; https://gitlab.com/protesilaos/modus-themes
 (use-package modus-themes
   :straight (modus-themes :type git
@@ -515,7 +544,30 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
                     (cons #'display-buffer-in-side-window
                           `((slot . 10) ,@sidebar))))))
 #+end_src
-* TODO Undo
+* 🌷 Misc
+
+** FFAP
+
+#+begin_src elisp :tangle init.el
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
+;; =describe-package ffap=
+(ffap-bindings)
+#+end_src
+
+** Indentation
+
+Turn of tab-indentation and opt for space-based indentation such that whitespace is a bit more controllable.
+
+#+begin_src elisp :tangle init.el
+;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
+(setq-default indent-tabs-mode nil)
+#+end_src
+
+#+begin_quote
+⚠️ Note to start a flame war but across different editors and viewers (pagers, terminals, etc) the use of spaces is a bit more predictable as an alignment tool. 🤷🏿‍♂️
+#+end_quote
+
+** TODO Undo
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsmirror/undo-fu
@@ -525,7 +577,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
                      :repo "emacsmirror/undo-fu"))
 #+end_src
 
-* TODO Async
+** TODO Async
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/jwiegley/emacs-async
@@ -535,7 +587,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
                    :repo "jwiegley/emacs-async"))
 #+end_src
 
-* TODO Rainbow
+** TODO Rainbow
 
 #+begin_comment
 ⚠️ Move to Langauge config
@@ -554,7 +606,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
   (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
 #+end_src
 
-* TODO Evil
+** TODO Evil
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacs-evil/evil
@@ -590,7 +642,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
   (evil-collection-unimpaired-mode))
 #+end_src
 
-* TODO Fin
+** TODO Which
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/justbur/emacs-which-key
@@ -603,7 +655,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
   (which-key-mode))
 #+end_src
 
-* TODO Version Control
+** TODO Version Control
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/magit/magit.git
@@ -621,7 +673,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
   (after-init . global-diff-hl-mode))
 #+end_src
 
-* TODO Navigation 📁
+** TODO Navigation 📁
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsorphanage/dired-k
@@ -664,7 +716,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 ;;  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 #+end_src
 
-* TODO Mail?!?
+** TODO Mail?!?
 
 #+begin_src elisp :tangle init.el
 ;;;; https://git.notmuchmail.org/git/notmuch
@@ -676,7 +728,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 ;;  (evil-collection-notmuch-setup))
 #+end_src
 
-* TODO Terminal
+** TODO Terminal
 
 #+begin_src elisp :tangle init.el
 ;;(use-package vterm :straight nil)
@@ -720,7 +772,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 ;;  (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
 #+end_src
 
-* TODO 📕 PDF
+** TODO 📕 PDF
 
 #+begin_src elisp :tangle init.el
 (use-package pdf-tools
@@ -742,7 +794,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
   ("C-c y" . ox-clip-formatted-copy))
 #+end_src
 
-* TODO Project Management
+** TODO Project Management
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/bbatsov/projectile/
@@ -767,7 +819,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
         persp-modestring-short t))
 #+end_src
 
-* TODO Convenience
+** TODO Convenience
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsorphanage/zoom-window
@@ -818,7 +870,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 (put 'narrow-to-page 'disabled nil)
 #+end_src
 
-* Personal Details
+* 📛 Personal Details
 
 Populate a =personal.el= file which defines your name, your e-mail details and some other /very personal/ configuration bits such as theme customizations or personalized keybindings. Use the following snippet as an example of a configuration that may work.
 
@@ -1023,10 +1075,10 @@ Populate a =lang.el= file which defines all of the major-modes and language-rela
 
 [fn:4] By allowing the Emacs package system to load packages prior to engaging our selected package manager, it becomes harder to establish where package-related state gets introduced. By choosing to manage all packages declaratively (through code) through a single package manager, one creates a situation that is easier to debug (single actor to observe) and reproduce (by reevaluating the configuration) while being a tad more deterministic (reduced ability of imperatively grown global state to break the configuration).
 
-[fn:3] Remember that we're just using =~/.emacs.d= to simplify the text, but if you use another [[emacsconfdir][/emacs configuration directory/]] you'll need to substitute every occurence of that path accordingly)
+[fn:3] Remember that we're just using =~/.emacs.d= to simplify the text, but if you use another /[[emacsconfdir][emacs configuration directory]]/ you'll need to substitute every occurence of that path accordingly)
 
 [fn:2] I am the /perpetual beginner/ 🌱 so I'm mostly writing this for my future self. 😅
 
 [fn:1] Literal in the "Literal Programming" way as coined by Donald Knuth
 
-[fn:5] Keywords can be recognized by the =:= (colon character) prefix. 
+[fn:5] Keywords can be recognized by the =:= (colon character) prefix.

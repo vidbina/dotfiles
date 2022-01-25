@@ -107,8 +107,6 @@
 ;;:custom
 ;;(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
 
-;; Format with indent-region
-
 ;; https://www.emacswiki.org/emacs/ScrollBar
 (scroll-bar-mode -1)
 
@@ -127,16 +125,9 @@
 ;; https://www.emacswiki.org/emacs/LineNumbers
 (global-display-line-numbers-mode 1)
 
-;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
-;; =describe-package ffap=
-(ffap-bindings)
-
 ;; https://www.emacswiki.org/emacs/WhiteSpace
 ;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
 (setq whitespace-style '(empty face lines-tail tabs trailing))
-
-;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
-(setq-default indent-tabs-mode nil)
 
 ;; http://ergoemacs.org/emacs/whitespace-mode.html
 (global-whitespace-mode nil)
@@ -187,12 +178,6 @@
             (lambda () (progn (message "🎨 Time to dress up the GUI")
                               (default-text-scale-reset)))))
 
-;; https://github.com/fniessen/emacs-leuven-theme
-(use-package leuven-theme
-  :straight (leuven-theme :type git
-                          :host github
-                          :repo "fniessen/emacs-leuven-theme"))
-
 ;; https://gitlab.com/protesilaos/modus-themes
 (use-package modus-themes
   :straight (modus-themes :type git
@@ -234,6 +219,13 @@
               (cons (regexp-opt-group '("*Warnings*"))
                     (cons #'display-buffer-in-side-window
                           `((slot . 10) ,@sidebar))))))
+
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
+;; =describe-package ffap=
+(ffap-bindings)
+
+;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
+(setq-default indent-tabs-mode nil)
 
 ;; https://github.com/emacsmirror/undo-fu
 (use-package undo-fu
