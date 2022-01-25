@@ -546,11 +546,12 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 #+end_src
 * 🌷 Misc
 
-** FFAP
+** Find File at Point (FFAP)
+
+In order to provide point-specific behavior, we use the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap][FFAP]] package. As an example, the ~(find-file-at-point)~ command will provide custom behavior depending on the type of link it is called over.
 
 #+begin_src elisp :tangle init.el
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
-;; =describe-package ffap=
 (ffap-bindings)
 #+end_src
 
@@ -564,7 +565,7 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
 #+end_src
 
 #+begin_quote
-⚠️ Note to start a flame war but across different editors and viewers (pagers, terminals, etc) the use of spaces is a bit more predictable as an alignment tool. 🤷🏿‍♂️
+⚠️ Not to start a flame war but across different editors and viewers (pagers, terminals, etc) the use of spaces is a bit more predictable as an alignment tool. 🤷🏿‍♂️
 #+end_quote
 
 ** TODO Undo
@@ -587,10 +588,10 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
                    :repo "jwiegley/emacs-async"))
 #+end_src
 
-** TODO Rainbow
+** TODO 🌈 Rainbow Delimiters
 
 #+begin_comment
-⚠️ Move to Langauge config
+⚠️ Move to Language config
 #+end_comment
 
 #+begin_src elisp :tangle init.el
@@ -606,7 +607,13 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
   (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
 #+end_src
 
-** TODO Evil
+** 🖐️ Evil
+
+In order to save your hand some pain, it may be helpful to use vi-like bindings that keep your hands around the home row more often and minimizes the need for your hands to pull acrobatic maneuvers 🎪 that could incur some strain. I use the [[https://github.com/emacs-evil/evil][extensible vi layer, inconveniently or mischievously abbreviated to Evil]], to help me to vi-bindings while in Emacs.
+
+#+begin_quote
+I used Emacs extensively in college and developed a case of the /Emacs pinky/ at the time. That's about the time I switched back to vi/vim and around the end of 2021, I decided to give Emacs another try in combination with Evil-mode which provides me the best of both worlds. 🤯
+#+end_quote
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacs-evil/evil
@@ -642,7 +649,7 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
   (evil-collection-unimpaired-mode))
 #+end_src
 
-** TODO Which
+** TODO ❔ Which
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/justbur/emacs-which-key
@@ -673,7 +680,7 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
   (after-init . global-diff-hl-mode))
 #+end_src
 
-** TODO Navigation 📁
+** TODO 📁 Navigation
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsorphanage/dired-k
@@ -716,7 +723,7 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
 ;;  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 #+end_src
 
-** TODO Mail?!?
+** TODO 📧 Mail?!?
 
 #+begin_src elisp :tangle init.el
 ;;;; https://git.notmuchmail.org/git/notmuch
@@ -728,7 +735,7 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
 ;;  (evil-collection-notmuch-setup))
 #+end_src
 
-** TODO Terminal
+** TODO 🕳️ Terminal
 
 #+begin_src elisp :tangle init.el
 ;;(use-package vterm :straight nil)
@@ -794,7 +801,7 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
   ("C-c y" . ox-clip-formatted-copy))
 #+end_src
 
-** TODO Project Management
+** TODO 📑 Project Management
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/bbatsov/projectile/
@@ -819,7 +826,7 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
         persp-modestring-short t))
 #+end_src
 
-** TODO Convenience
+** TODO 🔍 Zoom-window: Zoom to a single window
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsorphanage/zoom-window
@@ -832,7 +839,10 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
    zoom-window-mode-line-color "DarkRed")
   :config
   (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
+#+end_src
 
+** TODO 🪄 Ace Window: Quick-jump to windows by numbers
+#+begin_src elisp :tangle init.el
 ;; https://github.com/abo-abo/ace-window
 ;; https://jao.io/blog/2020-05-12-ace-window.html
 (use-package ace-window
