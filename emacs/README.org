@@ -219,51 +219,48 @@ On the performance front, you'll find that the *use-package* macro provides mech
 
 ** TODO Bibliography
 
+*** COMMENT Org-contrib
+
 #+begin_src elisp :tangle init.el
-;;;; https://git.sr.ht/~bzg/org-contrib
-;;(use-package org-contrib
-;;  :straight (org-contrib :type git
-;;                         :host nil
-;;                         :repo "https://git.sr.ht/~bzg/org-contrib")
-;;  :after org
-;;  :config
-;;  ;;(require 'ox-bibtex)
-;;  (require 'oc-basic)
-;;  (require 'oc-csl)
-;;  (require 'oc-biblatex)
-;;  (require 'oc-natbib))
-
-;; TODO: Isolate into a bibliography file
-
-;;;; https://github.com/bdarcus/citar
-;;(use-package citar
-;;  :straight (citar :type git
-;;                   :host github
-;;                   :repo "bdarcus/citar")
-;;  :no-require
-;;  :custom
-;;  (org-cite-insert-processor 'citar)
-;;  (org-cite-follow-processor 'citar)
-;;  (org-cite-activate-processor 'citar)
-;;  :bind
-;;  (:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
+;; https://git.sr.ht/~bzg/org-contrib
+(use-package org-contrib
+  :straight (org-contrib :type git
+                         :host nil
+                         :repo "https://git.sr.ht/~bzg/org-contrib")
+  :after org
+  :config
+  ;;(require 'ox-bibtex)
+  (require 'oc-basic)
+  (require 'oc-csl)
+  (require 'oc-biblatex)
+  (require 'oc-natbib))
 #+end_src
 
-** TODO Org-Roam
+*** COMMENT Citar (formerly bibtex-actions)
 
 #+begin_src elisp :tangle init.el
-;; https://github.com/nobiot/md-roam
-(use-package md-roam
-  :straight (md-roam :type git
-                     :host github
-                     :repo "nobiot/md-roam")
-  :after org-roam
-  :init
-  (setq md-roam-use-markdown-file-links t
-        md-roam-file_extension-single "md"
-        org-roam-tag-sources '(prop md-frontmatter)
-        org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
+;; https://github.com/bdarcus/citar
+(use-package citar
+  :straight (citar :type git
+                   :host github
+                   :repo "bdarcus/citar")
+  :no-require
+  :custom
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  :bind
+  (:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
+#+end_src
 
+** 🗄️ Org-Roam
+
+A good solution for maintaining a Zettelkasten-inspired note-taking system is [[https://github.com/org-roam/org-roam][Org-Roam]] which allows one to conveniently link related notes together.
+
+#+CAPTION: Screenshot of Org-Roam in use with an Org-Roam-UI note network graph
+[[file:images/screenshot-orui-org-cite-dark.png]]
+
+#+begin_src elisp :tangle init.el
 ;; https://github.com/org-roam/org-roam
 (use-package org-roam
   :straight (org-roam :type git
@@ -283,7 +280,11 @@ On the performance front, you'll find that the *use-package* macro provides mech
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n i" . org-roam-node-insert)))
+#+end_src
 
+*** Org-Roam-UI
+
+#+begin_src elisp :tangle init.el
 ;; https://github.com/org-roam/org-roam-ui
 (use-package org-roam-ui
   :delight
@@ -305,14 +306,29 @@ On the performance front, you'll find that the *use-package* macro provides mech
         org-roam-ui-follow nil
         org-roam-ui-update-on-save t
         org-roam-ui-open-on-start nil))
+#+end_src
 
-;; https://github.com/jkitchin/org-ref
-(use-package org-ref
-  :straight (org-ref :type git
+*** Incorporate Markdown into your Org-Roam use
+
+It isn't unlikely that you will have some of your notes captured in Markdown files. In order to not have to rewrite these files into Org-files, you can use [[https://github.com/nobiot/md-roam][Md-roam]].
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/nobiot/md-roam
+(use-package md-roam
+  :straight (md-roam :type git
                      :host github
-                     :repo "jkitchin/org-ref")
-  :after org)
+                     :repo "nobiot/md-roam")
+  :after org-roam
+  :init
+  (setq md-roam-use-markdown-file-links t
+        md-roam-file_extension-single "md"
+        org-roam-tag-sources '(prop md-frontmatter)
+        org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
+#+end_src
 
+*** Org-Roam-BibTeX (ORB)
+
+#+begin_src elisp :tangle init.el
 ;; https://github.com/org-roam/org-roam-bibtex
 (use-package org-roam-bibtex
   :straight (org-roam-bibtex :type git
@@ -325,7 +341,22 @@ On the performance front, you'll find that the *use-package* macro provides mech
 ;;(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
 #+end_src
 
-* 👁️ Appearance
+** COMMENT Org-ref
+
+[[https://github.com/jkitchin/org-ref][Org-ref]] provides a system to define citations and cross-references. With Org-cite becoming part of standard-Org since 9.5, I am trying to use standard Org as much as possible which means dropping Org-ref out of my toolbox for a little while.
+
+Org-ref has provisions for cross-referencing that Org-cite doesn't quite provide, so you may want to enable Org-ref in your configuration if you use the Org-ref cite syntax or rely on cross-referencing capability.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/jkitchin/org-ref
+(use-package org-ref
+  :straight (org-ref :type git
+                     :host github
+                     :repo "jkitchin/org-ref")
+  :after org)
+#+end_src
+
+* TODO 👁️ Appearance
 
 #+begin_src elisp :tangle init.el
 ;; Format with indent-region
