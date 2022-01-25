@@ -42,46 +42,6 @@
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
 
-;;;; https://git.sr.ht/~bzg/org-contrib
-;;(use-package org-contrib
-;;  :straight (org-contrib :type git
-;;                         :host nil
-;;                         :repo "https://git.sr.ht/~bzg/org-contrib")
-;;  :after org
-;;  :config
-;;  ;;(require 'ox-bibtex)
-;;  (require 'oc-basic)
-;;  (require 'oc-csl)
-;;  (require 'oc-biblatex)
-;;  (require 'oc-natbib))
-
-;; TODO: Isolate into a bibliography file
-
-;;;; https://github.com/bdarcus/citar
-;;(use-package citar
-;;  :straight (citar :type git
-;;                   :host github
-;;                   :repo "bdarcus/citar")
-;;  :no-require
-;;  :custom
-;;  (org-cite-insert-processor 'citar)
-;;  (org-cite-follow-processor 'citar)
-;;  (org-cite-activate-processor 'citar)
-;;  :bind
-;;  (:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
-
-;; https://github.com/nobiot/md-roam
-(use-package md-roam
-  :straight (md-roam :type git
-                     :host github
-                     :repo "nobiot/md-roam")
-  :after org-roam
-  :init
-  (setq md-roam-use-markdown-file-links t
-        md-roam-file_extension-single "md"
-        org-roam-tag-sources '(prop md-frontmatter)
-        org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
-
 ;; https://github.com/org-roam/org-roam
 (use-package org-roam
   :straight (org-roam :type git
@@ -124,12 +84,17 @@
         org-roam-ui-update-on-save t
         org-roam-ui-open-on-start nil))
 
-;; https://github.com/jkitchin/org-ref
-(use-package org-ref
-  :straight (org-ref :type git
+;; https://github.com/nobiot/md-roam
+(use-package md-roam
+  :straight (md-roam :type git
                      :host github
-                     :repo "jkitchin/org-ref")
-  :after org)
+                     :repo "nobiot/md-roam")
+  :after org-roam
+  :init
+  (setq md-roam-use-markdown-file-links t
+        md-roam-file_extension-single "md"
+        org-roam-tag-sources '(prop md-frontmatter)
+        org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
 
 ;; https://github.com/org-roam/org-roam-bibtex
 (use-package org-roam-bibtex
