@@ -1,0 +1,278 @@
+* [[https://github.com/vidbina][vidbina]]'s dotfiles
+  :PROPERTIES:
+  :CUSTOM_ID: vidbinas-dotfiles
+  :END:
+These dotfiles make my life slightly more convenient. Not promising
+they'll do the same for yours though :wink:.
+
+This setup is managed with [[https://github.com/nix-community/home-manager][home-manager]].
+
+** Personal Home-Manager settings
+   :PROPERTIES:
+   :CUSTOM_ID: personal-home-manager-settings
+   :END:
+We all have parts of our configs that are for our eyes only and the
+personal.nix file can be populated to contain sensitive and private
+parts of your configuration. This home-configuration will load a
+personal.nix file if found so the use of this file is optional (your
+configuration should work without it).
+
+Observe the snippet below for an example of a valid personal.nix file.
+
+#+begin_example nix
+  { config, pkgs, lib, options, ... }:
+
+  {
+    # Home Manager needs a bit of information about you and the
+    # paths it should manage.
+    home.username = "vidbina";
+    home.homeDirectory = "/home/vidbina";
+
+    # This value determines the Home Manager release that your
+    # configuration is compatible with. This helps avoid breakage
+    # when a new Home Manager release introduces backwards
+    # incompatible changes.
+    #
+    # You can update Home Manager without changing this value. See
+    # the Home Manager release notes for a list of state version
+    # changes in each release.
+    home.stateVersion = "21.05";
+
+    home.shellAliases = {
+      chromea = "chromium --user-data-dir=$HOME/orga/chromium-profile";
+      chromeb = "chromium --user-data-dir=$HOME/orgb/chromium-profile";
+      chromec = "chromium --user-data-dir=$HOME/orgc/chromium-profile";
+    };
+
+    programs.zsh.dirHashes = {
+      a-src = "$HOME/orga/src";
+      a-notes = "$HOME/orga/notes";
+      b-src = "$HOME/src/orgb/src";
+      b-notes = "$HOME/org/roam/orgb";
+    };
+
+    home.packages = [ ];
+  }
+#+end_example
+
+** Inventory on Dell XPS 13 (my reference machine)
+   :PROPERTIES:
+   :CUSTOM_ID: inventory-on-dell-xps-13-my-reference-machine
+   :END:
+*** Overview of everything (left is symlink file, right is destination)
+    :PROPERTIES:
+    :CUSTOM_ID: overview-of-everything-left-is-symlink-file-right-is-destination
+    :END:
+#+begin_example
+  ~/.Xmodmap -> ~/dotfiles/xmodmap
+  ~/.coloritrc -> ~/dotfiles/colorit/coloritrc
+  ~/.conkyrc -> ~/dotfiles/conky.conf
+  ~/.emacs.d -> ~/dotfiles/emacs
+  ~/.gitconfig -> ~/dotfiles/gitconfig
+  ~/.gitignore -> ~/dotfiles/.gitignore
+  ~/.lein -> ~/dotfiles/lein
+  ~/.octaverc -> ~/dotfiles/octave/.octaverc
+  ~/.tmux.conf -> ~/dotfiles/tmux.conf
+  ~/.xsession -> ~/dotfiles/xsession
+  ~/.config/asciinema -> ~/dotfiles/asciinema
+  ~/.config/ghorg -> ~/dotfiles/ghorg
+  ~/.config/redshift.conf -> ~/dotfiles/redshift.conf
+  ~/.config/rofi -> ~/dotfiles/rofi
+  ~/.config/starship.toml -> ~/dotfiles/starship.toml
+  ~/.config/termite -> ~/dotfiles/termite
+#+end_example
+
+** .xsession
+   :PROPERTIES:
+   :CUSTOM_ID: xsession
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILES}/xsession ${HOME}/.xsession
+#+end_src
+
+- sets the background (I just set a background color, but use =feh= to
+  set a wallpaper)
+- loads .Xmodmap to load custom keyboard bindings
+- start WM
+
+** .Xresources.d
+   :PROPERTIES:
+   :CUSTOM_ID: xresources.d
+   :END:
+
+#+begin_quote
+  :warning: managed with nix home-manager?
+#+end_quote
+
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILES}/Xresources.d ${HOME}/.Xresources.d
+#+end_src
+
+** .Xmodmap
+   :PROPERTIES:
+   :CUSTOM_ID: xmodmap
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILES}/Xmodmap ${HOME}/.Xmodmap
+#+end_src
+
+- disables caps lock
+- remaps tilde and grave to capslock+[shift]+z in an effort to minimise
+  finger travel (the macbook has a narrower left shift and places the
+  tilde/grave button between the left shift and the Z key)
+
+** Tmux
+   :PROPERTIES:
+   :CUSTOM_ID: tmux
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/tmux.conf ${HOME}/.config/tmux.conf
+#+end_src
+
+- sets up vi key bindings in tmux
+- remaps colors
+
+** Neovim
+   :PROPERTIES:
+   :CUSTOM_ID: neovim
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/nvim ${HOME}/.config/nvim
+#+end_src
+
+- set tabbing behavior (expand tabs to 2 spaces)
+- enable mouse in all modes
+- define Plug extensions
+
+** Termite
+   :PROPERTIES:
+   :CUSTOM_ID: termite
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/termite ${HOME}/.config/termite
+#+end_src
+
+** Starship
+   :PROPERTIES:
+   :CUSTOM_ID: starship
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/starship.toml ${HOME}/.config/starship.toml
+#+end_src
+
+** Rofi
+   :PROPERTIES:
+   :CUSTOM_ID: rofi
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/rofi ${HOME}/.config/rofi
+#+end_src
+
+** Redshift
+   :PROPERTIES:
+   :CUSTOM_ID: redshift
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/redshift ${HOME}/.config/redshift
+#+end_src
+
+** Ghorg
+   :PROPERTIES:
+   :CUSTOM_ID: ghorg
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/ghorg ${HOME}/.config/ghorg
+#+end_src
+
+** Asciinema
+   :PROPERTIES:
+   :CUSTOM_ID: asciinema
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/asciinema ${HOME}/.config/asciinema
+#+end_src
+
+** TODO: Compton
+   :PROPERTIES:
+   :CUSTOM_ID: todo-compton
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/compton/compton.conf ${HOME}/.config/compton.conf
+#+end_src
+
+** Octave
+   :PROPERTIES:
+   :CUSTOM_ID: octave
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/octave/.octaverc ${HOME}/.config/.octaverc
+#+end_src
+
+*** TODO: Rename hidden file to more visible file
+    :PROPERTIES:
+    :CUSTOM_ID: todo-rename-hidden-file-to-more-visible-file
+    :END:
+** Lein
+   :PROPERTIES:
+   :CUSTOM_ID: lein
+   :END:
+Package manager and build tool for Clojure. The .lein dotfile lists
+convenience plugins for development.
+
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/lein ${HOME}/.lein
+#+end_src
+
+** Colorit
+   :PROPERTIES:
+   :CUSTOM_ID: colorit
+   :END:
+https://linux.die.net/man/1/colorit
+
+Colorit is a script for markup-ing text input which is used in my setup
+by dict.
+
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/colorit/coloritrc ${HOME}/.coloritrc
+#+end_src
+
+** Conky
+   :PROPERTIES:
+   :CUSTOM_ID: conky
+   :END:
+https://github.com/brndnmtthws/conky
+
+Conky is a system monitoring tool which allows the presentation of
+system metrics in a GUI.
+
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/conky.conf ${HOME}/.conkyrc
+#+end_src
+
+** Git
+   :PROPERTIES:
+   :CUSTOM_ID: git
+   :END:
+*** Config
+    :PROPERTIES:
+    :CUSTOM_ID: config
+    :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/gitconfig ${HOME}/gitconfig
+#+end_src
+
+*** Ignore
+    :PROPERTIES:
+    :CUSTOM_ID: ignore
+    :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/gitignore ${HOME}/.gitignore
+#+end_src
+
+** Emacs
+   :PROPERTIES:
+   :CUSTOM_ID: emacs
+   :END:
+#+begin_src shell
+  ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
+#+end_src
