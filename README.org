@@ -3,16 +3,34 @@
 :CUSTOM_ID: vidbinas-dotfiles
 :END:
 These dotfiles make my life slightly more convenient. Not promising
-they'll do the same for yours though :wink:.
+they'll do the same for yours though 😉.
 
-This setup is managed with [[https://github.com/nix-community/home-manager][home-manager]].
+** Usage
 
-** Personal Home-Manager settings
+My configuration is currently managed with [[https://github.com/nix-community/home-manager][home-manager]] for the better DX or UX. Before using home-manager, I manually managed symlinks from my config directory to this dotfiles repo. The use of [[https://www.gnu.org/software//stow/][GNU Stow]] was considered for a brief moment until I realized that Stow was written in Perl and I came to terms with my unwillingness to have a critical part of my stack based on tooling that brings me no joy 🙊 (on account of my troubled personal history with the language).
+
+*** The easy way: with home-manager
+:PROPERTIES:
+:CUSTOM_ID: home-manager
+:END:
+
+The use of home-manager is pretty straightforward especially with the convenient *nix shell* and the *Makefile* that make usage even easier. The general idea is as follows:
+- [[file:shell.nix]] defines a shell environment that contains all packages needed to install or apply a configuration. The packages include *niv* which helps us manage versions of our packages, *home-manager* which actually manages our home environments (hence the name) and and some utils.
+- [[file:Makefile]] contains some rules to simplify how we call home-manager inside of the nix-shell since it effectively reduces the UX down to =make= or =make test= calls as opposed to =home-manager -f ./home.nix -v -n build= and =home-manager -f ./home.nix switch= respectively (which you don't want to have to remember 🤷🏿‍♂️)
+
+Typical use will be as follows:
+1. Enter the nix-shell using =nix-shell --pure=
+2. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]])
+3. Run =make test= to test the home-manager configuration or =make= to install the configuration
+4. Optionally, Commit the changes made to the niv sources file (in step 2)
+5. Profit 💰
+
+**** Personal Home-Manager settings
 :PROPERTIES:
 :CUSTOM_ID: personal-home-manager-settings
 :END:
 We all have parts of our configs that are for our eyes only and the
-personal.nix file can be populated to contain sensitive and private
+[[file:personal.nix]] file can be populated to contain sensitive and private
 parts of your configuration. This home-configuration will load a
 personal.nix file if found so the use of this file is optional (your
 configuration should work without it).
@@ -55,14 +73,12 @@ Observe the snippet below for an example of a valid personal.nix file.
 }
 #+end_example
 
-** Inventory on Dell XPS 13 (my reference machine)
-:PROPERTIES:
-:CUSTOM_ID: inventory-on-dell-xps-13-my-reference-machine
-:END:
-*** Overview of everything (left is symlink file, right is destination)
-:PROPERTIES:
-:CUSTOM_ID: overview-of-everything-left-is-symlink-file-right-is-destination
-:END:
+*** The more tedious and manual way: without home-manager
+
+The tedious way basically requires one to make symlinks from the needed locations into this dotfiles repository. There are a number of ways how one can simplify this experience ranging from manually symlinking everything that you would need all the way up to using a [[id:home-manager][home-manager]] alternative like GNU Stow to manage these symlinks for you (and minimize the toil on your end).
+
+This is a listing of the symlinks that I could track in my home directory right before moving over to home-manager. I may have missed some, but largely this covers much of what I have packaged in this repository so it should be relatively complete.
+
 #+begin_example
   ~/.Xmodmap -> ~/dotfiles/xmodmap
   ~/.coloritrc -> ~/dotfiles/colorit/coloritrc
@@ -82,7 +98,7 @@ Observe the snippet below for an example of a valid personal.nix file.
   ~/.config/termite -> ~/dotfiles/termite
 #+end_example
 
-** .xsession
+**** .xsession
 :PROPERTIES:
 :CUSTOM_ID: xsession
 :END:
@@ -95,20 +111,20 @@ ln -s ${PATH_TO_DOTFILES}/xsession ${HOME}/.xsession
 - loads .Xmodmap to load custom keyboard bindings
 - start WM
 
-** .Xresources.d
+**** .Xresources.d
 :PROPERTIES:
 :CUSTOM_ID: xresources.d
 :END:
 
 #+begin_quote
-:warning: managed with nix home-manager?
+⚠️ managed with nix home-manager?
 #+end_quote
 
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILES}/Xresources.d ${HOME}/.Xresources.d
 #+end_src
 
-** .Xmodmap
+**** .Xmodmap
 :PROPERTIES:
 :CUSTOM_ID: xmodmap
 :END:
@@ -121,7 +137,7 @@ ln -s ${PATH_TO_DOTFILES}/Xmodmap ${HOME}/.Xmodmap
   finger travel (the macbook has a narrower left shift and places the
   tilde/grave button between the left shift and the Z key)
 
-** Tmux
+**** Tmux
 :PROPERTIES:
 :CUSTOM_ID: tmux
 :END:
@@ -132,10 +148,15 @@ ln -s ${PATH_TO_DOTFILE}/tmux.conf ${HOME}/.config/tmux.conf
 - sets up vi key bindings in tmux
 - remaps colors
 
-** Neovim
+**** TODO Neovim
 :PROPERTIES:
 :CUSTOM_ID: neovim
 :END:
+
+#+begin_quote
+⚠️ I haven't relied on init.nvim for a while since I broke my configuration a little while ago in my attempts to pull vim-plug with Nix and then manage all my other plugins through the init.nvim file. As a lazyperson's way out, I have simply given up and started managing my entire nvim configuration in nix.
+#+end_quote
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/nvim ${HOME}/.config/nvim
 #+end_src
@@ -144,7 +165,7 @@ ln -s ${PATH_TO_DOTFILE}/nvim ${HOME}/.config/nvim
 - enable mouse in all modes
 - define Plug extensions
 
-** Termite
+**** Termite
 :PROPERTIES:
 :CUSTOM_ID: termite
 :END:
@@ -152,7 +173,7 @@ ln -s ${PATH_TO_DOTFILE}/nvim ${HOME}/.config/nvim
 ln -s ${PATH_TO_DOTFILE}/termite ${HOME}/.config/termite
 #+end_src
 
-** Starship
+**** Starship
 :PROPERTIES:
 :CUSTOM_ID: starship
 :END:
@@ -160,7 +181,7 @@ ln -s ${PATH_TO_DOTFILE}/termite ${HOME}/.config/termite
 ln -s ${PATH_TO_DOTFILE}/starship.toml ${HOME}/.config/starship.toml
 #+end_src
 
-** Rofi
+**** Rofi
 :PROPERTIES:
 :CUSTOM_ID: rofi
 :END:
@@ -168,7 +189,7 @@ ln -s ${PATH_TO_DOTFILE}/starship.toml ${HOME}/.config/starship.toml
 ln -s ${PATH_TO_DOTFILE}/rofi ${HOME}/.config/rofi
 #+end_src
 
-** Redshift
+**** Redshift
 :PROPERTIES:
 :CUSTOM_ID: redshift
 :END:
@@ -176,7 +197,7 @@ ln -s ${PATH_TO_DOTFILE}/rofi ${HOME}/.config/rofi
 ln -s ${PATH_TO_DOTFILE}/redshift ${HOME}/.config/redshift
 #+end_src
 
-** Ghorg
+**** Ghorg
 :PROPERTIES:
 :CUSTOM_ID: ghorg
 :END:
@@ -184,7 +205,7 @@ ln -s ${PATH_TO_DOTFILE}/redshift ${HOME}/.config/redshift
 ln -s ${PATH_TO_DOTFILE}/ghorg ${HOME}/.config/ghorg
 #+end_src
 
-** Asciinema
+**** Asciinema
 :PROPERTIES:
 :CUSTOM_ID: asciinema
 :END:
@@ -192,7 +213,7 @@ ln -s ${PATH_TO_DOTFILE}/ghorg ${HOME}/.config/ghorg
 ln -s ${PATH_TO_DOTFILE}/asciinema ${HOME}/.config/asciinema
 #+end_src
 
-** TODO: Compton
+**** TODO Compton
 :PROPERTIES:
 :CUSTOM_ID: todo-compton
 :END:
@@ -200,7 +221,7 @@ ln -s ${PATH_TO_DOTFILE}/asciinema ${HOME}/.config/asciinema
 ln -s ${PATH_TO_DOTFILE}/compton/compton.conf ${HOME}/.config/compton.conf
 #+end_src
 
-** Octave
+**** Octave
 :PROPERTIES:
 :CUSTOM_ID: octave
 :END:
@@ -208,11 +229,11 @@ ln -s ${PATH_TO_DOTFILE}/compton/compton.conf ${HOME}/.config/compton.conf
 ln -s ${PATH_TO_DOTFILE}/octave/.octaverc ${HOME}/.config/.octaverc
 #+end_src
 
-*** TODO: Rename hidden file to more visible file
+***** TODO: Rename hidden file to more visible file
 :PROPERTIES:
 :CUSTOM_ID: todo-rename-hidden-file-to-more-visible-file
 :END:
-** Lein
+**** Lein
 :PROPERTIES:
 :CUSTOM_ID: lein
 :END:
@@ -223,7 +244,7 @@ convenience plugins for development.
 ln -s ${PATH_TO_DOTFILE}/lein ${HOME}/.lein
 #+end_src
 
-** Colorit
+**** Colorit
 :PROPERTIES:
 :CUSTOM_ID: colorit
 :END:
@@ -236,7 +257,7 @@ by dict.
 ln -s ${PATH_TO_DOTFILE}/colorit/coloritrc ${HOME}/.coloritrc
 #+end_src
 
-** Conky
+**** Conky
 :PROPERTIES:
 :CUSTOM_ID: conky
 :END:
@@ -249,11 +270,11 @@ system metrics in a GUI.
 ln -s ${PATH_TO_DOTFILE}/conky.conf ${HOME}/.conkyrc
 #+end_src
 
-** Git
+**** Git
 :PROPERTIES:
 :CUSTOM_ID: git
 :END:
-*** Config
+***** Config
 :PROPERTIES:
 :CUSTOM_ID: config
 :END:
@@ -261,7 +282,7 @@ ln -s ${PATH_TO_DOTFILE}/conky.conf ${HOME}/.conkyrc
 ln -s ${PATH_TO_DOTFILE}/gitconfig ${HOME}/gitconfig
 #+end_src
 
-*** Ignore
+***** Ignore
 :PROPERTIES:
 :CUSTOM_ID: ignore
 :END:
@@ -269,7 +290,7 @@ ln -s ${PATH_TO_DOTFILE}/gitconfig ${HOME}/gitconfig
 ln -s ${PATH_TO_DOTFILE}/gitignore ${HOME}/.gitignore
 #+end_src
 
-** Emacs
+**** Emacs
 :PROPERTIES:
 :CUSTOM_ID: emacs
 :END:
