@@ -1,11 +1,12 @@
 { config, pkgs, lib, options, ... }:
 
 {
-  home.packages = [
-    pkgs.xsel-copy-url
-    pkgs.neofetch
+  home.packages = with pkgs; [
+    xsel-copy-url
+    neofetch
+    screenkey
 
-    (pkgs.writeScriptBin "colors" ''
+    (writeScriptBin "colors" ''
       # https://askubuntu.com/questions/27314/script-to-display-all-terminal-colors
 
       for x in {0..8}; do
