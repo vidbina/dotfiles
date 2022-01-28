@@ -860,12 +860,14 @@ To keep our init as general as possible we store private information and languag
 #+begin_src elisp :tangle init.el
 (load "~/.emacs.d/lang.el")
 (load "~/.emacs.d/personal.el")
+#+end_src
 
+Furthermore we load customization since some configurations and changes to our Emacs setup will be persisted through the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html][customization system]].
+
+#+begin_src elisp :tangle init.el
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
-(put 'narrow-to-region 'disabled nil)
-(put 'narrow-to-page 'disabled nil)
 #+end_src
 
 * 💬 Languages

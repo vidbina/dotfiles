@@ -474,5 +474,3 @@
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
-(put 'narrow-to-region 'disabled nil)
-(put 'narrow-to-page 'disabled nil)
