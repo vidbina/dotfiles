@@ -1,4 +1,16 @@
 {
+    "NUR": {
+        "branch": "master",
+        "description": "Nix User Repository: User contributed nix packages [maintainer=@Mic92]",
+        "homepage": "https://nur.nix-community.org/",
+        "owner": "nix-community",
+        "repo": "NUR",
+        "rev": "df6508a391e3a14bf59e79c265e9be00823eac74",
+        "sha256": "07nc6r2fv77yfwmilmbx2bxziqqmajw0ba82fm6zw1d97v5k311j",
+        "type": "tarball",
+        "url": "https://github.com/nix-community/NUR/archive/df6508a391e3a14bf59e79c265e9be00823eac74.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "emacs-overlay": {
         "branch": "master",
         "description": "Bleeding edge emacs overlay [maintainer=@adisbladis] ",

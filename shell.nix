@@ -6,6 +6,7 @@ let
 
   nixpkgs-src = sources."nixpkgs";
   hm-src = sources."home-manager";
+  nur-src = sources."NUR";
 
   pkgs = import nixpkgs-src { };
 
@@ -26,7 +27,7 @@ pkgs.mkShell rec {
   ];
 
   shellHook = ''
-    export NIX_PATH="nixpkgs=${nixpkgs-src}:home-manager=${hm-src}"
+    export NIX_PATH="nixpkgs=${nixpkgs-src}:home-manager=${hm-src}:NUR=${nur-src}"
     export HOME_MANAGER_CONFIG="./home.nix"
   '';
 }

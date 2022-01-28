@@ -70,6 +70,16 @@ Observe the snippet below for an example of a valid personal.nix file.
   };
 
   home.packages = [ ];
+
+  programs.firefox = {
+    profiles = {
+      personal = {
+        settings = {
+          "browser.startup.homepage" = "https://news.ycombinator.com";
+        };
+      };
+    };
+  };
 }
 #+end_example
 
