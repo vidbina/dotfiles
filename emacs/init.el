@@ -29,7 +29,8 @@
   (global-set-key (kbd "C-c c") 'org-capture)
   (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
   ;; https://orgmode.org/manual/Structure-Templates.html
-  (load-library "org-tempo")
+  (require 'org-tempo)
+  (require 'ol-bibtex)
   ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
   (setq org-plantuml-exec-mode 'plantuml)
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
