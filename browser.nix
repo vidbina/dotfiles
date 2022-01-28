@@ -34,6 +34,7 @@ in
   programs.firefox = {
     enable = true;
 
+    # NOTE: Extensions need firefox.profiles to be defined
     extensions =
       # https://nur.nix-community.org/repos/rycee/
       with nur.repos.rycee.firefox-addons; [
