@@ -876,6 +876,10 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
 
 * 📛 Personal Details
 
+#+begin_quote
+💡 You can copy the content in this section to your own personal.org file in this directory and configure all the =:tangle= arguments to output to =personal.el= to cook up your own personal part of your configuration through literal programming. Remember that you can tangle an Org-file into the resulting code with the ~(org-babel-tangle)~ command (mapped to =C-c C-v t= by default).
+#+end_quote
+
 Populate a =personal.el= file which defines your name, your e-mail details and some other /very personal/ configuration bits such as theme customizations or personalized keybindings. Use the following snippet as an example of a configuration that may work.
 
 #+begin_src elisp :tangle personal-example.el
@@ -883,7 +887,37 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
       inhibit-startup-screen t
       smtpmail-debug-info t
       message-send-mail-function 'message-send-mail-with-sendmail)
+#+end_src
 
+** COMMENT Reenable some disabled commands
+
+In order to meet new Emacs users half-way in terms of UX, some features/commands have been [[https://www.emacswiki.org/emacs/DisabledCommands][disabled by default]]. The [[https://www.emacswiki.org/emacs/BasicNarrowing][narrowing]] functionality allows one to narrow a buffer to a subset of it's original content. In Org-mode I often narrow to a chapter (subtree in an Org document) in order to reduce my context a bit (reduce the noise and enhance my focus). So, let's reenable some of the disabled commands needed for narrowing.
+
+#+begin_src elisp :tangle personal-example.el
+(put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
+#+end_src
+
+** Org-capture Templates
+
+#+begin_src elisp :tangle personal-example.el
+(setq org-capture-templates
+      (append '(("w" "Default Template" entry (file+headline "~/org/protocol/capture.org" "Notes") "* %^{Title}\n\nSource: %u, %c\n\n%i" :empty-lines 1)
+                ("p" "Link with Selected Text" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read %^{title}\n\nSource: %:annotation\n\n #+BEGIN_QUOTE\n\n %i\n\n #+END_QUOTE%?" :empty-lines 2)
+                ("L" "Link Only" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read _%:description_\n\nSource: %:annotation%?" :empty-lines 2)
+                ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks") "* TODO %?\n\n%i\n\n%a"))
+              nil))
+#+end_src
+
+*** TODO Move template text into blocks and refer to those blocks in the code
+
+The templates within the sexpr are difficult to read for me and would be easier to debug and edit if they were notated in a format that more closely represents the visual form that they'll take on (i.e.: show real whitespacing for structure).
+
+** TODO 📧 Personal E-mail
+
+In order to get mail to work for multiple mailboxes you will need to configure [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][mu4e contexts]].
+
+#+begin_src elisp :tangle personal-example.el
 ;; TODO fill in the blanks for mu4e-contexts
 (use-package mu4e
   :straight nil
@@ -894,17 +928,45 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
         mu4e-get-mail-command "true"
         mu4e-index-update-in-backgroud t
         mu4e-view-show-addresses t
-        mu4e-contexts `())
+        mu4e-contexts `()))
+#+end_src
 
+*** TODO Signing
+
+#+begin_src elisp :tangle personal-example.el
 (add-hook 'mu4e-compose-mode-hook 'mml-secure-sign-pgpmime)
+#+end_src
 
-(setq message-citation-line-format "On %d.%m.%Y at %R UTZ%z, %f wrote:\n"
+*** Adjustments
+
+**** Citation line
+
+In order to keep things lean, I've defined my own citation line that easy enough to parse as opposed to the default line.
+
+#+begin_src elisp :tangle personal-example.el
+(setq message-citation-line-format "On %d.%m.%Y at %R UTZ%z, %f sent the payload listed hereafter.\n"
       message-citation-line-function #'message-insert-formatted-citation-line)
+#+end_src
 
+**** HTML Mail Escape-hatch
+
+In order to conveniently view HTML mail which may not always be presented in a pleasantly readable manner inside of E-macs, you may appreciate using the escape hatch and viewing such pages in a proper browser. The view-actions menu can be pulled up by executing ~(mu4e-view-action)~ or pressing =A= while in the mu4e mail view.
+
+#+begin_src elisp :tangle personal-example.el
 ;; https://www.djcbsoftware.nl/code/mu/mu4e/Reading-messages.html
 (add-to-list 'mu4e-view-actions
              '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+#+end_src
 
+#+begin_quote
+💡 Since there is so much trash hidden in HTML mails (e.g.: pixels), I tend to paste (and follow) these links in private, incognito or profile-isolated browser tabs instead. Perhaps something you can consider if you you're not in the mood to be too generous (or nonchalant) with your data.
+#+end_quote
+
+** 🥳 Personal Helpers
+
+Here be dragons! 🐉 This is my personal collection of helpers that I use for little things like switching themes, managing wrapping inside of buffers, managing opening of URL's and more junk. I will not explain these as these are simple enough and I'm not expecting me needing to explain this to myself or others (you likely will want to write your own).
+
+#+begin_src elisp :tangle personal-example.el
 (defcustom vidbina-theme-should-be-dark nil
   "Non-nil means that the theme should be dark"
   :type 'boolean
@@ -975,7 +1037,11 @@ Populate a =personal.el= file which defines your name, your e-mail details and s
       (progn
         (message (concat "Browse " buffer-file-name))
         (browse-url (file-truename buffer-file-name))))))
+#+end_src
 
+** TODO Misc
+
+#+begin_src elisp :tangle personal-example.el
 (global-set-key (kbd "C-c v l") 'vidbina-theme-light)
 (global-set-key (kbd "C-c v d") 'vidbina-theme-dark)
 (global-set-key (kbd "C-c v TAB") 'vidbina-wrap)
