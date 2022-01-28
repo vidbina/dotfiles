@@ -82,6 +82,12 @@
   :init
   (setq nix-nixfmt-bin "nixpkgs-fmt"))
 
+;; https://github.com/spotify/dockerfile-mode
+(use-package dockerfile-mode
+  :straight (dockerfile-mode :type git
+                             :host github
+                             :repo "spotify/dockerfile-mode"))
+
 ;; https://github.com/dominikh/go-mode.el
 (use-package go-mode
   :straight (go-mode :type git

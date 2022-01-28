@@ -978,6 +978,18 @@ Furthermore we load customization since some configurations and changes to our E
                      :repo "emacsorphanage/gnuplot"))
 #+end_src
 
+** DSL
+
+*** Dockerfile
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/spotify/dockerfile-mode
+(use-package dockerfile-mode
+  :straight (dockerfile-mode :type git
+                             :host github
+                             :repo "spotify/dockerfile-mode"))
+#+end_src
+
 ** Programming Languages
 
 *** Nix
