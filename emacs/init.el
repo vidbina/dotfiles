@@ -1,3 +1,6 @@
+;; https://github.com/raxod502/straight.el/issues/757#issuecomment-839764260
+(defvar comp-deferred-compilation-deny-list ())
+
 ;; https://github.com/raxod502/straight.el#getting-started
 (defvar bootstrap-version)
 (let ((bootstrap-file

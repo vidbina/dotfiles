@@ -69,7 +69,7 @@ Setting =package-enable-at-startup= to =nil= before the Emacs default package sy
 
 The primary advantage of using *straight.el* is the ability to _pin package version in a [[file:straight/versions/default.el][lockfile]]_ (e.g.: =~/.emacs.d/straight/versions/default.el=) in manner quite similar to how popular package managers such as Bundler (Ruby) and NPM (JavaScript) or Yarn (JavaScript) improve reproducibility of a configuration by pinning the versions of their packages in a dependency manifest (e.g.: Gemfile.lock for Bundler, package.lock for NPM and yarn.lock for Yarn).
 
-*** COMMENT ⚠️ Pre-bootstrap Work-around
+*** ⚠️ Pre-bootstrap Work-around
 
 The issue is that straight relies on the existence of variables with prefixes that have been renamed from =comp= to =native-comp=. So, if the installed variant of Emacs lacks native compilation capability, then straight will be bumping into undefined symbols.
 
@@ -81,6 +81,7 @@ The issue is that straight relies on the existence of variables with prefixes th
 Installation of the following packages may break when this block is disabled:
 - straight
 - [[*Org-contrib][org-contrib]]
+- [[*Dockerfile][dockerfile-mode]]
 
 *** 🥾 Bootstrap
 
