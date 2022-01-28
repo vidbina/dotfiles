@@ -42,6 +42,16 @@
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
 
+;; https://github.com/jkitchin/ox-clip
+;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
+(use-package ox-clip
+  :straight (ox-clip :type git
+                     :host github
+                     :repo "jkitchin/ox-clip")
+  :after org
+  :bind
+  ("C-c y" . ox-clip-formatted-copy))
+
 ;; https://git.sr.ht/~bzg/org-contrib
 (use-package org-contrib
   :straight (org-contrib :type git
@@ -227,217 +237,6 @@
                     (cons #'display-buffer-in-side-window
                           `((slot . 10) ,@sidebar))))))
 
-;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
-;; =describe-package ffap=
-(ffap-bindings)
-
-;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
-(setq-default indent-tabs-mode nil)
-
-;; https://github.com/emacsmirror/undo-fu
-(use-package undo-fu
-  :straight (undo-fu :type git
-                     :host github
-                     :repo "emacsmirror/undo-fu"))
-
-;; https://github.com/jwiegley/emacs-async
-(use-package async
-  :straight (async :type git
-                   :host github
-                   :repo "jwiegley/emacs-async"))
-
-;; https://github.com/Fanael/rainbow-delimiters
-(use-package rainbow-delimiters
-  :straight (rainbow-delimiters :type git
-                                :host github
-                                :repo "Fanael/rainbow-delimiters")
-  ;; :hook
-  ;; ;; https://github.com/patrickt/emacs
-  ;; ((prog-mode) . rainbow-delimiters-mode)
-  :config
-  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
-
-;; https://github.com/emacs-evil/evil
-;; https://github.com/noctuid/evil-guide
-(use-package evil
-  :straight (evil :type git
-                  :host github
-                  :repo "emacs-evil/evil")
-  :after
-  undo-fu
-  :init
-  ;; https://github.com/emacs-evil/evil-collection#installation
-  ;; pre-set some evil vars prior to package load
-  (setq evil-respect-visual-line-mode t)
-  (setq evil-undo-system 'undo-fu)
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  :config
-  (evil-mode t)
-  (evil-set-initial-state 'info-mode 'emacs)
-  (evil-set-initial-state 'help-mode 'emacs)
-  (evil-set-initial-state 'special-mode 'emacs))
-
-;; https://github.com/emacs-evil/evil-collection
-(use-package evil-collection
-  :straight (evil-collection :type git
-                             :host github
-                             :repo "emacs-evil/evil-collection")
-  :after evil
-  :config
-  (evil-collection-init)
-  :delight
-  (evil-collection-unimpaired-mode))
-
-;; https://github.com/justbur/emacs-which-key
-(use-package which-key
-  :delight
-  :straight (which-key :type git
-                       :host github
-                       :repo "justbur/emacs-which-key")
-  :config
-  (which-key-mode))
-
-;; https://github.com/magit/magit.git
-(use-package magit
-  :straight (magit :type git
-                   :host github
-                   :repo "magit/magit"))
-
-;; https://github.com/dgutov/diff-hl
-(use-package diff-hl
-  :straight (diff-hl :type git
-                     :host github
-                     :repo "dgutov/diff-hl")
-  :hook
-  (after-init . global-diff-hl-mode))
-
-;; https://github.com/emacsorphanage/dired-k
-(use-package dired-k
-  :straight (dired-k :type git
-                     :host github
-                     :repo "emacsorphanage/dired-k")
-  :init
-  (setq dired-k-style 'git)
-  :config
-  (add-hook 'dired-initial-position-hook 'dired-k))
-
-;; https://github.com/jrblevin/deft
-(use-package deft
-  :straight (deft :type git
-                  :host github
-                  :repo "jrblevin/deft")
-  :after org
-  :bind
-  ("C-c n d" . deft)
-  :custom
-  (deft-directory "~/org")
-  (deft-extensions '("md" "org"))
-  (deft-recursive t)
-  (deft-strip-summary-regexp
-   (concat "\\("
-           "[\n\t]" ;; blank
-           "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
-           "\\)"))
-  (deft-use-filename-as-title t)
-  (deft-use-filter-string-for-filename t))
-
-;;;; http://company-mode.github.io/
-;;(use-package company
-;;  :straight (company :type git
-;;                     :host github
-;;                     :repo "company-mode/company-mode")
-;;  :config
-;;  (add-hook 'after-init-hook 'global-company-mode)
-;;  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
-
-;;;; https://git.notmuchmail.org/git/notmuch
-;;;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
-;;;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
-;;(use-package notmuch
-;;  :straight nil
-;;  :init
-;;  (evil-collection-notmuch-setup))
-
-;;(use-package vterm :straight nil)
-
-;;(use-package multi-vterm
-;;  :straight (multi-vterm :type git
-;;                         :host github
-;;                         :repo "suonlight/multi-vterm")
-;;  :config
-;;  ;;(add-hook 'vterm-mode-hook
-;;  ;;          (lambda ()
-;;  ;;            (setq-local evil-insert-state-cursor 'box)
-;;  ;;            (evil-insert-state)))
-;;  (define-key vterm-mode-map [return]                      #'vterm-send-return)
-;;
-;;  (setq vterm-keymap-exceptions nil)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-e")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-f")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-a")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-v")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-b")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-w")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-u")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-n")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-m")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-p")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-j")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-k")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-r")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-t")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-g")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-c")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-SPC")    #'vterm--self-insert)
-;;  (evil-define-key 'normal vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
-;;  (evil-define-key 'normal vterm-mode-map (kbd ",c")       #'multi-vterm)
-;;  (evil-define-key 'normal vterm-mode-map (kbd ",n")       #'multi-vterm-next)
-;;  (evil-define-key 'normal vterm-mode-map (kbd ",p")       #'multi-vterm-prev)
-;;  (evil-define-key 'normal vterm-mode-map (kbd "i")        #'evil-insert-resume)
-;;  (evil-define-key 'normal vterm-mode-map (kbd "o")        #'evil-insert-resume)
-;;  (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
-
-(use-package pdf-tools
-  :straight nil
-  :config
-  (require 'pdf-occur)
-  (pdf-tools-install nil t nil nil)
-  (setq-default pdf-view-display-size 'fit-width))
-
-;; https://github.com/jkitchin/ox-clip
-;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
-;; to copy org-mode file into HTML for rich-text input controls
-(use-package ox-clip
-  :straight (ox-clip :type git
-                     :host github
-                     :repo "jkitchin/ox-clip")
-  :after org
-  :bind
-  ("C-c y" . ox-clip-formatted-copy))
-
-;; https://github.com/bbatsov/projectile/
-(use-package projectile
-  :straight (projectile :type git
-                        :host github
-                        :repo "bbatsov/projectile")
-  :custom
-  (projectile-mode-line-prefix "🗄️"))
-
-;; https://github.com/nex3/perspective-el
-(use-package perspective
-  :straight (perspective :type git
-                         :host github
-                         :repo "nex3/perspective-el")
-  :bind (("C-x C-b" . persp-ivy-switch-buffer)
-         ("C-x k" . persp-kill-buffer*))
-  :config
-  (persp-mode t)
-  :init
-  (setq persp-state-default-file "~/.emacs.d/perspective"
-        persp-modestring-short t))
-
 ;; https://github.com/emacsorphanage/zoom-window
 (use-package zoom-window
   :straight (zoom-window :type git
@@ -471,6 +270,137 @@
   (counsel-mode)
   (setq ivy-use-virtual-buffers t
         enable-recursive-minibuffers t))
+
+;; https://github.com/emacsorphanage/dired-k
+(use-package dired-k
+  :straight (dired-k :type git
+                     :host github
+                     :repo "emacsorphanage/dired-k")
+  :init
+  (setq dired-k-style 'git)
+  :config
+  (add-hook 'dired-initial-position-hook 'dired-k))
+
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
+(ffap-bindings)
+
+;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
+(setq-default indent-tabs-mode nil)
+
+;; https://github.com/emacsmirror/undo-fu
+(use-package undo-fu
+  :straight (undo-fu :type git
+                     :host github
+                     :repo "emacsmirror/undo-fu"))
+
+;; https://github.com/jwiegley/emacs-async
+(use-package async
+  :straight (async :type git
+                   :host github
+                   :repo "jwiegley/emacs-async"))
+
+;; https://github.com/emacs-evil/evil
+;; https://github.com/noctuid/evil-guide
+(use-package evil
+  :straight (evil :type git
+                  :host github
+                  :repo "emacs-evil/evil")
+  :after
+  undo-fu
+  :init
+  ;; https://github.com/emacs-evil/evil-collection#installation
+  ;; pre-set some evil vars prior to package load
+  (setq evil-respect-visual-line-mode t)
+  (setq evil-undo-system 'undo-fu)
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  :config
+  (evil-mode t)
+  (evil-set-initial-state 'info-mode 'emacs)
+  (evil-set-initial-state 'help-mode 'emacs)
+  (evil-set-initial-state 'special-mode 'emacs))
+
+;; https://github.com/emacs-evil/evil-collection
+(use-package evil-collection
+  :straight (evil-collection :type git
+                             :host github
+                             :repo "emacs-evil/evil-collection")
+  :after evil
+  :config
+  (evil-collection-init)
+  :delight
+  (evil-collection-unimpaired-mode))
+
+;; https://github.com/magit/magit.git
+(use-package magit
+  :straight (magit :type git
+                   :host github
+                   :repo "magit/magit"))
+
+;; https://github.com/dgutov/diff-hl
+(use-package diff-hl
+  :straight (diff-hl :type git
+                     :host github
+                     :repo "dgutov/diff-hl")
+  :hook
+  (after-init . global-diff-hl-mode))
+
+;; https://github.com/jrblevin/deft
+(use-package deft
+  :straight (deft :type git
+                  :host github
+                  :repo "jrblevin/deft")
+  :after org
+  :bind
+  ("C-c n d" . deft)
+  :custom
+  (deft-directory "~/org")
+  (deft-extensions '("md" "org"))
+  (deft-recursive t)
+  (deft-strip-summary-regexp
+   (concat "\\("
+           "[\n\t]" ;; blank
+           "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+           "\\)"))
+  (deft-use-filename-as-title t)
+  (deft-use-filter-string-for-filename t))
+
+;; https://github.com/justbur/emacs-which-key
+(use-package which-key
+  :delight
+  :straight (which-key :type git
+                       :host github
+                       :repo "justbur/emacs-which-key")
+  :config
+  (which-key-mode))
+
+(use-package pdf-tools
+  :straight nil
+  :config
+  (require 'pdf-occur)
+  (pdf-tools-install nil t nil nil)
+  (setq-default pdf-view-display-size 'fit-width))
+
+;; https://github.com/bbatsov/projectile/
+(use-package projectile
+  :straight (projectile :type git
+                        :host github
+                        :repo "bbatsov/projectile")
+  :custom
+  (projectile-mode-line-prefix "🗄️"))
+
+;; https://github.com/nex3/perspective-el
+(use-package perspective
+  :straight (perspective :type git
+                         :host github
+                         :repo "nex3/perspective-el")
+  :bind (("C-x C-b" . persp-ivy-switch-buffer)
+         ("C-x k" . persp-kill-buffer*))
+  :config
+  (persp-mode t)
+  :init
+  (setq persp-state-default-file "~/.emacs.d/perspective"
+        persp-modestring-short t))
 
 (load "~/.emacs.d/lang.el")
 (load "~/.emacs.d/personal.el")

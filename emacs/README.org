@@ -171,12 +171,14 @@ Compared to the earlier snippet in which the use of the *use-package* macro was 
 #+END_details
 
 **** Organization
+
 On the tidying up front, for example, you'll find that the *use-package* macro provides mechanisms to:
 1. order the load sequence of packages by defining a dependencies by means of the =:after= keyword
 2. time application of parts of a configurations before or after /package load/ by means of the =:init= (i.e.: before load) and =:config= (i.e.: after load) keywords
 3. bind keychords using the =:bind= keyword
 
 **** Performance
+
 On the performance front, you'll find that the *use-package* macro provides mechanisms to:
 1. delay loading of packages by means of the =:defer= or =:demand= keywords
 1. delay loading of packages needed in a particular mode or interpreter by means of the =:mode= or =:interpreter= keywords
@@ -213,6 +215,22 @@ On the performance front, you'll find that the *use-package* macro provides mech
         org-hide-block-startup t)
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
+#+end_src
+
+** Ox-clip: export Org fragments into HTML for rich-text input fields
+
+The ox-clip exporters allow us to export fragments of our org documents into rich-text that is ready to paste into inputs on web apps. I use this frequently to copy org pieces into Google Docs or other online rich-text editors.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/jkitchin/ox-clip
+;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
+(use-package ox-clip
+  :straight (ox-clip :type git
+                     :host github
+                     :repo "jkitchin/ox-clip")
+  :after org
+  :bind
+  ("C-c y" . ox-clip-formatted-copy))
 #+end_src
 
 ** TODO Bibliography
@@ -509,7 +527,9 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
         modus-themes-scale-headings t))
 #+end_src
 
-** 🏗️ Buffer Placement
+** 🪟 Window Management
+
+*** 🏗️ Buffer Placement
 
 #+begin_src elisp :tangle init.el
 (setq display-buffer-alist
@@ -532,6 +552,65 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
                     (cons #'display-buffer-in-side-window
                           `((slot . 10) ,@sidebar))))))
 #+end_src
+
+*** TODO 🔍 Zoom-window: Zoom to a single window
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/emacsorphanage/zoom-window
+(use-package zoom-window
+  :straight (zoom-window :type git
+                         :host github
+                         :repo "emacsorphanage/zoom-window")
+  :init
+  (setq ;;zoom-window-use-persp t
+   zoom-window-mode-line-color "DarkRed")
+  :config
+  (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
+#+end_src
+
+*** TODO 🪄 Ace Window: Quick-jump to windows by numbers
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/abo-abo/ace-window
+;; https://jao.io/blog/2020-05-12-ace-window.html
+(use-package ace-window
+  :straight (ace-window :type git
+                        :host github
+                        :repo "abo-abo/ace-window")
+  :bind (("M-o" . ace-window)))
+
+;; https://github.com/abo-abo/swiper
+(use-package swiper
+  :straight (swiper :type git
+                    :host github
+                    :repo "abo-abo/swiper")
+  :delight
+  (counsel-mode)
+  (ivy-mode)
+  :config
+  (straight-use-package 'counsel)
+  (ivy-mode)
+  (counsel-mode)
+  (setq ivy-use-virtual-buffers t
+        enable-recursive-minibuffers t))
+#+end_src
+
+** TODO Dired-k
+
+The standard Emacs directory editor named dired doesn't ship with convenient highlighting or coloring of the listed files. The dired-k package adds some flair to the dired ouput.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/emacsorphanage/dired-k
+(use-package dired-k
+  :straight (dired-k :type git
+                     :host github
+                     :repo "emacsorphanage/dired-k")
+  :init
+  (setq dired-k-style 'git)
+  :config
+  (add-hook 'dired-initial-position-hook 'dired-k))
+#+end_src
+
 * 🌷 Misc
 
 ** Find File at Point (FFAP)
@@ -576,25 +655,6 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
                    :repo "jwiegley/emacs-async"))
 #+end_src
 
-** TODO 🌈 Rainbow Delimiters
-
-#+begin_comment
-⚠️ Move to Language config
-#+end_comment
-
-#+begin_src elisp :tangle init.el
-;; https://github.com/Fanael/rainbow-delimiters
-(use-package rainbow-delimiters
-  :straight (rainbow-delimiters :type git
-                                :host github
-                                :repo "Fanael/rainbow-delimiters")
-  ;; :hook
-  ;; ;; https://github.com/patrickt/emacs
-  ;; ((prog-mode) . rainbow-delimiters-mode)
-  :config
-  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
-#+end_src
-
 ** 🖐️ Evil
 
 In order to save your hand some pain, it may be helpful to use vi-like bindings that keep your hands around the home row more often and minimizes the need for your hands to pull acrobatic maneuvers 🎪 that could incur some strain. I use the [[https://github.com/emacs-evil/evil][extensible vi layer, inconveniently or mischievously abbreviated to Evil]], to help me to vi-bindings while in Emacs.
@@ -637,20 +697,9 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
   (evil-collection-unimpaired-mode))
 #+end_src
 
-** TODO ❔ Which
+** Version Control
 
-#+begin_src elisp :tangle init.el
-;; https://github.com/justbur/emacs-which-key
-(use-package which-key
-  :delight
-  :straight (which-key :type git
-                       :host github
-                       :repo "justbur/emacs-which-key")
-  :config
-  (which-key-mode))
-#+end_src
-
-** TODO Version Control
+*** TODO Magit: Git Porcelain
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/magit/magit.git
@@ -658,7 +707,11 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
   :straight (magit :type git
                    :host github
                    :repo "magit/magit"))
+#+end_src
 
+*** TODO Diff-hl: Diff highlighting in the left gutter of a buffer
+
+#+begin_src elisp :tangle init.el
 ;; https://github.com/dgutov/diff-hl
 (use-package diff-hl
   :straight (diff-hl :type git
@@ -668,19 +721,11 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
   (after-init . global-diff-hl-mode))
 #+end_src
 
-** TODO 📁 Navigation
+** 📁 Navigation
+
+*** TODO Deft
 
 #+begin_src elisp :tangle init.el
-;; https://github.com/emacsorphanage/dired-k
-(use-package dired-k
-  :straight (dired-k :type git
-                     :host github
-                     :repo "emacsorphanage/dired-k")
-  :init
-  (setq dired-k-style 'git)
-  :config
-  (add-hook 'dired-initial-position-hook 'dired-k))
-
 ;; https://github.com/jrblevin/deft
 (use-package deft
   :straight (deft :type git
@@ -700,74 +745,109 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
            "\\)"))
   (deft-use-filename-as-title t)
   (deft-use-filter-string-for-filename t))
-
-;;;; http://company-mode.github.io/
-;;(use-package company
-;;  :straight (company :type git
-;;                     :host github
-;;                     :repo "company-mode/company-mode")
-;;  :config
-;;  (add-hook 'after-init-hook 'global-company-mode)
-;;  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 #+end_src
 
-** TODO 📧 Mail?!?
+** Completion
+
+*** TODO Vertico
+
+*** Which: Show key bindings next to command listing in pop-up
+
+The [[https://github.com/justbur/emacs-which-key][which-key]] package annotes the command listing with the key bindings for the shown commands.
+
+#+CAPTION: Screenshot of which-key diplaying some keybindings to commands listed in an expanded minibuffer
+[[file:images/screenshot-which-key-dark.png]]
 
 #+begin_src elisp :tangle init.el
-;;;; https://git.notmuchmail.org/git/notmuch
-;;;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
-;;;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
-;;(use-package notmuch
-;;  :straight nil
-;;  :init
-;;  (evil-collection-notmuch-setup))
+;; https://github.com/justbur/emacs-which-key
+(use-package which-key
+  :delight
+  :straight (which-key :type git
+                       :host github
+                       :repo "justbur/emacs-which-key")
+  :config
+  (which-key-mode))
 #+end_src
 
-** TODO 🕳️ Terminal
+*** COMMENT Company: Completion framework with pluggable back-ends
+
+The [[https://company-mode.github.io/][company]] completion framework allows for the use of backends such as [[https://github.com/tigersoldier/company-lsp][company-lsp]] (for LSP integration), BBRB, clang, Ispell, Etags, and Gtags. Completions are triggered through the ~(completion-at-point)~ function while the listing is presented in a pop-up or menu near the pointer itself.
 
 #+begin_src elisp :tangle init.el
-;;(use-package vterm :straight nil)
-
-;;(use-package multi-vterm
-;;  :straight (multi-vterm :type git
-;;                         :host github
-;;                         :repo "suonlight/multi-vterm")
-;;  :config
-;;  ;;(add-hook 'vterm-mode-hook
-;;  ;;          (lambda ()
-;;  ;;            (setq-local evil-insert-state-cursor 'box)
-;;  ;;            (evil-insert-state)))
-;;  (define-key vterm-mode-map [return]                      #'vterm-send-return)
-;;
-;;  (setq vterm-keymap-exceptions nil)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-e")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-f")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-a")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-v")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-b")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-w")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-u")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-n")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-m")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-p")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-j")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-k")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-r")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-t")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-g")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-c")      #'vterm--self-insert)
-;;  (evil-define-key 'insert vterm-mode-map (kbd "C-SPC")    #'vterm--self-insert)
-;;  (evil-define-key 'normal vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
-;;  (evil-define-key 'normal vterm-mode-map (kbd ",c")       #'multi-vterm)
-;;  (evil-define-key 'normal vterm-mode-map (kbd ",n")       #'multi-vterm-next)
-;;  (evil-define-key 'normal vterm-mode-map (kbd ",p")       #'multi-vterm-prev)
-;;  (evil-define-key 'normal vterm-mode-map (kbd "i")        #'evil-insert-resume)
-;;  (evil-define-key 'normal vterm-mode-map (kbd "o")        #'evil-insert-resume)
-;;  (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
+;; https://company-mode.github.io/
+(use-package company
+  :straight (company :type git
+                     :host github
+                     :repo "company-mode/company-mode")
+  :config
+  (add-hook 'after-init-hook 'global-company-mode)
+  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 #+end_src
 
-** TODO 📕 PDF
+In case you are using company, the [[http://company-mode.github.io/manual/Getting-Started.html#Usage-Basics][Usage Basics]] page will provide a good walkthrough of the bindings, notable options being:
+- =C-n= and =C-p= to navigate up and down the completions listing
+
+** 📧 Mail
+
+*** TODO COMMENT Notmuch
+
+#+begin_src elisp :tangle init.el
+;; https://git.notmuchmail.org/git/notmuch
+;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
+;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
+(use-package notmuch
+  :straight nil
+  :init
+  (evil-collection-notmuch-setup))
+#+end_src
+
+** TODO COMMENT 🕳️ Terminal
+
+#+begin_src elisp :tangle init.el
+(use-package vterm :straight nil)
+
+(use-package multi-vterm
+  :straight (multi-vterm :type git
+                         :host github
+                         :repo "suonlight/multi-vterm")
+  :config
+  ;;(add-hook 'vterm-mode-hook
+  ;;          (lambda ()
+  ;;            (setq-local evil-insert-state-cursor 'box)
+  ;;            (evil-insert-state)))
+  (define-key vterm-mode-map [return]                      #'vterm-send-return)
+
+  (setq vterm-keymap-exceptions nil)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-e")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-f")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-a")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-v")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-b")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-w")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-u")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-n")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-m")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-p")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-j")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-k")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-r")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-t")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-g")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-c")      #'vterm--self-insert)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-SPC")    #'vterm--self-insert)
+  (evil-define-key 'normal vterm-mode-map (kbd "C-d")      #'vterm--self-insert)
+  (evil-define-key 'normal vterm-mode-map (kbd ",c")       #'multi-vterm)
+  (evil-define-key 'normal vterm-mode-map (kbd ",n")       #'multi-vterm-next)
+  (evil-define-key 'normal vterm-mode-map (kbd ",p")       #'multi-vterm-prev)
+  (evil-define-key 'normal vterm-mode-map (kbd "i")        #'evil-insert-resume)
+  (evil-define-key 'normal vterm-mode-map (kbd "o")        #'evil-insert-resume)
+  (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
+#+end_src
+
+** 📕 PDF
+
+*** TODO PDF-Tools
 
 #+begin_src elisp :tangle init.el
 (use-package pdf-tools
@@ -776,20 +856,11 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
   (require 'pdf-occur)
   (pdf-tools-install nil t nil nil)
   (setq-default pdf-view-display-size 'fit-width))
-
-;; https://github.com/jkitchin/ox-clip
-;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
-;; to copy org-mode file into HTML for rich-text input controls
-(use-package ox-clip
-  :straight (ox-clip :type git
-                     :host github
-                     :repo "jkitchin/ox-clip")
-  :after org
-  :bind
-  ("C-c y" . ox-clip-formatted-copy))
 #+end_src
 
-** TODO 📑 Project Management
+** 📑 Project Management
+
+*** TODO Projectile
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/bbatsov/projectile/
@@ -799,7 +870,11 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
                         :repo "bbatsov/projectile")
   :custom
   (projectile-mode-line-prefix "🗄️"))
+#+end_src
 
+*** TODO Perspective
+
+#+begin_src elisp :tangle init.el
 ;; https://github.com/nex3/perspective-el
 (use-package perspective
   :straight (perspective :type git
@@ -812,47 +887,6 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
   :init
   (setq persp-state-default-file "~/.emacs.d/perspective"
         persp-modestring-short t))
-#+end_src
-
-** TODO 🔍 Zoom-window: Zoom to a single window
-
-#+begin_src elisp :tangle init.el
-;; https://github.com/emacsorphanage/zoom-window
-(use-package zoom-window
-  :straight (zoom-window :type git
-                         :host github
-                         :repo "emacsorphanage/zoom-window")
-  :init
-  (setq ;;zoom-window-use-persp t
-   zoom-window-mode-line-color "DarkRed")
-  :config
-  (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
-#+end_src
-
-** TODO 🪄 Ace Window: Quick-jump to windows by numbers
-#+begin_src elisp :tangle init.el
-;; https://github.com/abo-abo/ace-window
-;; https://jao.io/blog/2020-05-12-ace-window.html
-(use-package ace-window
-  :straight (ace-window :type git
-                        :host github
-                        :repo "abo-abo/ace-window")
-  :bind (("M-o" . ace-window)))
-
-;; https://github.com/abo-abo/swiper
-(use-package swiper
-  :straight (swiper :type git
-                    :host github
-                    :repo "abo-abo/swiper")
-  :delight
-  (counsel-mode)
-  (ivy-mode)
-  :config
-  (straight-use-package 'counsel)
-  (ivy-mode)
-  (counsel-mode)
-  (setq ivy-use-virtual-buffers t
-        enable-recursive-minibuffers t))
 #+end_src
 
 * 🏁 Finale
@@ -871,370 +905,6 @@ Furthermore we load customization since some configurations and changes to our E
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
 #+end_src
-
-* 💬 Languages
-
-** Natural Language
-
-*** Spell Checking
-
-#+begin_src elisp :tangle lang.example.el
-;; https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html
-(with-eval-after-load "ispell"
-  (setq ispell-program-name "hunspell")
-  ;; Configure German, Swiss German, and two variants of English.
-  (setq ispell-dictionary "en_US,de_DE,nl")
-  ;; ispell-set-spellchecker-params has to be called
-  ;; before ispell-hunspell-add-multi-dic will work
-  (ispell-set-spellchecker-params)
-  (ispell-hunspell-add-multi-dic ispell-dictionary)
-  ;; For saving words to the personal dictionary, don't infer it from
-  ;; the locale, otherwise it would save to ~/.hunspell_de_DE.
-  (setq ispell-personal-dictionary "~/.hunspell_personal")
-
-  ;; The personal dictionary file has to exist, otherwise hunspell will
-  ;; silently not use it.
-  (unless (file-exists-p ispell-personal-dictionary)
-    (write-region "" nil ispell-personal-dictionary nil 0)))
-#+end_src
-
-** Markup Languages
-
-*** Org
-
-#+begin_src elisp :tangle lang.example.el
-;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Hooks-for-Loading.html
-;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-gnuplot.html#sec-4
-(with-eval-after-load 'org
-  (message "Loading org-babel-language mappings")
-  (org-babel-do-load-languages 'org-babel-load-languages
-                               '((shell . t)
-                                 (clojure .  t)
-                                 (dot . t)
-                                 (gnuplot . t)
-                                 (haskell . t)
-                                 (makefile . t)
-                                 ;; (nix . t) ;; TODO: Figure out why broken
-                                 (plantuml . t)
-                                 (python . t))))
-#+end_src
-
-*** Markdown
-
-#+begin_src elisp :tangle lang.example.el
-;; https://jblevins.org/projects/markdown-mode/
-(use-package markdown-mode
-  :straight (markdown-mode :type git
-                           :host github
-                           :repo "jrblevin/markdown-mode")
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init
-  (setq markdown-command "multimarkdown"))
-#+end_src
-
-** Serialization Languages
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/yoshiki/yaml-mode
-(use-package yaml-mode
-  :straight (yaml-mode :type git
-                       :host github
-                       :repo "yoshiki/yaml-mode"))
-#+end_src
-
-** Viz Languages for graphing, plotting and more
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/skuro/plantuml-mode
-(use-package plantuml-mode
-  :straight (plantuml-mode :type git
-                           :host github
-                           :repo "skuro/plantuml-mode")
-  :init
-  (setq plantuml-default-exec-mode 'executable))
-#+end_src
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/ppareit/graphviz-dot-mode
-(use-package graphviz-dot-mode
-  :straight (graphviz-dot-mode :type git
-                               :host github
-                               :repo "ppareit/graphviz-dot-mode")
-  :ensure t
-  :config
-  (setq graphviz-dot-indent-width 2))
-#+end_src
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/emacsorphanage/gnuplot
-;; also https://github.com/bruceravel/gnuplot-mode
-;; also https://github.com/rudi/gnuplot-el
-(use-package gnuplot
-  :straight (gnuplot :type git
-                     :host github
-                     :repo "emacsorphanage/gnuplot"))
-#+end_src
-
-** DSL
-
-*** Dockerfile
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/spotify/dockerfile-mode
-(use-package dockerfile-mode
-  :straight (dockerfile-mode :type git
-                             :host github
-                             :repo "spotify/dockerfile-mode"))
-#+end_src
-
-** Programming Languages
-
-*** Nix
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/NixOS/nix-mode
-(use-package nix-mode
-  :straight (nix-mode :type git
-                      :host github
-                      :repo "NixOS/nix-mode")
-  :init
-  (setq nix-nixfmt-bin "nixpkgs-fmt"))
-#+end_src
-
-*** Go (Golang)
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/dominikh/go-mode.el
-(use-package go-mode
-  :straight (go-mode :type git
-                     :host github
-                     :repo "dominikh/go-mode.el"))
-#+end_src
-
-*** Java
-
-#+begin_src elisp :tangle lang.example.el
-;; https://emacs-lsp.github.io/lsp-java/
-(use-package lsp-java
-  :straight (lsp-java :type git
-                      :host github
-                      :repo "emacs-lsp/lsp-java"))
-#+end_src
-
-*** Clojure
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/clojure-emacs/clojure-mode
-(use-package clojure-mode
-  :straight (clojure-mode :type git
-                          :host github
-                          :repo "clojure-emacs/clojure-mode")
-  :config
-  (require 'ob-clojure))
-#+end_src
-
-**** COMMENT IDE Helper
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/clojure-emacs/cider
-(use-package cider
-  :straight (cider :type git
-                   :host github
-                   :repo "clojure-emacs/cider")
-  :config
-  (setq org-babel-clojure-backend 'cider
-        cider-lein-parameters "with-profile -user repl :headless :host localhost"))
-#+end_src
-
-*** Kotlin
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode
-(use-package kotlin-mode
-  :straight (kotlin-mode :type git
-                         :host github
-                         :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
-#+end_src
-
-*** Swift
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/swift-emacs/swift-mode
-(use-package swift-mode
-  :straight (swift-mode :type git
-                        :host github
-                        :repo "swift-emacs/swift-mode"))
-#+end_src
-
-*** Haskell
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/haskell/haskell-mode
-(use-package haskell-mode
-  :straight (haskell-mode :type git
-                          :host github
-                          :repo "haskell/haskell-mode")
-  :init
-  (add-hook 'haskell-mode-hook 'haskell-unicode-input-method-enable))
-#+end_src
-
-** Misc
-
-*** Paredit
-
-In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][paredit]] can be used to assist in keeping forms balanced (i.e.: ensuring that a form always has as many opening as closing parenthesis).
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/emacsmirror/paredit
-(use-package paredit
-  :straight (paredit :type git
-                     :host github
-                     :repo "emacsmirror/paredit"))
-#+end_src
-
-*** TODO Inheritenv
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/purcell/inheritenv
-(use-package inheritenv
-  :straight (inheritenv :type git
-                        :host github
-                        :repo "purcell/inheritenv"))
-#+end_src
-
-*** TODO Envrc
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/purcell/envrc
-(use-package envrc
-  :straight (envrc :type git
-                   :host github
-                   :repo "purcell/envrc")
-  :hook
-  (clojure-mode . envrc-mode))
-#+end_src
-
-** LSP
-
-*** TODO Eglot
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/joaotavora/eglot
-(use-package eglot
-  :straight (eglot :type git
-                   :host github
-                   :repo "joaotavora/eglot"))
-#+end_src
-
-*** COMMENT Emacs LSP
-**** LSP-mode
-
-#+begin_src elisp :tangle lang.example.el
-;; https://emacs-lsp.github.io/lsp-mode/page/installation/#vanilla-emacs
-(use-package lsp-mode
-  :straight (lsp-mode :type git
-                      :host github
-                      :repo "emacs-lsp/lsp-mode")
-  :bind (:map lsp-mode-map ("TAB" . completion-at-point))
-  :init
-  (setq-default read-process-output-max (* 1024 1024))
-  (setq  gc-cons-threshold (* 100 1024 1024))
-  ;;(setq lsp-keymap-prefix "C-c C-M-l")
-  ;;(setq lsp-log-io t) ;; ⚠️ turn off for performance
-  :hook
-  ;; (XXX-mode . lsp)
-  (java-mode . lsp)
-  (go-mode . lsp)
-  :commands
-  (lsp lsp-deferred)
-  ;;:config
-  ;;(define-key lsp-mode-map (kbd "C-c C-M-l") lsp-command-map)
-  ;;(lsp-enable-which-key-integration t)
-  )
-#+end_src
-
-**** LSP-ui
-
-#+begin_src elisp :tangle lang.example.el
-;; https://emacs-lsp.github.io/lsp-mode/page/installation/#use-package
-;; https://config.daviwil.com/emacs
-;; https://github.com/emacs-lsp/lsp-ui
-(use-package lsp-ui
-  ;;:straight t
-  :hook (lsp-mode . lsp-ui-mode)
-  :config
-  (setq lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-hover nil
-        lsp-ui-doc-position 'bottom)
-  (lsp-ui-doc-show))
-#+end_src
-
-**** Ivy Integration
-
-The Ivy completion framework can be used in combination with Emacs LSP through the native [[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy integration]].
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/emacs-lsp/lsp-ivy
-(use-package lsp-ivy
-  :hook (lsp-mode . lsp-ivy-mode))
-#+end_src
-
-**** Treemacs Integration
-
-The Treemacs tree layout explorer can be used in combination with Emacs LSP through the [[https://github.com/emacs-lsp/lsp-treemacs][lsp-treemacs integration]].
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/emacs-lsp/lsp-treemacs
-(use-package lsp-treemacs
-  :commands lsp-treemacs-errors-list
-  :after lsp-mode)
-#+end_src
-
-**** Docker Integration
-
-In order to use LSP with projects where the language servers runs inside Docker containers, one can use the [[https://github.com/emacs-lsp/lsp-docker][lsp-docker integration]].
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/emacs-lsp/lsp-docker
-(setq lsp-docker-client-configs '((:server-id bash-ls :docker-server-id bashls-docker :server-command "bash-language-server start")
-                                  (:server-id clangd :docker-server-id clangd-docker :server-command "clangd")
-                                  (:server-id css-ls :docker-server-id cssls-docker :server-command "css-languageserver --stdio")
-                                  (:server-id dockerfile-ls :docker-server-id dockerfilels-docker :server-command "docker-langserver --stdio")
-                                  (:server-id gopls :docker-server-id gopls-docker :server-command "gopls")
-                                  (:server-id html-ls :docker-server-id htmls-docker :server-command "html-languageserver --stdio")
-                                  (:server-id pyls :docker-server-id pyls-docker :server-command "pyls")
-                                  (:server-id ts-ls :docker-server-id tsls-docker :server-command "typescript-language-server --stdio")))
-#+end_src
-
-#+begin_src elisp :tangle lang.example.el
-;; https://github.com/emacs-lsp/lsp-docker
-(use-package lsp-docker
-  :straight (lsp-docker :type git
-                        :host github
-                        :repo "emacs-lsp/lsp-docker")
-  :after lsp-mode
-  ;;:init
-  ;;(setq lsp-docker-client-packages '()
-  ;;      lsp-docker-client-configs '())
-  :config
-  (lsp-docker-init-clients :path-mappings '(("/home/vidbina/src" . "/projects"))
-                           ;;:docker-image-id "vidbina/lsp-docker-langservers:latest"
-                           :client-packages lsp-docker-default-client-packages
-                           :client-configs lsp-docker-default-client-configs
-                           ;;:client-configs '((:server-id 'clangd
-                           ;;                              :docker-server-id 'examplels-docker
-                           ;;                              :docker-image-id "vidbina/lsp-docker-langservers:latest"
-                           ;;                              :docker-container-name "vidbina-lsp-clangd"
-                           ;;                              :server-command "ccls"
-                           ))
-#+end_src
-
-***** TODO Language-specific configuration
-
-Refactor the lsp-dockere-client-configs such that the LSP config for every language is defined within the language's chapter within this config.
-
 
 * 📛 Personal Details
 
@@ -1497,9 +1167,387 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
                ""))
 #+end_src
 
-** Languages or Language-based Tooling
+* 💬 Languages
 
-Populate a =lang.el= file which defines all of the major-modes and language-related tooling that are relevant to you. In my case I have simply defined a symlink from [[file:lang.example.el][lang.example.el]] to lang.el. YMMV!
+Populate a =lang.el= file which defines all of the major-modes and language-related tooling that are relevant to you. In my case I have simply defined a symlink from [[file:lang.example.el][lang.example.el]] to lang.el. The literal configuration in this section defines my own languages setup. YMMV! 🤷🏿‍♂️
+
+** Natural Language
+
+*** Spell Checking
+
+#+begin_src elisp :tangle lang.example.el
+;; https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html
+(with-eval-after-load "ispell"
+  (setq ispell-program-name "hunspell")
+  ;; Configure German, Swiss German, and two variants of English.
+  (setq ispell-dictionary "en_US,de_DE,nl")
+  ;; ispell-set-spellchecker-params has to be called
+  ;; before ispell-hunspell-add-multi-dic will work
+  (ispell-set-spellchecker-params)
+  (ispell-hunspell-add-multi-dic ispell-dictionary)
+  ;; For saving words to the personal dictionary, don't infer it from
+  ;; the locale, otherwise it would save to ~/.hunspell_de_DE.
+  (setq ispell-personal-dictionary "~/.hunspell_personal")
+
+  ;; The personal dictionary file has to exist, otherwise hunspell will
+  ;; silently not use it.
+  (unless (file-exists-p ispell-personal-dictionary)
+    (write-region "" nil ispell-personal-dictionary nil 0)))
+#+end_src
+
+** Markup Languages
+
+*** Org
+
+#+begin_src elisp :tangle lang.example.el
+;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Hooks-for-Loading.html
+;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-gnuplot.html#sec-4
+(with-eval-after-load 'org
+  (message "Loading org-babel-language mappings")
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((shell . t)
+                                 (clojure .  t)
+                                 (dot . t)
+                                 (gnuplot . t)
+                                 (haskell . t)
+                                 (makefile . t)
+                                 ;; (nix . t) ;; TODO: Figure out why broken
+                                 (plantuml . t)
+                                 (python . t))))
+#+end_src
+
+*** Markdown
+
+#+begin_src elisp :tangle lang.example.el
+;; https://jblevins.org/projects/markdown-mode/
+(use-package markdown-mode
+  :straight (markdown-mode :type git
+                           :host github
+                           :repo "jrblevin/markdown-mode")
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init
+  (setq markdown-command "multimarkdown"))
+#+end_src
+
+** Serialization Languages
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/yoshiki/yaml-mode
+(use-package yaml-mode
+  :straight (yaml-mode :type git
+                       :host github
+                       :repo "yoshiki/yaml-mode"))
+#+end_src
+
+** Viz Languages for graphing, plotting and more
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/skuro/plantuml-mode
+(use-package plantuml-mode
+  :straight (plantuml-mode :type git
+                           :host github
+                           :repo "skuro/plantuml-mode")
+  :init
+  (setq plantuml-default-exec-mode 'executable))
+#+end_src
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/ppareit/graphviz-dot-mode
+(use-package graphviz-dot-mode
+  :straight (graphviz-dot-mode :type git
+                               :host github
+                               :repo "ppareit/graphviz-dot-mode")
+  :ensure t
+  :config
+  (setq graphviz-dot-indent-width 2))
+#+end_src
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacsorphanage/gnuplot
+;; also https://github.com/bruceravel/gnuplot-mode
+;; also https://github.com/rudi/gnuplot-el
+(use-package gnuplot
+  :straight (gnuplot :type git
+                     :host github
+                     :repo "emacsorphanage/gnuplot"))
+#+end_src
+
+** DSL
+
+*** Dockerfile
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/spotify/dockerfile-mode
+(use-package dockerfile-mode
+  :straight (dockerfile-mode :type git
+                             :host github
+                             :repo "spotify/dockerfile-mode"))
+#+end_src
+
+** Programming Languages
+
+*** Nix
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/NixOS/nix-mode
+(use-package nix-mode
+  :straight (nix-mode :type git
+                      :host github
+                      :repo "NixOS/nix-mode")
+  :init
+  (setq nix-nixfmt-bin "nixpkgs-fmt"))
+#+end_src
+
+*** Go (Golang)
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/dominikh/go-mode.el
+(use-package go-mode
+  :straight (go-mode :type git
+                     :host github
+                     :repo "dominikh/go-mode.el"))
+#+end_src
+
+*** Java
+
+#+begin_src elisp :tangle lang.example.el
+;; https://emacs-lsp.github.io/lsp-java/
+(use-package lsp-java
+  :straight (lsp-java :type git
+                      :host github
+                      :repo "emacs-lsp/lsp-java"))
+#+end_src
+
+*** Clojure
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/clojure-emacs/clojure-mode
+(use-package clojure-mode
+  :straight (clojure-mode :type git
+                          :host github
+                          :repo "clojure-emacs/clojure-mode")
+  :config
+  (require 'ob-clojure))
+#+end_src
+
+**** COMMENT IDE Helper
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/clojure-emacs/cider
+(use-package cider
+  :straight (cider :type git
+                   :host github
+                   :repo "clojure-emacs/cider")
+  :config
+  (setq org-babel-clojure-backend 'cider
+        cider-lein-parameters "with-profile -user repl :headless :host localhost"))
+#+end_src
+
+*** Kotlin
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode
+(use-package kotlin-mode
+  :straight (kotlin-mode :type git
+                         :host github
+                         :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
+#+end_src
+
+*** Swift
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/swift-emacs/swift-mode
+(use-package swift-mode
+  :straight (swift-mode :type git
+                        :host github
+                        :repo "swift-emacs/swift-mode"))
+#+end_src
+
+*** Haskell
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/haskell/haskell-mode
+(use-package haskell-mode
+  :straight (haskell-mode :type git
+                          :host github
+                          :repo "haskell/haskell-mode")
+  :init
+  (add-hook 'haskell-mode-hook 'haskell-unicode-input-method-enable))
+#+end_src
+
+** Misc
+
+*** 🌈 Rainbow Delimiters
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/Fanael/rainbow-delimiters
+(use-package rainbow-delimiters
+  :straight (rainbow-delimiters :type git
+                                :host github
+                                :repo "Fanael/rainbow-delimiters")
+  ;; :hook
+  ;; ;; https://github.com/patrickt/emacs
+  ;; ((prog-mode) . rainbow-delimiters-mode)
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
+#+end_src
+
+*** Paredit
+
+In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][paredit]] can be used to assist in keeping forms balanced (i.e.: ensuring that a form always has as many opening as closing parenthesis).
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacsmirror/paredit
+(use-package paredit
+  :straight (paredit :type git
+                     :host github
+                     :repo "emacsmirror/paredit"))
+#+end_src
+
+*** TODO Inheritenv
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/purcell/inheritenv
+(use-package inheritenv
+  :straight (inheritenv :type git
+                        :host github
+                        :repo "purcell/inheritenv"))
+#+end_src
+
+*** TODO Envrc
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/purcell/envrc
+(use-package envrc
+  :straight (envrc :type git
+                   :host github
+                   :repo "purcell/envrc")
+  :hook
+  (clojure-mode . envrc-mode))
+#+end_src
+
+** LSP
+
+*** TODO Eglot
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/joaotavora/eglot
+(use-package eglot
+  :straight (eglot :type git
+                   :host github
+                   :repo "joaotavora/eglot"))
+#+end_src
+
+*** COMMENT Emacs LSP
+
+**** LSP-mode
+
+#+begin_src elisp :tangle lang.example.el
+;; https://emacs-lsp.github.io/lsp-mode/page/installation/#vanilla-emacs
+(use-package lsp-mode
+  :straight (lsp-mode :type git
+                      :host github
+                      :repo "emacs-lsp/lsp-mode")
+  :bind (:map lsp-mode-map ("TAB" . completion-at-point))
+  :init
+  (setq-default read-process-output-max (* 1024 1024))
+  (setq  gc-cons-threshold (* 100 1024 1024))
+  ;;(setq lsp-keymap-prefix "C-c C-M-l")
+  ;;(setq lsp-log-io t) ;; ⚠️ turn off for performance
+  :hook
+  ;; (XXX-mode . lsp)
+  (java-mode . lsp)
+  (go-mode . lsp)
+  :commands
+  (lsp lsp-deferred)
+  ;;:config
+  ;;(define-key lsp-mode-map (kbd "C-c C-M-l") lsp-command-map)
+  ;;(lsp-enable-which-key-integration t)
+  )
+#+end_src
+
+**** LSP-ui
+
+#+begin_src elisp :tangle lang.example.el
+;; https://emacs-lsp.github.io/lsp-mode/page/installation/#use-package
+;; https://config.daviwil.com/emacs
+;; https://github.com/emacs-lsp/lsp-ui
+(use-package lsp-ui
+  ;;:straight t
+  :hook (lsp-mode . lsp-ui-mode)
+  :config
+  (setq lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-hover nil
+        lsp-ui-doc-position 'bottom)
+  (lsp-ui-doc-show))
+#+end_src
+
+**** Ivy Integration
+
+The Ivy completion framework can be used in combination with Emacs LSP through the native [[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy integration]].
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacs-lsp/lsp-ivy
+(use-package lsp-ivy
+  :hook (lsp-mode . lsp-ivy-mode))
+#+end_src
+
+**** Treemacs Integration
+
+The Treemacs tree layout explorer can be used in combination with Emacs LSP through the [[https://github.com/emacs-lsp/lsp-treemacs][lsp-treemacs integration]].
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacs-lsp/lsp-treemacs
+(use-package lsp-treemacs
+  :commands lsp-treemacs-errors-list
+  :after lsp-mode)
+#+end_src
+
+**** Docker Integration
+
+In order to use LSP with projects where the language servers runs inside Docker containers, one can use the [[https://github.com/emacs-lsp/lsp-docker][lsp-docker integration]].
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacs-lsp/lsp-docker
+(setq lsp-docker-client-configs '((:server-id bash-ls :docker-server-id bashls-docker :server-command "bash-language-server start")
+                                  (:server-id clangd :docker-server-id clangd-docker :server-command "clangd")
+                                  (:server-id css-ls :docker-server-id cssls-docker :server-command "css-languageserver --stdio")
+                                  (:server-id dockerfile-ls :docker-server-id dockerfilels-docker :server-command "docker-langserver --stdio")
+                                  (:server-id gopls :docker-server-id gopls-docker :server-command "gopls")
+                                  (:server-id html-ls :docker-server-id htmls-docker :server-command "html-languageserver --stdio")
+                                  (:server-id pyls :docker-server-id pyls-docker :server-command "pyls")
+                                  (:server-id ts-ls :docker-server-id tsls-docker :server-command "typescript-language-server --stdio")))
+#+end_src
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacs-lsp/lsp-docker
+(use-package lsp-docker
+  :straight (lsp-docker :type git
+                        :host github
+                        :repo "emacs-lsp/lsp-docker")
+  :after lsp-mode
+  ;;:init
+  ;;(setq lsp-docker-client-packages '()
+  ;;      lsp-docker-client-configs '())
+  :config
+  (lsp-docker-init-clients :path-mappings '(("/home/vidbina/src" . "/projects"))
+                           ;;:docker-image-id "vidbina/lsp-docker-langservers:latest"
+                           :client-packages lsp-docker-default-client-packages
+                           :client-configs lsp-docker-default-client-configs
+                           ;;:client-configs '((:server-id 'clangd
+                           ;;                              :docker-server-id 'examplels-docker
+                           ;;                              :docker-image-id "vidbina/lsp-docker-langservers:latest"
+                           ;;                              :docker-container-name "vidbina-lsp-clangd"
+                           ;;                              :server-command "ccls"
+                           ))
+#+end_src
+
+***** TODO Language-specific configuration
+
+Refactor the lsp-dockere-client-configs such that the LSP config for every language is defined within the language's chapter within this config.
 
 * Footnotes
 

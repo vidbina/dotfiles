@@ -74,6 +74,12 @@
                      :host github
                      :repo "emacsorphanage/gnuplot"))
 
+;; https://github.com/spotify/dockerfile-mode
+(use-package dockerfile-mode
+  :straight (dockerfile-mode :type git
+                             :host github
+                             :repo "spotify/dockerfile-mode"))
+
 ;; https://github.com/NixOS/nix-mode
 (use-package nix-mode
   :straight (nix-mode :type git
@@ -81,12 +87,6 @@
                       :repo "NixOS/nix-mode")
   :init
   (setq nix-nixfmt-bin "nixpkgs-fmt"))
-
-;; https://github.com/spotify/dockerfile-mode
-(use-package dockerfile-mode
-  :straight (dockerfile-mode :type git
-                             :host github
-                             :repo "spotify/dockerfile-mode"))
 
 ;; https://github.com/dominikh/go-mode.el
 (use-package go-mode
@@ -127,6 +127,17 @@
                           :repo "haskell/haskell-mode")
   :init
   (add-hook 'haskell-mode-hook 'haskell-unicode-input-method-enable))
+
+;; https://github.com/Fanael/rainbow-delimiters
+(use-package rainbow-delimiters
+  :straight (rainbow-delimiters :type git
+                                :host github
+                                :repo "Fanael/rainbow-delimiters")
+  ;; :hook
+  ;; ;; https://github.com/patrickt/emacs
+  ;; ((prog-mode) . rainbow-delimiters-mode)
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
 
 ;; https://github.com/emacsmirror/paredit
 (use-package paredit
