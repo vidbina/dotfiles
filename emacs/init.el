@@ -42,6 +42,13 @@
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
 
+;; https://git.sr.ht/~bzg/org-contrib
+(use-package org-contrib
+  :straight (org-contrib :type git
+                         :host nil
+                         :repo "https://git.sr.ht/~bzg/org-contrib")
+  :after org)
+
 ;; https://github.com/org-roam/org-roam
 (use-package org-roam
   :straight (org-roam :type git

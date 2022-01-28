@@ -78,9 +78,9 @@ The issue is that straight relies on the existence of variables with prefixes th
 (defvar comp-deferred-compilation-deny-list ())
 #+end_src
 
-**** TODO ⚠️ Reevaluate if this compatability hack is still needed.
-
-I believe that the nix configuration now installs a version of Emacs native compilation capability, rendering this moot. Just have to confirm that this still works without this work-around.
+Installation of the following packages may break when this block is disabled:
+- straight
+- [[*Org-contrib][org-contrib]]
 
 *** 🥾 Bootstrap
 
@@ -223,7 +223,7 @@ Org-capture templates are a personal thing and should be defined in the personal
 
 ** TODO Bibliography
 
-*** COMMENT Org-contrib
+*** Org-contrib
 
 #+begin_src elisp :tangle init.el
 ;; https://git.sr.ht/~bzg/org-contrib
@@ -231,13 +231,7 @@ Org-capture templates are a personal thing and should be defined in the personal
   :straight (org-contrib :type git
                          :host nil
                          :repo "https://git.sr.ht/~bzg/org-contrib")
-  :after org
-  :config
-  ;;(require 'ox-bibtex)
-  (require 'oc-basic)
-  (require 'oc-csl)
-  (require 'oc-biblatex)
-  (require 'oc-natbib))
+  :after org)
 #+end_src
 
 *** COMMENT Citar (formerly bibtex-actions)
