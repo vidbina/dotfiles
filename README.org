@@ -1,34 +1,33 @@
-* [[https://github.com/vidbina][vidbina]]'s dotfiles
 :PROPERTIES:
 :CUSTOM_ID: vidbinas-dotfiles
 :END:
+#+TITLE: [[https://github.com/vidbina][vidbina]]'s dotfiles
+
 These dotfiles make my life slightly more convenient. Not promising
 they'll do the same for yours though 😉.
 
-** Usage
+* Usage
 
-My configuration is currently managed with [[https://github.com/nix-community/home-manager][home-manager]] for the better DX or UX. Before using home-manager, I manually managed symlinks from my config directory to this dotfiles repo. The use of [[https://www.gnu.org/software//stow/][GNU Stow]] was considered for a brief moment until I realized that Stow was written in Perl and I came to terms with my unwillingness to have a critical part of my stack based on tooling that brings me no joy 🙊 (on account of my troubled personal history with the language).
+My configuration is currently managed with [[https://github.com/nix-community/home-manager][home-manager]] for the better DX or UX. Before using home-manager, I manually managed symlinks from my config directory to this dotfiles repo. The use of [[https://www.gnu.org/software//stow/][GNU Stow]] was considered for a brief moment until I realized that Stow was written in Perl and I came to terms with my unwillingness to have a critical part of my stack based on tooling that brings me no joy 🙊 (on account of my troubled personal history with Perl).
 
-*** The easy way: with home-manager
+** The easy way: with home-manager
 :PROPERTIES:
 :CUSTOM_ID: home-manager
 :END:
 
 The use of home-manager is pretty straightforward especially with the convenient *nix shell* and the *Makefile* that make usage even easier. The general idea is as follows:
 - [[file:shell.nix]] defines a shell environment that contains all packages needed to install or apply a configuration. The packages include *niv* which helps us manage versions of our packages, *home-manager* which actually manages our home environments (hence the name) and and some utils.
-- [[file:Makefile]] contains some rules to simplify how we call home-manager inside of the nix-shell since it effectively reduces the UX down to =make= or =make test= calls as opposed to =home-manager -f ./home.nix -v -n build= and =home-manager -f ./home.nix switch= respectively (which you don't want to have to remember 🤷🏿‍♂️)
+- [[file:Makefile]] contains some rules to simplify how we call home-manager inside of the nix-shell since it effectively reduces the UX down to =make= or =make test= calls as opposed to =home-manager -f ./home.nix -v -n build= and =home-manager -f ./home.nix switch= respectively (which you don't want to have to remember 🤷🏿‍♂️).
 
 Typical use will be as follows:
 1. Enter the nix-shell using =nix-shell --pure=
 2. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]])
 3. Run =make test= to test the home-manager configuration or =make= to install the configuration
-4. Optionally, Commit the changes made to the niv sources file (in step 2)
+4. Optionall, if package update step was completed (step 2 above), commit the changes made to the niv sources files
 5. Profit 💰
 
-**** Personal Home-Manager settings
-:PROPERTIES:
-:CUSTOM_ID: personal-home-manager-settings
-:END:
+*** Personal Home-Manager Settings
+
 We all have parts of our configs that are for our eyes only and the
 [[file:personal.nix]] file can be populated to contain sensitive and private
 parts of your configuration. This home-configuration will load a
@@ -78,12 +77,48 @@ Observe the snippet below for an example of a valid personal.nix file.
           "browser.startup.homepage" = "https://news.ycombinator.com";
         };
       };
+
+      work = {
+        settings = {
+          "browser.startup.homepage" = "https://news.ycombinator.com";
+          "browser.search.region" = "DE";
+          "browser.download.dir" = "$HOME/Downloads/work";
+        };
+      }
     };
   };
 }
 #+end_example
 
-*** The more tedious and manual way: without home-manager
+**** Firefox
+
+#+begin_quote
+⚠️ In order to get the extensions in Firefox to work, you may have to first manually enable the extensions.
+#+end_quote
+
+***** Tridactyl
+
+Tridactyl is the extension introducing the vim bindings into Firefox. It will hijack the body of your new tabs which can bit a bit disruptive to your workflow as it will present a Tridactyl start page which is visually quite busy therefore running =:set newtab about:blank= to clear the body of the new tab can improve the UX.
+
+****** Escape Hatch
+
+Remember that =<C-,>= (as described in the Tridactyl documentation but would be =C-,= in Emacs bindings notation or more simply but =Ctrl= + =,=) is the Tridactyl /escape hatch/ that gets you into a part within the page view of the browser where you can use the vi-like bindings to navigate or do this.
+
+💡 This is convenient because loading some pages will leave the focus on the URL bar or the search bar and tabbing through may be a tedious way to get to the page view.
+
+****** Ignore mode
+
+Remember that =Shift= + =Insert= (or =Ctrl= + =Alt= + =Escape= but I'm refusing to learn that one because it is quite a dragon of a maneuver to efficiently pull of) will toggle to ignore mode in which all keypresses are passed-through to the web application.
+
+💡 This is convenient for applications that have their own bindings that may conflict with Tridactyl.
+
+****** Search
+
+Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle through search results.
+
+💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
+
+** The more tedious and manual way: without home-manager
 
 The tedious way basically requires one to make symlinks from the needed locations into this dotfiles repository. There are a number of ways how one can simplify this experience ranging from manually symlinking everything that you would need all the way up to using a [[id:home-manager][home-manager]] alternative like GNU Stow to manage these symlinks for you (and minimize the toil on your end).
 
@@ -108,10 +143,11 @@ This is a listing of the symlinks that I could track in my home directory right 
   ~/.config/termite -> ~/dotfiles/termite
 #+end_example
 
-**** .xsession
+*** .xsession
 :PROPERTIES:
 :CUSTOM_ID: xsession
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILES}/xsession ${HOME}/.xsession
 #+end_src
@@ -121,7 +157,7 @@ ln -s ${PATH_TO_DOTFILES}/xsession ${HOME}/.xsession
 - loads .Xmodmap to load custom keyboard bindings
 - start WM
 
-**** .Xresources.d
+*** .Xresources.d
 :PROPERTIES:
 :CUSTOM_ID: xresources.d
 :END:
@@ -134,10 +170,11 @@ ln -s ${PATH_TO_DOTFILES}/xsession ${HOME}/.xsession
 ln -s ${PATH_TO_DOTFILES}/Xresources.d ${HOME}/.Xresources.d
 #+end_src
 
-**** .Xmodmap
+*** .Xmodmap
 :PROPERTIES:
 :CUSTOM_ID: xmodmap
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILES}/Xmodmap ${HOME}/.Xmodmap
 #+end_src
@@ -147,10 +184,11 @@ ln -s ${PATH_TO_DOTFILES}/Xmodmap ${HOME}/.Xmodmap
   finger travel (the macbook has a narrower left shift and places the
   tilde/grave button between the left shift and the Z key)
 
-**** Tmux
+*** Tmux
 :PROPERTIES:
 :CUSTOM_ID: tmux
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/tmux.conf ${HOME}/.config/tmux.conf
 #+end_src
@@ -158,7 +196,7 @@ ln -s ${PATH_TO_DOTFILE}/tmux.conf ${HOME}/.config/tmux.conf
 - sets up vi key bindings in tmux
 - remaps colors
 
-**** TODO Neovim
+*** TODO Neovim
 :PROPERTIES:
 :CUSTOM_ID: neovim
 :END:
@@ -175,78 +213,87 @@ ln -s ${PATH_TO_DOTFILE}/nvim ${HOME}/.config/nvim
 - enable mouse in all modes
 - define Plug extensions
 
-**** Termite
+*** Termite
 :PROPERTIES:
 :CUSTOM_ID: termite
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/termite ${HOME}/.config/termite
 #+end_src
 
-**** Starship
+*** Starship
 :PROPERTIES:
 :CUSTOM_ID: starship
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/starship.toml ${HOME}/.config/starship.toml
 #+end_src
 
-**** Rofi
+*** Rofi
 :PROPERTIES:
 :CUSTOM_ID: rofi
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/rofi ${HOME}/.config/rofi
 #+end_src
 
-**** Redshift
+*** Redshift
 :PROPERTIES:
 :CUSTOM_ID: redshift
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/redshift ${HOME}/.config/redshift
 #+end_src
 
-**** Ghorg
+*** Ghorg
 :PROPERTIES:
 :CUSTOM_ID: ghorg
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/ghorg ${HOME}/.config/ghorg
 #+end_src
 
-**** Asciinema
+*** Asciinema
 :PROPERTIES:
 :CUSTOM_ID: asciinema
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/asciinema ${HOME}/.config/asciinema
 #+end_src
 
-**** TODO Compton
+*** TODO Compton
 :PROPERTIES:
 :CUSTOM_ID: todo-compton
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/compton/compton.conf ${HOME}/.config/compton.conf
 #+end_src
 
-**** Octave
+*** Octave
 :PROPERTIES:
 :CUSTOM_ID: octave
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/octave/.octaverc ${HOME}/.config/.octaverc
 #+end_src
 
-***** TODO: Rename hidden file to more visible file
+**** TODO: Rename hidden file to more visible file
 :PROPERTIES:
 :CUSTOM_ID: todo-rename-hidden-file-to-more-visible-file
 :END:
-**** Lein
+*** Lein
 :PROPERTIES:
 :CUSTOM_ID: lein
 :END:
+
 Package manager and build tool for Clojure. The .lein dotfile lists
 convenience plugins for development.
 
@@ -254,10 +301,11 @@ convenience plugins for development.
 ln -s ${PATH_TO_DOTFILE}/lein ${HOME}/.lein
 #+end_src
 
-**** Colorit
+*** Colorit
 :PROPERTIES:
 :CUSTOM_ID: colorit
 :END:
+
 https://linux.die.net/man/1/colorit
 
 Colorit is a script for markup-ing text input which is used in my setup
@@ -267,10 +315,11 @@ by dict.
 ln -s ${PATH_TO_DOTFILE}/colorit/coloritrc ${HOME}/.coloritrc
 #+end_src
 
-**** Conky
+*** Conky
 :PROPERTIES:
 :CUSTOM_ID: conky
 :END:
+
 https://github.com/brndnmtthws/conky
 
 Conky is a system monitoring tool which allows the presentation of
@@ -280,11 +329,12 @@ system metrics in a GUI.
 ln -s ${PATH_TO_DOTFILE}/conky.conf ${HOME}/.conkyrc
 #+end_src
 
-**** Git
+*** Git
 :PROPERTIES:
 :CUSTOM_ID: git
 :END:
-***** Config
+
+**** Config
 :PROPERTIES:
 :CUSTOM_ID: config
 :END:
@@ -292,7 +342,7 @@ ln -s ${PATH_TO_DOTFILE}/conky.conf ${HOME}/.conkyrc
 ln -s ${PATH_TO_DOTFILE}/gitconfig ${HOME}/gitconfig
 #+end_src
 
-***** Ignore
+**** Ignore
 :PROPERTIES:
 :CUSTOM_ID: ignore
 :END:
@@ -300,10 +350,11 @@ ln -s ${PATH_TO_DOTFILE}/gitconfig ${HOME}/gitconfig
 ln -s ${PATH_TO_DOTFILE}/gitignore ${HOME}/.gitignore
 #+end_src
 
-**** Emacs
+*** Emacs
 :PROPERTIES:
 :CUSTOM_ID: emacs
 :END:
+
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 #+end_src
