@@ -70,23 +70,46 @@ Observe the snippet below for an example of a valid personal.nix file.
 
   home.packages = [ ];
 
-  programs.firefox = {
-    profiles = {
-      personal = {
-        settings = {
-          "browser.startup.homepage" = "https://news.ycombinator.com";
-        };
+  programs.firefox =
+    let
+      acc = {
+        idx = 0;
+        config = { };
       };
+      merge = ({ idx, config }: val: {
+        idx = idx + 1;
+        config = (config // {
+          "${val.name}" = val // { id = idx; };
+        });
+      });
+      makeFirefoxProfiles = l: (builtins.foldl' merge acc l).config;
+    in
+    {
+      profiles = makeFirefoxProfiles [
+        {
+          name = "personal";
+          path = "tld.personal";
+          settings = {
+            "browser.search.region" = "DE";
+            "browser.startup.homepage" = "https://news.ycombinator.com";
+            "browser.urlbar.placeholderName" = "DuckDuckGo";
+            "distribution.searchplugins.defaultLocale" = "en-US";
+            "general.useragent.locale" = "en-US";
+          };
+        }
 
-      work = {
-        settings = {
-          "browser.startup.homepage" = "https://news.ycombinator.com";
-          "browser.search.region" = "DE";
-          "browser.download.dir" = "$HOME/Downloads/work";
-        };
-      }
+        {
+          name = "work";
+          path = "tld.work";
+          settings = {
+            "browser.download.dir" = "/home/vidbina/Downloads/Asabina GmbH";
+            "browser.search.region" = "DE";
+            "browser.startup.homepage" = "https://news.ycombinator.com";
+            "browser.urlbar.placeholderName" = "DuckDuckGo";
+          };
+        }
+      ];
     };
-  };
 }
 #+end_example
 
@@ -98,7 +121,7 @@ Observe the snippet below for an example of a valid personal.nix file.
 
 ***** Tridactyl
 
-Tridactyl is the extension introducing the vim bindings into Firefox. It will hijack the body of your new tabs which can bit a bit disruptive to your workflow as it will present a Tridactyl start page which is visually quite busy therefore running =:set newtab about:blank= to clear the body of the new tab can improve the UX.
+Tridactyl is the extension introducing the vim bindings into Firefox. It will hijack the body of your new tabs which can bit a bit disruptive to your workflow as it will present a Tridactyl start page which is visually quite busy therefore running =:set newtab about:blank= to clear the body of the new tab can improve the UX and run =:set theme dark= to switch to a dark theme if new tabs are blasting you with white light.
 
 ****** Escape Hatch
 
