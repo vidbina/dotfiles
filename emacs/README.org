@@ -789,16 +789,32 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 
 ** 📧 Mail
 
-*** TODO COMMENT Notmuch
+*** TODO Mu4e
+
+#+begin_src elisp :tangle init.el
+(use-package mu4e
+  :straight (:type built-in)
+  :config
+  (setq mail-user-agent 'mu4e-user-agent
+        mu4e-compose-format-flowed t
+        mu4e-context-policy 'always-ask
+        mu4e-get-mail-command "true"
+        mu4e-index-update-in-backgroud t
+        mu4e-view-show-addresses t))
+#+end_src
+
+*** TODO Notmuch
 
 #+begin_src elisp :tangle init.el
 ;; https://git.notmuchmail.org/git/notmuch
 ;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
 ;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
 (use-package notmuch
-  :straight nil
+  :straight (:type built-in)
   :init
-  (evil-collection-notmuch-setup))
+  (evil-collection-notmuch-setup)
+  :config
+  (notmuch-address-harvest))
 #+end_src
 
 ** TODO COMMENT 🕳️ Terminal
@@ -945,22 +961,13 @@ In order to meet new Emacs users half-way in terms of UX, some features/commands
 
 The templates within the sexpr are difficult to read for me and would be easier to debug and edit if they were notated in a format that more closely represents the visual form that they'll take on (i.e.: show real whitespacing for structure).
 
-** TODO 📧 Personal E-mail
+** TODO 📧 Mu4e
 
-In order to get mail to work for multiple mailboxes you will need to configure [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][mu4e contexts]].
+In order to get mail to work for multiple mailboxes you will need to configure [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][mu4e contexts]]. Refer to the [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts-example.html][examples]] in the documentation for some guidance on how to define contexts.
 
 #+begin_src elisp :tangle personal-example.el
 ;; TODO fill in the blanks for mu4e-contexts
-(use-package mu4e
-  :straight nil
-  :config
-  (setq mail-user-agent 'mu4e-user-agent
-        mu4e-compose-format-flowed t
-        mu4e-context-policy 'always-ask
-        mu4e-get-mail-command "true"
-        mu4e-index-update-in-backgroud t
-        mu4e-view-show-addresses t
-        mu4e-contexts `()))
+(setq mu4e-contexts `())
 #+end_src
 
 *** TODO Signing

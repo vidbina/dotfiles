@@ -374,6 +374,26 @@
   :config
   (which-key-mode))
 
+(use-package mu4e
+  :straight (:type built-in)
+  :config
+  (setq mail-user-agent 'mu4e-user-agent
+        mu4e-compose-format-flowed t
+        mu4e-context-policy 'always-ask
+        mu4e-get-mail-command "true"
+        mu4e-index-update-in-backgroud t
+        mu4e-view-show-addresses t))
+
+;; https://git.notmuchmail.org/git/notmuch
+;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
+;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
+(use-package notmuch
+  :straight (:type built-in)
+  :init
+  (evil-collection-notmuch-setup)
+  :config
+  (notmuch-address-harvest))
+
 (use-package pdf-tools
   :straight nil
   :config
