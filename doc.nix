@@ -31,6 +31,7 @@ let
       pdfcrop
       pgfgantt
       soul
+      svg
       tableof
       titlepic
       tocloft
