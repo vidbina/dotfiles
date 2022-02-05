@@ -1028,7 +1028,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (interactive)
   (modus-themes-load-vivendi)
   (setq org-format-latex-options
-        `(:scale 1.5 :foreground "White" :background "Transparent"))
+        `(:scale 2 :foreground "White" :background "Transparent"))
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina-theme-should-be-dark t))
 
@@ -1037,7 +1037,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (interactive)
   (modus-themes-load-operandi)
   (setq org-format-latex-options
-        `(:scale 1.5 :foreground "Black" :background "Transparent"))
+        `(:scale 2 :foreground "Black" :background "Transparent"))
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina-theme-should-be-dark nil))
 
