@@ -755,8 +755,11 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
 
 The [[https://github.com/justbur/emacs-which-key][which-key]] package annotes the command listing with the key bindings for the shown commands.
 
-#+CAPTION: Screenshot of which-key diplaying some keybindings to commands listed in an expanded minibuffer
+#+CAPTION: Screenshot of which-key diplaying some keybindings to commands listed in an expanded minibuffer in dark-mode
 [[file:images/screenshot-which-key-dark.png]]
+
+#+CAPTION: Screenshot of which-key diplaying keybindings to commands listed in an expanded minibuffer in light-mode
+[[file:images/screenshot-which-key-light.png]]
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/justbur/emacs-which-key
