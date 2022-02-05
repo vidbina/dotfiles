@@ -207,7 +207,6 @@ On the performance front, you'll find that the *use-package* macro provides mech
   (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
   ;; https://orgmode.org/manual/Structure-Templates.html
   (require 'org-tempo)
-  (require 'ol-bibtex)
   ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
   (setq org-plantuml-exec-mode 'plantuml)
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
@@ -234,6 +233,98 @@ The ox-clip exporters allow us to export fragments of our org documents into ric
 #+end_src
 
 ** TODO Bibliography
+
+*** ol-BibTeX (Org-BibTeX): Bibliography through org properties
+
+The =ol-bibtex= package, previously known as =org-bibtex= and still prefixed as such, allows for the definition of bibliography entries within Org properties.
+
+#+begin_src org
+,** Introduction to Flight Test Engineering
+:PROPERTIES:
+:BIB_TITLE:    Introduction to Flight Test Engineering
+:BIB_BTYPE:    techreport
+:BIB_CUSTOM_ID: stoliker2005FTE
+:BIB_AUTHOR:   F.N. Stoliker
+:BIB_INSTITUTION: RTO
+:BIB_YEAR:     2005
+:BIB_NUMBER:   RTO-AG-300-V14
+:BIB_DATE:     7/25/2005
+:BIB_ADDRESS:
+:BIB_MONTH:    07
+:BIB_BIB_DOI:  10.14339/RTO-AG-300-V14
+:BIB_BIB_ISBN: 92-837-1126-2
+:BIB_NOTE:
+:BIB_ANNOTE:
+:END:
+
+Some notes on this book...
+#+end_src
+
+The previously listed Org snippet will produce the following BibTeX entry:
+
+#+begin_src bibtex
+@techreport{stoliker2005FTE,
+  annote={},
+  note={},
+  isbn={92-837-1126-2},
+  doi={10.14339/RTO-AG-300-V14},
+  month={07},
+  address={},
+  date={7/25/2005},
+  number={RTO-AG-300-V14},
+  year={2005},
+  institution={RTO},
+  author={F.N. Stoliker},
+  custom_id={stoliker2005FTE},
+  title={Introduction to Flight Test Engineering}
+}
+#+end_src
+
+Please note that *ol-bibtex* refers to an internal index =org-bibtex-types= that lists fields for every record type (e.g.: article, book, techreport, etc.) and only honors the entries that are listed therein.
+
+Since, I sometimes need "arbitrary" fields such as =doi= that BibTeX itself may recognize but that the ol-bibtex package will simply ignore (for some bibliography types) as they are not listed in =org-bibtex-types=, it will be necessary to set =org-bibtex-export-arbitrary-types= to honor arbitrary fields which itself will require =org-bibtex-prefix= to also be set (which I set to =BIB_=). The caveat is that setting =org-bibtex-prefix= is an all-or-nothing type of deal and will require us to prefix all BibTeX properties (with =BIB_= in this particular configuration's case).
+
+Another option may be for us to enhance =org-bibtex-headline= to be a bit smarter about honoring "known fields" in a properties block along with "arbitrary fields" as long as they are prefixed. This is only a partial solution as it only solves to problem of converting headlines to BibTeX entries, while the *ol-bibtex* package also helps reading valid BibTeX entries with =org-bibtex-read= and writing them into Org headlines with =org-bibtex-write= where the prefix is used for all entries indicating that prefixing everything is the expected behavior that allows for reliable and consistent bidirectional traffic (Org-to-BibTeX and BibTeX-to-Org).
+
+#+begin_src elisp :tangle init.el
+(use-package ol-bibtex
+  :straight (:type built-in)
+  :after org
+  :custom
+  (org-bibtex-prefix "BIB_" "Define prefix for arbitrary fields")
+  (org-bibtex-export-arbitrary-fields t "Export prefixed fields"))
+#+end_src
+
+For reference's sake, note that for headers containing non-prefixed and prefixed fields, *ol-bibtex* will end up exporting the prefixed fields only.
+
+#+begin_src org
+,** Introduction to Flight Test Engineering
+:PROPERTIES:
+:TITLE:    Introduction to Flight Test Engineering
+:BTYPE:    techreport
+:CUSTOM_ID: stoliker2005FTE
+:AUTHOR:   F.N. Stoliker
+:INSTITUTION: RTO
+:YEAR:     2005
+:NUMBER:   RTO-AG-300-V14
+:DATE:     7/25/2005
+:ADDRESS:
+:MONTH:    07
+:BIB_DOI:  10.14339/RTO-AG-300-V14
+:BIB_ISBN: 92-837-1126-2
+:NOTE:
+:ANNOTE:
+:END:
+#+end_src
+
+The example listed above will yield the following BibTeX entry which demonstrates this point.
+
+#+begin_src bibtex
+@techreport{stoliker2005FTE,
+  isbn={92-837-1126-2},
+  doi={10.14339/RTO-AG-300-V14}
+}
+#+end_src
 
 *** Org-contrib
 
