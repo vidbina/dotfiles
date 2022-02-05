@@ -1525,14 +1525,15 @@ In order to use LSP with projects where the language servers runs inside Docker 
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacs-lsp/lsp-docker
-(setq lsp-docker-client-configs '((:server-id bash-ls :docker-server-id bashls-docker :server-command "bash-language-server start")
-                                  (:server-id clangd :docker-server-id clangd-docker :server-command "clangd")
-                                  (:server-id css-ls :docker-server-id cssls-docker :server-command "css-languageserver --stdio")
-                                  (:server-id dockerfile-ls :docker-server-id dockerfilels-docker :server-command "docker-langserver --stdio")
-                                  (:server-id gopls :docker-server-id gopls-docker :server-command "gopls")
-                                  (:server-id html-ls :docker-server-id htmls-docker :server-command "html-languageserver --stdio")
-                                  (:server-id pyls :docker-server-id pyls-docker :server-command "pyls")
-                                  (:server-id ts-ls :docker-server-id tsls-docker :server-command "typescript-language-server --stdio")))
+(setq lsp-docker-client-configs
+      '((:server-id bash-ls :docker-server-id bashls-docker :server-command "bash-language-server start")
+        (:server-id clangd :docker-server-id clangd-docker :server-command "clangd")
+        (:server-id css-ls :docker-server-id cssls-docker :server-command "css-languageserver --stdio")
+        (:server-id dockerfile-ls :docker-server-id dockerfilels-docker :server-command "docker-langserver --stdio")
+        (:server-id gopls :docker-server-id gopls-docker :server-command "gopls")
+        (:server-id html-ls :docker-server-id htmls-docker :server-command "html-languageserver --stdio")
+        (:server-id pyls :docker-server-id pyls-docker :server-command "pyls")
+        (:server-id ts-ls :docker-server-id tsls-docker :server-command "typescript-language-server --stdio")))
 #+end_src
 
 #+begin_src elisp :tangle lang.example.el
@@ -1560,7 +1561,7 @@ In order to use LSP with projects where the language servers runs inside Docker 
 
 ***** TODO Language-specific configuration
 
-Refactor the lsp-dockere-client-configs such that the LSP config for every language is defined within the language's chapter within this config.
+Refactor the =lsp-docker-client-configs= such that the LSP config for every language is defined within the language's chapter within this config.
 
 * Footnotes
 
