@@ -819,9 +819,15 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 
 ** TODO COMMENT 🕳️ Terminal
 
+*** COMMENT vterm
+
 #+begin_src elisp :tangle init.el
 (use-package vterm :straight nil)
+#+end_src
 
+*** COMMENT multi-vterm
+
+#+begin_src elisp :tangle init.el
 (use-package multi-vterm
   :straight (multi-vterm :type git
                          :host github
