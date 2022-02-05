@@ -1563,6 +1563,46 @@ In order to use LSP with projects where the language servers runs inside Docker 
 
 Refactor the =lsp-docker-client-configs= such that the LSP config for every language is defined within the language's chapter within this config.
 
+* Developer Notes
+
+** Tangle Helper
+
+The =my-dotfiles-tangle-wrapper= helper allows us to spawn an Emacs session with our freshly tangled configuration in order to spot early errors.
+
+#+CAPTION: Screenshot of the a blank Emacs session automatically started by the tangle helper.
+[[file:images/screenshot-tangle-helper-full.png]]
+
+#+begin_src elisp :results none
+(defun my-dotfiles-tangle-wrapper (orig-fun &rest args)
+  (message "Wrapping %S with %S" orig-fun args)
+  (let ((res (apply orig-fun args))
+        (command "emacs")
+        (args (list "-q"
+                    "--load=init.el"
+                    "--debug-init"
+                    "--name=Emacs Test"
+                    (format "--file=%s" buffer-file-name))))
+    (apply #'start-process `("emacs-for-org-cite-export" nil ,command ,@args))
+    (message "Done and got %S" res)
+    res))
+#+end_src
+
+*** Enable
+
+Enable the tangle helper by running the following snippet with ~(org-ctrl-c-ctrl-c)~ mapped by default to =C-c C-c=.
+
+#+begin_src elisp :results none
+(advice-add 'org-babel-tangle :around #'my-dotfiles-tangle-wrapper)
+#+end_src
+
+*** Disable
+
+Disable the tangle helper by running the following snippet with ~(org-ctrl-c-ctrl-c)~ mapped by default to =C-c C-c=.
+
+#+begin_src elisp :results none
+(advice-remove 'org-babel-tangle #'my-dotfiles-tangle-wrapper)
+#+end_src
+
 * Footnotes
 
 [fn:6] Different variants of Markdown may have slightly differing and sometimes conflicting notation for some simple formatting markers such as the ones needed to underline, boldface or italicize text.
