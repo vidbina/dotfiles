@@ -262,21 +262,6 @@
                         :repo "abo-abo/ace-window")
   :bind (("M-o" . ace-window)))
 
-;; https://github.com/abo-abo/swiper
-(use-package swiper
-  :straight (swiper :type git
-                    :host github
-                    :repo "abo-abo/swiper")
-  :delight
-  (counsel-mode)
-  (ivy-mode)
-  :config
-  (straight-use-package 'counsel)
-  (ivy-mode)
-  (counsel-mode)
-  (setq ivy-use-virtual-buffers t
-        enable-recursive-minibuffers t))
-
 ;; https://github.com/emacsorphanage/dired-k
 (use-package dired-k
   :straight (dired-k :type git
@@ -370,6 +355,21 @@
            "\\)"))
   (deft-use-filename-as-title t)
   (deft-use-filter-string-for-filename t))
+
+;; https://github.com/abo-abo/swiper
+(use-package swiper
+  :straight (swiper :type git
+                    :host github
+                    :repo "abo-abo/swiper")
+  :delight
+  (counsel-mode)
+  (ivy-mode)
+  :config
+  (straight-use-package 'counsel)
+  (ivy-mode)
+  (counsel-mode)
+  (setq ivy-use-virtual-buffers t
+        enable-recursive-minibuffers t))
 
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
