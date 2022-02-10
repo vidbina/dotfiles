@@ -1350,7 +1350,51 @@ Populate a =lang.el= file which defines all of the major-modes and language-rela
   (setq markdown-command "multimarkdown"))
 #+end_src
 
-** Serialization Languages
+** Serialization Languages/Formats
+
+*** JSON
+
+[[https://github.com/joshwnj/json-mode][JSON-mode]] provides a major-mode and some keybindings to simplify working with JSON.
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/joshwnj/json-mode
+(use-package json-mode
+  :straight (json-mode :type git
+                       :host github
+                       :repo "joshwnj/json-mode"))
+#+end_src
+
+Some of the relevant keybindings are:
+- =C-c C-f= format region or buffer with =json-reformat=
+- =c-c P= copy path to object at point to the kill ring
+
+**** JSON Reformat
+
+[[https://github.com/gongo/json-reformat][JSON Reformat]] provides convenience helpers to reformat JSON in string or region.
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/gongo/json-reformat
+(use-package json-reformat
+  :straight (json-reformat :type git
+                           :host github
+                           :repo "gongo/json-reformat")
+  :custom
+  (json-reformat:indent-width 2 "Keep a short indentation span to simplify reading of deep structures"))
+#+end_src
+
+**** JSON Snatcher: Extract Element Paths within a JSON Structure
+
+[[https://github.com/Sterlingg/json-snatcher][JSON Snatcher]] allows extraction of "addresses" or "paths" to an item within a JSON structure i.e.: /snatching/.
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/Sterlingg/json-snatcher
+(use-package json-snatcher
+  :straight (json-snatcher :type git
+                           :host github
+                           :repo "Sterlingg/json-snatcher"))
+#+end_src
+
+*** YAML
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/yoshiki/yaml-mode
