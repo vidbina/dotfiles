@@ -1061,7 +1061,7 @@ In order to meet new Emacs users half-way in terms of UX, some features/commands
 
 #+begin_src elisp :noweb yes :tangle personal-example.el
 (setq org-capture-templates
-      (append
+      (list
        <<my-org-capture-templates>>
        nil))
 #+end_src
@@ -1078,16 +1078,12 @@ Source: %u, %c
 %i
 #+end_src
 
-Which can be loaded using:
-
-#+begin_src elisp :results none
-(org-file-contents "templates/default.org")
-#+end_src
+Which can be configured using the following template entry:
 
 #+begin_src elisp :noweb-ref my-org-capture-templates
 (list "w" "Default Template" 'entry
       '(file+headline "~/org/protocol/capture.org" "Notes")
-      (org-file-contents "templates/default.org")
+      `(file ,(expand-file-name "templates/default.org"))
       :empty-lines 1)
 #+end_src
 
@@ -1104,7 +1100,7 @@ Which can be loaded using:
 #+begin_src elisp :noweb-ref my-org-capture-templates
 (list "t" "Todo" 'entry
       '(file+headline "~/org/todo.org" "Tasks")
-      (org-file-contents "templates/todo.org"))
+      `(file ,(expand-file-name "templates/todo.org")))
 #+end_src
 
 **** Links
@@ -1124,7 +1120,7 @@ Which we map to =L=:
 #+begin_src elisp :noweb-ref my-org-capture-templates
 (list "L" "Link Only" 'entry
       '(file+headline "~/org/protocol/capture.org" "Links")
-      (org-file-contents "templates/link.org")
+      `(file ,(expand-file-name "templates/link.org"))
       :empty-lines 2)
 #+end_src
 
@@ -1147,7 +1143,7 @@ which we map to =p=:
 #+begin_src elisp :noweb-ref my-org-capture-templates
 (list "p" "Link with Selected Text" 'entry
       '(file+headline "~/org/protocol/capture.org" "Links")
-      (org-file-contents "templates/link-with-text.org")
+      `(file ,(expand-file-name "templates/link-with-text.org"))
       :empty-lines 2)
 #+end_src
 
