@@ -1059,18 +1059,97 @@ In order to meet new Emacs users half-way in terms of UX, some features/commands
 
 ** Org-capture Templates
 
-#+begin_src elisp :tangle personal-example.el
+#+begin_src elisp :noweb yes :tangle personal-example.el
 (setq org-capture-templates
-      (append '(("w" "Default Template" entry (file+headline "~/org/protocol/capture.org" "Notes") "* %^{Title}\n\nSource: %u, %c\n\n%i" :empty-lines 1)
-                ("p" "Link with Selected Text" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read %^{title}\n\nSource: %:annotation\n\n #+BEGIN_QUOTE\n\n %i\n\n #+END_QUOTE%?" :empty-lines 2)
-                ("L" "Link Only" entry (file+headline "~/org/protocol/capture.org" "Links") "* TODO Read _%:description_\n\nSource: %:annotation%?" :empty-lines 2)
-                ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks") "* TODO %?\n\n%i\n\n%a"))
-              nil))
+      (append
+       <<my-org-capture-templates>>
+       nil))
 #+end_src
 
-*** TODO Move template text into blocks and refer to those blocks in the code
+Because templates expressed as string literals are difficult to read, debug and edit, we opt for a form that more closely represents the visual form that our templates will take on (i.e.: show real whitespacing for structure). The snippets in this section are tangled into real Org files which are referred to when setting =org-capture-template=.
 
-The templates within the sexpr are difficult to read for me and would be easier to debug and edit if they were notated in a format that more closely represents the visual form that they'll take on (i.e.: show real whitespacing for structure).
+⚠️ Please keep in mind that this section tangles into the absolute the relative path =templates/= which can wreak havoc on your setup if you already have files in that directory that you will need.
+
+#+begin_src org :tangle templates/default.org
+,* %^{Title}
+
+Source: %u, %c
+
+%i
+#+end_src
+
+Which can be loaded using:
+
+#+begin_src elisp :results none
+(org-file-contents "templates/default.org")
+#+end_src
+
+#+begin_src elisp :noweb-ref my-org-capture-templates
+(list "w" "Default Template" 'entry
+      '(file+headline "~/org/protocol/capture.org" "Notes")
+      (org-file-contents "templates/default.org")
+      :empty-lines 1)
+#+end_src
+
+**** TODOs
+
+#+begin_src org :tangle templates/todo.org
+,* TODO %?
+
+%i
+
+%a
+#+end_src
+
+#+begin_src elisp :noweb-ref my-org-capture-templates
+(list "t" "Todo" 'entry
+      '(file+headline "~/org/todo.org" "Tasks")
+      (org-file-contents "templates/todo.org"))
+#+end_src
+
+**** Links
+
+***** Capture template for a basic Link
+
+For links we define the basic template:
+
+#+begin_src org :tangle templates/link.org
+,* TODO Read _%:description_
+
+Source: %:annotation%?
+#+end_src
+
+Which we map to =L=:
+
+#+begin_src elisp :noweb-ref my-org-capture-templates
+(list "L" "Link Only" 'entry
+      '(file+headline "~/org/protocol/capture.org" "Links")
+      (org-file-contents "templates/link.org")
+      :empty-lines 2)
+#+end_src
+
+***** Capture template for Link with Text
+
+For links with additional text we define the template:
+
+#+begin_src org :tangle templates/link-with-text.org
+,* TODO Read %^{title}
+
+Source: %:annotation
+
+#+BEGIN_QUOTE
+%i
+#+END_QUOTE%?
+#+end_src
+
+which we map to =p=:
+
+#+begin_src elisp :noweb-ref my-org-capture-templates
+(list "p" "Link with Selected Text" 'entry
+      '(file+headline "~/org/protocol/capture.org" "Links")
+      (org-file-contents "templates/link-with-text.org")
+      :empty-lines 2)
+#+end_src
 
 ** TODO 📧 Mu4e
 
