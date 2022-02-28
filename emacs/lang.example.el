@@ -128,6 +128,12 @@
   :init
   (add-hook 'haskell-mode-hook 'haskell-unicode-input-method-enable))
 
+;; https://github.com/jcollard/elm-mode
+(use-package elm-mode
+  :straight (elm-mode :type git
+                          :host github
+                          :repo "jcollard/elm-mode"))
+
 ;; https://github.com/Fanael/rainbow-delimiters
 (use-package rainbow-delimiters
   :straight (rainbow-delimiters :type git

@@ -1615,6 +1615,16 @@ Some of the relevant keybindings are:
   (add-hook 'haskell-mode-hook 'haskell-unicode-input-method-enable))
 #+end_src
 
+*** Elm
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/jcollard/elm-mode
+(use-package elm-mode
+  :straight (elm-mode :type git
+                          :host github
+                          :repo "jcollard/elm-mode"))
+#+end_src
+
 ** Misc
 
 *** 🌈 Rainbow Delimiters
