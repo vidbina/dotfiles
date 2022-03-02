@@ -19,6 +19,9 @@ in
 
   home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
 
+  # TODO: Remove, likely not necessary
+  home.file.".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
+
   home.sessionPath = [
     (toString ./bin)
   ];

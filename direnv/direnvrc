@@ -1,0 +1,2 @@
+# Based on instructions from https://github.com/nix-community/nix-direnv
+source /run/current-system/sw/share/nix-direnv/direnvrc
