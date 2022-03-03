@@ -546,7 +546,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 
 *** Visual Fill Column
 
-For the sake of readability, I sometimes just want to look at text that is wrapped a specific column instead of filling up the entire buffer. The [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]] package by Joost Kremers accomplishes just this and can be toggled by running ~(visual-fill-column-mode)~.
+For the sake of readability, it helps to wrap text at a fixed column instead of filling up whatever screen real estate that is available to a buffer. The [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]] package by Joost Kremers accomplishes just this and can be toggled by running ~(visual-fill-column-mode)~.
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/joostkremers/visual-fill-column
@@ -559,8 +559,6 @@ For the sake of readability, I sometimes just want to look at text that is wrapp
 #+CAPTION: Demonstration of toggling visual-fill-column mode
 [[file:images/demonstration-visual-fill-column.gif]]
 
-**** TODO Record gif of toggling this mode on and off
-
 **** Global binding for convenience
 
 For convenience, I have defined the following global binding to facilitate my laziness and avoid having to enter =visual-fill-column-mode= which isn't as much of a pain to begin with TBH if you consider that there is completion within Emacs. 🤷🏿‍♂️
@@ -571,7 +569,7 @@ For convenience, I have defined the following global binding to facilitate my la
 
 *** Adaptive Wrap
 
-In case one isn't looking for the more rigid visual-fill-column wrapping, which wraps at a fixed point
+By using [[https://elpa.gnu.org/packages/adaptive-wrap.html][adaptive wrap]] mode, wrapping behaviour can be adapted to respect indentation present at the start of a line. This should simply the readability of long lines in e-mail quotes or in nested code.
 
 #+begin_src elisp :tangle init.el
 ;; https://elpa.gnu.org/packages/adaptive-wrap.html
@@ -581,7 +579,15 @@ In case one isn't looking for the more rigid visual-fill-column wrapping, which 
                            :repo "emacs-straight/adaptive-wrap")
   :config
   (adaptive-wrap-prefix-mode))
+#+end_src
 
+Using adaptive wrapping along with visual-fill-column mode may introduce some performance issues especially when longer texts are being soft-wrapped. When dealing with code blocks or tables, adaptive wrapping can be a bit more confusing than helpful which is why it helps to define key bindings to simplify toggling this behaviour. In my case, I have defined the =vidbina-wrap= function to play to control =visual-line-mode= and =adaptive-wrap-mode= in a single operation.
+
+*** Default Text Scale
+
+For global text scaling, the [[https://github.com/purcell/default-text-scale][default-text-scale]] package can be used.
+
+#+begin_src elisp :tangle init.el
 ;; https://github.com/purcell/default-text-scale
 ;; Doesn't work well in emacsclient
 (use-package default-text-scale
