@@ -1704,7 +1704,9 @@ In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][pa
                         :repo "purcell/inheritenv"))
 #+end_src
 
-*** TODO Envrc
+*** Envrc
+
+By using the [[https://github.com/purcell/envrc][envrc]] package, buffer-local variables can be managed through the configuration of the [[https://direnv.net/][direnv]] .envrc file.
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/purcell/envrc
@@ -1712,9 +1714,49 @@ In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][pa
   :straight (envrc :type git
                    :host github
                    :repo "purcell/envrc")
-  :hook
-  (clojure-mode . envrc-mode))
+  :hook (after-init . envrc-global-mode)
+  :bind-keymap ("C-c e" . envrc-command-map))
 #+end_src
+
+We bind =C-c e= to envrc to simplify access to mode toggles and reloading facilities.
+
+**** Example Usage
+
+As a Nix ❄️ user, there are a few [[https://github.com/direnv/direnv/wiki/Nix][options]] available for managing direnv environments of which [[https://github.com/nix-community/nix-direnv][nix-direnv]] happened to be an easier and faster option. As an example, observe the following *shell.nix* or *default.nix*
+
+#+begin_src nix :tangle playground/nix-direnv/shell.nix
+# save this as shell.nix
+{ pkgs ? import <nixpkgs> {}}:
+
+pkgs.mkShell {
+  nativeBuildInputs = [ pkgs.hello ];
+}
+#+end_src
+
+along with the following *.envrc*
+
+#+begin_src bash :tangle playground/nix-direnv/.envrc
+use nix
+#+end_src
+
+which defines an environment that is configured upon directory entry.
+
+Dropping into an appropriate shell through Projectile shell ~(projectile-run-shell)~ (or similar) commands should result to a pre-configured environment.
+
+#+begin_src org :tangle playground/nix-direnv/README.org
+,* Test
+
+,#+begin_src elisp
+(shell-command-to-string "hello")
+,#+end_src
+
+,#+RESULTS:
+: Hello, world!
+#+end_src
+
+***** TODO Verify that file is broken README.org
+
+Check if disabling of the envrc-global-mode affects the ability of the [[file:./playground/nix-direnv/README.org]] block to complete.
 
 ** LSP
 
