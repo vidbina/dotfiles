@@ -2,9 +2,10 @@
 
 {
   home.packages = with pkgs; [
-    xsel-copy-url
     neofetch
+    peek
     screenkey
+    xsel-copy-url
 
     (writeScriptBin "colors" ''
       # https://askubuntu.com/questions/27314/script-to-display-all-terminal-colors
