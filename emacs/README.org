@@ -173,7 +173,7 @@ Compared to the earlier snippet in which the use of the *use-package* macro was 
 **** Organization
 
 On the tidying up front, for example, you'll find that the *use-package* macro provides mechanisms to:
-1. order the load sequence of packages by defining a dependencies by means of the =:after= keyword
+1. order the load sequence of packages by defining dependencies by means of the =:after= keyword
 2. time application of parts of a configurations before or after /package load/ by means of the =:init= (i.e.: before load) and =:config= (i.e.: after load) keywords
 3. bind keychords using the =:bind= keyword
 
@@ -183,6 +183,16 @@ On the performance front, you'll find that the *use-package* macro provides mech
 1. delay loading of packages by means of the =:defer= or =:demand= keywords
 1. delay loading of packages needed in a particular mode or interpreter by means of the =:mode= or =:interpreter= keywords
 2. define "as-of-yet not seen" symbols that will be needed for compilation by means of the =:functions= and =:defines= keywords
+
+**** Ordering Management through Hooks
+
+Emacs is a hot mess of global state sorcery and as such it may be useful to load packages or call package-specific functions in a particular order to render a configuration sufficiently functional. 🙊
+
+Using *use-package* interface, the =:after= and =:hook= keywords are probably the more powerful tools to manage the ordering of your packages.
+
+The Emacs [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Summary.html#Startup-Summary][Startup Summary]] page outlines when the =before-init-hook=, =after-init-hook=, =emacs-startup-hook= and =window-setup-hook= are run.
+
+Through the =:hook= keyword, we can /hook/ operationsn for a particular package into to the previously listed Emacs lifecycle hooks without leaving the expression for that specific package -- thus keeping all relevant configurations neatly localized.
 
 * 📓 Org
 
