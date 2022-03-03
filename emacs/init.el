@@ -389,6 +389,7 @@
   :config
   (which-key-mode))
 
+;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
   :straight (:type built-in)
   :config
@@ -396,7 +397,7 @@
         mu4e-compose-format-flowed t
         mu4e-context-policy 'always-ask
         mu4e-get-mail-command "true"
-        mu4e-index-update-in-backgroud t
+        mu4e-index-update-in-background t
         mu4e-view-show-addresses t))
 
 ;; https://git.notmuchmail.org/git/notmuch

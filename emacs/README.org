@@ -950,9 +950,12 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 
 ** 📧 Mail
 
-*** TODO Mu4e
+*** Mu4e
+
+[[https://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]] is Maildir-friendly mail client that uses mu as a backend.
 
 #+begin_src elisp :tangle init.el
+;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
   :straight (:type built-in)
   :config
@@ -960,11 +963,15 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
         mu4e-compose-format-flowed t
         mu4e-context-policy 'always-ask
         mu4e-get-mail-command "true"
-        mu4e-index-update-in-backgroud t
+        mu4e-index-update-in-background t
         mu4e-view-show-addresses t))
 #+end_src
 
+For convenience remember to prefix the update command by entering it as =C-u u= in a *mu4e-main* buffer or by entering =C-u C-c C-u= from the *mu4e-headers* buffer.
+
 *** TODO Notmuch
+
+For insight into the evil bindings for notmuch, go have a look at evil-collection-notmuch-setup ()
 
 #+begin_src elisp :tangle init.el
 ;; https://git.notmuchmail.org/git/notmuch
