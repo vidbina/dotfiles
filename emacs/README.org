@@ -865,6 +865,22 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
 
 ** Completion
 
+*** Orderless
+
+The [[https://github.com/oantolin/orderless][orderless]] package provides more generous completion resolution by permitting us to:
+1. provide partial phrases and
+2. enter these parts in any order -- hence /orderless/.
+
+#+begin_src elisp :tangle init.el
+(use-package orderless
+  :straight (orderless :type git
+                       :host github
+                       :repo "oantolin/orderless")
+  :custom
+  (completion-styles '(orderless))
+  (ivy-re-builders-alist '((t . orderless-ivy-re-builder))))
+#+end_src
+
 *** TODO Vertico
 
 *** Ivy, Swiper and Counsel

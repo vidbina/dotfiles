@@ -357,6 +357,14 @@
   (deft-use-filename-as-title t)
   (deft-use-filter-string-for-filename t))
 
+(use-package orderless
+  :straight (orderless :type git
+                       :host github
+                       :repo "oantolin/orderless")
+  :custom
+  (completion-styles '(orderless))
+  (ivy-re-builders-alist '((t . orderless-ivy-re-builder))))
+
 ;; https://github.com/abo-abo/swiper
 (use-package swiper
   :straight (swiper :type git
