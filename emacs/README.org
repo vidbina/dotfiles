@@ -544,12 +544,36 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 
 ** 🔤 Text
 
+*** Visual Fill Column
+
+For the sake of readability, I sometimes just want to look at text that is wrapped a specific column instead of filling up the entire buffer. The [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]] package by Joost Kremers accomplishes just this and can be toggled by running ~(visual-fill-column-mode)~.
+
 #+begin_src elisp :tangle init.el
 ;; https://github.com/joostkremers/visual-fill-column
 (use-package visual-fill-column
   :straight (visual-fill-column :type git
                                 :host github
                                 :repo "joostkremers/visual-fill-column"))
+#+end_src
+
+#+CAPTION: Demonstration of toggling visual-fill-column mode
+[[file:images/demonstration-visual-fill-column.gif]]
+
+**** TODO Record gif of toggling this mode on and off
+
+**** Global binding for convenience
+
+For convenience, I have defined the following global binding to facilitate my laziness and avoid having to enter =visual-fill-column-mode= which isn't as much of a pain to begin with TBH if you consider that there is completion within Emacs. 🤷🏿‍♂️
+
+#+begin_src elisp
+(global-set-key (kbd "C-c v \\") 'visual-fill-column-mode)
+#+end_src
+
+*** Adaptive Wrap
+
+In case one isn't looking for the more rigid visual-fill-column wrapping, which wraps at a fixed point
+
+#+begin_src elisp :tangle init.el
 ;; https://elpa.gnu.org/packages/adaptive-wrap.html
 (use-package adaptive-wrap
   :straight (adaptive-wrap :type git
