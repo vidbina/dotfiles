@@ -1,38 +1,21 @@
 ! vim: set syntax=xdefaults:
+
+! This file is tangled from README.org
 *background: #000000
 *foreground: #ffffff
-! modus-themes-vivendi-colors bg-active-accent
-!*cursorColor: #00ff00
-
-! black, Black
 *color0: #000000
-! red, modus-themes-vivendi-colors red
 *color1: #ff8059
-! green, modus-themes-vivendi-colors green
 *color2: #44bc44
-! yellow, modus-themes-vivendi-colors yellow
 *color3: #d0bc00
-! blue, modus-themes-vivendi-colors blue
 *color4: #2fafff
-! magenta, modus-themes-vivendi-colors magenta
 *color5: #feacd0
-! cyan, modus-themes-vivendi-colors magenta
 *color6: #00d3d0
-! white, modus-themes-vivendi-colors fg-alt
 *color7: #a8a8a8
-! bright black, modus-themes-vivendi-colors fg-dim
 *color8: #e0e6f0
-! bright red, modus-themes-vivendi-colors red-intense-bg
-*color9: #a4202a
-! bright green, modus-themes-vivendi-colors green-intense-bg
-*color10: #006800
-! bright yellow, modus-themes-vivendi-colors yellow-intense-bg
-*color11: #874900
-! bright blue, modus-themes-vivendi-colors blue-intense-bg
-*color12: #2a40b8
-! bright magenta, modus-themes-vivendi-colors magenta-intense-bg
-*color13: #7042a2
-! bright cyan, modus-themes-vivendi-colors cyan-intense-bg
-*color14: #005f88
-! bright white, White
+*color9: #ffa0a0
+*color10: #78bf78
+*color11: #d2b580
+*color12: #82b0ec
+*color13: #e0b2d6
+*color14: #90c4ed
 *color15: #ffffff

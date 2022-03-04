@@ -1,0 +1,75 @@
+#+TITLE: Xresources Themes
+
+Since I'm actively using the Modus Themes from Prot I want to map the theme colors to Xresource configurations automatically. Tangle this file into the Xresource themes by running ~(org-babel-tangle)~, bound to =C-c C-v t= by default, in Emacs.
+
+* Dark
+
+#+NAME: map-colors-dark
+#+begin_src elisp
+(let* ((base-theme modus-themes-vivendi-colors)
+       (colors '((background . bg-main)
+                 (foreground . fg-main)
+                 (color0 . bg-main)
+                 (color1 . red)
+                 (color2 . green)
+                 (color3 . yellow)
+                 (color4 . blue)
+                 (color5 . magenta)
+                 (color6 . cyan)
+                 (color7 . fg-alt)
+                 (color8 . fg-dim)
+                 (color9 . red-faint)
+                 (color10 . green-faint)
+                 (color11 . yellow-faint)
+                 (color12 . blue-faint)
+                 (color13 . magenta-faint)
+                 (color14 . cyan-faint)
+                 (color15 . fg-main)))
+       (make-line (lambda (rec)
+                    (format "*%s: %s" (car rec)
+                            (alist-get (cdr rec) base-theme)))))
+  (string-join (mapcar make-line colors) "\n"))
+#+end_src
+
+#+begin_src conf-xdefaults :noweb yes :tangle vidbina-dark.Xresources
+! vim: set syntax=xdefaults:
+
+! This file is tangled from README.org
+<<map-colors-dark()>>
+#+end_src
+
+* Light
+
+#+NAME: map-colors-light
+#+begin_src elisp
+(let* ((base-theme modus-themes-operandi-colors)
+       (colors '((background . bg-main)
+                 (foreground . fg-main)
+                 (color0 . bg-main)
+                 (color1 . red)
+                 (color2 . green)
+                 (color3 . yellow)
+                 (color4 . blue)
+                 (color5 . magenta)
+                 (color6 . cyan)
+                 (color7 . fg-alt)
+                 (color8 . fg-dim)
+                 (color9 . red-faint)
+                 (color10 . green-faint)
+                 (color11 . yellow-faint)
+                 (color12 . blue-faint)
+                 (color13 . magenta-faint)
+                 (color14 . cyan-faint)
+                 (color15 . fg-main)))
+       (make-line (lambda (rec)
+                    (format "*%s: %s" (car rec)
+                            (alist-get (cdr rec) base-theme)))))
+  (string-join (mapcar make-line colors) "\n"))
+#+end_src
+
+#+begin_src conf-xdefaults :noweb yes :tangle vidbina-light.Xresources
+! vim: set syntax=xdefaults:
+
+! This file is tangled from README.org
+<<map-colors-light()>>
+#+end_src
