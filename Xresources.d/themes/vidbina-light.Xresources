@@ -1,37 +1,38 @@
 ! vim: set syntax=xdefaults:
 *background: #ffffff
 *foreground: #000000
-*cursorColor: #00ff00
+! modus-themes-operandi-colors bg-active-accent
+!*cursorColor: #d0d6ff
 
 ! black, Black
 *color0: #ffffff
-! red, Red3
-*color1: #d40000
-! green, Green3
-*color2: #44aa00
-! yellow, Yellow3
-*color3: #cb9000
-! blue, Blue3
-*color4: #0000d4
-! magenta, Magenta3
-*color5: #8800aa
-! cyan, Cyan3
-*color6: #008066
-! white, AntiqueWhite
-*color7: #cccccc
-! bright black, Grey25
-*color8: #999999
-! bright red, Red
-*color9: #ff0066
-! bright green, Green
-*color10: #00a300
-! bright yellow, Yellow
-*color11: #ed5f00
-! bright blue, Blue
-*color12: #2a7fff
-! bright magenta, Magenta
-*color13: #2a7fff
-! bright cyan, Cyan
-*color14: #00abff
+! red, modus-themes-operandi-colors red
+*color1: #a60000
+! green, modus-themes-operandi-colors green
+*color2: #005e00
+! yellow, modus-themes-operandi-colors yellow
+*color3: #813e00
+! blue, modus-themes-operandi-colors blue
+*color4: #0031a9
+! magenta, modus-themes-operandi-colors magenta
+*color5: #721045
+! cyan, modus-themes-operandi-colors cyan
+*color6: #00538b
+! white, modus-themes-operandi-colors fg-alt
+*color7: #505050
+! bright black, modus-themes-operandi-colors fg-dim
+*color8: #282828
+! bright red, modus-themes-operandi-colors red-intense-bg
+*color9: #ff9f9f
+! bright green, modus-themes-operandi-colors green-intense-bg
+*color10: #5ada88
+! bright yellow, modus-themes-operandi-colors yellow-intense-bg
+*color11: #f5df23
+! bright blue, modus-themes-operandi-colors blue-intense-bg
+*color12: #77baff
+! bright magenta, modus-themes-operandi-colors magenta-intense-bg
+*color13: #d5baff
+! bright cyan, modus-themes-operandi-colors cyan-intense-bg
+*color14: #42cbd4
 ! bright white, White
 *color15: #000000

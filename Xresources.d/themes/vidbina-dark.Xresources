@@ -1,37 +1,38 @@
 ! vim: set syntax=xdefaults:
 *background: #000000
 *foreground: #ffffff
-*cursorColor: #00ff00
+! modus-themes-vivendi-colors bg-active-accent
+!*cursorColor: #00ff00
 
 ! black, Black
 *color0: #000000
-! red, Red3
-*color1: #ff5555
-! green, Green3
-*color2: #55ff55
-! yellow, Yellow3
-*color3: #ffd42a
-! blue, Blue3
-*color4: #2a7fff
-! magenta, Magenta3
-*color5: #dd55ff
-! cyan, Cyan3
-*color6: #55ddff
-! white, AntiqueWhite
-*color7: #333333
-! bright black, Grey25
-*color8: #999999
-! bright red, Red
-*color9: #ff0066
-! bright green, Green
-*color10: #00ff00
-! bright yellow, Yellow
-*color11: #ff6600
-! bright blue, Blue
-*color12: #00b3ff
-! bright magenta, Magenta
-*color13: #ff2ad4
-! bright cyan, Cyan
-*color14: #00ffcc
+! red, modus-themes-vivendi-colors red
+*color1: #ff8059
+! green, modus-themes-vivendi-colors green
+*color2: #44bc44
+! yellow, modus-themes-vivendi-colors yellow
+*color3: #d0bc00
+! blue, modus-themes-vivendi-colors blue
+*color4: #2fafff
+! magenta, modus-themes-vivendi-colors magenta
+*color5: #feacd0
+! cyan, modus-themes-vivendi-colors magenta
+*color6: #00d3d0
+! white, modus-themes-vivendi-colors fg-alt
+*color7: #a8a8a8
+! bright black, modus-themes-vivendi-colors fg-dim
+*color8: #e0e6f0
+! bright red, modus-themes-vivendi-colors red-intense-bg
+*color9: #a4202a
+! bright green, modus-themes-vivendi-colors green-intense-bg
+*color10: #006800
+! bright yellow, modus-themes-vivendi-colors yellow-intense-bg
+*color11: #874900
+! bright blue, modus-themes-vivendi-colors blue-intense-bg
+*color12: #2a40b8
+! bright magenta, modus-themes-vivendi-colors magenta-intense-bg
+*color13: #7042a2
+! bright cyan, modus-themes-vivendi-colors cyan-intense-bg
+*color14: #005f88
 ! bright white, White
 *color15: #ffffff
