@@ -612,6 +612,19 @@ For global text scaling, the [[https://github.com/purcell/default-text-scale][de
                               (default-text-scale-reset)))))
 #+end_src
 
+
+** 🎨 Rainbow Mode
+
+[[https://github.com/emacsmirror/rainbow-mode][Rainbow mode]] allows the coloring or color codes within buffers such as #ff0000 and #0f0.
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacsmirror/rainbow-mode
+(use-package rainbow-mode
+  :straight (rainbow-mode :type git
+                          :host github
+                          :repo "emacsmirror/rainbow-mode"))
+#+end_src
+
 ** 💄 Themes
 
 *** COMMENT Leuven Theme

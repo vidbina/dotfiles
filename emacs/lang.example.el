@@ -1,3 +1,9 @@
+;; https://github.com/emacsmirror/rainbow-mode
+(use-package rainbow-mode
+  :straight (rainbow-mode :type git
+                          :host github
+                          :repo "emacsmirror/rainbow-mode"))
+
 ;; https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html
 (with-eval-after-load "ispell"
   (setq ispell-program-name "hunspell")
