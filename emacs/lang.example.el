@@ -168,8 +168,8 @@
   :straight (envrc :type git
                    :host github
                    :repo "purcell/envrc")
-  :hook
-  (clojure-mode . envrc-mode))
+  :hook (after-init . envrc-global-mode)
+  :bind-keymap ("C-c e" . envrc-command-map))
 
 ;; https://github.com/joaotavora/eglot
 (use-package eglot
