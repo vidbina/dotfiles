@@ -1063,7 +1063,9 @@ For insight into the evil bindings for notmuch, go have a look at evil-collectio
 
 ** 📑 Project Management
 
-*** TODO Projectile
+*** Projectile
+
+[[https://github.com/bbatsov/projectile/][Projectile]] simplifies working by projects by providing some bindings that infer their behavior from a project-type. This means that we can remember single bindings for find file operations as well as [[https://docs.projectile.mx/projectile/projects.html#configure-a-projects-lifecycle-commands][project lifecycle commands]] such as configure, compile and run test, and use these generalizations across projects, allowing ourselves to forget some project-specific details. 😌
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/bbatsov/projectile/
@@ -1075,7 +1077,33 @@ For insight into the evil bindings for notmuch, go have a look at evil-collectio
   (projectile-mode-line-prefix "🗄️"))
 #+end_src
 
-*** TODO Perspective
+We configure Projectile by
+1. most generally, [[https://docs.projectile.mx/projectile/projects.html#adding-custom-project-types][defining new project types]] or
+2. more specifically, populating the .dir-locals.el file with our needed [[https://docs.projectile.mx/projectile/configuration.html][Projectile configuration]] or [[https://docs.projectile.mx/projectile/projects.html#storing-project-settings][project settings]].
+
+The map-binding to keep in mind for Projectile is conveniently named =C-c p= and in order to edit .dir-locals.el one can use the =C-c p E= binding.
+
+For convenience, one can always configure a test command such that =C-c p P= can actually execute.
+
+Furthermore, it helps to remember that =C-c p != produced a brief prompt into which basic shell commands can be entered.
+
+**** Defining Projectile lifecycle commands dir-locals.el
+
+Look at =projectile-cache-current-file= on tips to implementing file-specific Projectile commands.
+
+The following snippet is a rough example of a Projectile lifecycle command that performs an operation on the currently open file.
+
+#+begin_src elisp
+((nil . ((projectile-project-test-cmd . (lambda ()
+                                          (shell-command (format "exercism submit %S" (file-truename (buffer-file-name))))
+                                          (message "Ran test"))))))
+#+end_src
+
+For some reason, changing the .dir-locals.el file requires a reset of the corresponding map which, in the case above, happens to be the =projectile-test-cmd-map=. This hashmap can be reset by navigating to the source where is is defined and reevaluating the defining sexpr.
+
+*** COMMENT Perspective
+
+The [[https://github.com/nex3/perspective-el][Perspective]] package provides some conveniences to manage different workspaces. I use perspectives to keep buffers and layouts isolated between different contexts e.g.: sometimes projects, sometimes features, sometimes tasks (e.g.: wedding planning notes and emails, 1-on-1 work-related notes and details, notes and buffers on a particular research topic, etc.).
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/nex3/perspective-el
@@ -1091,6 +1119,36 @@ For insight into the evil bindings for notmuch, go have a look at evil-collectio
   (setq persp-state-default-file "~/.emacs.d/perspective"
         persp-modestring-short t))
 #+end_src
+
+*** persp-mode
+
+Unlike [[*Perspective][Perspective]], [[https://github.com/Bad-ptr/persp-mode.el][persp-mode]] allows us to manage /perspectives/ across frames (i.e.: different desktop windows for Emacs). In my usage of Emacs, this was becoming more of a requirement since I often end up opening Emacs frames where I want the convenience of selecting either of the /perspectives/ that have been curated before. The [[https://github.com/nex3/perspective-el#similar-packages][Perspective documentation]] provides a helpful writeup of the alternative solutions available for perspective-management in Emacs which includes persp-mode.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/Bad-ptr/persp-mode.el
+(use-package persp-mode
+  :straight (persp-mode :type git
+                        :host github
+                        :repo "Bad-ptr/persp-mode.el")
+  :config
+  (persp-mode t))
+#+end_src
+
+The use of persp-mode should not be too challenging since it is forked from the trusted and familiar Perspective.
+
+Here are some of the relevant bindings to remember, provided that =persp-keymap-prefix= is set to the default =C-c p=:
+- =C-c p s= *switch* to perspective (existing or new)
+- =C-c p S= *switch* to perspective in a window
+- =C-c p n= *next* perspective
+- =C-c p p= *previous* perspective
+- =C-c p r= *rename* perspective
+- =C-c p w= *write* perspectives to file
+- =C-c p l= *load* perspectives from file
+- =C-c p o= turn *off* perspective mode
+- =C-c p k= kill buffer from perspective
+- =C-c p K= *kill* buffer
+
+Killing a buffer through =C-x k= will only kill the buffer if it is only member of the current perspective i.e.: a buffer that is a member of multiple perspectives will only be removed from the current perspective when the ~kill-buffer~ command is invoked.
 
 * 🏁 Finale
 

@@ -425,18 +425,13 @@
   :custom
   (projectile-mode-line-prefix "🗄️"))
 
-;; https://github.com/nex3/perspective-el
-(use-package perspective
-  :straight (perspective :type git
-                         :host github
-                         :repo "nex3/perspective-el")
-  :bind (("C-x C-b" . persp-ivy-switch-buffer)
-         ("C-x k" . persp-kill-buffer*))
+;; https://github.com/Bad-ptr/persp-mode.el
+(use-package persp-mode
+  :straight (persp-mode :type git
+                        :host github
+                        :repo "Bad-ptr/persp-mode.el")
   :config
-  (persp-mode t)
-  :init
-  (setq persp-state-default-file "~/.emacs.d/perspective"
-        persp-modestring-short t))
+  (persp-mode t))
 
 (load "~/.emacs.d/lang.el")
 (load "~/.emacs.d/personal.el")
