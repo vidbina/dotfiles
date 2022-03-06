@@ -361,6 +361,8 @@
   :straight (orderless :type git
                        :host github
                        :repo "oantolin/orderless")
+  ;; Load after Swiper since we override ivy-re-builders-alist
+  :after swiper
   :custom
   (completion-styles '(orderless))
   (ivy-re-builders-alist '((t . orderless-ivy-re-builder))))
