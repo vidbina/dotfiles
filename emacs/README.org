@@ -1076,7 +1076,9 @@ For insight into the evil bindings for notmuch, go have a look at evil-collectio
                         :host github
                         :repo "bbatsov/projectile")
   :custom
-  (projectile-mode-line-prefix "🗄️"))
+  (projectile-mode-line-prefix "🗄️")
+  :hook
+  (after-init . projectile-mode))
 #+end_src
 
 We configure Projectile by
@@ -1420,11 +1422,6 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 (global-set-key (kbd "C-c a") 'org-agenda)
 
 (global-set-key (kbd "C-c p") 'projectile-command-map)
-
-
-;; https://github.com/bbatsov/projectile/#installation
-(projectile-mode +1)
-(persp-mode +1)
 
 (setq fill-column 1)
 

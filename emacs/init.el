@@ -425,7 +425,9 @@
                         :host github
                         :repo "bbatsov/projectile")
   :custom
-  (projectile-mode-line-prefix "🗄️"))
+  (projectile-mode-line-prefix "🗄️")
+  :hook
+  (after-init . projectile-mode))
 
 ;; https://github.com/Bad-ptr/persp-mode.el
 (use-package persp-mode
