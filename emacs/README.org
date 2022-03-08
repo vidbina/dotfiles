@@ -1445,9 +1445,6 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 
 (add-hook 'org-babel-after-execute-hook 'my/fix-inline-images)
 
-;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-gnuplot.html
-(org-babel-do-load-languages 'org-babel-load-languages '((gnuplot . t)
-                                                         (shell . t)))
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html
 ;; http://emacs-fu.blogspot.com/2011/08/customizing-mode-line.html
 (setq-default mode-line-format
@@ -1531,7 +1528,7 @@ Populate a =lang.el= file which defines all of the major-modes and language-rela
 
 ** Markup Languages
 
-*** Org
+*** COMMENT Org
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Hooks-for-Loading.html
@@ -1650,7 +1647,9 @@ Some of the relevant keybindings are:
 (use-package gnuplot
   :straight (gnuplot :type git
                      :host github
-                     :repo "emacsorphanage/gnuplot"))
+                     :repo "emacsorphanage/gnuplot")
+  :config
+  (add-to-list 'org-babel-load-languages '(gnuplot . t)))
 #+end_src
 
 ** DSL
@@ -1663,6 +1662,14 @@ Some of the relevant keybindings are:
   :straight (dockerfile-mode :type git
                              :host github
                              :repo "spotify/dockerfile-mode"))
+#+end_src
+
+*** Octave
+
+[[https://www.gnu.org/software/emacs/manual/html_mono/octave-mode.html][Octave]] mode provides support for the [[https://www.gnu.org/software/octave/][Octave scientific programming language]] which is a popular FLOSS alternative to Matlab. From a glance at the [[https://github.com/emacs-mirror/emacs/commit/be64c05d81d6191397fa96e050b8b3ad8134b62b][Emacs git history]] it seems that this feature has been bundled in emacs for a while now, so we will simply assume it's here and add the language to the =org-babel-load-languages= list to enable Org Babel exports.
+
+#+begin_src elisp :tangle lang.example.el
+(add-to-list 'org-babel-load-languages '(octave . t))
 #+end_src
 
 ** Programming Languages

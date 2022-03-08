@@ -78,13 +78,17 @@
 (use-package gnuplot
   :straight (gnuplot :type git
                      :host github
-                     :repo "emacsorphanage/gnuplot"))
+                     :repo "emacsorphanage/gnuplot")
+  :config
+  (add-to-list 'org-babel-load-languages '(gnuplot . t)))
 
 ;; https://github.com/spotify/dockerfile-mode
 (use-package dockerfile-mode
   :straight (dockerfile-mode :type git
                              :host github
                              :repo "spotify/dockerfile-mode"))
+
+(add-to-list 'org-babel-load-languages '(octave . t))
 
 ;; https://github.com/NixOS/nix-mode
 (use-package nix-mode
