@@ -761,8 +761,19 @@ Turn of tab-indentation and opt for space-based indentation such that whitespace
 #+end_src
 
 #+begin_quote
-⚠️ Not to start a flame war but across different editors and viewers (pagers, terminals, etc) the use of spaces is a bit more predictable as an alignment tool. 🤷🏿‍♂️
+⚠️ Not to append to ongoing flame wars: across different editors and viewers (pagers, terminals, etc) the use of spaces is a bit more predictable as a text alignment tool. 🤷🏿‍♂️
 #+end_quote
+
+** Scrolling
+
+In order to [[https://www.emacswiki.org/emacs/SmoothScrolling][facilitate smoother scrolling]] than the default i.e.: "when scrolling out of view, scroll such that point is in the middle of the buffer", we set =scroll-conservatively= to allow for more line-by-line scrolling.
+
+#+begin_src elisp :tangle init.el
+;; https://www.emacswiki.org/emacs/SmoothScrolling
+(setq-default scroll-conservatively 100)
+#+end_src
+
+💡 If you want to center the cursor (or point in Emacs vernacular), the ~evil-scroll-line-to-center~ command bound to =z z= is your friend.
 
 ** TODO Undo
 

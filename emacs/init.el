@@ -279,6 +279,9 @@
 ;; https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html
 (setq-default indent-tabs-mode nil)
 
+;; https://www.emacswiki.org/emacs/SmoothScrolling
+(setq-default scroll-conservatively 100)
+
 ;; https://github.com/emacsmirror/undo-fu
 (use-package undo-fu
   :straight (undo-fu :type git
