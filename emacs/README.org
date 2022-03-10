@@ -1523,6 +1523,46 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
                ""))
 #+end_src
 
+** Security
+
+*** Org-crypt
+
+In order to [[https://orgmode.org/worg/org-tutorials/encrypting-files.html][encrypt entries of Org files]], the package org-crypt needs to be configured.
+
+#+begin_src elisp :tangle personal-example.el
+(require 'org-crypt)
+(org-crypt-use-before-save-magic)
+#+end_src
+
+**** Usage
+
+Usage of org-crypt is as simple as tagging the heading of a section to be encrypted with =:crypt:=. With the =org-crypt-key= variable set to =nil=, symmetric encryption is used. By setting this variable to a string, or by setting the =CRYPTKEY= property as demonstrated below, we can encrypt against a GPG public key of choice.
+
+#+begin_example org
+,* For all eyes
+
+This is nothing special
+
+,* For my eyes only :crypt:
+:PROPERTIES:
+:CRYPTKEY: 0xffffffffffffffffffffffffffffffffffffffff
+:END:
+
+This would be encrypted upon safe 😉
+
+,* Local File Variables
+
+Disable auto-save since I'm using crypt in this file.
+
+# Local Variables:
+# auto-save-default: nil
+# End:
+#+end_example
+
+****** TODO Verify if =epa-file-encrypt-to= works as expected
+
+An alternate approach would be to append the =epa-file-encrypt-to= variable to the local variables list. The benefit of this is that one can encrypt a file for multiple recipients. I haven't tested this yet. 🤔
+
 * 💬 Languages
 
 Populate a =lang.el= file which defines all of the major-modes and language-related tooling that are relevant to you. In my case I have simply defined a symlink from [[file:lang.example.el][lang.example.el]] to lang.el. The literal configuration in this section defines my own languages setup. YMMV! 🤷🏿‍♂️
