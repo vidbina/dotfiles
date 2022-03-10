@@ -467,6 +467,20 @@ Org-ref has provisions for cross-referencing that Org-cite doesn't quite provide
   :after org)
 #+end_src
 
+** Org-QL
+
+In order to query Org files with more flexibility, [[https://github.com/alphapapa/org-ql][org-ql]] can come to the rescue.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/alphapapa/org-ql
+(use-package org-ql
+  :straight (org-ql :type git
+                    :host github
+                    :repo "alphapapa/org-ql"))
+#+end_src
+
+In the most basic usage form you can basically run ~org-ql-search~ and just enter =todo= to get a basic listing.
+
 * 👁️ Appearance
 
 This section will deal with some of the visual trappings of Emacs. My design goal is to arrive at a rather minimal, or rather clean, design while providing the needed information scope perhaps through toggles (i.e.: showing whitespace characters at command).

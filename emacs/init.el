@@ -130,6 +130,12 @@
 ;;:custom
 ;;(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
 
+;; https://github.com/alphapapa/org-ql
+(use-package org-ql
+  :straight (org-ql :type git
+                    :host github
+                    :repo "alphapapa/org-ql"))
+
 ;; https://www.emacswiki.org/emacs/ScrollBar
 (scroll-bar-mode -1)
 
