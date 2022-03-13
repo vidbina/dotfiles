@@ -1818,15 +1818,59 @@ Some of the relevant keybindings are:
 
 *** Haskell
 
+In order to conveniently read and write Haskell, I rely on [[https://github.com/haskell/haskell-mode][haskell-mode]]. Note that [[https://gitlab.com/tseenshe/haskell-tng.el][haskell-tng]] is a fork from haskell-mode that may be worth looking into in your case. read the [[http://haskell.github.io/haskell-mode/manual/latest/][manual]] for more information.
+
+In order to configure interactive mode, we follow the [[https://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html#Customizations][setup instructions from the manual]].
+
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/haskell/haskell-mode
 (use-package haskell-mode
   :straight (haskell-mode :type git
                           :host github
                           :repo "haskell/haskell-mode")
-  :init
-  (add-hook 'haskell-mode-hook 'haskell-unicode-input-method-enable))
+  :config
+  (require 'haskell-interactive-mode)
+  (require 'haskell-process)
+  :hook
+  (haskell-mode . haskell-unicode-input-method-enable)
+  (haskell-mode . interactive-haskell-mode)
+  :custom
+  (haskell-process-suggest-remove-import-lines t)
+  (haskell-process-auto-import-loaded-modules t)
+  (haskell-process-log t)
+  (haskell-stylish-on-save t))
 #+end_src
+
+Please note that [[https://wiki.haskell.org/GHC/GHCi][GHCi]], [[https://github.com/ndmitchell/hlint][HLint]] and [[https://github.com/haskell/stylish-haskell][stylish-haskell]] are needed for this configuration to work.
+
+**** Haskell Environment Configuration in Nix
+
+For convenience, I use direnv to manage my environments. Considering that I am a Nix user and the configuration described above needs GHCi, Hlint and stylish-haskell installed, I just have to see to it that a project directory tree contains an .envrc file that contains the =use nix= string to relegate env configuration to the nix configuration and then populate default.nix to contain description of the needed environment.
+
+So, =.envrc= should contain the following:
+
+#+begin_example conf
+use nix
+#+end_example
+
+and my =default.nix= file will contain something to the tune of the snippet below.
+
+#+begin_example nix
+{ sources ? import ./nix/sources.nix }:
+
+let
+  nixpkgs = import sources.nixpkgs {};
+in
+nixpkgs.mkShell {
+  buildInputs = with nixpkgs.haskellPackages; [
+    ghci
+    hlint
+    stylish-haskell
+  ];
+}
+#+end_example
+
+To add another layer of convenience or complexity, depending on how you want to look at it 🤷🏿‍♂️, I manage my nix packages with [[https://github.com/nmattia/niv][niv]] in order to decouple the project packages from my system configuration (i.e.: every project installs packages in reference to a pinned package repository that remains the same even if the system repository changes over time which improves reproducability). This is where the =./nix/sources.nix= bit comes into the picture -- that's a niv thing. In order to populate the =nix/sources.nix= and =nix/sources.json= files that nix needs, I have to run =niv init= inside of the directory where the default.nix resides. After all of this is done, we have to allow direnv to evaluate the files within the directory to autoload our environment. I sometimes do this within emacs with ~(envrc-allow)~ but you can also do this from a terminal with the command =direnv allow=.
 
 *** Elm
 
