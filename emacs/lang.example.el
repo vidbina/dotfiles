@@ -135,8 +135,17 @@
   :straight (haskell-mode :type git
                           :host github
                           :repo "haskell/haskell-mode")
-  :init
-  (add-hook 'haskell-mode-hook 'haskell-unicode-input-method-enable))
+  :config
+  (require 'haskell-interactive-mode)
+  (require 'haskell-process)
+  :hook
+  (haskell-mode . haskell-unicode-input-method-enable)
+  (haskell-mode . interactive-haskell-mode)
+  :custom
+  (haskell-process-suggest-remove-import-lines t)
+  (haskell-process-auto-import-loaded-modules t)
+  (haskell-process-log t)
+  (haskell-stylish-on-save t))
 
 ;; https://github.com/jcollard/elm-mode
 (use-package elm-mode
