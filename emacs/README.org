@@ -1849,13 +1849,13 @@ For convenience, I use direnv to manage my environments. Considering that I am a
 
 So, =.envrc= should contain the following:
 
-#+begin_example conf
+#+begin_src conf
 use nix
-#+end_example
+#+end_src
 
 and my =default.nix= file will contain something to the tune of the snippet below.
 
-#+begin_example nix
+#+begin_src nix
 { sources ? import ./nix/sources.nix }:
 
 let
@@ -1868,7 +1868,7 @@ nixpkgs.mkShell {
     stylish-haskell
   ];
 }
-#+end_example
+#+end_src
 
 To add another layer of convenience or complexity, depending on how you want to look at it 🤷🏿‍♂️, I manage my nix packages with [[https://github.com/nmattia/niv][niv]] in order to decouple the project packages from my system configuration (i.e.: every project installs packages in reference to a pinned package repository that remains the same even if the system repository changes over time which improves reproducability). This is where the =./nix/sources.nix= bit comes into the picture -- that's a niv thing. In order to populate the =nix/sources.nix= and =nix/sources.json= files that nix needs, I have to run =niv init= inside of the directory where the default.nix resides. After all of this is done, we have to allow direnv to evaluate the files within the directory to autoload our environment. I sometimes do this within emacs with ~(envrc-allow)~ but you can also do this from a terminal with the command =direnv allow=.
 
