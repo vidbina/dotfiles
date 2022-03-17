@@ -1090,9 +1090,19 @@ For insight into the evil bindings for notmuch, go have a look at evil-collectio
 
 ** 📑 Project Management
 
+In order to manage projects more conveniently, one can opt for a variety of project management packages. In this section we configure and explain some of the options that I've relied on over time.
+
+*** project.el
+
+First and foremost, project.el (bundled with Emacs) provides some facilities to switch between projects, explore project trees and execute commands (among other features). The project.el bindings are mapped to =C-x p=.
+
+The following links provide some context that can be helpful in helping inform your decision to learn project.el or projectile (or its derivatives):
+- [[https://www.reddit.com/r/emacs/comments/nf2k5y/how_does_projectile_compare_to_the_builtin/][How does projectile compare to the built-in project.el? (reddit)]]
+- [[https://www.manueluberti.eu/emacs/2020/09/18/project/][It’s never too late (Manuel Uberti)]]
+
 *** Projectile
 
-[[https://github.com/bbatsov/projectile/][Projectile]] simplifies working by projects by providing some bindings that infer their behavior from a project-type. This means that we can remember single bindings for find file operations as well as [[https://docs.projectile.mx/projectile/projects.html#configure-a-projects-lifecycle-commands][project lifecycle commands]] such as configure, compile and run test, and use these generalizations across projects, allowing ourselves to forget some project-specific details. 😌
+[[https://github.com/bbatsov/projectile/][Projectile]] simplifies working by projects by providing some bindings that infer their behavior from a project-type. This means that we can remember single bindings expore our project trees as well as triggering [[https://docs.projectile.mx/projectile/projects.html#configure-a-projects-lifecycle-commands][project lifecycle commands]] such as configure, compile and run test, and use these generalizations across projects -- allowing ourselves to forget some project-specific details. 😌
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/bbatsov/projectile/
