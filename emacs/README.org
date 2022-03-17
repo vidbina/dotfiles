@@ -1103,18 +1103,19 @@ For insight into the evil bindings for notmuch, go have a look at evil-collectio
   :custom
   (projectile-mode-line-prefix "🗄️")
   :hook
-  (after-init . projectile-mode))
+  (after-init . projectile-mode)
+  :bind (:map projectile-mode-map
+              ("C-x p" . projectile-command-map)))
 #+end_src
 
 We configure Projectile by
 1. most generally, [[https://docs.projectile.mx/projectile/projects.html#adding-custom-project-types][defining new project types]] or
 2. more specifically, populating the .dir-locals.el file with our needed [[https://docs.projectile.mx/projectile/configuration.html][Projectile configuration]] or [[https://docs.projectile.mx/projectile/projects.html#storing-project-settings][project settings]].
 
-The map-binding to keep in mind for Projectile is conveniently named =C-c p= and in order to edit .dir-locals.el one can use the =C-c p E= binding.
-
-For convenience, one can always configure a test command such that =C-c p P= can actually execute.
-
-Furthermore, it helps to remember that =C-c p != produced a brief prompt into which basic shell commands can be entered.
+We use =C-x p= as the binding prefix projectile deciding to overide the project.el bindings 🙊:
+- =C-x p P= to trigger a test command using ~(projectile-test-project)~
+- =C-x p != to run a one-off shell command using ~(projectile-run-shell-command-in-root)~
+- =C-x p x s= run a shell ~(projectile-run-shell)~ (will jump to already running shell unless prefixed)
 
 **** Defining Projectile lifecycle commands dir-locals.el
 

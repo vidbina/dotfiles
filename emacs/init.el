@@ -436,7 +436,9 @@
   :custom
   (projectile-mode-line-prefix "🗄️")
   :hook
-  (after-init . projectile-mode))
+  (after-init . projectile-mode)
+  :bind (:map projectile-mode-map
+              ("C-x p" . projectile-command-map)))
 
 ;; https://github.com/Bad-ptr/persp-mode.el
 (use-package persp-mode
