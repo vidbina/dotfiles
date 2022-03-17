@@ -1457,8 +1457,6 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 (global-set-key (kbd "C-c l") 'org-store-link)
 (global-set-key (kbd "C-c a") 'org-agenda)
 
-(global-set-key (kbd "C-c p") 'projectile-command-map)
-
 (setq fill-column 1)
 
 ;; https://orgmode.org/manual/Handling-Links.html
