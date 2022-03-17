@@ -386,8 +386,8 @@
   (ivy-mode)
   :config
   (straight-use-package 'counsel)
-  (ivy-mode)
-  (counsel-mode)
+  (ivy-mode +1)
+  (counsel-mode +1)
   (setq ivy-use-virtual-buffers t
         enable-recursive-minibuffers t))
 
