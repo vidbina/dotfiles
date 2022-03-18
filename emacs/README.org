@@ -1412,6 +1412,14 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
     (setq-local org-export-use-babel t))
   (message (format "❓ org-export confirm = %s" org-export-use-babel)))
 
+(defun vidbina-local-org-confirm-babel-evaluate ()
+  "Toggle buffer-local org-confirm-babel-evaluate"
+  (interactive)
+  (if org-confirm-babel-evaluate
+      (setq-local org-confirm-babel-evaluate nil)
+    (setq-local org-confirm-babel-evaluate t))
+  (message (format "☑️ Org Babel confirmation is %s" org-confirm-babel-evaluate)))
+
 (defun vidbina-wrap ()
   "Toggle wrapping using adaptive-wrap-prefix-mode and visual-line-mode"
   (interactive)
