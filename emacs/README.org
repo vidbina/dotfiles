@@ -1461,10 +1461,18 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 ** TODO Misc
 
 #+begin_src elisp :tangle personal-example.el
-(global-set-key (kbd "C-c v l") 'vidbina-theme-light)
-(global-set-key (kbd "C-c v d") 'vidbina-theme-dark)
+(global-set-key (kbd "C-c v l") 'vidbina-theme-switch-to-light)
+(global-set-key (kbd "C-c v d") 'vidbina-theme-switch-to-dark)
 (global-set-key (kbd "C-c v TAB") 'vidbina-wrap)
+(global-set-key (kbd "C-c v \\") 'visual-fill-column-mode)
+(global-set-key (kbd "C-c v SPC") 'global-whitespace-mode)
 (global-set-key (kbd "C-c v c") 'completion-at-point)
+(global-set-key (kbd "C-c v (") 'paredit-mode)
+(global-set-key (kbd "C-c v O") 'vidbina-orui-node-zoom-padding-set)
+(global-set-key (kbd "C-c v _") 'vidbina-tail-buffer)
+(global-set-key (kbd "C-c v .") 'vidbina-orui-node-zoom)
+
+(global-set-key (kbd "C-c v z") 'zoom-window-zoom)
 
 (global-set-key (kbd "C-c l") 'org-store-link)
 (global-set-key (kbd "C-c a") 'org-agenda)
