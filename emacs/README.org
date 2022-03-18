@@ -1430,6 +1430,10 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (setq-local vidbina-wrap--state nil))
     (funcall vidbina-wrap-set (not vidbina-wrap--state))))
 
+;; https://stackoverflow.com/questions/12663061/emacs-auto-scrolling-log-buffer
+(defun vidbina-tail-buffer ()
+  (setq-local window-point-insertion-type t))
+
 (defun vidbina-browse-url-xsel (url &optional ignored)
   (shell-command (format "echo \"%s\" | xsel -ib" url)))
 
