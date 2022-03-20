@@ -26,8 +26,12 @@ pkgs.mkShell rec {
     which
   ];
 
-  shellHook = ''
+  shellHook = with pkgs; ''
     export NIX_PATH="nixpkgs=${nixpkgs-src}:home-manager=${hm-src}:NUR=${nur-src}"
-    export HOME_MANAGER_CONFIG="./home.nix"
+    export HOME_MANAGER_CONFIG=${if stdenv.isLinux
+                                 then "./home-linux.nix"
+                                 else (if stdenv.isDarwin
+                                       then "./home-darwin.nix"
+                                       else "./home.nix")}
   '';
 }
