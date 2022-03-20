@@ -25,6 +25,7 @@
         };
         emacs = my-emacs;
       }))
+    nyxt
   ];
 
   services.blueman-applet.enable = true;

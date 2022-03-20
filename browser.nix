@@ -5,10 +5,6 @@ let
   nur = import <NUR> { inherit pkgs; };
 in
 {
-  home.packages = with pkgs; [
-    nyxt
-  ];
-
   programs.chromium = {
     enable = true;
 
