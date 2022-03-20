@@ -1,8 +1,8 @@
-{ config, pkgs, lib, options, ... }:
+{ config, lib, options, ... }:
 
 let
   sources = import ../nix/sources.nix;
-  nix-darwin = sources."nix-darwin";
+  emacs-overlay-src = sources."emacs-overlay";
 in
 {
   home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
@@ -13,7 +13,7 @@ in
   };
 
   nixpkgs.overlays = [
-    (import nix-darwin)
+    (import emacs-overlay-src)
 
     (self: super: {
       my-emacs =
