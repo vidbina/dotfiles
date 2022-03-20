@@ -2,10 +2,10 @@
 
 HOME_MANAGER = home-manager
 
-HOME_CONFIGURATION_FILE = ./home.nix
+HOME_MANAGER_CONFIG ?= ./home.nix
 
 all:
-	${HOME_MANAGER} -f ${HOME_CONFIGURATION_FILE} switch
+	${HOME_MANAGER} -f ${HOME_MANAGER_CONFIG} switch
 
 test:
-	${HOME_MANAGER} -f ${HOME_CONFIGURATION_FILE} -v -n build
+	${HOME_MANAGER} -f ${HOME_MANAGER_CONFIG} -v -n build
