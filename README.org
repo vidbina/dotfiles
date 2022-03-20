@@ -164,8 +164,10 @@ This is a listing of the symlinks that I could track in my home directory right 
   ~/.config/rofi -> ~/dotfiles/rofi
   ~/.config/starship.toml -> ~/dotfiles/starship.toml
   ~/.config/termite -> ~/dotfiles/termite
+  ~/.direnvrc -> ~/dotfiles/direnv/direnvrc
 #+end_example
 
+*** TODO direnv
 *** .xsession
 :PROPERTIES:
 :CUSTOM_ID: xsession
