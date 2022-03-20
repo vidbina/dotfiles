@@ -3,6 +3,8 @@
 {
   imports = [
     ./common.nix
+    ./doc.nix
+    ./browser.nix
     ./x.nix
 
     ./emacs
@@ -25,7 +27,6 @@
         };
         emacs = my-emacs;
       }))
-    nyxt
   ];
 
   services.blueman-applet.enable = true;

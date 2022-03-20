@@ -50,15 +50,16 @@ in
     aspellDicts.de
     aspellDicts.en
     aspellDicts.nl
-    bibtex2html
     biber
+    bibtex2html
     evince
     libreoffice
     okular
-    texlive-asabina
     pandoc
     pdftk
+    qrencode
     scim
+    texlive-asabina
     visidata
     xournal
     zathura

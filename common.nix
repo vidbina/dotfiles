@@ -7,8 +7,6 @@ let
 in
 {
   imports = [
-    ./doc.nix
-    ./browser.nix
     ./mail.nix
     ./vim.nix
   ]
