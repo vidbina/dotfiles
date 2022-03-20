@@ -383,3 +383,13 @@ ln -s ${PATH_TO_DOTFILE}/gitignore ${HOME}/.gitignore
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 #+end_src
+
+* Neovim
+
+For Neovim, remember that CoC completions basically work through use of the =C-n= and =C-p= binding to cycle through next and previous items in the completion listing.
+
+https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
+
+* TODO Bring in XMonad configuration
+
+* TODO Bring in xmobar configuration
