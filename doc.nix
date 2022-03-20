@@ -34,6 +34,8 @@ let
       svg
       tableof
       titlepic
+      transparent
+      trimspaces
       tocloft
       ulem
       wrapfig
