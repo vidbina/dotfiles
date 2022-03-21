@@ -22,21 +22,6 @@
   (unless (file-exists-p ispell-personal-dictionary)
     (write-region "" nil ispell-personal-dictionary nil 0)))
 
-;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Hooks-for-Loading.html
-;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-gnuplot.html#sec-4
-(with-eval-after-load 'org
-  (message "Loading org-babel-language mappings")
-  (org-babel-do-load-languages 'org-babel-load-languages
-                               '((shell . t)
-                                 (clojure .  t)
-                                 (dot . t)
-                                 (gnuplot . t)
-                                 (haskell . t)
-                                 (makefile . t)
-                                 ;; (nix . t) ;; TODO: Figure out why broken
-                                 (plantuml . t)
-                                 (python . t))))
-
 ;; https://jblevins.org/projects/markdown-mode/
 (use-package markdown-mode
   :straight (markdown-mode :type git
@@ -60,17 +45,18 @@
   :straight (plantuml-mode :type git
                            :host github
                            :repo "skuro/plantuml-mode")
-  :init
-  (setq plantuml-default-exec-mode 'executable))
+  :config
+  (setq plantuml-default-exec-mode 'executable)
+  (add-to-list 'org-babel-load-languages '(plantuml . t)))
 
 ;; https://github.com/ppareit/graphviz-dot-mode
 (use-package graphviz-dot-mode
   :straight (graphviz-dot-mode :type git
                                :host github
                                :repo "ppareit/graphviz-dot-mode")
-  :ensure t
   :config
-  (setq graphviz-dot-indent-width 2))
+  (setq graphviz-dot-indent-width 2)
+  (add-to-list 'org-babel-load-languages '(dot . t)))
 
 ;; https://github.com/emacsorphanage/gnuplot
 ;; also https://github.com/bruceravel/gnuplot-mode

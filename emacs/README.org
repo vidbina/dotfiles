@@ -1,7 +1,7 @@
 #+OPTIONS: html5-fancy:t
 #+HTML_DOCTYPE: html5
 #+TITLE: Emacs 🦬 Configuration
-  
+
 This is an emoji-heavy 😅 literal[fn:1] configuration for [[https://www.gnu.org/software/emacs/][Emacs]] which is definitely not as feature complete like some distros out there (think: [[https://github.com/hlissner/doom-emacs][Doom Emacs]] or [[https://www.spacemacs.org/][Spacemacs]]) but may still provide you a pragmatic and easily parsable configuration that sticks to standard tooling 🧰 and patterns while providing sufficient context as to what is happening such that beginners[fn:2] can also have a good time cooking 👨🏿‍🔬 up or tweaking 👨🏿‍🔧 their configurations.
 
 * Installation
@@ -1632,12 +1632,10 @@ Populate a =lang.el= file which defines all of the major-modes and language-rela
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((shell . t)
                                  (clojure .  t)
-                                 (dot . t)
                                  (gnuplot . t)
                                  (haskell . t)
                                  (makefile . t)
                                  ;; (nix . t) ;; TODO: Figure out why broken
-                                 (plantuml . t)
                                  (python . t))))
 #+end_src
 
@@ -1713,15 +1711,20 @@ Some of the relevant keybindings are:
 
 ** Viz Languages for graphing, plotting and more
 
+*** PlantUML
+
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/skuro/plantuml-mode
 (use-package plantuml-mode
   :straight (plantuml-mode :type git
                            :host github
                            :repo "skuro/plantuml-mode")
-  :init
-  (setq plantuml-default-exec-mode 'executable))
+  :config
+  (setq plantuml-default-exec-mode 'executable)
+  (add-to-list 'org-babel-load-languages '(plantuml . t)))
 #+end_src
+
+*** Graphviz
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/ppareit/graphviz-dot-mode
@@ -1729,10 +1732,12 @@ Some of the relevant keybindings are:
   :straight (graphviz-dot-mode :type git
                                :host github
                                :repo "ppareit/graphviz-dot-mode")
-  :ensure t
   :config
-  (setq graphviz-dot-indent-width 2))
+  (setq graphviz-dot-indent-width 2)
+  (add-to-list 'org-babel-load-languages '(dot . t)))
 #+end_src
+
+*** Gnuplot
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacsorphanage/gnuplot
