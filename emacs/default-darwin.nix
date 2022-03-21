@@ -1,4 +1,4 @@
-{ config, lib, options, ... }:
+{ config, pkgs, lib, options, ... }:
 
 let
   sources = import ../nix/sources.nix;
