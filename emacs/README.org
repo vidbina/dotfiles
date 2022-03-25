@@ -605,7 +605,7 @@ By using [[https://elpa.gnu.org/packages/adaptive-wrap.html][adaptive wrap]] mod
   (adaptive-wrap-prefix-mode))
 #+end_src
 
-Using adaptive wrapping along with visual-fill-column mode may introduce some performance issues especially when longer texts are being soft-wrapped. When dealing with code blocks or tables, adaptive wrapping can be a bit more confusing than helpful which is why it helps to define key bindings to simplify toggling this behaviour. In my case, I have defined the =vidbina-wrap= function to play to control =visual-line-mode= and =adaptive-wrap-mode= in a single operation.
+Using adaptive wrapping along with visual-fill-column mode may introduce some performance issues especially when longer texts are being soft-wrapped. When dealing with code blocks or tables, adaptive wrapping can be a bit more confusing than helpful which is why it helps to define key bindings to simplify toggling this behaviour. In my case, I have defined the =vidbina/wrap= function to play to control =visual-line-mode= and =adaptive-wrap-mode= in a single operation.
 
 *** Default Text Scale
 
@@ -1366,45 +1366,45 @@ In order to conveniently view HTML mail which may not always be presented in a p
 Here be dragons! 🐉 This is my personal collection of helpers that I use for little things like switching themes, managing wrapping inside of buffers, managing opening of URL's and more junk. I will not explain these as these are simple enough and I'm not expecting me needing to explain this to myself or others (you likely will want to write your own).
 
 #+begin_src elisp :tangle personal-example.el
-(defcustom vidbina-theme-should-be-dark nil
+(defcustom vidbina/theme-should-be-dark nil
   "Non-nil means that the theme should be dark"
   :type 'boolean
   :group 'display)
 
-(defun vidbina-theme-switch-to-choice ()
+(defun vidbina/theme-switch-to-choice ()
   "Switch to the theme of choice"
-  (if vidbina-theme-should-be-dark
-      (vidbina-theme-switch-to-dark)
-    (vidbina-theme-switch-to-light)))
+  (if vidbina/theme-should-be-dark
+      (vidbina/theme-switch-to-dark)
+    (vidbina/theme-switch-to-light)))
 
-(defun vidbina-theme-switch-to-dark ()
+(defun vidbina/theme-switch-to-dark ()
   "Switch to the dark theme"
   (interactive)
   (modus-themes-load-vivendi)
   (setq org-format-latex-options
         `(:scale 2 :foreground "White" :background "Transparent"))
   (message "🌑 Theme is dark")
-  (customize-save-variable 'vidbina-theme-should-be-dark t))
+  (customize-save-variable 'vidbina/theme-should-be-dark t))
 
-(defun vidbina-theme-switch-to-light ()
+(defun vidbina/theme-switch-to-light ()
   "Switch to the light theme"
   (interactive)
   (modus-themes-load-operandi)
   (setq org-format-latex-options
         `(:scale 2 :foreground "Black" :background "Transparent"))
   (message "🌕 Theme is light")
-  (customize-save-variable 'vidbina-theme-should-be-dark nil))
+  (customize-save-variable 'vidbina/theme-should-be-dark nil))
 
-(defun vidbina-theme-toggle ()
+(defun vidbina/theme-toggle ()
   "Toggle theme"
   (interactive)
-  (if vidbina-theme-should-be-dark
-      (vidbina-theme-switch-to-light)
-    (vidbina-theme-switch-to-dark)))
+  (if vidbina/theme-should-be-dark
+      (vidbina/theme-switch-to-light)
+    (vidbina/theme-switch-to-dark)))
 
-(add-hook 'server-after-make-frame-hook 'vidbina-theme-switch-to-choice)
+(add-hook 'server-after-make-frame-hook 'vidbina/theme-switch-to-choice)
 
-(defun vidbina-local-org-export-use-babel-toggle ()
+(defun vidbina/local-org-export-use-babel-toggle ()
   "Toggle buffer-local org-export-use-babel"
   (interactive)
   (if org-export-use-babel
@@ -1412,7 +1412,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
     (setq-local org-export-use-babel t))
   (message (format "❓ org-export confirm = %s" org-export-use-babel)))
 
-(defun vidbina-local-org-confirm-babel-evaluate ()
+(defun vidbina/local-org-confirm-babel-evaluate ()
   "Toggle buffer-local org-confirm-babel-evaluate"
   (interactive)
   (if org-confirm-babel-evaluate
@@ -1420,10 +1420,10 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
     (setq-local org-confirm-babel-evaluate t))
   (message (format "☑️ Org Babel confirmation is %s" org-confirm-babel-evaluate)))
 
-(defun vidbina-wrap ()
+(defun vidbina/wrap ()
   "Toggle wrapping using adaptive-wrap-prefix-mode and visual-line-mode"
   (interactive)
-  (let ((vidbina-wrap-set
+  (let ((vidbina/wrap-set
          (lambda (state)
            (progn
              (if state
@@ -1432,45 +1432,65 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
                    (adaptive-wrap-prefix-mode +1))
                (visual-line-mode -1)
                (adaptive-wrap-prefix-mode -1))
-             (setq-local vidbina-wrap--state state)
+             (setq-local vidbina/wrap--state state)
              (message (format "🎁 state=%s wrap -> %s and line -> %s" state adaptive-wrap-prefix-mode visual-line-mode))))))
-    (unless (boundp 'vidbina-wrap--state)
-      (setq-local vidbina-wrap--state nil))
-    (funcall vidbina-wrap-set (not vidbina-wrap--state))))
+    (unless (boundp 'vidbina/wrap--state)
+      (setq-local vidbina/wrap--state nil))
+    (funcall vidbina/wrap-set (not vidbina/wrap--state))))
 
 ;; https://stackoverflow.com/questions/12663061/emacs-auto-scrolling-log-buffer
-(defun vidbina-tail-buffer ()
+(defun vidbina/tail-buffer ()
   (setq-local window-point-insertion-type t))
 
-(defun vidbina-browse-url-xsel (url &optional ignored)
+(defun vidbina/browse-url-xsel (url &optional ignored)
   (shell-command (format "echo \"%s\" | xsel -ib" url)))
 
-(setq browse-url-browser-function 'vidbina-browse-url-xsel)
+(setq browse-url-browser-function 'vidbina/browse-url-xsel)
 
 (setq whitespace-style '(trailing tabs newline tab-mark newline-mark))
 
-(defun vidbina-browse-to-current-file-after-safe-hook ()
+(defun vidbina/browse-to-current-file-after-safe-hook ()
   "Open saved HTML file with default browser"
   (progn
     (when (derived-mode-p 'html-mode)
       (progn
         (message (concat "Browse " buffer-file-name))
         (browse-url (file-truename buffer-file-name))))))
+(defun vidbina/notmuch-toggle-inbox ()
+  "toggle inbox tag of message"
+  (interactive)
+  (if (member "inbox" (notmuch-search-get-tags))
+      (notmuch-search-tag (list "-inbox"))
+    (notmuch-search-tag (list "+inbox"))))
+
+(evil-collection-define-key 'normal 'notmuch-search-mode-map
+  "i" 'vidbina/notmuch-toggle-inbox)
+
+
+(defun vidbina/mail-sig-match (pattern from)
+  "Matches From field to a regex"
+  (string-match-p pattern from))
+
+(defun vidbina/mail-sig-file (path)
+  "Retrieves a signature text by path"
+  (format "\n\n-- \n%s" (with-temp-buffer
+                          (insert-file-contents path)
+                          (buffer-string))))
 #+end_src
 
 ** TODO Misc
 
 #+begin_src elisp :tangle personal-example.el
-(global-set-key (kbd "C-c v l") 'vidbina-theme-switch-to-light)
-(global-set-key (kbd "C-c v d") 'vidbina-theme-switch-to-dark)
-(global-set-key (kbd "C-c v TAB") 'vidbina-wrap)
+(global-set-key (kbd "C-c v l") 'vidbina/theme-switch-to-light)
+(global-set-key (kbd "C-c v d") 'vidbina/theme-switch-to-dark)
+(global-set-key (kbd "C-c v TAB") 'vidbina/wrap)
 (global-set-key (kbd "C-c v \\") 'visual-fill-column-mode)
 (global-set-key (kbd "C-c v SPC") 'global-whitespace-mode)
 (global-set-key (kbd "C-c v c") 'completion-at-point)
 (global-set-key (kbd "C-c v (") 'paredit-mode)
-(global-set-key (kbd "C-c v O") 'vidbina-orui-node-zoom-padding-set)
-(global-set-key (kbd "C-c v _") 'vidbina-tail-buffer)
-(global-set-key (kbd "C-c v .") 'vidbina-orui-node-zoom)
+(global-set-key (kbd "C-c v O") 'vidbina/orui-node-zoom-padding-set)
+(global-set-key (kbd "C-c v _") 'vidbina/tail-buffer)
+(global-set-key (kbd "C-c v .") 'vidbina/orui-node-zoom)
 
 (global-set-key (kbd "C-c v z") 'zoom-window-zoom)
 
