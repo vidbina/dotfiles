@@ -230,6 +230,16 @@
                                 (t . (background overline rainbow)))
         modus-themes-scale-headings t))
 
+;; https://github.com/emacsorphanage/dired-k
+(use-package dired-k
+  :straight (dired-k :type git
+                     :host github
+                     :repo "emacsorphanage/dired-k")
+  :init
+  (setq dired-k-style 'git)
+  :config
+  (add-hook 'dired-initial-position-hook 'dired-k))
+
 (setq display-buffer-alist
       (let* ((sidebar-width '(window-width . 85))
              (sidebar-parameters '(window-parameters . ((no-other-window . t))))
@@ -267,15 +277,6 @@
                         :repo "abo-abo/ace-window")
   :bind (("M-o" . ace-window)))
 
-;; https://github.com/emacsorphanage/dired-k
-(use-package dired-k
-  :straight (dired-k :type git
-                     :host github
-                     :repo "emacsorphanage/dired-k")
-  :init
-  (setq dired-k-style 'git)
-  :config
-  (add-hook 'dired-initial-position-hook 'dired-k))
 
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
 (ffap-bindings)
