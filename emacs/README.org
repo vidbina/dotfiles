@@ -685,7 +685,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
         modus-themes-scale-headings t))
 #+end_src
 
-** TODO Dired-k
+** Dired-k
 
 The standard Emacs directory editor named dired doesn't ship with convenient highlighting or coloring of the listed files. The dired-k package adds some flair to the dired ouput.
 
