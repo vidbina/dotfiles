@@ -729,7 +729,9 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
                           `((slot . 10) ,@sidebar))))))
 #+end_src
 
-*** TODO 🔍 Zoom-window: Zoom to a single window
+*** 🔍 Zoom-window: Zoom to a single window
+
+In order to single out a particular window in order to return to the preceding layout shortly thereafter again, one may use the [[https://github.com/emacsorphanage/zoom-window][zoom-window]] package. It's a great way to clear some screen real estate and obtain some focus.
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsorphanage/zoom-window
@@ -742,7 +744,9 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
    zoom-window-mode-line-color "DarkRed"))
 #+end_src
 
-*** TODO 🪄 Ace Window: Quick-jump to windows by numbers
+*** 🪄 Ace Window
+
+In order to quickly jump between windows by numbers, we can use the [[https://github.com/abo-abo/ace-window][ace-window]] package. This eliminates the need for the tedious next/previous window bindings (either native Emacs or evil).
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/abo-abo/ace-window
