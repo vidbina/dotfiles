@@ -1000,34 +1000,129 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
   :straight (:type built-in)
+  :bind (("C-c m 4" . mu4e))
   :config
   (setq mail-user-agent 'mu4e-user-agent
         mu4e-compose-format-flowed t
         mu4e-context-policy 'always-ask
-        mu4e-get-mail-command "true"
+        mu4e-contexts (my/mu4e-contexts)
         mu4e-index-update-in-background t
-        mu4e-view-show-addresses t))
+        mu4e-view-show-addresses t)
+
+  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing
+  (setq mu4e-index-cleanup nil      ; don't do a full cleanup check
+        mu4e-index-lazy-check t)    ; don't consider up-to-date dirs
+
+  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Example-setup
+  (setq mu4e-get-mail-command "offlineimap"   ; or fetchmail, or ...
+        mu4e-update-interval 300)             ; update every 5 minutes
+
+  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
+  (require 'gnus-dired)
+
+  ;; make the `gnus-dired-mail-buffers' function also work on
+  ;; message-mode derived modes, such as mu4e-compose-mode
+  (defun gnus-dired-mail-buffers ()
+    "Return a list of active message buffers."
+    (let (buffers)
+      (save-current-buffer
+        (dolist (buffer (buffer-list t))
+          (set-buffer buffer)
+          (when (and (derived-mode-p 'message-mode)
+                     (null message-sent-message-via))
+            (push (buffer-name buffer) buffers))))
+      (nreverse buffers)))
+
+  (setq gnus-dired-mail-mode 'mu4e-user-agent)
+
+  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
+  (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode))
 #+end_src
 
-For convenience remember to prefix the update command by entering it as =C-u u= in a *mu4e-main* buffer or by entering =C-u C-c C-u= from the *mu4e-headers* buffer.
+For convenience, remember to prefix the update command by entering it as =C-u u= in a *mu4e-main* buffer or by entering =C-u C-c C-u= from the *mu4e-headers* buffer such that the update commands *run in the background*.
+
+The =dired-mode-hook= (see [[https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html][Dired]]) enables us to use =C-c RET C-a= to attach files to new or existing mu4e emails.
+
+**** Figure out indexing shortcut
+
+#+begin_src elisp
+(mu4e-context-switch nil nil)
+(mu4e-update-index)
+(mu4e-update-mail-and-index 'background)
+#+end_src
+
+#+RESULTS:
 
 *** TODO Notmuch
 
-For insight into the evil bindings for notmuch, go have a look at evil-collection-notmuch-setup ()
+- Leo Gaskin's [[https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch][notmuch config]]
+- Mu4e, Gnus and Notmuch comparison thread on [[https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/][reddit]]
+- Jethro Kuan's (author of Org-roam) [[https://github.com/jethrokuan/.emacs.d/blob/master/init.el][notmuch config]]
 
 #+begin_src elisp :tangle init.el
 ;; https://git.notmuchmail.org/git/notmuch
-;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
-;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
 (use-package notmuch
   :straight (:type built-in)
+  :if (executable-find "notmuch")
+  :commands (notmuch
+             notmuch-tree
+             notmuch-search
+             notmuch-hello)
+  :bind (("C-c m n" . notmuch)
+         :map notmuch-search-mode-map
+         ("SPC" . vidbina/notmuch-toggle-inbox))
   :init
   (evil-collection-notmuch-setup)
   :config
-  (notmuch-address-harvest))
+  (notmuch-address-harvest)
+  (add-hook 'notmuch-hello-mode-hook
+            (lambda () (display-line-numbers-mode 0)))
+  :custom
+  (mail-envelope-from 'header)
+  (mail-specify-envelope-from t)
+  (message-kill-buffer-on-exit t)
+  (message-send-mail-function 'message-send-mail-with-sendmail)
+  (message-sendmail-envelope-from 'header)
+  (message-sendmail-f-is-evil nil)
+  (message-signature #'my/mail-sig)
+  (notmuch-always-prompt-for-sender t)
+  (notmuch-archive-tags '("-inbox" "-unread"))
+  (notmuch-crypto-process-mime t)
+  (notmuch-hello-sections '(notmuch-hello-insert-saved-searches))
+  (notmuch-labeler-hide-known-labels t)
+  (notmuch-message-headers '("Subject" "To" "Cc" "Bcc"))
+  (notmuch-saved-searches my/notmuch-saved-searches)
+  (notmuch-search-oldest-first nil)
+  (sendmail-program (executable-find "msmtp"))
+  :config
+  (notmuch-address-harvest)
+  (add-hook 'notmuch-hello-mode-hook
+            (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
-** TODO COMMENT 🕳️ Terminal
+Notmuch has the following modes:
+- *hello* which presents the starting page
+- *search* which presents search results to a query
+- *tree* which presents a thread and the message hierarchy
+- *show* which presents the email
+
+For insight into the evil bindings for notmuch, go have a look at the definition of ~evil-collection-notmuch-setup~ but for convenience, here are some bindings that you will likely rely on quite a bit:
+- =cc= or =C= to compose mail with ~notmuch-mua-new-mail~ (like mu4e)
+- =cR= reply
+- =cf= forward
+- === flag
+- =+= add tag
+- =-= remove tag
+- =*= tag all
+- =s= search
+  - stash search in *search mode*
+  - show stash in *show mode*
+- =q= bury of kill buffer
+- =g?= help or version information at notmuch-hello view
+- =p= ~notmuch-show-save-attachments~ (like mu4e)
+- =gd= goto address at point
+
+** TODO 🕳️ Terminals and Shells 🐚
 
 *** COMMENT vterm
 
@@ -1362,6 +1457,38 @@ In order to conveniently view HTML mail which may not always be presented in a p
 #+begin_quote
 💡 Since there is so much trash hidden in HTML mails (e.g.: pixels), I tend to paste (and follow) these links in private, incognito or profile-isolated browser tabs instead. Perhaps something you can consider if you you're not in the mood to be too generous (or nonchalant) with your data.
 #+end_quote
+
+*** Notmuch
+
+https://notmuchmail.org/emacstips/
+
+#+begin_src elisp
+(autoload 'gnus-alias-determine-identity "gnus-alias" "" t)
+(add-hook 'message-setup-hook 'gnus-alias-determine-identity)
+#+end_src
+
+#+begin_src elisp
+(setq my/notmuch-saved-searches
+      '((:name "inbox" :query "tag:inbox" :key "i")
+        (:name "unread" :query "tag:unread" :key "u")
+        (:name "flagged" :query "tag:flagged" :key "f")
+        (:name "sent" :query "tag:sent" :key "t")
+        (:name "drafts" :query "tag:draft" :key "d")
+        (:name "all mail" :query "*" :key "a")))
+#+end_src
+
+#+begin_src elisp
+(defun my/mail-sig ()
+  "Returns signature based on From field"
+  (let ((from-field (message-field-value "From")))
+    (message "Trying out signature for %S" from-field)
+    (pcase (or from-field "")
+      ((pred (vidbina/mail-sig-match "@asabina.de"))
+       (vidbina/mail-sig-file "/home/vidbina/mutt-setup/accounts/asabina-gmbh.sig"))
+      ((pred (vidbina/mail-sig-match "@bina.me"))
+       (vidbina/mail-sig-file "/home/vidbina/mutt-setup/accounts/vidbina.sig"))
+      (_ (format "\n\n-- \nBe kind! 🤗")))))
+#+end_src
 
 ** 🥳 Personal Helpers
 
