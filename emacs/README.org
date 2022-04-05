@@ -703,7 +703,7 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
 
 * 🌷 Misc
 
-** 🪟 Window Management
+** 🪟 Windows
 
 *** 🏗️ Buffer Placement
 
@@ -739,9 +739,7 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
                          :repo "emacsorphanage/zoom-window")
   :init
   (setq ;;zoom-window-use-persp t
-   zoom-window-mode-line-color "DarkRed")
-  :config
-  (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
+   zoom-window-mode-line-color "DarkRed"))
 #+end_src
 
 *** TODO 🪄 Ace Window: Quick-jump to windows by numbers

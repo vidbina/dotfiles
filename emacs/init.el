@@ -257,9 +257,7 @@
                          :repo "emacsorphanage/zoom-window")
   :init
   (setq ;;zoom-window-use-persp t
-   zoom-window-mode-line-color "DarkRed")
-  :config
-  (global-set-key (kbd "C-c C-z") 'zoom-window-zoom))
+   zoom-window-mode-line-color "DarkRed"))
 
 ;; https://github.com/abo-abo/ace-window
 ;; https://jao.io/blog/2020-05-12-ace-window.html
