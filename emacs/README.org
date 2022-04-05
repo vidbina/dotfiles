@@ -140,7 +140,7 @@ The [[https://jwiegley.github.io/use-package/keywords/][Keywords]] page provides
          ("C-c y 2" . my-package-y-do-another-thing-in-buffer)))
 #+end_src
 
-#+BEGIN_details
+#+BEGIN_details org
 #+HTML: <summary>Historic Context: Before use-package, package-specific configuration declarations may have been spread throughout a configuration and thus difficult to associate or debug.</summary>
 For those familiar with classical Emacs configurations, you may recall that it wasn't uncommon to intersperse fragments of configurations of multiple packages in order to get everything loaded in the right order.
 
@@ -192,7 +192,7 @@ Using *use-package* interface, the =:after= and =:hook= keywords are probably th
 
 The Emacs [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Summary.html#Startup-Summary][Startup Summary]] page outlines when the =before-init-hook=, =after-init-hook=, =emacs-startup-hook= and =window-setup-hook= are run.
 
-Through the =:hook= keyword, we can /hook/ operationsn for a particular package into to the previously listed Emacs lifecycle hooks without leaving the expression for that specific package -- thus keeping all relevant configurations neatly localized.
+Through the =:hook= keyword, we can /hook/ operations for a particular package into to the previously listed Emacs lifecycle hooks without leaving the expression for that specific package -- thus keeping all relevant configurations neatly localized.
 
 * 📓 Org
 
@@ -609,7 +609,7 @@ Using adaptive wrapping along with visual-fill-column mode may introduce some pe
 
 *** Default Text Scale
 
-For global text scaling, the [[https://github.com/purcell/default-text-scale][default-text-scale]] package can be used.
+For global text scaling, the [[https://github.com/purcell/default-text-scale][default-text-scale]] package can be used. Without this package, scaling may require one to resize the text in every buffer independently which is an arduous task.
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/purcell/default-text-scale
@@ -737,6 +737,8 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
                         :repo "abo-abo/ace-window")
   :bind (("M-o" . ace-window)))
 #+end_src
+
+*** TODO Relocate this section into Misc
 
 ** TODO Dired-k
 
@@ -1456,6 +1458,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (progn
         (message (concat "Browse " buffer-file-name))
         (browse-url (file-truename buffer-file-name))))))
+
 (defun vidbina/notmuch-toggle-inbox ()
   "toggle inbox tag of message"
   (interactive)
@@ -1546,7 +1549,6 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
                ;;'(:propertize mode-name 'face (list :background (modus-themes-color 'green-intense-bg)
                ;;                                        :foreground (modus-themes-color 'fg-main)))
                " "
-               '(:eval (persp-current-name))
                ;;'(:propertize '(:eval (persp-current-name)) 'face (list :background (modus-themes-color 'yellow-intense-bg)))
                ;;(propertize (apply #'concat (persp-mode-line))
                ;;            ;;'face (list :background (modus-themes-color 'red-intense-bg))
