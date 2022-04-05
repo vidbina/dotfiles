@@ -277,6 +277,12 @@
                         :repo "abo-abo/ace-window")
   :bind (("M-o" . ace-window)))
 
+;; https://github.com/abo-abo/avy
+(use-package avy
+  :straight (avy :type git
+                 :host github
+                 :repo "abo-abo/avy")
+  :bind (("C-:" . avy-goto-char)))
 
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
 (ffap-bindings)

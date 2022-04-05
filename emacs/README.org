@@ -754,6 +754,20 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
   :bind (("M-o" . ace-window)))
 #+end_src
 
+*** Avy
+
+In order to speed up text navigation, one can use [[https://github.com/abo-abo/avy][avy]] to produce jump points that one can navigate through single keystrokes.
+
+In order to jump to bind in the snippet below, one can grep for bind which is often fast enough or... one can trigger ~(avy-goto-char)~, type =b= and then observe how the different occurrences of b provide an indication of the character (or sequence of characters) that we need to press to "teleport" to that location.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/abo-abo/avy
+(use-package avy
+  :straight (avy :type git
+                 :host github
+                 :repo "abo-abo/avy")
+  :bind (("C-:" . avy-goto-char)))
+#+end_src
 
 ** Find File at Point (FFAP)
 
