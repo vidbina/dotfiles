@@ -298,7 +298,9 @@
 (use-package async
   :straight (async :type git
                    :host github
-                   :repo "jwiegley/emacs-async"))
+                   :repo "jwiegley/emacs-async")
+  :config
+  (async-bytecomp-package-mode 1))
 
 ;; https://github.com/emacs-evil/evil
 ;; https://github.com/noctuid/evil-guide
@@ -403,23 +405,82 @@
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
   :straight (:type built-in)
+  :bind (("C-c m 4" . mu4e))
   :config
   (setq mail-user-agent 'mu4e-user-agent
         mu4e-compose-format-flowed t
         mu4e-context-policy 'always-ask
-        mu4e-get-mail-command "true"
+        mu4e-contexts (my/mu4e-contexts)
         mu4e-index-update-in-background t
-        mu4e-view-show-addresses t))
+        mu4e-view-show-addresses t)
+
+  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing
+  (setq mu4e-index-cleanup nil      ; don't do a full cleanup check
+        mu4e-index-lazy-check t)    ; don't consider up-to-date dirs
+
+  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Example-setup
+  (setq mu4e-get-mail-command "offlineimap"   ; or fetchmail, or ...
+        mu4e-update-interval 300)             ; update every 5 minutes
+
+  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
+  (require 'gnus-dired)
+
+  ;; make the `gnus-dired-mail-buffers' function also work on
+  ;; message-mode derived modes, such as mu4e-compose-mode
+  (defun gnus-dired-mail-buffers ()
+    "Return a list of active message buffers."
+    (let (buffers)
+      (save-current-buffer
+        (dolist (buffer (buffer-list t))
+          (set-buffer buffer)
+          (when (and (derived-mode-p 'message-mode)
+                     (null message-sent-message-via))
+            (push (buffer-name buffer) buffers))))
+      (nreverse buffers)))
+
+  (setq gnus-dired-mail-mode 'mu4e-user-agent)
+
+  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
+  (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode))
 
 ;; https://git.notmuchmail.org/git/notmuch
-;; https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch
-;; https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/
 (use-package notmuch
   :straight (:type built-in)
+  :if (executable-find "notmuch")
+  :commands (notmuch
+             notmuch-tree
+             notmuch-search
+             notmuch-hello)
+  :bind (("C-c m n" . notmuch)
+         :map notmuch-search-mode-map
+         ("SPC" . vidbina/notmuch-toggle-inbox))
   :init
   (evil-collection-notmuch-setup)
   :config
-  (notmuch-address-harvest))
+  (notmuch-address-harvest)
+  (add-hook 'notmuch-hello-mode-hook
+            (lambda () (display-line-numbers-mode 0)))
+  :custom
+  (mail-envelope-from 'header)
+  (mail-specify-envelope-from t)
+  (message-kill-buffer-on-exit t)
+  (message-send-mail-function 'message-send-mail-with-sendmail)
+  (message-sendmail-envelope-from 'header)
+  (message-sendmail-f-is-evil nil)
+  (message-signature #'my/mail-sig)
+  (notmuch-always-prompt-for-sender t)
+  (notmuch-archive-tags '("-inbox" "-unread"))
+  (notmuch-crypto-process-mime t)
+  (notmuch-hello-sections '(notmuch-hello-insert-saved-searches))
+  (notmuch-labeler-hide-known-labels t)
+  (notmuch-message-headers '("Subject" "To" "Cc" "Bcc"))
+  (notmuch-saved-searches my/notmuch-saved-searches)
+  (notmuch-search-oldest-first nil)
+  (sendmail-program (executable-find "msmtp"))
+  :config
+  (notmuch-address-harvest)
+  (add-hook 'notmuch-hello-mode-hook
+            (lambda () (display-line-numbers-mode 0))))
 
 (use-package pdf-tools
   :straight nil
