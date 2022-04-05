@@ -1418,7 +1418,18 @@ which we map to =p=:
       :empty-lines 2)
 #+end_src
 
-** TODO 📧 Mu4e
+** Email
+
+*** Citation line
+
+In order to keep things lean, I've defined my own citation line that easy enough to parse as opposed to the default line.
+
+#+begin_src elisp :tangle personal-example.el
+(setq message-citation-line-format "On %d.%m.%Y, %f wrote:\n"
+      message-citation-line-function #'message-insert-formatted-citation-line)
+#+end_src
+
+*** COMMENT 📧 Mu4e
 
 In order to get mail to work for multiple mailboxes you will need to configure [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][mu4e contexts]]. Refer to the [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts-example.html][examples]] in the documentation for some guidance on how to define contexts.
 
@@ -1427,21 +1438,10 @@ In order to get mail to work for multiple mailboxes you will need to configure [
 (setq mu4e-contexts `())
 #+end_src
 
-*** TODO Signing
+**** Signing
 
 #+begin_src elisp :tangle personal-example.el
 (add-hook 'mu4e-compose-mode-hook 'mml-secure-sign-pgpmime)
-#+end_src
-
-*** Adjustments
-
-**** Citation line
-
-In order to keep things lean, I've defined my own citation line that easy enough to parse as opposed to the default line.
-
-#+begin_src elisp :tangle personal-example.el
-(setq message-citation-line-format "On %d.%m.%Y at %R UTZ%z, %f sent the payload listed hereafter.\n"
-      message-citation-line-function #'message-insert-formatted-citation-line)
 #+end_src
 
 **** HTML Mail Escape-hatch
