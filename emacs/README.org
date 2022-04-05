@@ -685,6 +685,24 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
         modus-themes-scale-headings t))
 #+end_src
 
+** TODO Dired-k
+
+The standard Emacs directory editor named dired doesn't ship with convenient highlighting or coloring of the listed files. The dired-k package adds some flair to the dired ouput.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/emacsorphanage/dired-k
+(use-package dired-k
+  :straight (dired-k :type git
+                     :host github
+                     :repo "emacsorphanage/dired-k")
+  :init
+  (setq dired-k-style 'git)
+  :config
+  (add-hook 'dired-initial-position-hook 'dired-k))
+#+end_src
+
+* 🌷 Misc
+
 ** 🪟 Window Management
 
 *** 🏗️ Buffer Placement
@@ -738,25 +756,6 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
   :bind (("M-o" . ace-window)))
 #+end_src
 
-*** TODO Relocate this section into Misc
-
-** TODO Dired-k
-
-The standard Emacs directory editor named dired doesn't ship with convenient highlighting or coloring of the listed files. The dired-k package adds some flair to the dired ouput.
-
-#+begin_src elisp :tangle init.el
-;; https://github.com/emacsorphanage/dired-k
-(use-package dired-k
-  :straight (dired-k :type git
-                     :host github
-                     :repo "emacsorphanage/dired-k")
-  :init
-  (setq dired-k-style 'git)
-  :config
-  (add-hook 'dired-initial-position-hook 'dired-k))
-#+end_src
-
-* 🌷 Misc
 
 ** Find File at Point (FFAP)
 
