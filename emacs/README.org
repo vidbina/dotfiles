@@ -1448,7 +1448,9 @@ In order to keep things lean, I've defined my own citation line that easy enough
       message-citation-line-function #'message-insert-formatted-citation-line)
 #+end_src
 
-*** COMMENT 📧 Mu4e
+*** 📧 Mu4e
+
+**** TODO Contexts
 
 In order to get mail to work for multiple mailboxes you will need to configure [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][mu4e contexts]]. Refer to the [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts-example.html][examples]] in the documentation for some guidance on how to define contexts.
 
@@ -1457,13 +1459,13 @@ In order to get mail to work for multiple mailboxes you will need to configure [
 (setq mu4e-contexts `())
 #+end_src
 
-**** Signing
+**** COMMENT Signing
 
 #+begin_src elisp :tangle personal-example.el
 (add-hook 'mu4e-compose-mode-hook 'mml-secure-sign-pgpmime)
 #+end_src
 
-**** HTML Mail Escape-hatch
+**** COMMENT HTML Mail Escape-hatch
 
 In order to conveniently view HTML mail which may not always be presented in a pleasantly readable manner inside of E-macs, you may appreciate using the escape hatch and viewing such pages in a proper browser. The view-actions menu can be pulled up by executing ~(mu4e-view-action)~ or pressing =A= while in the mu4e mail view.
 
@@ -1480,11 +1482,6 @@ In order to conveniently view HTML mail which may not always be presented in a p
 *** Notmuch
 
 https://notmuchmail.org/emacstips/
-
-#+begin_src elisp
-(autoload 'gnus-alias-determine-identity "gnus-alias" "" t)
-(add-hook 'message-setup-hook 'gnus-alias-determine-identity)
-#+end_src
 
 #+begin_src elisp :tangle personal-example.el
 (setq notmuch-saved-searches
@@ -1511,6 +1508,8 @@ https://notmuchmail.org/emacstips/
 
 Here be dragons! 🐉 This is my personal collection of helpers that I use for little things like switching themes, managing wrapping inside of buffers, managing opening of URL's and more junk. I will not explain these as these are simple enough and I'm not expecting me needing to explain this to myself or others (you likely will want to write your own).
 
+*** Themes
+
 #+begin_src elisp :tangle personal-example.el
 (defcustom vidbina/theme-should-be-dark nil
   "Non-nil means that the theme should be dark"
@@ -1528,7 +1527,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (interactive)
   (modus-themes-load-vivendi)
   (setq org-format-latex-options
-        `(:scale 2 :foreground "White" :background "Transparent"))
+        '(:scale 2 :foreground "White" :background "Transparent"))
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
 
@@ -1537,7 +1536,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (interactive)
   (modus-themes-load-operandi)
   (setq org-format-latex-options
-        `(:scale 2 :foreground "Black" :background "Transparent"))
+        '(:scale 2 :foreground "Black" :background "Transparent"))
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
 
@@ -1549,7 +1548,11 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
     (vidbina/theme-switch-to-dark)))
 
 (add-hook 'server-after-make-frame-hook 'vidbina/theme-switch-to-choice)
+#+end_src
 
+*** Org-Export
+
+#+begin_src elisp :tangle personal-example.el
 (defun vidbina/local-org-export-use-babel-toggle ()
   "Toggle buffer-local org-export-use-babel"
   (interactive)
@@ -1565,7 +1568,11 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (setq-local org-confirm-babel-evaluate nil)
     (setq-local org-confirm-babel-evaluate t))
   (message (format "☑️ Org Babel confirmation is %s" org-confirm-babel-evaluate)))
+#+end_src
 
+*** Wrapping
+
+#+begin_src elisp :tangle personal-example.el
 (defun vidbina/wrap ()
   "Toggle wrapping using adaptive-wrap-prefix-mode and visual-line-mode"
   (interactive)
@@ -1583,17 +1590,22 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
     (unless (boundp 'vidbina/wrap--state)
       (setq-local vidbina/wrap--state nil))
     (funcall vidbina/wrap-set (not vidbina/wrap--state))))
+#+end_src
+
+#+begin_src elisp :tangle personal-example.el
 
 ;; https://stackoverflow.com/questions/12663061/emacs-auto-scrolling-log-buffer
 (defun vidbina/tail-buffer ()
   (setq-local window-point-insertion-type t))
+#+end_src
 
+*** Web-Browsing
+
+#+begin_src elisp :tangle personal-example.el
 (defun vidbina/browse-url-xsel (url &optional ignored)
   (shell-command (format "echo \"%s\" | xsel -ib" url)))
 
 (setq browse-url-browser-function 'vidbina/browse-url-xsel)
-
-(setq whitespace-style '(trailing tabs newline tab-mark newline-mark))
 
 (defun vidbina/browse-to-current-file-after-safe-hook ()
   "Open saved HTML file with default browser"
@@ -1602,7 +1614,11 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (progn
         (message (concat "Browse " buffer-file-name))
         (browse-url (file-truename buffer-file-name))))))
+#+end_src
 
+*** Notmuch Inbox Toggler
+
+#+begin_src elisp :tangle personal-example.el
 (defun vidbina/notmuch-toggle-inbox ()
   "toggle inbox tag of message"
   (interactive)
@@ -1612,8 +1628,11 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 
 (evil-collection-define-key 'normal 'notmuch-search-mode-map
   "i" 'vidbina/notmuch-toggle-inbox)
+#+end_src
 
+*** Mail Signature Helpers
 
+#+begin_src elisp :tangle personal-example.el
 (defun vidbina/mail-sig-match (pattern from)
   "Matches From field to a regex"
   (string-match-p pattern from))
@@ -1625,7 +1644,32 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
                           (buffer-string))))
 #+end_src
 
+*** Org-roam UI Navigation
+
+#+begin_src elisp :tangle personal-example.el
+(defcustom vidbina/orui-node-zoom-padding 10
+  "Padding to pass to org-roam-ui when navigating with vidbia-org-roam-ui-node-zoom"
+  :type 'number
+  :group 'display)
+
+(defun vidbina/orui-node-zoom-padding-set ()
+  "Set the padding for org-roam-ui-node-zoom"
+  (interactive)
+  (let ((padding (read-number "🔍:" vidbina/orui-node-zoom-padding)))
+    (customize-save-variable 'vidbina/orui-node-zoom-padding padding)))
+
+(defun vidbina/orui-node-zoom ()
+  "Zoom to org-roam-ui node with custom padding"
+  (interactive)
+  (let ((id (org-roam-id-at-point))
+        (padding vidbina/orui-node-zoom-padding))
+    (org-roam-ui-node-zoom id nil padding)
+    (message "🕸️ ORUI zoom 🔍 %s to %s" id padding)))
+#+end_src
+
 ** TODO Misc
+
+*** Global Keybindings
 
 #+begin_src elisp :tangle personal-example.el
 (global-set-key (kbd "C-c v l") 'vidbina/theme-switch-to-light)
@@ -1643,9 +1687,21 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 
 (global-set-key (kbd "C-c l") 'org-store-link)
 (global-set-key (kbd "C-c a") 'org-agenda)
+#+end_src
 
+*** Visual Aids
+
+#+begin_src elisp :tangle personal-example.el
 (setq fill-column 1)
 
+(setq column-number-mode t)
+
+(setq whitespace-style '(trailing tabs newline tab-mark newline-mark))
+#+end_src
+
+*** Org Conveniences
+
+#+begin_src elisp :tangle personal-example.el
 ;; https://orgmode.org/manual/Handling-Links.html
 (setq org-return-follows-link t)
 
@@ -1657,15 +1713,22 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 (setq org-html-head-extra
       "<link rel=\"alternate stylesheet\" type=\"text/css\" href=\"~/org/style.css\" />")
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Position-Info.html
-(setq column-number-mode t)
+#+end_src
 
+*** Reload inline images after Org export
+
+#+begin_src elisp :tangle personal-example.el
 ;; https://joy.pm/post/2017-09-17-a_graphviz_primer/
 (defun my/fix-inline-images ()
   (when org-inline-image-overlays
     (org-redisplay-inline-images)))
 
 (add-hook 'org-babel-after-execute-hook 'my/fix-inline-images)
+#+end_src
 
+*** Customize Mode-line
+
+#+begin_src elisp :tangle personal-example.el
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html
 ;; http://emacs-fu.blogspot.com/2011/08/customizing-mode-line.html
 (setq-default mode-line-format
