@@ -5,8 +5,7 @@ let
   nur = import <NUR> { inherit pkgs; };
 in
 {
-  home.package = with pkgs; [
-    nyxt
+  home.packages = with pkgs; [
   ];
 
   programs.chromium = {
