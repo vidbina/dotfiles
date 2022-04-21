@@ -1019,8 +1019,12 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
   :config
   (setq mail-user-agent 'mu4e-user-agent
         mu4e-compose-format-flowed t
+        mu4e-contexts `( ,(make-mu4e-context
+                           :name "Sample"
+                           :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
+                           :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
+                           :vars '(( user-mail-address . "foo@example.com"))))
         mu4e-context-policy 'always-ask
-        mu4e-contexts (my/mu4e-contexts)
         mu4e-index-update-in-background t
         mu4e-view-show-addresses t)
 
@@ -1497,10 +1501,8 @@ https://notmuchmail.org/emacstips/
   (let ((from-field (message-field-value "From")))
     (message "Trying out signature for %S" from-field)
     (pcase (or from-field "")
-      ((pred (vidbina/mail-sig-match "@asabina.de"))
-       (vidbina/mail-sig-file "/home/vidbina/mutt-setup/accounts/asabina-gmbh.sig"))
-      ((pred (vidbina/mail-sig-match "@bina.me"))
-       (vidbina/mail-sig-file "/home/vidbina/mutt-setup/accounts/vidbina.sig"))
+      ((pred (vidbina/mail-sig-match "@example.com"))
+       (vidbina/mail-sig-file "/home/example/my-example.sig"))
       (_ (format "\n\n-- \nBe kind! 🤗")))))
 #+end_src
 
