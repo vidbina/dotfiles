@@ -1015,6 +1015,7 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
   :straight (:type built-in)
+  :demand t
   :bind (("C-c m 4" . mu4e))
   :config
   (setq mail-user-agent 'mu4e-user-agent
