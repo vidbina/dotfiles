@@ -1106,7 +1106,6 @@ The =dired-mode-hook= (see [[https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
   (notmuch-hello-sections '(notmuch-hello-insert-saved-searches))
   (notmuch-labeler-hide-known-labels t)
   (notmuch-message-headers '("Subject" "To" "Cc" "Bcc"))
-  (notmuch-saved-searches my/notmuch-saved-searches)
   (notmuch-search-oldest-first nil)
   (sendmail-program (executable-find "msmtp"))
   :config
@@ -1482,8 +1481,8 @@ https://notmuchmail.org/emacstips/
 (add-hook 'message-setup-hook 'gnus-alias-determine-identity)
 #+end_src
 
-#+begin_src elisp
-(setq my/notmuch-saved-searches
+#+begin_src elisp :tangle personal-example.el
+(setq notmuch-saved-searches
       '((:name "inbox" :query "tag:inbox" :key "i")
         (:name "unread" :query "tag:unread" :key "u")
         (:name "flagged" :query "tag:flagged" :key "f")
