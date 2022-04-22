@@ -266,8 +266,9 @@
                          :host github
                          :repo "emacsorphanage/zoom-window")
   :init
-  (setq ;;zoom-window-use-persp t
-   zoom-window-mode-line-color "DarkRed"))
+  (with-eval-after-load 'persp-mode
+    (message "Configuring zoom-window to work with persp-mode")
+    (setq zoom-window-use-persp t)))
 
 ;; https://github.com/abo-abo/ace-window
 ;; https://jao.io/blog/2020-05-12-ace-window.html
@@ -410,12 +411,17 @@
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
   :straight (:type built-in)
+  :demand t
   :bind (("C-c m 4" . mu4e))
   :config
   (setq mail-user-agent 'mu4e-user-agent
         mu4e-compose-format-flowed t
+        mu4e-contexts `( ,(make-mu4e-context
+                           :name "Sample"
+                           :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
+                           :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
+                           :vars '(( user-mail-address . "foo@example.com"))))
         mu4e-context-policy 'always-ask
-        mu4e-contexts (my/mu4e-contexts)
         mu4e-index-update-in-background t
         mu4e-view-show-addresses t)
 
@@ -479,7 +485,6 @@
   (notmuch-hello-sections '(notmuch-hello-insert-saved-searches))
   (notmuch-labeler-hide-known-labels t)
   (notmuch-message-headers '("Subject" "To" "Cc" "Bcc"))
-  (notmuch-saved-searches my/notmuch-saved-searches)
   (notmuch-search-oldest-first nil)
   (sendmail-program (executable-find "msmtp"))
   :config

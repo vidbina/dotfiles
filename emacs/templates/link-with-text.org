@@ -2,6 +2,6 @@
 
 Source: %:annotation
 
-#+BEGIN_QUOTE
+#+begin_quote
 %i
-#+END_QUOTE%?
+#+end_quote%?

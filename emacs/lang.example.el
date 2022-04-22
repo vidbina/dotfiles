@@ -34,6 +34,26 @@
   :init
   (setq markdown-command "multimarkdown"))
 
+;; https://github.com/joshwnj/json-mode
+(use-package json-mode
+  :straight (json-mode :type git
+                       :host github
+                       :repo "joshwnj/json-mode"))
+
+;; https://github.com/gongo/json-reformat
+(use-package json-reformat
+  :straight (json-reformat :type git
+                           :host github
+                           :repo "gongo/json-reformat")
+  :custom
+  (json-reformat:indent-width 2 "Keep a short indentation span to simplify reading of deep structures"))
+
+;; https://github.com/Sterlingg/json-snatcher
+(use-package json-snatcher
+  :straight (json-snatcher :type git
+                           :host github
+                           :repo "Sterlingg/json-snatcher"))
+
 ;; https://github.com/yoshiki/yaml-mode
 (use-package yaml-mode
   :straight (yaml-mode :type git
@@ -42,31 +62,40 @@
 
 ;; https://github.com/skuro/plantuml-mode
 (use-package plantuml-mode
+  :after org
   :straight (plantuml-mode :type git
                            :host github
                            :repo "skuro/plantuml-mode")
   :config
   (setq plantuml-default-exec-mode 'executable)
-  (add-to-list 'org-babel-load-languages '(plantuml . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((plantuml . t)))))
 
 ;; https://github.com/ppareit/graphviz-dot-mode
 (use-package graphviz-dot-mode
+  :after org
   :straight (graphviz-dot-mode :type git
                                :host github
                                :repo "ppareit/graphviz-dot-mode")
   :config
   (setq graphviz-dot-indent-width 2)
-  (add-to-list 'org-babel-load-languages '(dot . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((dot . t)))))
 
 ;; https://github.com/emacsorphanage/gnuplot
 ;; also https://github.com/bruceravel/gnuplot-mode
 ;; also https://github.com/rudi/gnuplot-el
 (use-package gnuplot
+  :after org
   :straight (gnuplot :type git
                      :host github
                      :repo "emacsorphanage/gnuplot")
   :config
-  (add-to-list 'org-babel-load-languages '(gnuplot . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((gnuplot . t)))))
 
 ;; https://github.com/spotify/dockerfile-mode
 (use-package dockerfile-mode
@@ -74,7 +103,11 @@
                              :host github
                              :repo "spotify/dockerfile-mode"))
 
-(add-to-list 'org-babel-load-languages '(octave . t))
+(with-eval-after-load 'org
+  (message "Load Octave into Org Babel")
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((octave . t)))))
 
 ;; https://github.com/NixOS/nix-mode
 (use-package nix-mode
@@ -89,6 +122,19 @@
   :straight (go-mode :type git
                      :host github
                      :repo "dominikh/go-mode.el"))
+
+;; https://github.com/redguardtoo/js-comint
+(use-package js-comint
+  :straight (js-comint :type git
+                       :host github
+                       :repo "redguardtoo/js-comint")
+  ;;:hook
+  ;;(inferior-js-mode . (lambda ()
+  ;;                      (add-hook 'inferior-js-mode-hook
+  ;;                                'inferior-js-mode-hook-setup t)))
+  :config
+  (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
+  (define-key js-mode-map (kbd "C-c b") 'js-send-buffer))
 
 ;; https://emacs-lsp.github.io/lsp-java/
 (use-package lsp-java
@@ -136,8 +182,8 @@
 ;; https://github.com/jcollard/elm-mode
 (use-package elm-mode
   :straight (elm-mode :type git
-                          :host github
-                          :repo "jcollard/elm-mode"))
+                      :host github
+                      :repo "jcollard/elm-mode"))
 
 ;; https://github.com/Fanael/rainbow-delimiters
 (use-package rainbow-delimiters
