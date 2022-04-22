@@ -2137,8 +2137,8 @@ To add another layer of convenience or complexity, depending on how you want to 
 ;; https://github.com/jcollard/elm-mode
 (use-package elm-mode
   :straight (elm-mode :type git
-                          :host github
-                          :repo "jcollard/elm-mode"))
+                      :host github
+                      :repo "jcollard/elm-mode"))
 #+end_src
 
 ** Misc
