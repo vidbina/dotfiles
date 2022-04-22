@@ -140,7 +140,7 @@ The [[https://jwiegley.github.io/use-package/keywords/][Keywords]] page provides
          ("C-c y 2" . my-package-y-do-another-thing-in-buffer)))
 #+end_src
 
-#+BEGIN_details org
+#+begin_details org
 #+HTML: <summary>Historic Context: Before use-package, package-specific configuration declarations may have been spread throughout a configuration and thus difficult to associate or debug.</summary>
 For those familiar with classical Emacs configurations, you may recall that it wasn't uncommon to intersperse fragments of configurations of multiple packages in order to get everything loaded in the right order.
 
@@ -168,7 +168,7 @@ Compared to the earlier snippet in which the use of the *use-package* macro was 
             (local-set-key (kbd "C-c y 2") 'my-package-y-do-another-thing-in-buffer))
 #+end_src
 
-#+END_details
+#+end_details
 
 **** Organization
 
@@ -1423,9 +1423,9 @@ For links with additional text we define the template:
 
 Source: %:annotation
 
-#+BEGIN_QUOTE
+,#+begin_quote
 %i
-#+END_QUOTE%?
+,#+end_quote%?
 #+end_src
 
 which we map to =p=:
