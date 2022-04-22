@@ -1734,14 +1734,16 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 (setq-default mode-line-format
               (list
                "%e"
+
                ;; ** when modified
                ;; -- if not modified
                ;; %% when read-only
                ;; %+ read-only but modified
                mode-line-modified
+
                mode-line-frame-identification
                mode-line-buffer-identification
-               ;;(propertize mode-name :foreground (modus-themes-color 'magenta-alt))
+
                ;; https://evil.readthedocs.io/en/latest/overview.html?highlight=mode-line#modes-and-states
                ;; <N> normal state
                ;; <I> insert state
@@ -1750,35 +1752,11 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
                ;; <O> operator-pending state
                ;; <M> motion state
                ;; <E> emacs state
-               ;;evil-mode-line-tag
-               ;; see more on modus-themes colors
-               ;; https://github.com/protesilaos/modus-themes/blob/main/modus-themes.el#L436
-               ;;'(:propertize mode-name 'face (list :background (modus-themes-color 'green-intense-bg)
-               ;;                                        :foreground (modus-themes-color 'fg-main)))
+               evil-mode-line-tag
+
                " "
-               ;;'(:propertize '(:eval (persp-current-name)) 'face (list :background (modus-themes-color 'yellow-intense-bg)))
-               ;;(propertize (apply #'concat (persp-mode-line))
-               ;;            ;;'face (list :background (modus-themes-color 'red-intense-bg))
-               ;;            )
-               ;;" "
-               ;;mode-line-end-spaces
-               ;;;;'(:eval (propertize mode-line-misc-info 'face `(:background ,(modus-themes-color 'yellow-nuanced-bg) :foreground ,(modus-themes-color 'yellow-nuanced-fg))))
-               ;;;;'(:eval (propertize "x " 'face '(:background "black" :foreground "#FF8800")))
-               ;;;; TODO right align
-               ;;;; https://blog.tygr.info/emacs/mode-line
-               ;;;; https://emacs.stackexchange.com/questions/5529/how-to-right-align-some-items-in-the-modeline
-               ;;;;(propertize "%P" 'face 'font-lock-string-face)
-               " "
-               (propertize "(%l,%c)%p"
-                           ;;'face (list :background (modus-themes-color 'blue-intense-bg))
-                           )
-               ;;" "
-               ;;(propertize "%I"
-               ;;            ;;'face (list :background (modus-themes-color 'yellow-intense-bg))
-               ;;            )
-               ;;" "
-               mode-line-modes
-               ""))
+               (propertize "(%l,%c)%p")
+               mode-line-modes ""))
 #+end_src
 
 ** Security
