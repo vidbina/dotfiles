@@ -2020,6 +2020,23 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
                      :repo "dominikh/go-mode.el"))
 #+end_src
 
+*** JavaScript
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/redguardtoo/js-comint
+(use-package js-comint
+  :straight (js-comint :type git
+                       :host github
+                       :repo "redguardtoo/js-comint")
+  ;;:hook
+  ;;(inferior-js-mode . (lambda ()
+  ;;                      (add-hook 'inferior-js-mode-hook
+  ;;                                'inferior-js-mode-hook-setup t)))
+  :config
+  (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
+  (define-key js-mode-map (kbd "C-c b") 'js-send-buffer))
+#+end_src
+
 *** Java
 
 #+begin_src elisp :tangle lang.example.el
