@@ -1923,12 +1923,15 @@ Some of the relevant keybindings are:
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/skuro/plantuml-mode
 (use-package plantuml-mode
+  :after org
   :straight (plantuml-mode :type git
                            :host github
                            :repo "skuro/plantuml-mode")
   :config
   (setq plantuml-default-exec-mode 'executable)
-  (add-to-list 'org-babel-load-languages '(plantuml . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((plantuml . t)))))
 #+end_src
 
 *** Graphviz
@@ -1936,12 +1939,15 @@ Some of the relevant keybindings are:
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/ppareit/graphviz-dot-mode
 (use-package graphviz-dot-mode
+  :after org
   :straight (graphviz-dot-mode :type git
                                :host github
                                :repo "ppareit/graphviz-dot-mode")
   :config
   (setq graphviz-dot-indent-width 2)
-  (add-to-list 'org-babel-load-languages '(dot . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((dot . t)))))
 #+end_src
 
 *** Gnuplot
@@ -1951,12 +1957,15 @@ Some of the relevant keybindings are:
 ;; also https://github.com/bruceravel/gnuplot-mode
 ;; also https://github.com/rudi/gnuplot-el
 (use-package gnuplot
+  :after org
   :straight (gnuplot :type git
                      :host github
                      :repo "emacsorphanage/gnuplot")
   :config
-  (add-to-list 'org-babel-load-languages '(gnuplot . t)))
-#+end_src
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((gnuplot . t)))))
+  #+end_src
 
 ** DSL
 
@@ -1975,7 +1984,11 @@ Some of the relevant keybindings are:
 [[https://www.gnu.org/software/emacs/manual/html_mono/octave-mode.html][Octave]] mode provides support for the [[https://www.gnu.org/software/octave/][Octave scientific programming language]] which is a popular FLOSS alternative to Matlab. From a glance at the [[https://github.com/emacs-mirror/emacs/commit/be64c05d81d6191397fa96e050b8b3ad8134b62b][Emacs git history]] it seems that this feature has been bundled in emacs for a while now, so we will simply assume it's here and add the language to the =org-babel-load-languages= list to enable Org Babel exports.
 
 #+begin_src elisp :tangle lang.example.el
-(add-to-list 'org-babel-load-languages '(octave . t))
+(with-eval-after-load 'org
+  (message "Load Octave into Org Babel")
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((octave . t)))))
 #+end_src
 
 ** Programming Languages
