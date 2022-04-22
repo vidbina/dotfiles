@@ -740,8 +740,9 @@ In order to single out a particular window in order to return to the preceding l
                          :host github
                          :repo "emacsorphanage/zoom-window")
   :init
-  (setq ;;zoom-window-use-persp t
-   zoom-window-mode-line-color "DarkRed"))
+  (with-eval-after-load 'persp-mode
+    (message "Configuring zoom-window to work with persp-mode")
+    (setq zoom-window-use-persp t)))
 #+end_src
 
 *** 🪄 Ace Window
