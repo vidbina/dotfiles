@@ -1972,6 +1972,8 @@ Some of the relevant keybindings are:
 
 ** DSL
 
+The selected nomer is a poor choice if you think about it. 🤔 Plotting languages are arguably domain-specific, markup languages are arguably domain specific -- naming is hard. 🤷🏿‍♂️
+
 *** Dockerfile
 
 #+begin_src elisp :tangle lang.example.el
@@ -1994,8 +1996,6 @@ Some of the relevant keybindings are:
                                        '((octave . t)))))
 #+end_src
 
-** Programming Languages
-
 *** Nix
 
 #+begin_src elisp :tangle lang.example.el
@@ -2007,6 +2007,8 @@ Some of the relevant keybindings are:
   :init
   (setq nix-nixfmt-bin "nixpkgs-fmt"))
 #+end_src
+
+** General Purpose Programming Languages
 
 *** Go (Golang)
 
