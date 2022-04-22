@@ -3,8 +3,7 @@
 :END:
 #+TITLE: [[https://github.com/vidbina][vidbina]]'s dotfiles
 
-These dotfiles make my life slightly more convenient. Not promising
-they'll do the same for yours though 😉.
+These dotfiles make my life slightly more convenient. Not promising they'll do the same for yours though. 😉
 
 * Usage
 
@@ -23,7 +22,7 @@ Typical use will be as follows:
 1. Enter the nix-shell using =nix-shell --pure=
 2. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]])
 3. Run =make test= to test the home-manager configuration or =make= to install the configuration
-4. Optionall, if package update step was completed (step 2 above), commit the changes made to the niv sources files
+4. Optionally, if package update step was completed (step 2 above), commit the changes made to the niv sources files
 5. Profit 💰
 
 *** Personal Home-Manager Settings
@@ -96,6 +95,12 @@ Observe the snippet below for an example of a valid personal.nix file.
             "distribution.searchplugins.defaultLocale" = "en-US";
             "general.useragent.locale" = "en-US";
           };
+
+          bookmarks = {
+            yc = {
+              url = "https://news.ycombinator.com/";
+            };
+          };
         }
 
         {
@@ -125,7 +130,7 @@ Tridactyl is the extension introducing the vim bindings into Firefox. It will hi
 
 ****** Escape Hatch
 
-Remember that =<C-,>= (as described in the Tridactyl documentation but would be =C-,= in Emacs bindings notation or more simply but =Ctrl= + =,=) is the Tridactyl /escape hatch/ that gets you into a part within the page view of the browser where you can use the vi-like bindings to navigate or do this.
+Remember that =<C-,>= (as described in the Tridactyl documentation which would be =C-,= in Emacs bindings notation or more simply but =Ctrl= + =,​=) is the Tridactyl /escape hatch/ that gets you into a part within the page view of the browser where you can use the vi-like bindings to navigate or do this.
 
 💡 This is convenient because loading some pages will leave the focus on the URL bar or the search bar and tabbing through may be a tedious way to get to the page view.
 
@@ -383,6 +388,16 @@ ln -s ${PATH_TO_DOTFILE}/gitignore ${HOME}/.gitignore
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 #+end_src
+
+* Email
+
+I have multiple ways of handling e-mails. For starters, I process nearly all of my e-mails that require deep thought and the ability to verify extraneous sources from the comfort of a workstation (i.e.: my laptop and trusted 2nd brain). Mobile is only used for the quick things on the go and I don't need much fancy capabilities there since I want to see these messages again once I'm behind the workstation just to verify that I didn't miss anything during the daze of being on the go (which tends to be the case when I'm on mobile).
+
+I have used neomutt in combination with neovim and mu4e in Emac for nearly half a year, I've recently
+
+** Notmuch
+
+Much of my work-related comms transpires over e-mail. In order to obtain [[https://tongfamily.com/2022/01/22/superhuman-hidden-commands-to-top-and-bottom-are-gg-and-g/][superhuman-level-like-or-better]] 🙊 convenience, I am using [[https://notmuchmail.org/][notmuch]] which has [[https://notmuchmail.org/frontends/][plenty of frontends]] available.
 
 * Neovim
 
