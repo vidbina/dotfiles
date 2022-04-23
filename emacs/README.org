@@ -1610,13 +1610,15 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 
 (setq browse-url-browser-function 'vidbina/browse-url-xsel)
 
-(defun vidbina/browse-to-current-file-after-safe-hook ()
+(defun vidbina/browse-to-current-file ()
   "Open saved HTML file with default browser"
   (progn
     (when (derived-mode-p 'html-mode)
       (progn
         (message (concat "Browse " buffer-file-name))
         (browse-url (file-truename buffer-file-name))))))
+
+(add-hook 'after-save-hook 'vidbina/browse-to-current-file)
 #+end_src
 
 *** Notmuch Inbox Toggler
