@@ -1556,7 +1556,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 *** Org-Export
 
 #+begin_src elisp :tangle personal-example.el
-(defun vidbina/local-org-export-use-babel-toggle ()
+(defun vidbina/toggle-local-org-export-use-babel ()
   "Toggle buffer-local org-export-use-babel"
   (interactive)
   (if org-export-use-babel
@@ -1564,7 +1564,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
     (setq-local org-export-use-babel t))
   (message (format "❓ org-export confirm = %s" org-export-use-babel)))
 
-(defun vidbina/local-org-confirm-babel-evaluate ()
+(defun vidbina/toggle-local-org-confirm-babel-evaluate ()
   "Toggle buffer-local org-confirm-babel-evaluate"
   (interactive)
   (if org-confirm-babel-evaluate
