@@ -652,8 +652,7 @@ For global text scaling, the [[https://github.com/purcell/default-text-scale][de
   :straight (default-text-scale :type git
                                 :host github
                                 :repo "purcell/default-text-scale")
-  :hook
-  (after-init . default-text-scale-mode))
+  :hook (after-init . default-text-scale-mode))
 #+end_src
 
 **** TODO Investigate if the =server-after-make-frame-hook= is a sane configuration option
@@ -733,8 +732,7 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
                      :repo "emacsorphanage/dired-k")
   :init
   (setq dired-k-style 'git)
-  :config
-  (add-hook 'dired-initial-position-hook 'dired-k))
+  :hook (dired-initial-position-hook . dired-k))
 #+end_src
 
 * 🌷 Misc
@@ -942,8 +940,7 @@ I used Emacs extensively in college and developed a case of the /Emacs pinky/ at
   :straight (diff-hl :type git
                      :host github
                      :repo "dgutov/diff-hl")
-  :hook
-  (after-init . global-diff-hl-mode))
+  :hook (after-init . global-diff-hl-mode))
 #+end_src
 
 ** 📁 Navigation
@@ -1054,8 +1051,8 @@ The [[https://company-mode.github.io/][company]] completion framework allows for
                      :host github
                      :repo "company-mode/company-mode")
   :config
-  (add-hook 'after-init-hook 'global-company-mode)
-  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common))
+  (define-key company-mode-map (kbd "TAB") #'company-indent-or-complete-common)
+  :hook (after-init . global-company-mode))
 #+end_src
 
 In case you are using company, the [[http://company-mode.github.io/manual/Getting-Started.html#Usage-Basics][Usage Basics]] page will provide a good walkthrough of the bindings, notable options being:
@@ -1081,6 +1078,9 @@ For mail, there are a couple of options within Emacs. First one needs to underst
   :straight (:type built-in)
   :demand t
   :bind (("C-c m 4" . mu4e))
+  :hook (
+         ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
+         (dired-mode . turn-on-gnus-dired-mode))
   :config
   (setq mail-user-agent 'mu4e-user-agent
         mu4e-compose-format-flowed t
@@ -1117,10 +1117,7 @@ For mail, there are a couple of options within Emacs. First one needs to underst
             (push (buffer-name buffer) buffers))))
       (nreverse buffers)))
 
-  (setq gnus-dired-mail-mode 'mu4e-user-agent)
-
-  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
-  (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode))
+  (setq gnus-dired-mail-mode 'mu4e-user-agent))
 #+end_src
 
 For convenience, remember to prefix the update command by entering it as =C-u u= in a *mu4e-main* buffer or by entering =C-u C-c C-u= from the *mu4e-headers* buffer such that the update commands *run in the background*.
@@ -1157,10 +1154,7 @@ The =dired-mode-hook= (see [[https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
          ("SPC" . vidbina/notmuch-toggle-inbox))
   :init
   (evil-collection-notmuch-setup)
-  :config
-  (notmuch-address-harvest)
-  (add-hook 'notmuch-hello-mode-hook
-            (lambda () (display-line-numbers-mode 0)))
+  :hook (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
   :custom
   (mail-envelope-from 'header)
   (mail-specify-envelope-from t)
@@ -1178,9 +1172,7 @@ The =dired-mode-hook= (see [[https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
   (notmuch-search-oldest-first nil)
   (sendmail-program (executable-find "msmtp"))
   :config
-  (notmuch-address-harvest)
-  (add-hook 'notmuch-hello-mode-hook
-            (lambda () (display-line-numbers-mode 0))))
+  (notmuch-address-harvest))
 #+end_src
 
 Notmuch has the following modes:
@@ -1253,7 +1245,7 @@ For insight into the evil bindings for notmuch, go have a look at the definition
   (evil-define-key 'normal vterm-mode-map (kbd "i")        #'evil-insert-resume)
   (evil-define-key 'normal vterm-mode-map (kbd "o")        #'evil-insert-resume)
   (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
-  #+end_src
+#+end_src
 
 ** 📕 PDF
 
@@ -1292,8 +1284,7 @@ The following links provide some context that can be helpful in helping inform y
                         :repo "bbatsov/projectile")
   :custom
   (projectile-mode-line-prefix "🗄️")
-  :hook
-  (after-init . projectile-mode)
+  :hook (after-init . projectile-mode)
   :bind (:map projectile-mode-map
               ("C-x p" . projectile-command-map)))
 #+end_src
@@ -2034,7 +2025,7 @@ Some of the relevant keybindings are:
   (org-babel-do-load-languages 'org-babel-load-languages
                                (append org-babel-load-languages
                                        '((gnuplot . t)))))
-  #+end_src
+#+end_src
 
 ** DSL
 
@@ -2094,10 +2085,8 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
   :straight (js-comint :type git
                        :host github
                        :repo "redguardtoo/js-comint")
-  ;;:hook
-  ;;(inferior-js-mode . (lambda ()
-  ;;                      (add-hook 'inferior-js-mode-hook
-  ;;                                'inferior-js-mode-hook-setup t)))
+  :hook (inferior-js-mode . (lambda ()
+                              (add-hook 'comint-output-filter-functions 'js-comint-process-output)))
   :config
   (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
   (define-key js-mode-map (kbd "C-c b") 'js-send-buffer))
@@ -2173,9 +2162,8 @@ In order to configure interactive mode, we follow the [[https://haskell.github.i
   :config
   (require 'haskell-interactive-mode)
   (require 'haskell-process)
-  :hook
-  (haskell-mode . haskell-unicode-input-method-enable)
-  (haskell-mode . interactive-haskell-mode)
+  :hook ((haskell-mode . haskell-unicode-input-method-enable)
+         (haskell-mode . interactive-haskell-mode))
   :custom
   (haskell-process-suggest-remove-import-lines t)
   (haskell-process-auto-import-loaded-modules t)
@@ -2234,11 +2222,12 @@ To add another layer of convenience or complexity, depending on how you want to 
   :straight (rainbow-delimiters :type git
                                 :host github
                                 :repo "Fanael/rainbow-delimiters")
-  ;; :hook
+  :hook ((emacs-lisp-mode . rainbow-delimiters-mode)
+         (prog-mode . rainbow-delimiters-mode))
+
   ;; ;; https://github.com/patrickt/emacs
   ;; ((prog-mode) . rainbow-delimiters-mode)
-  :config
-  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
+  )
 #+end_src
 
 *** Paredit
@@ -2345,10 +2334,8 @@ Check if disabling of the envrc-global-mode affects the ability of the [[file:./
   (setq  gc-cons-threshold (* 100 1024 1024))
   ;;(setq lsp-keymap-prefix "C-c C-M-l")
   ;;(setq lsp-log-io t) ;; ⚠️ turn off for performance
-  :hook
-  ;; (XXX-mode . lsp)
-  (java-mode . lsp)
-  (go-mode . lsp)
+  :hook ((java-mode . lsp)
+         (go-mode . lsp))
   :commands
   (lsp lsp-deferred)
   ;;:config
