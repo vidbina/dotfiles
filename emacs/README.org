@@ -192,6 +192,13 @@ Using *use-package* interface, the =:after= and =:hook= keywords are probably th
 
 The Emacs [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Summary.html#Startup-Summary][Startup Summary]] page outlines when the =before-init-hook=, =after-init-hook=, =emacs-startup-hook= and =window-setup-hook= are run.
 
+#+begin_src elisp :tangle early-init.el
+(add-hook 'before-init-hook (lambda () (message "🪝 Before init")))
+(add-hook 'after-init-hook (lambda () (message "🪝 After init")))
+(add-hook 'emacs-startup-hook (lambda () (message "🪝 Emacs startup")))
+(add-hook 'window-setup-hook (lambda () (message "🪝 Window setup")))
+#+end_src
+
 Through the =:hook= keyword, we can /hook/ operations for a particular package into to the previously listed Emacs lifecycle hooks without leaving the expression for that specific package -- thus keeping all relevant configurations neatly localized.
 
 * 📓 Org
@@ -1320,6 +1327,8 @@ Killing a buffer through =C-x k= will only kill the buffer if it is only member 
 To keep our init as general as possible we store private information and language configurations in separate files since these are inherently personal concerns. This configuration will try to load [[file:lang.el]] and [[file:personal.el]] if these exist.
 
 #+begin_src elisp :tangle init.el
+(message "💥 Debug on error is %s" debug-on-error)
+
 (load "~/.emacs.d/lang.el")
 (load "~/.emacs.d/personal.el")
 #+end_src
