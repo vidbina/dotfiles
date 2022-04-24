@@ -628,12 +628,7 @@ For global text scaling, the [[https://github.com/purcell/default-text-scale][de
                                 :host github
                                 :repo "purcell/default-text-scale")
   :hook
-  (after-init . default-text-scale-mode)
-  ;;:init
-  ;;(add-hook 'server-after-make-frame-hook
-  ;;          (lambda () (progn (message "🔤 Resetting text scale")
-  ;;                            (default-text-scale-reset))))
-  )
+  (after-init . default-text-scale-mode))
 #+end_src
 
 **** TODO Investigate if the =server-after-make-frame-hook= is a sane configuration option
