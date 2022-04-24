@@ -620,12 +620,20 @@ For global text scaling, the [[https://github.com/purcell/default-text-scale][de
                                 :repo "purcell/default-text-scale")
   :hook
   (after-init . default-text-scale-mode)
-  :init
-  (add-hook 'server-after-make-frame-hook
-            (lambda () (progn (message "🎨 Time to dress up the GUI")
-                              (default-text-scale-reset)))))
+  ;;:init
+  ;;(add-hook 'server-after-make-frame-hook
+  ;;          (lambda () (progn (message "🔤 Resetting text scale")
+  ;;                            (default-text-scale-reset))))
+  )
 #+end_src
 
+**** TODO Investigate if the =server-after-make-frame-hook= is a sane configuration option
+
+The call to =default-text-scale-reset= has been configured in the =server-after-make-frame-hook= since I was having some trouble using this package when using Emacs in client/server mode as opposed to standalone mode.
+
+I don't quite use Emacs in standalone mode anymore, unless I'm debugging my config (by invoking =emacs --debug-init=), but AFAIK, the =server-after-make-frame-hook= was necessary to ensure that =default-text-scale-reset= is only called once the a GUI frame is ready, thus allowing default-text-scale to calculculate text scale.
+
+Note that =default-text-scale--update-for-new-frame= is called in =after-make-frame-functions=, so perhaps this is already sufficient to ensure that all frames have the same scaling for text.
 
 ** 🎨 Rainbow Mode
 
