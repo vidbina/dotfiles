@@ -1537,6 +1537,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 
 (defun vidbina/theme-switch-to-choice ()
   "Switch to the theme of choice"
+  (message "🦋 Switching to vidbina's theme")
   (if vidbina/theme-should-be-dark
       (vidbina/theme-switch-to-dark)
     (vidbina/theme-switch-to-light)))
@@ -1568,7 +1569,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (vidbina/theme-switch-to-light)
     (vidbina/theme-switch-to-dark)))
 
-(add-hook 'server-after-make-frame-hook 'vidbina/theme-switch-to-choice)
+(add-hook 'after-init-hook 'vidbina/theme-switch-to-choice)
 #+end_src
 
 *** Org-Export
