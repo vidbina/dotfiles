@@ -1718,8 +1718,6 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 #+begin_src elisp :tangle personal-example.el
 (setq fill-column 1)
 
-(setq column-number-mode t)
-
 (setq whitespace-style '(trailing tabs newline tab-mark newline-mark))
 #+end_src
 
