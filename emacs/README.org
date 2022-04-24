@@ -987,6 +987,8 @@ The [[https://github.com/abo-abo/swiper][swiper]] package, or rather repository,
         enable-recursive-minibuffers t))
 #+end_src
 
+Read [[https://oremacs.com/2019/06/27/ivy-directory-improvements/][Ivy usability improvements when dealing with directories]] to get a sense of how the different completion bindings =C-m=, =C-j= and =C-M-j= may work. At the very least just remember that these are the options when you find yourself stuck in an Ivy completion prompt.
+
 *** Which-key: Show key bindings next to command listing in pop-up
 
 The [[https://github.com/justbur/emacs-which-key][which-key]] package annotes the command listing with the key bindings for the shown commands.
