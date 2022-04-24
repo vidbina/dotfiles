@@ -1028,6 +1028,14 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 
 ** 📧 Mail
 
+For mail, there are a couple of options within Emacs. First one needs to understand that there are message user agents (MUAs) which are the tool for composing messages, there are some options for these:
+
+- *message-user-agent*, typically the default
+- *sendmail-user-agent*
+- *mh-e-user-agent*
+- *gnus-user-agent*
+- *mu4e-user-agent*, in case you're using mu4e
+
 *** Mu4e
 
 [[https://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]] is Maildir-friendly mail client that uses mu as a backend.
