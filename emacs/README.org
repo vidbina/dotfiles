@@ -549,7 +549,7 @@ Visualize white spaces (tabs, spaces, trailing whitespace). The global whitespac
 
 The modeline is the bar typically at the bottom of a buffer which provides useful information about the system.
 
-Since the amount of textual information in the Modeline can get overwhelming at times, we provide shorted pictographic indicators in the Modeline instead.
+Since the amount of textual information in the Modeline can get overwhelming at times, we provide horizontally succinct (i.e.: single char) pictographic indicators for the Modeline instead.
 
 #+begin_src elisp :tangle init.el
 (use-package delight
@@ -572,6 +572,8 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                       :host github
                       :repo "myrjola/diminish.el"))
 #+end_src
+
+One can debug the configuration by examining the =minor-mode-alist= variable to verify if the delight/diminish configurations are correctly applied to the configuration variable.
 
 ** 🔤 Text
 
