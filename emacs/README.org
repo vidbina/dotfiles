@@ -1777,8 +1777,9 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
                evil-mode-line-tag
 
                " "
-               (propertize "(%l,%c)%p")
-               mode-line-modes ""))
+               (propertize " (%l,%c)%p ")
+               " "
+               mode-line-modes "∎"))
 #+end_src
 
 ** Security
