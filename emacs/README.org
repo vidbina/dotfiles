@@ -55,6 +55,29 @@ digraph G {
 #+RESULTS:
 [[file:images/conf-setup.png]]
 
+For convenience's sake, let's start stubbing some of the files that we will be tangling from this literate configuration.
+
+** early-init.el
+
+The [[file:early-init.el]] will be loaded before our "real configuration" is evaluated. Some configuration settings may have to be set at this stage but this should be used sparingly as it may be an indication of poor configuration when one has to resort too often to configuring at this stage.
+
+#+begin_src elisp :tangle early-init.el
+(message "🥱 Loading early-init.el")
+#+end_src
+
+** init.el
+
+We enabe lexical binding, since some packages (e.g.: consult) will require this.
+
+#+begin_src elisp :tangle init.el
+;; -*- lexical-binding: t -*-
+#+end_src
+
+
+#+begin_src elisp :tangle init.el
+(message "🚜 Loading init.el")
+#+end_src
+
 * 📦 Package Management
 
 Setting =package-enable-at-startup= to =nil= before the Emacs default package system even loads (i.e.: before *early-init.el*) minimizes the potential for global state to affect the configuration which ends up simplifying this configuration's use[fn:4].
@@ -188,9 +211,11 @@ On the performance front, you'll find that the *use-package* macro provides mech
 
 Emacs is a hot mess of global state sorcery and as such it may be useful to load packages or call package-specific functions in a particular order to render a configuration sufficiently functional. 🙊
 
-Using *use-package* interface, the =:after= and =:hook= keywords are probably the more powerful tools to manage the ordering of your packages.
+Using *use-package*, the =:after= and =:hook= keywords are probably the more powerful tools to manage the ordering of your packages.
 
 The Emacs [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Summary.html#Startup-Summary][Startup Summary]] page outlines when the =before-init-hook=, =after-init-hook=, =emacs-startup-hook= and =window-setup-hook= are run.
+
+For convenience, we define some hook to notify us in the *Messages* buffer when these different milestones are reached.
 
 #+begin_src elisp :tangle early-init.el
 (add-hook 'before-init-hook (lambda () (message "🪝 Before init")))
@@ -1228,7 +1253,7 @@ For insight into the evil bindings for notmuch, go have a look at the definition
   (evil-define-key 'normal vterm-mode-map (kbd "i")        #'evil-insert-resume)
   (evil-define-key 'normal vterm-mode-map (kbd "o")        #'evil-insert-resume)
   (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
-#+end_src
+  #+end_src
 
 ** 📕 PDF
 
