@@ -283,17 +283,17 @@ The =ol-bibtex= package, previously known as =org-bibtex= and still prefixed as 
 #+begin_src org
 ,** Introduction to Flight Test Engineering
 :PROPERTIES:
-:BIB_TITLE:    Introduction to Flight Test Engineering
-:BIB_BTYPE:    techreport
+:BIB_TITLE: Introduction to Flight Test Engineering
+:BIB_BTYPE: techreport
 :BIB_CUSTOM_ID: stoliker2005FTE
-:BIB_AUTHOR:   F.N. Stoliker
+:BIB_AUTHOR: F.N. Stoliker
 :BIB_INSTITUTION: RTO
-:BIB_YEAR:     2005
-:BIB_NUMBER:   RTO-AG-300-V14
-:BIB_DATE:     7/25/2005
+:BIB_YEAR: 2005
+:BIB_NUMBER: RTO-AG-300-V14
+:BIB_DATE: 7/25/2005
 :BIB_ADDRESS:
-:BIB_MONTH:    07
-:BIB_BIB_DOI:  10.14339/RTO-AG-300-V14
+:BIB_MONTH: 07
+:BIB_BIB_DOI: 10.14339/RTO-AG-300-V14
 :BIB_BIB_ISBN: 92-837-1126-2
 :BIB_NOTE:
 :BIB_ANNOTE:
@@ -305,21 +305,21 @@ Some notes on this book...
 The previously listed Org snippet will produce the following BibTeX entry:
 
 #+begin_src bibtex
-@techreport{stoliker2005FTE,
-  annote={},
-  note={},
-  isbn={92-837-1126-2},
-  doi={10.14339/RTO-AG-300-V14},
-  month={07},
-  address={},
-  date={7/25/2005},
-  number={RTO-AG-300-V14},
-  year={2005},
-  institution={RTO},
-  author={F.N. Stoliker},
-  custom_id={stoliker2005FTE},
-  title={Introduction to Flight Test Engineering}
-}
+                  @techreport{stoliker2005FTE,
+                    annote={},
+                    note={},
+                    isbn={92-837-1126-2},
+                    doi={10.14339/RTO-AG-300-V14},
+                    month={07},
+                    address={},
+                    date={7/25/2005},
+                    number={RTO-AG-300-V14},
+                    year={2005},
+                    institution={RTO},
+                    author={F.N. Stoliker},
+                    custom_id={stoliker2005FTE},
+                    title={Introduction to Flight Test Engineering}
+                  }
 #+end_src
 
 Please note that *ol-bibtex* refers to an internal index =org-bibtex-types= that lists fields for every record type (e.g.: article, book, techreport, etc.) and only honors the entries that are listed therein.
@@ -362,10 +362,10 @@ For reference's sake, note that for headers containing non-prefixed and prefixed
 The example listed above will yield the following BibTeX entry which demonstrates this point.
 
 #+begin_src bibtex
-@techreport{stoliker2005FTE,
-  isbn={92-837-1126-2},
-  doi={10.14339/RTO-AG-300-V14}
-}
+                  @techreport{stoliker2005FTE,
+                    isbn={92-837-1126-2},
+                    doi={10.14339/RTO-AG-300-V14}
+                  }
 #+end_src
 
 *** Org-contrib
