@@ -1754,32 +1754,31 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html
 ;; http://emacs-fu.blogspot.com/2011/08/customizing-mode-line.html
 (setq-default mode-line-format
-              (list
-               "%e"
+              '("%e"
 
-               ;; ** when modified
-               ;; -- if not modified
-               ;; %% when read-only
-               ;; %+ read-only but modified
-               mode-line-modified
+                ;; ** when modified
+                ;; -- if not modified
+                ;; %% when read-only
+                ;; %+ read-only but modified
+                mode-line-modified
 
-               mode-line-frame-identification
-               mode-line-buffer-identification
+                mode-line-frame-identification
+                mode-line-buffer-identification
 
-               ;; https://evil.readthedocs.io/en/latest/overview.html?highlight=mode-line#modes-and-states
-               ;; <N> normal state
-               ;; <I> insert state
-               ;; <V> visual state
-               ;; <R> replace state
-               ;; <O> operator-pending state
-               ;; <M> motion state
-               ;; <E> emacs state
-               evil-mode-line-tag
+                ;; https://evil.readthedocs.io/en/latest/overview.html?highlight=mode-line#modes-and-states
+                ;; <N> normal state
+                ;; <I> insert state
+                ;; <V> visual state
+                ;; <R> replace state
+                ;; <O> operator-pending state
+                ;; <M> motion state
+                ;; <E> emacs state
+                evil-mode-line-tag
 
-               " "
-               (propertize " (%l,%c)%p ")
-               " "
-               mode-line-modes "∎"))
+                " "
+                (propertize " (%l,%c)%p ")
+                " "
+                mode-line-modes "∎"))
 #+end_src
 
 ** Security
