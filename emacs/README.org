@@ -833,14 +833,18 @@ In order to [[https://www.emacswiki.org/emacs/SmoothScrolling][facilitate smooth
                      :repo "emacsmirror/undo-fu"))
 #+end_src
 
-** TODO Async
+** Async
+
+[[https://github.com/jwiegley/emacs-async][Emacs async]] allows for some async code execution which can come in handy for logic that may otherwise have blocked Emacs main thread for too long.
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/jwiegley/emacs-async
 (use-package async
   :straight (async :type git
                    :host github
-                   :repo "jwiegley/emacs-async"))
+                   :repo "jwiegley/emacs-async")
+  :config
+  (async-bytecomp-package-mode 1))
 #+end_src
 
 ** 🖐️ Evil
