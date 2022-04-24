@@ -785,6 +785,19 @@ In order to jump to bind in the snippet below, one can grep for bind which is of
   :bind (("C-:" . avy-goto-char)))
 #+end_src
 
+*** Rotate
+
+Akin to rotating layouts in tmux, [[https://github.com/daichirata/emacs-rotate][emacs-rotate]] helps users rotate through layouts in Emacs. This can be handy when you quickly want to change a vertically tiles layout into a horizontally tiled layout.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/daichirata/emacs-rotate
+(use-package rotate
+  :straight (rotate :type git
+                    :host github
+                    :repo "daichirata/emacs-rotate"))
+#+end_src
+
+
 ** Find File at Point (FFAP)
 
 In order to provide point-specific behavior, we use the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap][FFAP]] package. As an example, the ~(find-file-at-point)~ command will provide custom behavior depending on the type of link it is called over.
