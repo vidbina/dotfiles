@@ -47,6 +47,11 @@
 
   services.network-manager-applet.enable = true;
 
+  services.syncthing = {
+    enable = true;
+    tray = { enable = true; };
+  };
+
   services.trayer = {
     enable = true;
     settings = {
