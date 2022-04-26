@@ -233,7 +233,7 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
 2. natively allows for the notation of dates and times which allow for things like time-tracking and planning within a single document.
 3. natively provides table support
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 ;; https://orgmode.org/worg/org-contrib/org-protocol.html
 ;; https://github.com/org-roam/org-roam/issues/529
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
@@ -247,15 +247,76 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
   (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
-  ;; https://orgmode.org/manual/Structure-Templates.html
-  (require 'org-tempo)
-  ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
-  (setq org-plantuml-exec-mode 'plantuml)
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
   (setq org-src-preserve-indentation t
         org-hide-block-startup t)
+
+  <<org-config>>
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
+#+end_src
+
+** Org-Tempo
+
+[[https://orgmode.org/manual/Structure-Templates.html][Structure templates]] allow one to quickly produce convenient src or quote blocks with just three keypresses. For example
+- =< s TAB= to produce a source block
+- =< q TAB= to produce a quote block
+- =< C TAB= to produce a comment block
+- =< h TAB= and =< l TAB= to produce export blocks for HTML and LaTeX respectively
+
+#+begin_src elisp :noweb-ref org-config
+;; https://orgmode.org/manual/Structure-Templates.html
+(require 'org-tempo)
+#+end_src
+
+** Org LaTeX Listing Source Wrapping
+
+By default listings in LaTeX exports don't line-wrap which is really useless when you have blocks with long lines and are hoping for readable output in a printable form-factor -- not to say that you actually print it but hey... your e-reader may want that printable form-factor?!? 🤷🏿‍♂️
+
+The following configuration was stolen from [[https://www.reddit.com/r/emacs/comments/c1b70i/best_way_to_include_source_code_blocks_in_a_latex/][a Reddit thread]].
+
+Figuring out how to get the ouput portrayed in a monospace font was informed by [[https://stackoverflow.com/a/2915765][a StackOverflow answer]] detailing how removal of the =column=flexible= option may help.
+
+#+begin_src elisp :noweb-ref org-config
+;; https://www.reddit.com/r/emacs/comments/c1b70i/best_way_to_include_source_code_blocks_in_a_latex/
+(add-to-list 'org-latex-packages-alist '("" "listings" nil))
+;(setq org-latex-packages-alist nil)
+;(setq org-latex-listings t)
+;(setq org-latex-listings-options '(("breaklines" "true")))
+(setq org-latex-listings t)
+(setq org-latex-listings-options
+      '(("basicstyle" "\\ttfamily")
+        ("breakatwhitespace" "false")
+        ("breakautoindent" "true")
+        ("breaklines" "true")
+        ;("columns" "[c]fullflexible")
+        ("commentstyle" "")
+        ("emptylines" "*")
+        ("extendedchars" "false")
+        ;("fancyvrb" "true")
+        ("firstnumber" "auto")
+        ("flexiblecolumns" "false")
+        ("frame" "single")
+        ("frameround" "tttt")
+        ("identifierstyle" "")
+        ("keepspaces" "true")
+        ("keywordstyle" "")
+        ("mathescape" "false")
+        ("numbers" "left")
+        ("numbers" "none")
+        ("numbersep" "5pt")
+        ("numberstyle" "\\tiny")
+        ("resetmargins" "false")
+        ("showlines" "true")
+        ("showspaces" "false")
+        ("showstringspaces" "false")
+        ("showtabs" "true")
+        ("stepnumber" "2")
+        ("stringstyle" "")
+        ("tab" "↹")
+        ("tabsize" "4")
+        ("texcl" "false")
+        ("upquote" "false")))
 #+end_src
 
 ** Ox-clip: export Org fragments into HTML for rich-text input fields
@@ -2048,6 +2109,9 @@ Some of the relevant keybindings are:
                            :host github
                            :repo "skuro/plantuml-mode")
   :config
+  ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
+  (setq org-plantuml-exec-mode 'plantuml)
+
   (setq plantuml-default-exec-mode 'executable)
   (org-babel-do-load-languages 'org-babel-load-languages
                                (append org-babel-load-languages
