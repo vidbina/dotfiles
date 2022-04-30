@@ -87,13 +87,13 @@
 
 ;; https://github.com/org-roam/org-roam-ui
 (use-package org-roam-ui
-  :delight
-  (org-roam-ui-mode "🕸️")
-  (org-roam-ui-follow-mode "👀")
   :straight (org-roam-ui :host github
                          :repo "org-roam/org-roam-ui"
                          :branch "main"
                          :files ("*.el" "out"))
+  :delight
+  (org-roam-ui-mode "🕸️")
+  (org-roam-ui-follow-mode "👀")
   :after org-roam
   ;; normally we'd recommend hooking orui after org-roam, but since org-roam does not have
   ;; a hookable mode anymore, you're advised to pick something yourself
@@ -176,10 +176,10 @@
   (mu4e-view-mode "📧"))
 
 (use-package diminish
-  :disabled
   :straight (diminish :type git
                       :host github
-                      :repo "myrjola/diminish.el"))
+                      :repo "myrjola/diminish.el")
+  :disabled)
 
 ;; https://github.com/joostkremers/visual-fill-column
 (use-package visual-fill-column
@@ -526,10 +526,10 @@
 
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
-  :delight
   :straight (which-key :type git
                        :host github
                        :repo "justbur/emacs-which-key")
+  :delight
   :config
   (which-key-mode))
 
@@ -618,7 +618,7 @@
             (lambda () (display-line-numbers-mode 0))))
 
 (use-package pdf-tools
-  :straight nil
+  :straight (:type built-in)
   :config
   (require 'pdf-occur)
   (pdf-tools-install nil t nil nil)
