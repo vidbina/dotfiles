@@ -147,6 +147,7 @@ The [[https://jwiegley.github.io/use-package/keywords/][Keywords]] page provides
 #+begin_src elisp :results none
 ;; Just an example of a use-package form
 (use-package my-package-y
+  :straight t
   :after
   (:all my-package-a my-package-x)
 
@@ -491,13 +492,13 @@ A good solution for maintaining a Zettelkasten-inspired note-taking system is [[
 #+begin_src elisp :tangle init.el
 ;; https://github.com/org-roam/org-roam-ui
 (use-package org-roam-ui
-  :delight
-  (org-roam-ui-mode "🕸️")
-  (org-roam-ui-follow-mode "👀")
   :straight (org-roam-ui :host github
                          :repo "org-roam/org-roam-ui"
                          :branch "main"
                          :files ("*.el" "out"))
+  :delight
+  (org-roam-ui-mode "🕸️")
+  (org-roam-ui-follow-mode "👀")
   :after org-roam
   ;; normally we'd recommend hooking orui after org-roam, but since org-roam does not have
   ;; a hookable mode anymore, you're advised to pick something yourself
@@ -653,10 +654,10 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   (mu4e-view-mode "📧"))
 
 (use-package diminish
-  :disabled
   :straight (diminish :type git
                       :host github
-                      :repo "myrjola/diminish.el"))
+                      :repo "myrjola/diminish.el")
+  :disabled)
 #+end_src
 
 One can debug the configuration by examining the =minor-mode-alist= variable to verify if the delight/diminish configurations are correctly applied to the configuration variable.
@@ -1087,11 +1088,13 @@ The [[https://github.com/minad/vertico][vertico]] package provides a lighter com
 
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
+  :straight (:type built-in)
   :init
   (savehist-mode))
 
 ;; A few more useful configurations...
 (use-package emacs
+  :straight (:type built-in)
   :init
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; Alternatively try `consult-completing-read-multiple'.
@@ -1153,10 +1156,10 @@ The [[https://github.com/justbur/emacs-which-key][which-key]] package annotes th
 #+begin_src elisp :tangle init.el
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
-  :delight
   :straight (which-key :type git
                        :host github
                        :repo "justbur/emacs-which-key")
+  :delight
   :config
   (which-key-mode))
 #+end_src
@@ -1323,7 +1326,8 @@ For insight into the evil bindings for notmuch, go have a look at the definition
 *** COMMENT vterm
 
 #+begin_src elisp :tangle init.el
-(use-package vterm :straight nil)
+(use-package vterm
+  :straight (:type built-in))
 #+end_src
 
 *** COMMENT multi-vterm
@@ -1374,7 +1378,7 @@ For insight into the evil bindings for notmuch, go have a look at the definition
 
 #+begin_src elisp :tangle init.el
 (use-package pdf-tools
-  :straight nil
+  :straight (:type built-in)
   :config
   (require 'pdf-occur)
   (pdf-tools-install nil t nil nil)
@@ -2104,10 +2108,10 @@ Some of the relevant keybindings are:
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/skuro/plantuml-mode
 (use-package plantuml-mode
-  :after org
   :straight (plantuml-mode :type git
                            :host github
                            :repo "skuro/plantuml-mode")
+  :after org
   :config
   ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
   (setq org-plantuml-exec-mode 'plantuml)
@@ -2123,10 +2127,10 @@ Some of the relevant keybindings are:
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/ppareit/graphviz-dot-mode
 (use-package graphviz-dot-mode
-  :after org
   :straight (graphviz-dot-mode :type git
                                :host github
                                :repo "ppareit/graphviz-dot-mode")
+  :after org
   :config
   (setq graphviz-dot-indent-width 2)
   (org-babel-do-load-languages 'org-babel-load-languages
@@ -2141,10 +2145,10 @@ Some of the relevant keybindings are:
 ;; also https://github.com/bruceravel/gnuplot-mode
 ;; also https://github.com/rudi/gnuplot-el
 (use-package gnuplot
-  :after org
   :straight (gnuplot :type git
                      :host github
                      :repo "emacsorphanage/gnuplot")
+  :after org
   :config
   (org-babel-do-load-languages 'org-babel-load-languages
                                (append org-babel-load-languages
@@ -2475,7 +2479,7 @@ Check if disabling of the envrc-global-mode affects the ability of the [[file:./
 ;; https://config.daviwil.com/emacs
 ;; https://github.com/emacs-lsp/lsp-ui
 (use-package lsp-ui
-  ;;:straight t
+  :straight t
   :hook (lsp-mode . lsp-ui-mode)
   :config
   (setq lsp-ui-sideline-enable t
@@ -2491,6 +2495,7 @@ The Ivy completion framework can be used in combination with Emacs LSP through t
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacs-lsp/lsp-ivy
 (use-package lsp-ivy
+  :straight t
   :hook (lsp-mode . lsp-ivy-mode))
 #+end_src
 
@@ -2501,6 +2506,7 @@ The Treemacs tree layout explorer can be used in combination with Emacs LSP thro
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacs-lsp/lsp-treemacs
 (use-package lsp-treemacs
+  :straight t
   :commands lsp-treemacs-errors-list
   :after lsp-mode)
 #+end_src
