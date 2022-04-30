@@ -73,7 +73,7 @@
  ("rainbow-delimiters" . "f43d48a24602be3ec899345a3326ed0247b960c6")
  ("s.el" . "08661efb075d1c6b4fa812184c1e5e90c08795a9")
  ("spinner" . "e19f3cfc0646c0e23c10c22df219fcf427054621")
- ("straight.el" . "e1390a933b6f5a15079d6dec91eac97a17aad10c")
+ ("straight.el" . "af5437f2afd00936c883124d6d3098721c2d306c")
  ("string-inflection" . "fd7926ac17293e9124b31f706a4e8f38f6a9b855")
  ("swift-mode" . "4777c409ba0cd0d02b9a8397ba810e449b5ac213")
  ("swiper" . "471d644d6bdd7d5dc6ca4efb405e6a6389dff245")
