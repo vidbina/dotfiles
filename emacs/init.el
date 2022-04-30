@@ -1,3 +1,7 @@
+;; -*- lexical-binding: t -*-
+
+(message "🚜 Loading init.el")
+
 ;; https://github.com/raxod502/straight.el/issues/757#issuecomment-839764260
 (defvar comp-deferred-compilation-deny-list ())
 
@@ -31,13 +35,51 @@
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
   (global-set-key (kbd "C-c d") 'org-hide-drawer-toggle)
-  ;; https://orgmode.org/manual/Structure-Templates.html
-  (require 'org-tempo)
-  ;; https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-dot.html
-  (setq org-plantuml-exec-mode 'plantuml)
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
   (setq org-src-preserve-indentation t
         org-hide-block-startup t)
+
+  ;; https://orgmode.org/manual/Structure-Templates.html
+  (require 'org-tempo)
+  ;; https://www.reddit.com/r/emacs/comments/c1b70i/best_way_to_include_source_code_blocks_in_a_latex/
+  (add-to-list 'org-latex-packages-alist '("" "listings" nil))
+  ;(setq org-latex-packages-alist nil)
+  ;(setq org-latex-listings t)
+  ;(setq org-latex-listings-options '(("breaklines" "true")))
+  (setq org-latex-listings t)
+  (setq org-latex-listings-options
+        '(("basicstyle" "\\ttfamily")
+          ("breakatwhitespace" "false")
+          ("breakautoindent" "true")
+          ("breaklines" "true")
+          ;("columns" "[c]fullflexible")
+          ("commentstyle" "")
+          ("emptylines" "*")
+          ("extendedchars" "false")
+          ;("fancyvrb" "true")
+          ("firstnumber" "auto")
+          ("flexiblecolumns" "false")
+          ("frame" "single")
+          ("frameround" "tttt")
+          ("identifierstyle" "")
+          ("keepspaces" "true")
+          ("keywordstyle" "")
+          ("mathescape" "false")
+          ("numbers" "left")
+          ("numbers" "none")
+          ("numbersep" "5pt")
+          ("numberstyle" "\\tiny")
+          ("resetmargins" "false")
+          ("showlines" "true")
+          ("showspaces" "false")
+          ("showstringspaces" "false")
+          ("showtabs" "true")
+          ("stepnumber" "2")
+          ("stringstyle" "")
+          ("tab" "↹")
+          ("tabsize" "4")
+          ("texcl" "false")
+          ("upquote" "false")))
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
 
@@ -125,10 +167,6 @@
                              :host github
                              :repo "org-roam/org-roam-bibtex")
   :after org-roam)
-;;:config
-;;(require 'org-ref)
-;;:custom
-;;(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
 
 ;; https://github.com/alphapapa/org-ql
 (use-package org-ql
@@ -217,7 +255,6 @@
   (modus-themes-load-themes)
   :init
   (setq modus-themes-bold-constructs t
-        modus-themes-mode-line '(3d accented)
         modus-themes-org-blocks 'gray-background
         modus-themes-region '(bg-only no-extend accented)
         modus-themes-prompts '(intense)
@@ -237,8 +274,7 @@
                      :repo "emacsorphanage/dired-k")
   :init
   (setq dired-k-style 'git)
-  :config
-  (add-hook 'dired-initial-position-hook 'dired-k))
+  :hook (dired-initial-position-hook . dired-k))
 
 (setq display-buffer-alist
       (let* ((sidebar-width '(window-width . 85))
@@ -351,8 +387,7 @@
   :straight (diff-hl :type git
                      :host github
                      :repo "dgutov/diff-hl")
-  :hook
-  (after-init . global-diff-hl-mode))
+  :hook (after-init . global-diff-hl-mode))
 
 ;; https://github.com/jrblevin/deft
 (use-package deft
@@ -519,8 +554,6 @@
   (ivy-mode)
   :config
   (straight-use-package 'counsel)
-  (ivy-mode +1)
-  (counsel-mode +1)
   (setq ivy-use-virtual-buffers t
         enable-recursive-minibuffers t))
 
@@ -574,10 +607,7 @@
             (push (buffer-name buffer) buffers))))
       (nreverse buffers)))
 
-  (setq gnus-dired-mail-mode 'mu4e-user-agent)
-
-  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
-  (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode))
+  (setq gnus-dired-mail-mode 'mu4e-user-agent))
 
 ;; https://git.notmuchmail.org/git/notmuch
 (use-package notmuch
@@ -592,10 +622,7 @@
          ("SPC" . vidbina/notmuch-toggle-inbox))
   :init
   (evil-collection-notmuch-setup)
-  :config
-  (notmuch-address-harvest)
-  (add-hook 'notmuch-hello-mode-hook
-            (lambda () (display-line-numbers-mode 0)))
+  :hook (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
   :custom
   (mail-envelope-from 'header)
   (mail-specify-envelope-from t)
@@ -613,9 +640,7 @@
   (notmuch-search-oldest-first nil)
   (sendmail-program (executable-find "msmtp"))
   :config
-  (notmuch-address-harvest)
-  (add-hook 'notmuch-hello-mode-hook
-            (lambda () (display-line-numbers-mode 0))))
+  (notmuch-address-harvest))
 
 (use-package pdf-tools
   :straight (:type built-in)
@@ -631,8 +656,7 @@
                         :repo "bbatsov/projectile")
   :custom
   (projectile-mode-line-prefix "🗄️")
-  :hook
-  (after-init . projectile-mode)
+  :hook (after-init . projectile-mode)
   :bind (:map projectile-mode-map
               ("C-x p" . projectile-command-map)))
 
@@ -643,6 +667,8 @@
                         :repo "Bad-ptr/persp-mode.el")
   :config
   (persp-mode t))
+
+(message "💥 Debug on error is %s" debug-on-error)
 
 (load "~/.emacs.d/lang.el")
 (load "~/.emacs.d/personal.el")
