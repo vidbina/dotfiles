@@ -340,32 +340,25 @@ The ox-clip exporters allow us to export fragments of our org documents into ric
 
 Running ~(straight-dependants "htmlize")~ yields =("ox-clip" ("org-ref" "org-roam-bibtex"))= so we define htmlize to control the version of htmlize that is installed since the implict configuration resulted to an outdated version of htmlize on my system.
 
-Looking into htmlize started when stumbling upon errors in exporting Org blocks to HTML. Just try to export this entire file to HTML and observe the results. Somewhere the following operation fails with =Invalid face: unspecified=.
-
-#+begin_src elisp
-(htmlize-face-size 'org-level-2)
-#+end_src
-
-The symbol seems correct since ~(describe-face 'org-level-2)~ yields some results.
-
-https://github.com/hniksic/emacs-htmlize/issues/7
+:BACKGROUND:
+Looking into htmlize started when stumbling upon errors in exporting Org blocks to HTML. Just export this entire file to HTML would eventually fail with =Invalid face: unspecified= to which I authored a [[https://github.com/hniksic/emacs-htmlize/pull/41/files][PR]] with a coarse fix.
+:END:
 
 #+begin_src elisp :tangle init.el
 (use-package htmlize
   :straight (htmlize :type git
                      :host github
+                     :branch "fix-face-size-unspecified-head"
                      :repo "vidbina/emacs-htmlize"
                      :local-repo "~/src/vidbina/emacs-htmlize")
   :after org
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
-  (setq org-html-htmlize-output-type 'css)
+  (setq org-html-htmlize-output-type 'inline-css)
   :custom
-  (htmlize-ignore-face-size t)
-  :config
-  ;;(org-html-htmlize-generate-css)
-  (message "Figuring out htmlize"))
+  (htmlize-ignore-face-size t))
 #+end_src
+
 ** TODO Bibliography
 
 *** ol-BibTeX (Org-BibTeX): Bibliography through org properties

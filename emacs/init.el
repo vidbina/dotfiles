@@ -96,17 +96,15 @@
 (use-package htmlize
   :straight (htmlize :type git
                      :host github
+                     :branch "fix-face-size-unspecified-head"
                      :repo "vidbina/emacs-htmlize"
                      :local-repo "~/src/vidbina/emacs-htmlize")
   :after org
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
-  (setq org-html-htmlize-output-type 'css)
+  (setq org-html-htmlize-output-type 'inline-css)
   :custom
-  (htmlize-ignore-face-size t)
-  :config
-  ;;(org-html-htmlize-generate-css)
-  (message "Figuring out htmlize"))
+  (htmlize-ignore-face-size t))
 
 (use-package ol-bibtex
   :straight (:type built-in)

@@ -73,7 +73,6 @@
  ("org-super-agenda" . "3108bc3f725818f0e868520d2c243abe9acbef4e")
  ("ov" . "c5b9aa4e1b00d702eb2caedd61c69a22a5fa1fab")
  ("ox-clip" . "05a14d56bbffe569d86f20b49ae31ed2ac7d1101")
- ("ox-slimhtml" . "72cffc4292c82d5f3a24717ed386a953862485d8")
  ("paredit" . "8330a41e8188fe18d3fa805bb9aa529f015318e8")
  ("parsebib" . "3d46fb939371664682c711750367de088aa66f92")
  ("peg" . "014927e2130edcc453ca078a4fa06b48be63d834")
@@ -105,5 +104,5 @@
  ("xref" . "a82f459b37b31546bf274388baf8aca79e9c30d9")
  ("yaml-mode" . "63b637f846411806ae47e63adc06fe9427be1131")
  ("zoom-window" . "474ca4723517d95356145950b134652d5dc0c7f7")
- ("~/src/vidbina/emacs-htmlize" . "dd27bc3f26efd728f2b1f01f9e4ac4f61f2ffbf9"))
+ ("~/src/vidbina/emacs-htmlize" . "ca9d7e2946e04a275f29125565ff87418d8d10ee"))
 :beta
