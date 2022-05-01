@@ -576,7 +576,10 @@
 (use-package mu4e
   :straight (:type built-in)
   :demand t
-  :bind (("C-c m 4" . mu4e))
+  :bind (("C-c M 4" . mu4e))
+  :hook (
+         ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
+         (dired-mode . turn-on-gnus-dired-mode))
   :config
   (setq mail-user-agent 'mu4e-user-agent
         mu4e-compose-format-flowed t
@@ -623,7 +626,7 @@
              notmuch-tree
              notmuch-search
              notmuch-hello)
-  :bind (("C-c m n" . notmuch)
+  :bind (("C-c M n" . notmuch)
          :map notmuch-search-mode-map
          ("SPC" . vidbina/notmuch-toggle-inbox))
   :init
