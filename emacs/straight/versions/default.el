@@ -85,5 +85,6 @@
  ("with-editor" . "53a6b8ad8a6aabea3749366fb11f12a7dabcb11f")
  ("xref" . "a82f459b37b31546bf274388baf8aca79e9c30d9")
  ("yaml-mode" . "63b637f846411806ae47e63adc06fe9427be1131")
- ("zoom-window" . "474ca4723517d95356145950b134652d5dc0c7f7"))
+ ("zoom-window" . "474ca4723517d95356145950b134652d5dc0c7f7")
+ ("~/src/vidbina/emacs-htmlize" . "dd27bc3f26efd728f2b1f01f9e4ac4f61f2ffbf9"))
 :beta

@@ -354,7 +354,8 @@ https://github.com/hniksic/emacs-htmlize/issues/7
 (use-package htmlize
   :straight (htmlize :type git
                      :host github
-                     :repo "hniksic/emacs-htmlize")
+                     :repo "vidbina/emacs-htmlize"
+                     :local-repo "~/src/vidbina/emacs-htmlize")
   :after org
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
