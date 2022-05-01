@@ -89,9 +89,15 @@
   :straight (ox-clip :type git
                      :host github
                      :repo "jkitchin/ox-clip")
-  :after org
+  :after (org htmlize)
   :bind
   ("C-c y" . ox-clip-formatted-copy))
+
+(use-package htmlize
+  :straight (htmlize :type git
+                     :host github
+                     :repo "hniksic/emacs-htmlize")
+  :after org)
 
 (use-package ol-bibtex
   :straight (:type built-in)

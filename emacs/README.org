@@ -331,7 +331,7 @@ The ox-clip exporters allow us to export fragments of our org documents into ric
   :straight (ox-clip :type git
                      :host github
                      :repo "jkitchin/ox-clip")
-  :after org
+  :after (org htmlize)
   :bind
   ("C-c y" . ox-clip-formatted-copy))
 #+end_src
@@ -558,7 +558,7 @@ Org-ref has provisions for cross-referencing that Org-cite doesn't quite provide
   :straight (org-ref :type git
                      :host github
                      :repo "jkitchin/org-ref")
-  :after org)
+  :after (org-roam htmlize))
 #+end_src
 
 ** Org-QL

@@ -19,7 +19,7 @@
  ("el-get" . "84dd1837f9ac80a329ab0c2de6859777f445f8ff")
  ("eldoc" . "036b9478ca77b29733fa4405c89dae28d0894818")
  ("emacs-async" . "9a8cd0c3d5c120bfa03187c54dba6e33f6e3ca19")
- ("emacs-htmlize" . "49205105898ba8993b5253beec55d8bddd820a70")
+ ("emacs-htmlize" . "dd27bc3f26efd728f2b1f01f9e4ac4f61f2ffbf9")
  ("emacs-request" . "f3a5b4352e9f444ace2a332939abff504b573887")
  ("emacs-web-server" . "22ce66ea43e0eadb9ec1d691a35d9695fc29cee6")
  ("emacs-websocket" . "fda4455333309545c0787a79d73c19ddbeb57980")
