@@ -97,7 +97,15 @@
   :straight (htmlize :type git
                      :host github
                      :repo "hniksic/emacs-htmlize")
-  :after org)
+  :after org
+  :init
+  ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
+  (setq org-html-htmlize-output-type 'css)
+  :custom
+  (htmlize-ignore-face-size t)
+  :config
+  ;;(org-html-htmlize-generate-css)
+  (message "Figuring out htmlize"))
 
 (use-package ol-bibtex
   :straight (:type built-in)
