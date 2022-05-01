@@ -327,6 +327,12 @@
                  :repo "abo-abo/avy")
   :bind (("C-:" . avy-goto-char)))
 
+;; https://github.com/daichirata/emacs-rotate
+(use-package rotate
+  :straight (rotate :type git
+                    :host github
+                    :repo "daichirata/emacs-rotate"))
+
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/FFAP.html#index-ffap
 (ffap-bindings)
 
