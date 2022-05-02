@@ -7,6 +7,78 @@ in
 {
   home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
 
+  home.packages = with pkgs; let
+    baseCommand = windowName: builtins.concatStringsSep " " [
+      "emacsclient -a emacs"
+      ''-F "((name . \"${windowName}\"))"''
+      "-c"
+    ];
+    evalExpression = func: window: target:
+      ''"(${func} \"${window}\" \"${target}\")"'';
+    evalCommand = windowName: handler: target: (builtins.concatStringsSep " " [
+      (baseCommand windowName)
+      "-e"
+      (evalExpression handler windowName target)
+    ]);
+  in
+  [
+    (makeDesktopItem {
+      name = "emacs-org-protocol";
+      exec = "${(baseCommand "emacs-org-protocol")} %u";
+      comment = "Org Protocol";
+      desktopName = "org-protocol";
+      categories = builtins.concatStringsSep ";" [
+        "Utility"
+        "Database"
+        "TextTools"
+        "TextEditor"
+        "Office"
+      ] + ";";
+      mimeType = builtins.concatStringsSep ";" [
+        "x-scheme-handler/org-protocol"
+      ] + ";";
+      terminal = false;
+    })
+
+    # https://www.emacswiki.org/emacs/MailtoHandler
+    # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
+    (makeDesktopItem {
+      name = "emacs-mu4e";
+      exec = (evalCommand "emacs-mu4e" "vidbina-mime-handle-open-message-in-mu4e" "%u");
+      comment = "Emacs mu4e";
+      desktopName = "emacs-mu4e";
+      type = "Application";
+      categories = builtins.concatStringsSep ";" [
+        "Network"
+        "Email"
+      ] + ";";
+      mimeType = builtins.concatStringsSep ";" [
+        # Email
+        "x-scheme-handler/mailto"
+        "message/rfc822"
+      ] + ";";
+      terminal = false;
+    })
+
+    # https://emacs.stackexchange.com/questions/13927/how-to-set-emacs-as-the-default-file-manager
+    (makeDesktopItem {
+      name = "emacs-dired";
+      exec = (evalCommand "emacs-dired" "vidbina-mime-handle-open-directory" "%f");
+      comment = "Emacs Dired";
+      desktopName = "emacs-dired";
+      categories = builtins.concatStringsSep ";" [
+        "Utility"
+        "FileManager"
+        "FileTools"
+      ] + ";";
+      mimeType = builtins.concatStringsSep ";" [
+        "inode/directory"
+        "inode/symlink"
+      ] + ";";
+      terminal = false;
+    })
+  ];
+
   programs.emacs = {
     enable = true;
     package = pkgs.my-emacs;
@@ -64,37 +136,18 @@ in
             pkgs.multimarkdown
             jupyter-for-emacs
             ripgrep-for-doom-emacs
-
-            # for Emacs
-            (pkgs.makeDesktopItem {
-              name = "org-protocol";
-              exec = "${bundled-emacs}/bin/emacsclient --create-frame %u";
-              comment = "Org Protocol";
-              desktopName = "org-protocol";
-              type = "Application";
-              mimeType = "x-scheme-handler/org-protocol";
-            })
-
-            # for Emacs
-            # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.5.html
-            # https://www.emacswiki.org/emacs/MailtoHandler
-            # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
-            (pkgs.makeDesktopItem {
-              name = "emacs-mu4e";
-              exec = ''
-                ${bundled-emacs}/bin/emacsclient --create-frame --eval "(browse-url-mail \"%u\")"
-              '';
-              comment = "Emacs mu4e";
-              desktopName = "emacs-mu4e";
-              type = "Application";
-              mimeType = builtins.concatStringsSep ";" [
-                # Email
-                "x-scheme-handler/mailto"
-                "message/rfc822"
-              ];
-            })
           ];
         });
     })
   ];
+
+  xdg.mimeApps.defaultApplications = {
+    "inode/directory" = [ "emacs-dired.desktop" ];
+    "inode/symlink" = [ "emacs-dired.desktop" ];
+
+    "message/rfc822" = [ "emacs-mu4e.desktop" ];
+    "x-scheme-handler/mailto" = [ "emacs-mu4e.desktop" ];
+
+    "x-scheme-handler/org-protocol" = [ "emacs-org-protocol.desktop" ];
+  };
 }
