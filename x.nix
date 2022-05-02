@@ -22,11 +22,18 @@
     '')
   ];
 
+  xdg.mimeApps.defaultApplications = {
+    "text/html" = [ "xsel-copy-url.desktop" ];
+    "x-scheme-handler/ftp" = [ "xsel-copy-url.desktop" ];
+    "x-scheme-handler/http" = [ "xsel-copy-url.desktop" ];
+    "x-scheme-handler/https" = [ "xsel-copy-url.desktop" ];
+  };
+
   nixpkgs.overlays = [
     (self: super: {
-      xsel-copy-url =
+      xsel-copy-url = pkgs.buildEnv (
         let
-          xsel-copy-url = pkgs.writeScriptBin "xsel-copy-url" ''
+          script = pkgs.writeScriptBin "xsel-copy-url" ''
             url=$1
             echo "$url" | ${pkgs.xsel}/bin/xsel -ib
             ${pkgs.libnotify}/bin/notify-send \
@@ -35,27 +42,31 @@
               "🌍 Link Copied" "Paste to enter $url"
           '';
         in
-        pkgs.buildEnv {
+        {
           name = "xsel-copy-url";
           paths = [
-            xsel-copy-url
+            script
 
             (pkgs.makeDesktopItem {
               name = "xsel-copy-url";
-              exec = "${xsel-copy-url}/bin/xsel-copy-url %U";
+              exec = "${script}/bin/xsel-copy-url %U";
               comment = "Open link by copying it into the clipboard with xsel";
               desktopName = "xsel-copy-url";
               type = "Application";
-              categories = [ "Network;WebBrowser;" ];
+              categories = builtins.concatStringsSep ";" [
+                "Network"
+                "WebBrowser"
+              ] + ";";
               mimeType = builtins.concatStringsSep ";" [
                 "text/html"
                 "x-scheme-handler/http"
                 "x-scheme-handler/https"
                 "x-scheme-handler/ftp"
-              ];
+              ] + ";";
             })
           ];
-        };
+        }
+      );
 
       vidbina-urxvt-themes =
         let
@@ -79,12 +90,6 @@
 
   xdg.mimeApps = {
     enable = true;
-    defaultApplications = {
-      "text/html" = [ "xsel-copy-url.desktop" ];
-      "x-scheme-handler/http" = [ "xsel-copy-url.desktop" ];
-      "x-scheme-handler/https" = [ "xsel-copy-url.desktop" ];
-      "x-scheme-handler/ftp" = [ "xsel-copy-url.desktop" ];
-    };
   };
 
   xsession = {
