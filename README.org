@@ -54,11 +54,17 @@ Observe the snippet below for an example of a valid personal.nix file.
   # changes in each release.
   home.stateVersion = "21.05";
 
-  home.shellAliases = {
-    chromea = "chromium --user-data-dir=$HOME/orga/chromium-profile";
-    chromeb = "chromium --user-data-dir=$HOME/orgb/chromium-profile";
-    chromec = "chromium --user-data-dir=$HOME/orgc/chromium-profile";
-  };
+  home.packages =
+    let
+      writeChromiumBin = shorthand: profilePath: pkgs.writeScriptBin shorthand ''
+        exec chromium --user-data-dir=${profilePath} "$@"
+      '';
+    in
+    [
+      (writeChromiumBin "b" "$HOME/src/a/chromium-profile")
+      (writeChromiumBin "b.b" "$HOME/src/b/chromium-profile")
+      (writeChromiumBin "b.a" "$HOME/src/c/chromium-profile")
+    ];
 
   programs.zsh.dirHashes = {
     a-src = "$HOME/orga/src";
