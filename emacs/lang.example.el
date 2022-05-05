@@ -100,6 +100,12 @@
                                (append org-babel-load-languages
                                        '((gnuplot . t)))))
 
+(with-eval-after-load 'org
+  (message "Load Shell into Org Babel")
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((shell . t)))))
+
 ;; https://github.com/spotify/dockerfile-mode
 (use-package dockerfile-mode
   :straight (dockerfile-mode :type git

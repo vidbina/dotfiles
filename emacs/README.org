@@ -2324,6 +2324,16 @@ Some of the relevant keybindings are:
 
 The selected nomer is a poor choice if you think about it. 🤔 Plotting languages are arguably domain-specific, markup languages are arguably domain specific -- naming is hard. 🤷🏿‍♂️
 
+*** Shell
+
+#+begin_src elisp :tangle lang.example.el
+(with-eval-after-load 'org
+  (message "Load Shell into Org Babel")
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((shell . t)))))
+#+end_src
+
 *** Dockerfile
 
 #+begin_src elisp :tangle lang.example.el
