@@ -746,7 +746,18 @@ The package sets the height attribute of the default face, which can be retrieve
 (face-attribute 'default :height)
 #+end_src
 
-In my configuration, I have updated the height of the default face through the =customize-faces= interface (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Specific-Customization.html][Customizing Specific Items]] for more instruction on how to customize faces in Emacs) and applied and saves these changes to allow for different machines/environments having different settings here that I don't have to track into git (see the section on our [[*Customizations][custom.el file]] which allows for this).
+In my configuration, I have updated the height of the default face through the =customize-faces= interface (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Specific-Customization.html][Customizing Specific Items]] for more instruction on how to customize faces in Emacs) and applied and saved these changes to allow different machines/environments to load their customization that don't make much sense tracking in git (see the section on our [[*Customizations][custom.el file]] which allows for this).
+
+⚠️ When updating the font face through the =customize-faces= interface see to it that you uncheck all non-height attributes to ensure that the customization written into custom.el only sets height information as in the snippet example below:
+
+#+begin_src elisp
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:height 241)))))
+#+end_src
 
 **** TODO Investigate if the =server-after-make-frame-hook= is a sane configuration option
 
