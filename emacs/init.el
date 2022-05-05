@@ -252,12 +252,10 @@
   :straight (default-text-scale :type git
                                 :host github
                                 :repo "purcell/default-text-scale")
-  :hook
-  (after-init . default-text-scale-mode)
-  :init
-  (add-hook 'server-after-make-frame-hook
-            (lambda () (progn (message "🎨 Time to dress up the GUI")
-                              (default-text-scale-reset)))))
+  :hook ((after-init . default-text-scale-mode)
+         (server-after-make-frame . (lambda () (progn
+                                                 (message "🔍 Resetting default text")
+                                                 (default-text-scale-reset))))))
 
 ;; https://gitlab.com/protesilaos/modus-themes
 (use-package modus-themes

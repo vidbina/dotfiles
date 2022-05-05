@@ -737,8 +737,19 @@ For global text scaling, the [[https://github.com/purcell/default-text-scale][de
   :straight (default-text-scale :type git
                                 :host github
                                 :repo "purcell/default-text-scale")
-  :hook (after-init . default-text-scale-mode))
+  :hook ((after-init . default-text-scale-mode)
+         (server-after-make-frame . (lambda () (progn
+                                                 (message "🔍 Resetting default text")
+                                                 (default-text-scale-reset))))))
 #+end_src
+
+The package sets the height attribute of the default face, which can be retrieved by the following code:
+
+#+begin_src elisp
+(face-attribute 'default :height)
+#+end_src
+
+In my configuration, I have updated the height of the default face through the =customize-faces= interface (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Specific-Customization.html][Customizing Specific Items]] for more instruction on how to customize faces in Emacs) and applied and saves these changes to allow for different machines/environments having different settings here that I don't have to track into git (see the section on our [[*Customizations][custom.el file]] which allows for this).
 
 **** TODO Investigate if the =server-after-make-frame-hook= is a sane configuration option
 
@@ -1627,6 +1638,8 @@ To keep our init as general as possible we store private information and languag
 (load "~/.emacs.d/lang.el")
 (load "~/.emacs.d/personal.el")
 #+end_src
+
+** Customizations
 
 Furthermore we load customization since some configurations and changes to our Emacs setup will be persisted through the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html][customization system]].
 
