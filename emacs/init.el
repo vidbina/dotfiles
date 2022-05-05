@@ -187,6 +187,12 @@
                     :host github
                     :repo "alphapapa/org-ql"))
 
+;; https://github.com/astahlman/ob-async
+(use-package ob-async
+  :straight (ob-async :type git
+                      :host github
+                      :repo "astahlman/ob-async"))
+
 ;; https://www.emacswiki.org/emacs/ScrollBar
 (scroll-bar-mode -1)
 

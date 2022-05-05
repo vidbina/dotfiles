@@ -598,6 +598,18 @@ In order to query Org files with more flexibility, [[https://github.com/alphapap
 
 In the most basic usage form you can basically run ~org-ql-search~ and just enter =todo= to get a basic listing.
 
+** ob-async
+
+In some cases, code blocks need to be executed in a non-blocking manner (e.g.: when firing up a test instance of emacs or triggering a large file transfer). The [[https://github.com/astahlman/ob-async][ob-async]] package allow async execution of code-blocks by simply adding the =:async= keyword to the a codeblock of interest.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/astahlman/ob-async
+(use-package ob-async
+  :straight (ob-async :type git
+                      :host github
+                      :repo "astahlman/ob-async"))
+#+end_src
+
 * 👁️ Appearance
 
 This section will deal with some of the visual trappings of Emacs. My design goal is to arrive at a rather minimal, or rather clean, design while providing the needed information scope perhaps through toggles (i.e.: showing whitespace characters at command).
