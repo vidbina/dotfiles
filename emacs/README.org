@@ -737,10 +737,7 @@ For global text scaling, the [[https://github.com/purcell/default-text-scale][de
   :straight (default-text-scale :type git
                                 :host github
                                 :repo "purcell/default-text-scale")
-  :hook ((after-init . default-text-scale-mode)
-         (server-after-make-frame . (lambda () (progn
-                                                 (message "🔍 Resetting default text")
-                                                 (default-text-scale-reset))))))
+  :hook ((after-init . default-text-scale-mode)))
 #+end_src
 
 The package sets the height attribute of the default face, which can be retrieved by the following code:
