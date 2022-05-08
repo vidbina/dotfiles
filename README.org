@@ -438,3 +438,9 @@ autorandr --change
 #+begin_quote
 ⚠️ With the autorandr tool, we have to plug screens into the same ports as we used when configuring the setup. In the case of my newer laptop where I have a bunch of USB C ports with the risk of pluggin monitors in different configurations between docking attempts, I just connect the monitor in every likely configuration, configure my setup with =arandr= and then save it with =autorandr --save= to ensure that autorandr will have seen that configuration before. 😉
 #+end_quote
+
+* Syncthing
+
+Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup. As per [2022-05-05 Thu 12:08], the syncthing service in home-manager is only declarative to the extend of turning it on and providing extra CLI options to start the service with.
+
+Consult the [[https://docs.syncthing.net/intro/getting-started.html][Getting Started]] guide to learn how to set it up "imperatively" (i.e.: setting up peers and generating their IDs and copying the needed information over to the other syncthing peers to establish connections) through the portal.
