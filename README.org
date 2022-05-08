@@ -414,3 +414,23 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
 * TODO Bring in XMonad configuration
 
 * TODO Bring in xmobar configuration
+
+* autorandr: Screen configuration
+
+In order to simplify screen management, we can use the [[https://github.com/phillipberndt/autorandr/][autorandr]] utility.
+
+For the first time using a configuration, we use the =arandr= utility to graphically align the screens in the formation that we want after which we can save and name the configuration using the following command (where =CONFIGNAME= is the name that we want to save the configuration as):
+
+#+begin_src bash
+autorandr --save CONFIGNAME
+#+end_src
+
+A configuration can be autoloaded by running the following command:
+
+#+begin_src bash
+autorandr --change
+#+end_src
+
+#+begin_quote
+⚠️ With the autorandr tool, we have to plug screens into the same ports as we used when configuring the setup. In the case of my newer laptop where I have a bunch of USB C ports with the risk of pluggin monitors in different configurations between docking attempts, I just connect the monitor in every likely configuration, configure my setup with =arandr= and then save it with =autorandr --save= to ensure that autorandr will have seen that configuration before. 😉
+#+end_quote

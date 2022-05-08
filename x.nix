@@ -165,4 +165,8 @@
       "M-C-s" = "perl:color-themes:save-state";
     };
   };
+
+  programs.autorandr = {
+    enable = true;
+  };
 }
