@@ -413,7 +413,11 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
 
 * TODO Bring in XMonad configuration
 
+For now, I symlink ~/.xmonad to ~/src/vidbina/xmonad-config and run =xmonad --recompile= to produce the Xmonad binary.
+
 * TODO Bring in xmobar configuration
+
+For now, I symlinked ~/.config/xmobar to ~/src/vidbina/xmobar-configuration.
 
 * autorandr: Screen configuration
 
