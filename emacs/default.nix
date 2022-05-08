@@ -8,18 +8,12 @@ in
   home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
 
   home.packages = with pkgs; let
-    baseCommand = windowName: builtins.concatStringsSep " " [
-      "emacsclient -a emacs"
-      ''-F "((name . \"${windowName}\"))"''
-      "-c"
-    ];
-    evalExpression = func: window: target:
-      ''"(${func} \"${window}\" \"${target}\")"'';
-    evalCommand = windowName: handler: target: (builtins.concatStringsSep " " [
-      (baseCommand windowName)
-      "-e"
-      (evalExpression handler windowName target)
-    ]);
+    baseCommand = windowName:
+      builtins.concatStringsSep " " [
+        "emacsclient -a emacs"
+        ''-F "((name . \\\"${windowName}\\\"))"''
+        "-c"
+      ];
   in
   [
     (writeScriptBin "e" ''
@@ -48,7 +42,7 @@ in
     # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
     (makeDesktopItem {
       name = "emacs-mu4e";
-      exec = (evalCommand "emacs-mu4e" "vidbina-mime-handle-open-message-in-mu4e" "%u");
+      exec = "emacs-mu4e %u";
       comment = "Emacs mu4e";
       desktopName = "emacs-mu4e";
       type = "Application";
@@ -64,10 +58,18 @@ in
       terminal = false;
     })
 
+    (writeScriptBin "emacs-mu4e" ''
+      set -e
+      target_path=$@
+      echo "Target: $target_path"
+
+      exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-dired\" \"$target_path\")"
+    '')
+
     # https://emacs.stackexchange.com/questions/13927/how-to-set-emacs-as-the-default-file-manager
     (makeDesktopItem {
       name = "emacs-dired";
-      exec = (evalCommand "emacs-dired" "vidbina-mime-handle-open-directory" "%f");
+      exec = "emacs-dired %f";
       comment = "Emacs Dired";
       desktopName = "emacs-dired";
       categories = builtins.concatStringsSep ";" [
@@ -81,6 +83,14 @@ in
       ] + ";";
       terminal = false;
     })
+
+    (writeScriptBin "emacs-dired" ''
+      set -e
+      target_path=$(printf '%q\n' "$@" | xargs realpath -e)
+      echo "Sanitized target to: $target_path"
+
+      exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-directory \"emacs-dired\" \"$target_path\")"
+    '')
   ];
 
   programs.emacs = {
