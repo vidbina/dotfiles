@@ -2019,6 +2019,76 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
     (message "🕸️ ORUI zoom 🔍 %s to %s" id padding)))
 #+end_src
 
+*** Helper for Desktop Entries to handle different MIME types
+
+We can configure [[https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html][desktop entries (freedesktop.org)]] that open URI's in a new frame using the =--create-frame= (shorthand =-c=) argument while also setting the xproperties through =--frame-parameters= (shorthand =-F=) that may aid a window manager in positioning the windows correctly. I learned about defining frame parameters first through a [[https://stackoverflow.com/questions/16012024/using-emacsclient-instead-of-emacs-translating-arguments][StackOverflow thread]] thread. The following snippet provides a demonstration on how to open a frame through the aforementioned parameters:
+
+#+begin_src bash :async
+emacsclient -F '((name . "Dired"))' --create-frame -a emacs --eval "(let ((path \"/tmp\")) (delete-other-windows-internal) (message (concat \"Dired will open: \" path)) (dired path) path)"
+#+end_src
+
+#+RESULTS:
+: /tmp
+
+Note that eval has to be a single expression. In the following example we wrap multiple sexps in a =progn= form to qualify as a single expression:
+
+#+begin_src bash :async
+emacsclient -F '((name . "experiment"))' --create-frame -a emacs --eval "(progn (message \"hi there\") (message \"bye\"))"
+#+end_src
+
+Considering how verbose the eval value is and how error prone modifying this may be, we define a helper function for simplicity.
+
+When create-frame is set, we create a new frame with =make-frame-command= and then clear that frame from any other windows through the =delete-other-windows-internal= command. This is useful because the creation of a new frame doesn't always yield a "clean frame" and could therefore be rather noisy (as it may display the multiple windows that were in the previously active frame).
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina-mime-handle--open (window-name func target &optional create-frame)
+  "Spawn a new frame with the proper qualities"
+  ;;(if create-frame (select-frame (make-frame `((name . ,window-name)))))
+  (message (concat "MIME handler opening " target))
+  (if create-frame (progn
+                     (select-frame (make-frame-command))
+                     (delete-other-windows-internal)))
+  (funcall func target)
+  (message "MIME handler opened: \"%s\" in \"%s\"" target window-name))
+#+end_src
+
+The helper can be tested through the snippet below and should be less disruptive when the =create-frame= argument is set since:
+1. it opens up a new frame (leaving existing frames as-is)
+2. reduces the new frame to a single window where only the opened location is presented (for focus)
+
+#+begin_src elisp
+(vidbina-mime-handle--open "Dired" #'dired "/tmp" 'create-frame)
+#+end_src
+
+#+begin_quote
+⚠️ The setting of the create-frame argument may only be necessary when you are not using the =--create-frame= CLI argument when invoking the =emacsclient= command.
+#+end_quote
+
+The defined function can be used inside of a =Exec= key of a [[https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.5.html
+][Desktop entry]] i.e.: a .desktop file.
+
+#+begin_src sh :async :results none
+emacsclient -a emacs -F "((name . \"emacs-dired\"))" --eval "(vidbina-mime-handle--open \"Dired\" #'dired \"/tmp\" 'create-frame)"
+#+end_src
+
+**** Specialized User-friendly Helpers
+
+Invoking =vidbina-mime-handle--open= through an =Exec= key in a desktop entry gets messy because we're entering a sexp that references function symbols. Just keeping everything escaped correctly is already a non-trivial problem (for me). It gets even worse when trying to formulate such command invocations inside of a declarative Nix-based configuration where we introduce another level of "escaping" special characters. 😭
+
+At some point it becomes too Inception-esque to reasonably assume that future me will be able to use it with relative ease. Specialized helpers are therefore formulated to greatly reduce the complexity of the information to be entered into a /Desktop Entry/'s =Exec= key.
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina-mime-handle-open-directory (window-name target &optional create-frame)
+  "Open a directory in a new frame"
+  (vidbina-mime-handle--open window-name #'dired target create-frame))
+#+end_src
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina-mime-handle-open-message-in-mu4e (window-name target &optional create-frame)
+  "Open a message in a new frame"
+  (vidbina-mime-handle--open window-name #'mu4e target create-frame))
+#+end_src
+
 ** TODO Misc
 
 *** Global Keybindings
