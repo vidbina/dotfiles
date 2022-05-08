@@ -24,9 +24,11 @@
 
   xdg.mimeApps.defaultApplications = {
     "text/html" = [ "xsel-copy-url.desktop" ];
+    "x-scheme-handler/about" = [ "xsel-copy-url.desktop" ];
     "x-scheme-handler/ftp" = [ "xsel-copy-url.desktop" ];
     "x-scheme-handler/http" = [ "xsel-copy-url.desktop" ];
     "x-scheme-handler/https" = [ "xsel-copy-url.desktop" ];
+    "x-scheme-handler/unknown" = [ "xsel-copy-url.desktop" ];
   };
 
   nixpkgs.overlays = [
