@@ -1037,6 +1037,10 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
   (evil-collection-unimpaired-mode))
 #+end_src
 
+#+begin_center
+🚨 *Remember the =C-z= binding to exit the 'emacs state and return to 'normal state.* You may accidentally change =evil-state= (evil states are the equivalent to modes in vim vernacular) to =emacs= which will leave you with really annoying results when attempting to quickly navigate/edit your buffers. I've been cursing often enough thinking that my config was broken 🤬 when I had just accidentally pressed =C-z= and ended up in Emacs state. 🤦🏿‍♂️
+#+end_center
+
 ** Version Control
 
 *** TODO Magit: Git Porcelain
