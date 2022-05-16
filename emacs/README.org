@@ -1283,7 +1283,7 @@ The [[https://github.com/minad/vertico][vertico]] package provides a lighter com
   :hook (minibuffer-setup . cursor-intangible-mode))
 #+end_src
 
-*** Ivy, Swiper and Counsel
+*** COMMENT Ivy, Swiper and Counsel
 
 The [[https://github.com/abo-abo/swiper][swiper]] package, or rather repository, contains three packages actually being:
 - Ivy :: a completion mechanism
@@ -1292,7 +1292,7 @@ The [[https://github.com/abo-abo/swiper][swiper]] package, or rather repository,
   - =counsel-list-processes= :: Ivy-enchanced =list-processes=
   - =counsel-switch-buffer= :: Ivy-enchanced =switch-to-buffer=
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/abo-abo/swiper
 (use-package swiper
   :straight (swiper :type git
@@ -1303,11 +1303,20 @@ The [[https://github.com/abo-abo/swiper][swiper]] package, or rather repository,
   (ivy-mode)
   :config
   (straight-use-package 'counsel)
+  <<ivy-config>>
   (setq ivy-use-virtual-buffers t
         enable-recursive-minibuffers t))
 #+end_src
 
 Read [[https://oremacs.com/2019/06/27/ivy-directory-improvements/][Ivy usability improvements when dealing with directories]] to get a sense of how the different completion bindings =C-m=, =C-j= and =C-M-j= may work. At the very least just remember that these are the options when you find yourself stuck in an Ivy completion prompt.
+
+**** COMMENT Activate Ivy and Swiper upon load
+
+#+begin_src elisp :noweb-ref ivy-config
+;; activate ivy and counsel upon config
+(ivy-mode +1)
+(counsel-mode +1)
+#+end_src
 
 *** Which-key: Show key bindings next to command listing in pop-up
 

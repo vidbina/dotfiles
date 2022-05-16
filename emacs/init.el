@@ -564,19 +564,6 @@
 
   :hook (minibuffer-setup . cursor-intangible-mode))
 
-;; https://github.com/abo-abo/swiper
-(use-package swiper
-  :straight (swiper :type git
-                    :host github
-                    :repo "abo-abo/swiper")
-  :delight
-  (counsel-mode)
-  (ivy-mode)
-  :config
-  (straight-use-package 'counsel)
-  (setq ivy-use-virtual-buffers t
-        enable-recursive-minibuffers t))
-
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
   :straight (which-key :type git
