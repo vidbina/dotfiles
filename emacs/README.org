@@ -2152,35 +2152,42 @@ At some point it becomes too Inception-esque to reasonably assume that future me
 
 *** Customize Mode-line
 
+For additional context, one can display /mode line/ or /header line/ elements along the bottom and top of a window respectively.
+
 #+begin_src elisp :tangle personal-example.el
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html
 ;; http://emacs-fu.blogspot.com/2011/08/customizing-mode-line.html
-(setq-default mode-line-format
-              '("%e"
+(setq mode-line-format
+      (list "%e"
+            ;; ** when modified
+            ;; -- if not modified
+            ;; %% when read-only
+            ;; %+ read-only but modified
+            mode-line-modified
 
-                ;; ** when modified
-                ;; -- if not modified
-                ;; %% when read-only
-                ;; %+ read-only but modified
-                mode-line-modified
+            mode-line-frame-identification
+            mode-line-buffer-identification
 
-                mode-line-frame-identification
-                mode-line-buffer-identification
+            ;; https://evil.readthedocs.io/en/latest/overview.html?highlight=mode-line#modes-and-states
+            ;; <N> normal state
+            ;; <I> insert state
+            ;; <V> visual state
+            ;; <R> replace state
+            ;; <O> operator-pending state
+            ;; <M> motion state
+            ;; <E> emacs state
+            evil-mode-line-tag
 
-                ;; https://evil.readthedocs.io/en/latest/overview.html?highlight=mode-line#modes-and-states
-                ;; <N> normal state
-                ;; <I> insert state
-                ;; <V> visual state
-                ;; <R> replace state
-                ;; <O> operator-pending state
-                ;; <M> motion state
-                ;; <E> emacs state
-                evil-mode-line-tag
+            mode-line-modes
+            (propertize " (%l,%c)%p ")
+            "∎"))
+(message "🕹️ Mode-line set")
+#+end_src
 
-                " "
-                (propertize " (%l,%c)%p ")
-                " "
-                mode-line-modes "∎"))
+You can force update the mode line in the =setq= doesn't quite get the job done:
+
+#+begin_src elisp :results none
+(force-mode-line-update)
 #+end_src
 
 ** Security
