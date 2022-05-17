@@ -1095,19 +1095,33 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
 *** Orderless
 
 The [[https://github.com/oantolin/orderless][orderless]] package provides more generous completion resolution by permitting us to:
-1. provide partial phrases and
-2. enter these parts in any order -- hence /orderless/.
+1. provide partial phrases e.g.: "o i d" to filter for "org-indent-drawer" and
+2. enter these parts in any order (hence /orderless/) e.g.: "drawer org" to filter for "org-indent-drawer".
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb strip-export :tangle init.el
 (use-package orderless
   :straight (orderless :type git
                        :host github
                        :repo "oantolin/orderless")
-  ;; Load after Swiper since we override ivy-re-builders-alist
-  :after swiper
+  <<orderless-ivy>>
   :custom
-  (completion-styles '(orderless))
-  (ivy-re-builders-alist '((t . orderless-ivy-re-builder))))
+  (completion-styles '(orderless)))
+#+end_src
+
+**** COMMENT Ivy integration
+
+In case Ivy is being used for completion, we will want to configure orderless to load after Ivy.
+
+#+begin_src elisp :noweb-ref orderless-ivy
+:after
+(:all swiper)
+#+end_src
+
+Furthermore, we want to configure the ivy regex builder to play ball with orderless.
+
+#+begin_src elisp :noweb-ref orderless-ivy
+:custom
+(ivy-re-builders-alist '((t . orderless-ivy-re-builder)))
 #+end_src
 
 *** TODO Marginalia
