@@ -27,6 +27,12 @@ in
         # https://chrome.google.com/webstore/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh
         id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";
       }
+      {
+        # wasavi
+        # https://chrome.google.com/webstore/detail/wasavi/dgogifpkoilgiofhhhodbodcfgomelhe
+        # see https://github.com/philc/vimium/issues/2564
+        id = "dgogifpkoilgiofhhhodbodcfgomelhe";
+      }
     ];
   };
 
