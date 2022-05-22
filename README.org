@@ -340,6 +340,13 @@ ln -s ${PATH_TO_DOTFILE}/gitignore ${HOME}/.gitignore
 ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 #+end_src
 
+* Personal Details
+
+#+begin_src nix :noweb yes :noweb-ref nix-devtools-git
+userName = "David Asabina";
+userEmail = "vid@bina.me";
+#+end_src
+
 * Developer Tooling
 
 ** Literate Config
@@ -378,9 +385,15 @@ programs.git = {
 For convenience we define [[file:git/ignore]] which we want to automatically want to honor in every repo. Based on the instructions in =man gitignore= we stub the =XDG_HOME_CONFIG/.config/git/ignore= and the =~/.gitignore= files to reflect the content of [[file:git/ignore]].
 
 #+begin_src nix :noweb-ref nix-devtools-git
+ignores = [];
+#+end_src
+
+#+begin_src nix :noweb-ref nix-devtools
 # Set global gitignore
-home.file.".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
-home.file.".gitignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
+home.file = {
+  ".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
+  ".gitignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
+};
 #+end_src
 
 *** TODO COMMENT Diff: Look into delta or difftastic

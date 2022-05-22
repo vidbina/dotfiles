@@ -6,8 +6,13 @@
   # Tangling individual dev tools through nix-devtools noweb reference
   programs.git = {
     enable = true;
-    # Set global gitignore
-    home.file.".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
-    home.file.".gitignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
+    userName = "David Asabina";
+    userEmail = "vid@bina.me";
+    ignores = [];
+  };
+  # Set global gitignore
+  home.file = {
+    ".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
+    ".gitignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
   };
 }
