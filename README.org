@@ -373,6 +373,16 @@ programs.git = {
 };
 #+end_src
 
+*** Global Gitignore
+
+For convenience we define [[file:git/ignore]] which we want to automatically want to honor in every repo. Based on the instructions in =man gitignore= we stub the =XDG_HOME_CONFIG/.config/git/ignore= and the =~/.gitignore= files to reflect the content of [[file:git/ignore]].
+
+#+begin_src nix :noweb-ref nix-devtools-git
+# Set global gitignore
+home.file.".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
+home.file.".gitignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
+#+end_src
+
 *** TODO COMMENT Diff: Look into delta or difftastic
 
 #+begin_src nix :noweb-ref nix-devtools-git

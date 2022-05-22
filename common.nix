@@ -9,6 +9,7 @@ in
   imports = [
     ./mail.nix
     ./vim.nix
+    ./dev.nix
   ]
   ++ (pathIfExists ./personal.nix);
 
@@ -17,7 +18,6 @@ in
   # TODO: Remove, likely not necessary
   home.file.".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
 
-  home.file.".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
 
   home.sessionPath = [
     (toString ./bin)
