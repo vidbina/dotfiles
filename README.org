@@ -9,6 +9,13 @@ These dotfiles make my life slightly more convenient. Not promising they'll do t
 
 Refer to [[file:emacs/README.org]] for an example of a literate config that tangles into multiple output files.
 
+* TODO Add MIME types
+
+#+begin_quote conf
+application/pdf=org.pwmt.zathura-pdf-mupdf.desktop;okularApplication_pdf.desktop;
+application/octet-stream=emacsclient.desktop;
+#+end_quote
+
 * Usage
 
 My configuration is currently managed with [[https://github.com/nix-community/home-manager][home-manager]] for the better DX or UX. Before using home-manager, I manually managed symlinks from my config directory to this dotfiles repo. The use of [[https://www.gnu.org/software//stow/][GNU Stow]] was considered for a brief moment until I realized that Stow was written in Perl and I came to terms with my unwillingness to have a critical part of my stack based on tooling that brings me no joy 🙊 (on account of my troubled personal history with Perl).
