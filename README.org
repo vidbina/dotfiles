@@ -65,73 +65,7 @@ Observe the snippet below for an example of a valid personal.nix file.
   # changes in each release.
   home.stateVersion = "21.05";
 
-  home.packages =
-    let
-      writeChromiumBin = shorthand: profilePath: pkgs.writeScriptBin shorthand ''
-        exec chromium --user-data-dir=${profilePath} "$@"
-      '';
-    in
-    [
-      (writeChromiumBin "b" "$HOME/src/a/chromium-profile")
-      (writeChromiumBin "b.b" "$HOME/src/b/chromium-profile")
-      (writeChromiumBin "b.a" "$HOME/src/c/chromium-profile")
-    ];
-
-  programs.zsh.dirHashes = {
-    a-src = "$HOME/orga/src";
-    a-notes = "$HOME/orga/notes";
-    b-src = "$HOME/src/orgb/src";
-    b-notes = "$HOME/org/roam/orgb";
-  };
-
   home.packages = [ ];
-
-  programs.firefox =
-    let
-      acc = {
-        idx = 0;
-        config = { };
-      };
-      merge = ({ idx, config }: val: {
-        idx = idx + 1;
-        config = (config // {
-          "${val.name}" = val // { id = idx; };
-        });
-      });
-      makeFirefoxProfiles = l: (builtins.foldl' merge acc l).config;
-    in
-    {
-      profiles = makeFirefoxProfiles [
-        {
-          name = "personal";
-          path = "tld.personal";
-          settings = {
-            "browser.search.region" = "DE";
-            "browser.startup.homepage" = "https://news.ycombinator.com";
-            "browser.urlbar.placeholderName" = "DuckDuckGo";
-            "distribution.searchplugins.defaultLocale" = "en-US";
-            "general.useragent.locale" = "en-US";
-          };
-
-          bookmarks = {
-            yc = {
-              url = "https://news.ycombinator.com/";
-            };
-          };
-        }
-
-        {
-          name = "work";
-          path = "tld.work";
-          settings = {
-            "browser.download.dir" = "/home/vidbina/Downloads/Asabina GmbH";
-            "browser.search.region" = "DE";
-            "browser.startup.homepage" = "https://news.ycombinator.com";
-            "browser.urlbar.placeholderName" = "DuckDuckGo";
-          };
-        }
-      ];
-    };
 }
 #+end_src
 
