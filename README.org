@@ -340,6 +340,53 @@ ln -s ${PATH_TO_DOTFILE}/gitignore ${HOME}/.gitignore
 ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 #+end_src
 
+* Developer Tooling
+
+** Literate Config
+
+We will be tangling this literate configuration into the needed dev.nix file.
+
+For starters, we stub the general structure of the nix file and define the =<<nix-devtools>>= reference for us to direct our tool-specific configs into.
+
+#+begin_src nix :noweb yes :tangle dev.nix
+# Tangled from README.org
+# Please modify by editing README.org and re-tangling to generate this nix file.
+{ config, lib, pkgs, options, ... }:
+
+{
+  <<nix-devtools>>
+}
+#+end_src
+
+As an example, you can observe how we direct some comments into the previously defined reference. In the following sections, we will use this mechanism to tangle (basically "write") into parts of the dev.nix file.
+
+#+begin_src nix :noweb-ref nix-devtools
+# Tangling individual dev tools through nix-devtools noweb reference
+#+end_src
+
+** Git
+
+#+begin_src nix :noweb yes :noweb-ref nix-devtools
+programs.git = {
+  enable = true;
+  <<nix-devtools-git>>
+};
+#+end_src
+
+*** TODO COMMENT Diff: Look into delta or difftastic
+
+#+begin_src nix :noweb-ref nix-devtools-git
+delta = {
+  enable = true;
+};
+#+end_src
+
+#+begin_src nix :noweb-ref nix-devtools-git
+difftastic = {
+  enable = true;
+};
+#+end_src
+
 * Email
 
 I have multiple ways of handling e-mails. For starters, I process nearly all of my e-mails that require deep thought and the ability to verify extraneous sources from the comfort of a workstation (i.e.: my laptop and trusted 2nd brain). Mobile is only used for the quick things on the go and I don't need much fancy capabilities there since I want to see these messages again once I'm behind the workstation just to verify that I didn't miss anything during the daze of being on the go (which tends to be the case when I'm on mobile).
