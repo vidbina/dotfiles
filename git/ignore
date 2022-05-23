@@ -1,5 +1,9 @@
-# Created by https://www.toptal.com/developers/gitignore/api/emacs,vim
-# Edit at https://www.toptal.com/developers/gitignore?templates=emacs,vim
+# Created by https://www.toptal.com/developers/gitignore/api/emacs,vim,direnv
+# Edit at https://www.toptal.com/developers/gitignore?templates=emacs,vim,direnv
+
+### direnv ###
+.direnv
+.envrc
 
 ### Emacs ###
 # -*- mode: gitignore; -*-
@@ -72,4 +76,4 @@ tags
 # Persistent undo
 [._]*.un~
 
-# End of https://www.toptal.com/developers/gitignore/api/emacs,vim
+# End of https://www.toptal.com/developers/gitignore/api/emacs,vim,direnv
