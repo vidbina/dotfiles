@@ -108,8 +108,6 @@ This is a listing of the symlinks that I could track in my home directory right 
   ~/.coloritrc -> ~/dotfiles/colorit/coloritrc
   ~/.conkyrc -> ~/dotfiles/conky.conf
   ~/.emacs.d -> ~/dotfiles/emacs
-  ~/.gitconfig -> ~/dotfiles/gitconfig
-  ~/.gitignore -> ~/dotfiles/.gitignore
   ~/.lein -> ~/dotfiles/lein
   ~/.octaverc -> ~/dotfiles/octave/.octaverc
   ~/.tmux.conf -> ~/dotfiles/tmux.conf
@@ -310,27 +308,6 @@ system metrics in a GUI.
 ln -s ${PATH_TO_DOTFILE}/conky.conf ${HOME}/.conkyrc
 #+end_src
 
-*** Git
-:PROPERTIES:
-:CUSTOM_ID: git
-:END:
-
-**** Config
-:PROPERTIES:
-:CUSTOM_ID: config
-:END:
-#+begin_src shell
-ln -s ${PATH_TO_DOTFILE}/gitconfig ${HOME}/gitconfig
-#+end_src
-
-**** Ignore
-:PROPERTIES:
-:CUSTOM_ID: ignore
-:END:
-#+begin_src shell
-ln -s ${PATH_TO_DOTFILE}/gitignore ${HOME}/.gitignore
-#+end_src
-
 *** Emacs
 :PROPERTIES:
 :CUSTOM_ID: emacs
@@ -373,6 +350,23 @@ As an example, you can observe how we direct some comments into the previously d
 
 ** Git
 
+We tangle the git-related configuration into [[file:dev.nix]] but if you want to manually set things up, check out the [[manual-git][manual git instructions]].
+
+:MANUAL:
+<<manual-git>>
+Configure your gitconfig by symlinking the [[file:gitconfig]] file in this repository into the home directory.
+
+#+begin_src shell
+ln -s ./git/gitconfig ~/gitconfig
+#+end_src
+
+The global excludes file defaults to =./config/git/ignore= so we're linking our ignore go-to into this path for convenience.
+
+#+begin_src shell
+ln -s ./git/ignore ~/.config/git/ignore
+#+end_src
+:END:
+
 #+begin_src nix :noweb yes :noweb-ref nix-devtools
 programs.git = {
   enable = true;
@@ -384,15 +378,48 @@ programs.git = {
 
 For convenience we define [[file:git/ignore]] which we want to automatically want to honor in every repo. Based on the instructions in =man gitignore= we stub the =XDG_HOME_CONFIG/.config/git/ignore= and the =~/.gitignore= files to reflect the content of [[file:git/ignore]].
 
-#+begin_src nix :noweb-ref nix-devtools-git
-ignores = [];
-#+end_src
-
 #+begin_src nix :noweb-ref nix-devtools
 # Set global gitignore
 home.file = {
   ".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
-  ".gitignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
+};
+#+end_src
+
+#+begin_comment
+Note that the =programs.git.ignores= setting in home manager can not coexist with the =home.file.".config/git/ignore"= home-manager option. I'm opting for the =home-file= approach since this simplifies updates to merely copying the output of the [[https://www.toptal.com/developers/gitignore][Toptal gitignore generator]]. 😉
+#+end_comment
+
+*** Git LFS
+
+We want LFS enabled.
+
+#+begin_src nix :noweb-ref nix-devtools-git
+lfs.enable = true;
+#+end_src
+
+*** Git Extra Configuration
+
+Let's opt for naming our default branch "main", using nvim as our editor, using gpg2 are our GPG tool and setting git up to [[https://git-scm.com/docs/git-send-email][send patches by mail]].
+
+#+begin_src nix :noweb-ref nix-devtools-git
+extraConfig = {
+  init = {
+    defaultBranch = "main";
+  };
+
+  core = {
+    editor = "nvim";
+  };
+
+  gpg = {
+    program = "gpg2";
+  };
+
+  sendemail = {
+    annotate = true;
+    smtpServer = "msmtp";
+    smtpServerOption = "-a vidbina";
+  };
 };
 #+end_src
 
