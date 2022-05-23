@@ -12,7 +12,7 @@ test:
 	${NIX_SHELL} --command "make nix-build"
 
 nix-switch:
-	${HOME_MANAGER} -f ${HOME_MANAGER_CONFIG} switch
+	${HOME_MANAGER} switch -f ${HOME_MANAGER_CONFIG} --show-trace
 
 nix-build:
-	${HOME_MANAGER} -f ${HOME_MANAGER_CONFIG} -v -n build
+	${HOME_MANAGER} build -f ${HOME_MANAGER_CONFIG} -n --show-trace -v
