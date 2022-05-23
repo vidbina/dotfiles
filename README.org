@@ -5,9 +5,29 @@
 
 These dotfiles make my life slightly more convenient. Not promising they'll do the same for yours though. 😉
 
-* TODO Convert home-manager config to literate config
+* TODO [1/19] Convert home-manager config to literate config
 
 Refer to [[file:emacs/README.org]] for an example of a literate config that tangles into multiple output files.
+
+- [ ] direnv
+- [ ] .xsession
+- [ ] .Xresources.d
+- [ ] .Xmodmap
+- [ ] tmux
+- [ ] Neovim
+- [ ] Termite
+- [ ] Starship
+- [ ] Rofi
+- [ ] Redshift
+- [ ] Ghorg
+- [ ] Asciinema
+- [ ] Compton
+- [ ] Octave
+- [ ] Lein
+- [ ] Colorit
+- [ ] Conky
+- [ ] Emacs
+- [X] Git
 
 * TODO Add MIME types
 
