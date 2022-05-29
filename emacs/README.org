@@ -2772,9 +2772,9 @@ which defines an environment that is configured upon directory entry.
 
 Dropping into an appropriate shell through Projectile shell ~(projectile-run-shell)~ (or similar) commands should result to a pre-configured environment.
 
-#+begin_comment
+#+begin_center
 Update the following snippet by tangling it and trying out the code blocks by opening the resulting buffer [[file:playground/nix-direnv/README.org]] and then copying the results back into the Org block. A bit tedious, but the safer way to test this since =org-edit-special= buffers are not file buffers and thus any ~(buffer-file-name)~ calls will come up empty.
-#+end_comment
+#+end_center
 
 #+begin_src org :tangle playground/nix-direnv/README.org
 ,#+title: Experimenting with envrc binary access
