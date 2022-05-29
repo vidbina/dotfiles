@@ -2472,6 +2472,23 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
   (setq nix-nixfmt-bin "nixpkgs-fmt"))
 #+end_src
 
+**** Shebang helper for shell code blocks within nix-shell environments
+
+It is possible to define shell source blocks that can be evaluated through ob-shell but these environments don't quite seem to be Nix aware. I've explored using the [[envrc][envrc]] package but these only seem to configure a) local buffers exec paths and environment variables and b) command invocations through =shell-command-to-string= neither of which cover configuration of ob-shell invocations.
+
+Let's define a function to allow us to dynamically generate a valid shebang for shell blocks that will spawn a nix-shell to run the code in.
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/ob-shell-nix-shebang ()
+  "Shebang line for a nix-shell environment based on the buffer directory"
+  (let ((nix-directory (expand-file-name "shell.nix" (file-name-directory (buffer-file-name)))))
+    (format "#!/usr/bin/env nix-shell\n#!nix-shell -i bash %s" nix-directory)))
+#+end_src
+
+#+begin_src shell
+
+#+end_src
+
 *** Web
 
 #+begin_src elisp :tangle lang.example.el
@@ -2809,7 +2826,7 @@ hello
 The ob-shell implementation copies the contents of a code block into a temporary directory, which breaks a nix-shell setup since the copy operation does not copy along the .nix files. I considered, figuring out how to copy shell.nix over and then realized that shell.nix may import other files which opens a can of worms of which context to copy over to guarantee that the setup will work reliably. The safer way to go is to create a dynamic shebang that refers back to a shell.nix in the source directory and not the temporary directory.
 
 ,#+begin_src elisp
-(defun vidbina-ob-shell-nix-shebang ()
+(defun vidbina/ob-shell-nix-shebang ()
   "Shebang line for a nix-shell environment based on the buffer directory"
   (let ((nix-directory (expand-file-name "shell.nix" (file-name-directory (buffer-file-name)))))
     (format "#!/usr/bin/env nix-shell\n#!nix-shell -i bash %s" nix-directory)))
@@ -2818,12 +2835,12 @@ The ob-shell implementation copies the contents of a code block into a temporary
 Note that we assume that there is a shell.nix in the buffer directory. This will break if we define our shell under a different filename but I felt that assuming that a shell.nix existed was safer bet than assuming that I would know how many nix files (in whichever directory structure) to copy over to a temporary directory. 🤷🏿‍♂️
 
 ,#+begin_src org
-,,#+begin_src bash :shebang (vidbina-ob-shell-nix-shebang) :results verbatim
+,,#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang) :results verbatim
 hello
 ,,#+end_src
 ,#+end_src
 
-,#+begin_src bash :shebang (vidbina-ob-shell-nix-shebang) :results verbatim
+,#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang) :results verbatim
 hello
 ,#+end_src
 
