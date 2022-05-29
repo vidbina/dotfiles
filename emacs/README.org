@@ -2485,8 +2485,24 @@ Let's define a function to allow us to dynamically generate a valid shebang for 
     (format "#!/usr/bin/env nix-shell\n#!nix-shell -i bash %s" nix-directory)))
 #+end_src
 
-#+begin_src shell
 
+Provided that we have the following shell.nix in a buffer's directory:
+
+#+begin_src nix
+# save this as shell.nix
+{ pkgs ? import <nixpkgs> {}}:
+
+pkgs.mkShell {
+  nativeBuildInputs = [ pkgs.hello ];
+}
+#+end_src
+
+we can define a shell block with the shebang helper in the following manner to run the code inside of a nix-shell:
+
+#+begin_src shell
+,#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang) :results verbatim
+hello
+,#+end_src
 #+end_src
 
 *** Web
