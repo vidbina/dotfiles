@@ -2669,7 +2669,9 @@ In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][pa
                      :repo "emacsmirror/paredit"))
 #+end_src
 
-*** TODO Inheritenv
+*** <<inheritenv>> Inheritenv
+
+The [[https://github.com/purcell/inheritenv][inheritenv]] package configures background processes to adopt the =process environment= and =exec-path= of the calling Emacs buffer. This pacakge is used by [[envrc][envrc]] which means that we don't really have to do anything if we configure the envrc to run the show for us.
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/purcell/inheritenv
@@ -2679,7 +2681,7 @@ In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][pa
                         :repo "purcell/inheritenv"))
 #+end_src
 
-*** Envrc
+*** <<envrc>> Envrc
 
 By using the [[https://github.com/purcell/envrc][envrc]] package, buffer-local variables can be managed through the configuration of the [[https://direnv.net/][direnv]] .envrc file.
 
@@ -2689,15 +2691,34 @@ By using the [[https://github.com/purcell/envrc][envrc]] package, buffer-local v
   :straight (envrc :type git
                    :host github
                    :repo "purcell/envrc")
+  :after inheritenv
   :hook (after-init . envrc-global-mode)
   :bind-keymap ("C-c e" . envrc-command-map))
 #+end_src
 
 We bind =C-c e= to envrc to simplify access to mode toggles and reloading facilities.
 
+The use of this package, will arm =shell-command-to-string= to call [[inheritenv][inheritenv]] through the =envrc-propagate-environment= call.
+
+**** TODO Configure exec path
+
+When using changes to the path may go unnoticed to Emacs which results to shell blocks in Org files not having the proper path configurations and therefore not being able to find the right executables.
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/purcell/exec-path-from-shell
+(use-package exec-path-from-shell
+  :straight (exec-path-from-shell :type git
+                                  :host github
+                                  :repo "purcell/exec-path-from-shell")
+  :config (when (daemonp)
+            (exec-path-from-shell-initialize)))
+#+end_src
+
+https://emacs.stackexchange.com/questions/53773/best-way-to-make-org-babel-blocks-aware-of-my-path-and-other-environment-variab
+
 **** Example Usage
 
-As a Nix ❄️ user, there are a few [[https://github.com/direnv/direnv/wiki/Nix][options]] available for managing direnv environments of which [[https://github.com/nix-community/nix-direnv][nix-direnv]] happened to be an easier and faster option. As an example, observe the following *shell.nix* or *default.nix*
+As a Nix ❄️ user, there are a few [[https://github.com/direnv/direnv/wiki/Nix][options]] available for managing direnv environments of which [[https://github.com/nix-community/nix-direnv][nix-direnv]] happened to be an easier and faster option. As an example, observe the following shell.nix:
 
 #+begin_src nix :tangle playground/nix-direnv/shell.nix
 # save this as shell.nix
@@ -2718,20 +2739,97 @@ which defines an environment that is configured upon directory entry.
 
 Dropping into an appropriate shell through Projectile shell ~(projectile-run-shell)~ (or similar) commands should result to a pre-configured environment.
 
+#+begin_comment
+Update the following snippet by tangling it and trying out the code blocks by opening the resulting buffer [[file:playground/nix-direnv/README.org]] and then copying the results back into the Org block. A bit tedious, but the safer way to test this since =org-edit-special= buffers are not file buffers and thus any ~(buffer-file-name)~ calls will come up empty.
+#+end_comment
+
 #+begin_src org :tangle playground/nix-direnv/README.org
-,* Test
+,#+title: Experimenting with envrc binary access
+
+Just trying to get a handle of what we can reach from Emacs Org-Babel when utilizing envrc to manage environments.
+
+,* Calling envrc binaries through =shell-command-to-string=
+
+[[https://github.com/purcell/inheritenv#make-emacs-temp-buffers-inherit-buffer-local-environment-variables][Thanks to inheritenv]], the =shell-command-to-string= function can be used to run commands within the envrc environment.
+
+,** With envrc-global-mode disabled
+
+Without envrc enabled, the hello binary is not accessible.
 
 ,#+begin_src elisp
+(envrc-mode -1)
+(shell-command-to-string "hello")
+,#+end_src
+
+,#+RESULTS:
+: zsh:1: command not found: hello
+
+,** With envrc-global-mode enabled
+
+With envrc enabled, the hello binary is found and successfully executed.
+
+,#+begin_src elisp
+(envrc-mode 1)
 (shell-command-to-string "hello")
 ,#+end_src
 
 ,#+RESULTS:
 : Hello, world!
+
+,* Calling envrc binaries through a shell block
+
+Regardless of the envrc enabled state, calling of envrc managed binaries seems to be a problem directly from bash blocks. The following block will therefore error out with a "bash: line 1: hello: command not found".
+
+,#+begin_src org
+,,#+begin_src bash :results none
+hello
+,,#+end_src
+,#+end_src
+
+,#+begin_src bash :results none
+hello
+,#+end_src
+
+,#+begin_center
+⚠️ Surely I must have overlooked the idiomatic way to configure Emacs to run ob-shell inside of nix shells so please shoot me a note if you know what I'm missing here. 🤷🏿‍♂️
+,#+end_center
+
+By defining a shebang header argument, we can inform Emacs how to run the code in a shell block but a simple shebang may not suffice as is evident by the "error: getting status of '/tmp/babel-K6A1O8/shell.nix': No such file or directory" error that is being throw when I run the following:
+
+,#+begin_src org
+,,#+begin_src bash :shebang "#!/usr/bin/env nix-shell" :results none
+hello
+,,#+end_src
+,#+end_src
+
+,#+begin_src bash :shebang "#!/usr/bin/env nix-shell" :results none
+hello
+,#+end_src
+
+The ob-shell implementation copies the contents of a code block into a temporary directory, which breaks a nix-shell setup since the copy operation does not copy along the .nix files. I considered, figuring out how to copy shell.nix over and then realized that shell.nix may import other files which opens a can of worms of which context to copy over to guarantee that the setup will work reliably. The safer way to go is to create a dynamic shebang that refers back to a shell.nix in the source directory and not the temporary directory.
+
+,#+begin_src elisp
+(defun vidbina-ob-shell-nix-shebang ()
+  "Shebang line for a nix-shell environment based on the buffer directory"
+  (let ((nix-directory (expand-file-name "shell.nix" (file-name-directory (buffer-file-name)))))
+    (format "#!/usr/bin/env nix-shell\n#!nix-shell -i bash %s" nix-directory)))
+,#+end_src
+
+Note that we assume that there is a shell.nix in the buffer directory. This will break if we define our shell under a different filename but I felt that assuming that a shell.nix existed was safer bet than assuming that I would know how many nix files (in whichever directory structure) to copy over to a temporary directory. 🤷🏿‍♂️
+
+,#+begin_src org
+,,#+begin_src bash :shebang (vidbina-ob-shell-nix-shebang) :results verbatim
+hello
+,,#+end_src
+,#+end_src
+
+,#+begin_src bash :shebang (vidbina-ob-shell-nix-shebang) :results verbatim
+hello
+,#+end_src
+
+,#+RESULTS:
+: Hello, world!
 #+end_src
-
-***** TODO Verify that file is broken README.org
-
-Check if disabling of the envrc-global-mode affects the ability of the [[file:./playground/nix-direnv/README.org]] block to complete.
 
 ** LSP
 
