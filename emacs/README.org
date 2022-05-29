@@ -2472,6 +2472,26 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
   (setq nix-nixfmt-bin "nixpkgs-fmt"))
 #+end_src
 
+*** Web
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/fxbois/web-mode
+(use-package web-mode
+  :straight (web-mode :type git
+                      :host github
+                      :repo "fxbois/web-mode"))
+#+end_src
+
+**** Vue
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/fxbois/web-mode
+(use-package web-mode
+  :straight (web-mode :type git
+                      :host github
+                      :repo "fxbois/web-mode"))
+#+end_src
+
 ** General Purpose Programming Languages
 
 *** Go (Golang)

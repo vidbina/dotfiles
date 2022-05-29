@@ -126,6 +126,18 @@
   :init
   (setq nix-nixfmt-bin "nixpkgs-fmt"))
 
+;; https://github.com/fxbois/web-mode
+(use-package web-mode
+  :straight (web-mode :type git
+                      :host github
+                      :repo "fxbois/web-mode"))
+
+;; https://github.com/fxbois/web-mode
+(use-package web-mode
+  :straight (web-mode :type git
+                      :host github
+                      :repo "fxbois/web-mode"))
+
 ;; https://github.com/dominikh/go-mode.el
 (use-package go-mode
   :straight (go-mode :type git
