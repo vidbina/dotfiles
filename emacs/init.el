@@ -396,6 +396,21 @@
   :delight
   (evil-collection-unimpaired-mode))
 
+;; https://github.com/alexmurray/evil-vimish-fold
+(use-package evil-vimish-fold
+  :straight (evil-vimish-fold :type git
+                              :host github
+                              :repo "alexmurray/evil-vimish-fold")
+  :after vimish-fold
+  :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
+
+;; https://github.com/matsievskiysv/vimish-fold
+(use-package vimish-fold
+  :straight (vimish-fold :type git
+                         :host github
+                         :repo "matsievskiysv/vimish-fold")
+  :after evil)
+
 ;; https://github.com/magit/magit.git
 (use-package magit
   :straight (magit :type git
