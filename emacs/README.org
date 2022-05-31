@@ -1041,9 +1041,9 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
 🚨 *Remember the =C-z= binding to exit the 'emacs state and return to 'normal state.* You may accidentally change =evil-state= (evil states are the equivalent to modes in vim vernacular) to =emacs= which will leave you with really annoying results when attempting to quickly navigate/edit your buffers. I've been cursing often enough thinking that my config was broken 🤬 when I had just accidentally pressed =C-z= and ended up in Emacs state. 🤦🏿‍♂️
 #+end_center
 
-*** <<evil-vimish-fold>> Folding in a vimish fashion
+*** <<evil-vimish-fold>> Folding in a "vimish" fashion
 
-The [[https://github.com/alexmurray/evil-vimish-fold][evil-vimish-fold]] package integrates [[vimish-fold]] with we can in vim through the =z f= bindings.
+The [[https://github.com/alexmurray/evil-vimish-fold][evil-vimish-fold]] package does exactly what the name implies and integrates evil and [[vimish-fold]] such that we can fold regions through the [[https://vim.fandom.com/wiki/Folding][vim-like bindings]] with classics such as =z f= to fold, =z o= to open and =z d= to delete.
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/alexmurray/evil-vimish-fold
