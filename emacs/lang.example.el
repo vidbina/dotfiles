@@ -155,6 +155,12 @@
   (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
   (define-key js-mode-map (kbd "C-c b") 'js-send-buffer))
 
+;; https://github.com/emacs-typescript/typescript.el
+(use-package typescript
+  :straight (typescript :type git
+                        :host github
+                        :repo "emacs-typescript/typescript.el"))
+
 ;; https://emacs-lsp.github.io/lsp-java/
 (use-package lsp-java
   :straight (lsp-java :type git

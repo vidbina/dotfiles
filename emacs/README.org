@@ -2564,7 +2564,9 @@ hello
                      :repo "dominikh/go-mode.el"))
 #+end_src
 
-*** JavaScript
+*** JavaScript (ECMAScript or ES)
+
+Since JavaScript is everywhere, let's make sure we can at least read it with ease.
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/redguardtoo/js-comint
@@ -2577,6 +2579,18 @@ hello
   :config
   (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
   (define-key js-mode-map (kbd "C-c b") 'js-send-buffer))
+#+end_src
+
+**** TypeScript
+
+Superset of JavaScript that folks really should be using instead of just vanilla JS but we're not here to judge. 🤷🏿‍♂️
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacs-typescript/typescript.el
+(use-package typescript
+  :straight (typescript :type git
+                        :host github
+                        :repo "emacs-typescript/typescript.el"))
 #+end_src
 
 *** Java
