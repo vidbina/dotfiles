@@ -218,6 +218,16 @@
 ;; http://ergoemacs.org/emacs/whitespace-mode.html
 (global-whitespace-mode nil)
 
+;; https://github.com/Malabarba/smart-mode-line
+(use-package smart-mode-line
+  :after
+  (:all delight diminish)
+  :straight
+  (smart-mode-line :type git
+                   :host github
+                   :repo "Malabarba/smart-mode-line"))
+
+;; https://git.savannah.nongnu.org/git/delight.git
 (use-package delight
   :straight (delight :type git
                      :host nil
