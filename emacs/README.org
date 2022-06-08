@@ -2587,10 +2587,11 @@ Superset of JavaScript that folks really should be using instead of just vanilla
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacs-typescript/typescript.el
-(use-package typescript
-  :straight (typescript :type git
-                        :host github
-                        :repo "emacs-typescript/typescript.el"))
+(use-package typescript-mode
+  :straight
+  (typescript-mode :type git
+                   :host github
+                   :repo "emacs-typescript/typescript.el"))
 #+end_src
 
 *** Java

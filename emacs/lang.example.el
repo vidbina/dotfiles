@@ -156,10 +156,11 @@
   (define-key js-mode-map (kbd "C-c b") 'js-send-buffer))
 
 ;; https://github.com/emacs-typescript/typescript.el
-(use-package typescript
-  :straight (typescript :type git
-                        :host github
-                        :repo "emacs-typescript/typescript.el"))
+(use-package typescript-mode
+  :straight
+  (typescript-mode :type git
+                   :host github
+                   :repo "emacs-typescript/typescript.el"))
 
 ;; https://emacs-lsp.github.io/lsp-java/
 (use-package lsp-java
