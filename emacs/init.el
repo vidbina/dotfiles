@@ -411,7 +411,8 @@
   :straight (evil-vimish-fold :type git
                               :host github
                               :repo "alexmurray/evil-vimish-fold")
-  :after vimish-fold
+  :after
+  (:all vimish-fold)
   :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
 
 ;; https://github.com/matsievskiysv/vimish-fold
