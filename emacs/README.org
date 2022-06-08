@@ -674,25 +674,26 @@ The modeline is the bar typically at the bottom of a buffer which provides usefu
 Since the amount of textual information in the Modeline can get overwhelming at times, we provide horizontally succinct (i.e.: single char) pictographic indicators for the Modeline instead.
 
 #+begin_src elisp :tangle init.el
+;; https://git.savannah.nongnu.org/git/delight.git
 (use-package delight
   :straight (delight :type git
                      :host nil
                      :repo "https://git.savannah.nongnu.org/git/delight.git")
   :delight
   (auto-revert-mode "♻️")
-  (eldoc-mode " el📖")
+  (eldoc-mode "el📖")
   (edebug-mode "🐞")
   (global-whitespace-mode)
-  (visual-line-mode " 🌯")
+  (visual-line-mode "🌯")
   (mu4e-main-mode "📫")
   (mu4e-headers-mode "📬")
   (mu4e-view-mode "📧"))
 
+;; https://github.com/myrjola/diminish.el
 (use-package diminish
   :straight (diminish :type git
                       :host github
-                      :repo "myrjola/diminish.el")
-  :disabled)
+                      :repo "myrjola/diminish.el"))
 #+end_src
 
 One can debug the configuration by examining the =minor-mode-alist= variable to verify if the delight/diminish configurations are correctly applied to the configuration variable.

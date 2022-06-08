@@ -224,19 +224,19 @@
                      :repo "https://git.savannah.nongnu.org/git/delight.git")
   :delight
   (auto-revert-mode "♻️")
-  (eldoc-mode " el📖")
+  (eldoc-mode "el📖")
   (edebug-mode "🐞")
   (global-whitespace-mode)
-  (visual-line-mode " 🌯")
+  (visual-line-mode "🌯")
   (mu4e-main-mode "📫")
   (mu4e-headers-mode "📬")
   (mu4e-view-mode "📧"))
 
+;; https://github.com/myrjola/diminish.el
 (use-package diminish
   :straight (diminish :type git
                       :host github
-                      :repo "myrjola/diminish.el")
-  :disabled)
+                      :repo "myrjola/diminish.el"))
 
 ;; https://github.com/joostkremers/visual-fill-column
 (use-package visual-fill-column
