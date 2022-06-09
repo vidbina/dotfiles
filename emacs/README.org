@@ -2646,11 +2646,11 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
 
 It is possible to define shell source blocks that can be evaluated through ob-shell but these environments don't quite seem to be Nix aware. I've explored using the [[envrc][envrc]] package but these only seem to configure a) local buffers exec paths and environment variables and b) command invocations through =shell-command-to-string= neither of which cover configuration of ob-shell invocations.
 
-***** CANCELED Experiment with shebang generators
-:LOGBOOK:
-- State "CANCELED"   from "TODO"       [2022-06-01 Wed 22:54] \\
-  Between =nix-shell= and =nix develop=, only =nix-shell= allows usage as a shell interpreter which is why a shebang interpreter line only works for =nix-shell=. Any attempt to achieve the same with =nix develop= is just going to fail, so I'm attempting a comint-based approach instead.
-:END:
+***** Generate shebang lines for nix shells
+
+In order to use nix shells in literate programs, we need an ability to eval shell code blocks in a Nix-aware manner. The standard shell executor, copies the contents of a code block into the tmp directory and executes it there. Since nix-shells are location dependent (because the shell.nix or any other .nix file in the source directory may be required to adequately run them), we provide a means to define a shebang line for nix-shell runs.
+
+****** PROTOTYPE nix-shell ob-shell shebang generator
 
 Let's define a function to allow us to dynamically generate a valid shebang for shell blocks that will spawn a nix-shell to run the code in.
 
@@ -2664,14 +2664,7 @@ Let's define a function to allow us to dynamically generate a valid shebang for 
     (format "#!/usr/bin/env nix-shell\n#!nix-shell -i bash %s" nix-file)))
 #+end_src
 
-#+begin_src elisp :tangle personal-example.el :results none
-(defun vidbina/ob-shell-nix-develop-shebang ()
-  "Shebang line for a nix develop environment based on the buffer directory"
-  (let ((nix-directory (file-name-directory (buffer-file-name))))
-    (format "#!/usr/bin/env -vS nix develop --inputs-from %s" nix-directory)))
-#+end_src
-
-Provided that we have the following shell.nix in a buffer's directory:
+Testing against [[file:../shell.nix]] which should roughly contain a superset of:
 
 #+begin_src nix
 # save this as shell.nix
@@ -2703,6 +2696,19 @@ The following example should fail because the shebang helper checks that the sup
 
 #+begin_src bash :shebang (vidbina/ob-shell-nix-shebang (list "a")) :results verbatim
 hello
+#+end_src
+
+****** CANCELED COMMENT nix-develop ob-shell shebang generator
+:LOGBOOK:
+- State "CANCELED"   from "TODO"       [2022-06-01 Wed 22:54] \\
+  Between =nix-shell= and =nix develop=, only =nix-shell= allows usage as a shell interpreter which is why a shebang interpreter line only works for =nix-shell=. Any attempt to achieve the same with =nix develop= is just going to fail, so I'm attempting a comint-based approach instead.
+:END:
+
+#+begin_src elisp :tangle personal-example.el :results none
+(defun vidbina/ob-shell-nix-develop-shebang ()
+  "Shebang line for a nix develop environment based on the buffer directory"
+  (let ((nix-directory (file-name-directory (buffer-file-name))))
+    (format "#!/usr/bin/env -vS nix develop --inputs-from %s" nix-directory)))
 #+end_src
 
 ****** References
