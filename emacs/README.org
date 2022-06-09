@@ -373,6 +373,29 @@ Looking into htmlize started when stumbling upon errors in exporting Org blocks 
   (htmlize-ignore-face-size t))
 #+end_src
 
+** COMMENT ox-slimhtml
+
+https://github.com/balddotcat/ox-slimhtml
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/balddotcat/ox-slimhtml
+(use-package ox-slimhtml
+  :straight (ox-slimhtml :type git
+                         :host github
+                         :repo "balddotcat/ox-slimhtml")
+  :after org
+  :config
+  (org-export-string-as "org content" 'slimhtml t)
+  (org-export-to-buffer 'slimhtml "*slimhtml*")
+
+  (org-export-define-derived-backend
+      'custom-html-exporter
+      'slimhtml                             ;; org's default exporter is 'html
+    :translate-alist
+    '((bold . ox-slimhtml-bold)             ;; technically, this is already set
+      (special-block . org-html-special-block))))
+#+end_src
+
 ** TODO Bibliography
 
 *** ol-BibTeX (Org-BibTeX): Bibliography through org properties
