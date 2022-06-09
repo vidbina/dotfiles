@@ -2642,19 +2642,31 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
   (setq nix-nixfmt-bin "nixpkgs-fmt"))
 #+end_src
 
-**** Shebang helper for shell code blocks within nix-shell environments
+**** WIP Org-babel support for nix shells
 
 It is possible to define shell source blocks that can be evaluated through ob-shell but these environments don't quite seem to be Nix aware. I've explored using the [[envrc][envrc]] package but these only seem to configure a) local buffers exec paths and environment variables and b) command invocations through =shell-command-to-string= neither of which cover configuration of ob-shell invocations.
 
+***** CANCELED Experiment with shebang generators
+:LOGBOOK:
+- State "CANCELED"   from "TODO"       [2022-06-01 Wed 22:54] \\
+  Between =nix-shell= and =nix develop=, only =nix-shell= allows usage as a shell interpreter which is why a shebang interpreter line only works for =nix-shell=. Any attempt to achieve the same with =nix develop= is just going to fail, so I'm attempting a comint-based approach instead.
+:END:
+
 Let's define a function to allow us to dynamically generate a valid shebang for shell blocks that will spawn a nix-shell to run the code in.
 
-#+begin_src elisp :tangle personal-example.el
+#+begin_src elisp :tangle personal-example.el :results none
 (defun vidbina/ob-shell-nix-shebang ()
   "Shebang line for a nix-shell environment based on the buffer directory"
-  (let ((nix-directory (expand-file-name "shell.nix" (file-name-directory (buffer-file-name)))))
-    (format "#!/usr/bin/env nix-shell\n#!nix-shell -i bash %s" nix-directory)))
+  (let ((nix-file (expand-file-name "shell.nix" (file-name-directory (buffer-file-name)))))
+    (format "#!/usr/bin/env nix-shell\n#!nix-shell -i bash %s" nix-file)))
 #+end_src
 
+#+begin_src elisp :tangle personal-example.el :results none
+(defun vidbina/ob-shell-nix-develop-shebang ()
+  "Shebang line for a nix develop environment based on the buffer directory"
+  (let ((nix-directory (file-name-directory (buffer-file-name))))
+    (format "#!/usr/bin/env -vS nix develop --inputs-from %s" nix-directory)))
+#+end_src
 
 Provided that we have the following shell.nix in a buffer's directory:
 
@@ -2674,6 +2686,19 @@ we can define a shell block with the shebang helper in the following manner to r
 hello
 ,#+end_src
 #+end_src
+
+which can be executed as follows with the result listed thereafter:
+
+#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang) :results verbatim
+hello
+#+end_src
+
+#+RESULTS:
+
+****** References
+
+- https://www.reddit.com/r/NixOS/comments/r15hx4/nix_shell_vs_nix_develop/
+- https://blog.ysndr.de/posts/guides/2021-12-01-nix-shells/
 
 *** Web
 
