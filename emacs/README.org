@@ -242,6 +242,7 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
 (use-package org
   :straight (:type built-in)
+  :after htmlize
   :init
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
@@ -350,7 +351,7 @@ The ox-clip exporters allow us to export fragments of our org documents into ric
   ("C-c y" . ox-clip-formatted-copy))
 #+end_src
 
-** TODO htmlize
+** WIP htmlize
 
 Running ~(straight-dependants "htmlize")~ yields =("ox-clip" ("org-ref" "org-roam-bibtex"))= so we define htmlize to control the version of htmlize that is installed since the implict configuration resulted to an outdated version of htmlize on my system.
 
@@ -365,7 +366,6 @@ Looking into htmlize started when stumbling upon errors in exporting Org blocks 
                      :branch "fix-face-size-unspecified-head"
                      :repo "vidbina/emacs-htmlize"
                      :local-repo "~/src/vidbina/emacs-htmlize")
-  :after org
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
   (setq org-html-htmlize-output-type 'inline-css)
