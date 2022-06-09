@@ -260,6 +260,17 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
   (org-catch-invisible-edits 'error "Disable invisible edits"))
 #+end_src
 
+#+RESULTS:
+: t
+
+** Tips
+
+*** Peeking through Org buffers
+
+When navigating large buffers of Org, one can quickly peek through parts of the buffer in order to return to continue editing text thereafter. Do this by entering =org-goto= which is bound to =C-c C-j= by default and then using =org-occur= which is bound to =/= by default to have a glance and finally return by =C-g=.
+
+Note that entering org-occur pulls up a buffer that provides some instructions.
+
 ** Org-Tempo
 
 [[https://orgmode.org/manual/Structure-Templates.html][Structure templates]] allow one to quickly produce convenient src or quote blocks with just three keypresses. For example
@@ -1357,6 +1368,8 @@ The [[https://github.com/minad/vertico][vertico]] package provides a lighter com
   :hook (minibuffer-setup . cursor-intangible-mode))
 #+end_src
 
+💡 Remember that non-existing options can be entered using =M RET= instead of =RET= (which is convenient when trying to enter options in finders).
+
 *** COMMENT Ivy, Swiper and Counsel
 
 The [[https://github.com/abo-abo/swiper][swiper]] package, or rather repository, contains three packages actually being:
@@ -1707,7 +1720,7 @@ The [[https://github.com/nex3/perspective-el][Perspective]] package provides som
 
 *** persp-mode
 
-Unlike [[*Perspective][Perspective]], [[https://github.com/Bad-ptr/persp-mode.el][persp-mode]] allows us to manage /perspectives/ across frames (i.e.: different desktop windows for Emacs). In my usage of Emacs, this was becoming more of a requirement since I often end up opening Emacs frames where I want the convenience of selecting either of the /perspectives/ that have been curated before. The [[https://github.com/nex3/perspective-el#similar-packages][Perspective documentation]] provides a helpful writeup of the alternative solutions available for perspective-management in Emacs which includes persp-mode.
+Unlike Perspective, [[https://github.com/Bad-ptr/persp-mode.el][persp-mode]] allows us to manage /perspectives/ across frames (i.e.: different desktop windows for Emacs). In my usage of Emacs, this was becoming more of a requirement since I often end up opening Emacs frames where I want the convenience of selecting either of the /perspectives/ that have been curated before. The [[https://github.com/nex3/perspective-el#similar-packages][Perspective documentation]] provides a helpful writeup of the alternative solutions available for perspective-management in Emacs which includes persp-mode.
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/Bad-ptr/persp-mode.el
