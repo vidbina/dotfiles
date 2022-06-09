@@ -254,7 +254,8 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
 
   <<org-config>>
   :custom
-  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
+  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation")
+  (org-catch-invisible-edits 'error "Disable invisible edits"))
 #+end_src
 
 ** Org-Tempo

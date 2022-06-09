@@ -81,7 +81,8 @@
           ("texcl" "false")
           ("upquote" "false")))
   :custom
-  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
+  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation")
+  (org-catch-invisible-edits 'error "Disable invisible edits"))
 
 ;; https://github.com/jkitchin/ox-clip
 ;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
