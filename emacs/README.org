@@ -236,7 +236,7 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
 2. natively allows for the notation of dates and times which allow for things like time-tracking and planning within a single document.
 3. natively provides table support
 
-#+begin_src elisp :noweb yes :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el :results none
 ;; https://orgmode.org/worg/org-contrib/org-protocol.html
 ;; https://github.com/org-roam/org-roam/issues/529
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
@@ -258,11 +258,9 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
   <<org-config>>
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation")
-  (org-catch-invisible-edits 'error "Disable invisible edits"))
+  (org-catch-invisible-edits 'error "Disable invisible edits")
+  (org-src-window-setup 'current-window "Show edit buffer in calling window"))
 #+end_src
-
-#+RESULTS:
-: t
 
 ** Tips
 
