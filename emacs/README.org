@@ -2655,9 +2655,12 @@ It is possible to define shell source blocks that can be evaluated through ob-sh
 Let's define a function to allow us to dynamically generate a valid shebang for shell blocks that will spawn a nix-shell to run the code in.
 
 #+begin_src elisp :tangle personal-example.el :results none
-(defun vidbina/ob-shell-nix-shebang ()
+(defun vidbina/ob-shell-nix-shebang (&optional shell-file)
   "Shebang line for a nix-shell environment based on the buffer directory"
-  (let ((nix-file (expand-file-name "shell.nix" (file-name-directory (buffer-file-name)))))
+  (unless (stringp shell-file) (error "shell-file must be a string"))
+  (let ((shell-file (or shell-file "shell.nix"))
+        (nix-file (expand-file-name shell-file
+                                    (file-name-directory (buffer-file-name)))))
     (format "#!/usr/bin/env nix-shell\n#!nix-shell -i bash %s" nix-file)))
 #+end_src
 
@@ -2681,7 +2684,7 @@ pkgs.mkShell {
 
 we can define a shell block with the shebang helper in the following manner to run the code inside of a nix-shell:
 
-#+begin_src shell
+#+begin_src org
 ,#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang) :results verbatim
 hello
 ,#+end_src
@@ -2689,11 +2692,18 @@ hello
 
 which can be executed as follows with the result listed thereafter:
 
-#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang) :results verbatim
+#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang "../shell.nix") :results verbatim
 hello
 #+end_src
 
 #+RESULTS:
+: Hello, world!
+
+The following example should fail because the shebang helper checks that the supplied argument is a valid string that can be expanded into a path:
+
+#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang (list "a")) :results verbatim
+hello
+#+end_src
 
 ****** References
 

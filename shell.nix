@@ -20,6 +20,7 @@ pkgs.mkShell rec {
     (import hm-src { inherit pkgs; }).home-manager
 
     cacert # to resolve CA cert issue
+    hello
     git
     nix
     ncurses # to resolve tput issue
