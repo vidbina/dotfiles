@@ -376,6 +376,12 @@
   :config
   (async-bytecomp-package-mode 1))
 
+;; https://github.com/victorhge/iedit
+(use-package iedit
+  :straight (iedit :type git
+                   :host github
+                   :repo "victorhge/iedit"))
+
 ;; https://github.com/emacs-evil/evil
 ;; https://github.com/noctuid/evil-guide
 (use-package evil
