@@ -425,6 +425,14 @@
                          :repo "matsievskiysv/vimish-fold")
   :after evil)
 
+;; https://github.com/bastibe/annotate.el
+(use-package annotate
+  :straight (annotate :type git
+                      :host github
+                      :repo "bastibe/annotate.el")
+  :custom
+  (annotate-file-buffer-local nil "Use central annotations file"))
+
 ;; https://github.com/magit/magit.git
 (use-package magit
   :straight (magit :type git

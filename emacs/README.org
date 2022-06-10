@@ -1131,6 +1131,22 @@ The [[https://github.com/matsievskiysv/vimish-fold][vimish-fold]] package allows
   :after evil)
 #+end_src
 
+** WIP Annotation
+
+The [[https://github.com/bastibe/annotate.el][annotate.el]] package allows us to annotate code in different projects without affecting those project directories themselves. Think of it as your personal marker/highligher toolbox for source code.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/bastibe/annotate.el
+(use-package annotate
+  :straight (annotate :type git
+                      :host github
+                      :repo "bastibe/annotate.el")
+  :custom
+  (annotate-file-buffer-local nil "Use central annotations file"))
+#+end_src
+
+Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
+
 ** Version Control
 
 *** TODO Magit: Git Porcelain
