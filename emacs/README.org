@@ -633,7 +633,7 @@ In order to query Org files with more flexibility, [[https://github.com/alphapap
 
 In the most basic usage form you can basically run ~org-ql-search~ and just enter =todo= to get a basic listing.
 
-** ob-async
+** <<ob-async>> ob-async
 
 In some cases, code blocks need to be executed in a non-blocking manner (e.g.: when firing up a test instance of emacs or triggering a large file transfer). The [[https://github.com/astahlman/ob-async][ob-async]] package allow async execution of code-blocks by simply adding the =:async= keyword to the a codeblock of interest.
 
@@ -643,6 +643,171 @@ In some cases, code blocks need to be executed in a non-blocking manner (e.g.: w
   :straight (ob-async :type git
                       :host github
                       :repo "astahlman/ob-async"))
+#+end_src
+
+Under the hood ob-async depends on [[async]] and can be used by specifying an =:async= header on a code block as demonstrated below:
+
+#+begin_src bash :async
+echo hi
+#+end_src
+
+#+RESULTS:
+: hi
+
+*** WIP Remove properties from injected variable values
+
+At line [[(async-inject)]], we strip properties from injected string values but this does not resolve the =invalid-read-syntax "#"= errors. More work continues on [[async]].
+
+#+begin_src elisp -n -r :results none
+(defun ob-async-org-babel-execute-src-block (&optional orig-fun arg info params)
+  "Like org-babel-execute-src-block, but run asynchronously.
+
+Original docstring for org-babel-execute-src-block:
+
+Execute the current source code block.  Insert the results of
+execution into the buffer.  Source code execution and the
+collection and formatting of results can be controlled through a
+variety of header arguments.
+
+With prefix argument ARG, force re-execution even if an existing
+result cached in the buffer would otherwise have been returned.
+
+Optionally supply a value for INFO in the form returned by
+`org-babel-get-src-block-info'.
+
+Optionally supply a value for PARAMS which will be merged with
+the header arguments specified at the front of the source code
+block."
+  (interactive "P")
+  (cond
+   ;; If this function is not called as advice, do nothing
+   ((not orig-fun)
+    (warn "ob-async-org-babel-execute-src-block is no longer needed in org-ctrl-c-ctrl-c-hook")
+    nil)
+   ;; If there is no :async parameter, call the original function
+   ((not (assoc :async (nth 2 (or info (org-babel-get-src-block-info)))))
+    (funcall orig-fun arg info params))
+   ;; If the src block language is in the list of languages async is not to be
+   ;; used for, call the original function
+   ((member (nth 0 (or info (org-babel-get-src-block-info)))
+            ob-async-no-async-languages-alist)
+    (funcall orig-fun arg info params))
+   ;; Otherwise, perform asynchronous execution
+   (t
+    (let ((placeholder (ob-async--generate-uuid)))
+      ;; Here begins the original source of org-babel-execute-src-block
+      (let* ((org-babel-current-src-block-location
+              (or org-babel-current-src-block-location
+                  (nth 5 info)
+                  (org-babel-where-is-src-block-head)))
+             (src-block-marker (save-excursion
+                                 (goto-char org-babel-current-src-block-location)
+                                 (point-marker)))
+             (info (if info (copy-tree info) (org-babel-get-src-block-info))))
+        ;; Merge PARAMS with INFO before considering source block
+        ;; evaluation since both could disagree.
+        (cl-callf org-babel-merge-params (nth 2 info) params)
+        (when (org-babel-check-evaluate info)
+          (cl-callf org-babel-process-params (nth 2 info))
+          (let* ((params (nth 2 info))
+                 (cache (let ((c (cdr (assq :cache params))))
+                          (and (not arg) c (string= "yes" c))))
+                 (new-hash (and cache (org-babel-sha1-hash info)))
+                 (old-hash (and cache (org-babel-current-result-hash)))
+                 (current-cache (and new-hash (equal new-hash old-hash)))
+                 (result-params (cdr (assq :result-params params))))
+            (cond
+             (current-cache
+              (save-excursion		;Return cached result.
+                (goto-char (org-babel-where-is-src-block-result nil info))
+                (forward-line)
+                (skip-chars-forward " \t")
+                (let ((result (org-babel-read-result)))
+                  (message (replace-regexp-in-string "%" "%%" (format "%S" result)))
+                  result)))
+             ((org-babel-confirm-evaluate info)
+              ;; Insert a GUID as a placeholder in our RESULTS block
+              (when (not (or (member "none" result-params)
+                             (member "silent" result-params)))
+                (org-babel-insert-result placeholder '("replace")))
+              (let* ((lang (nth 0 info))
+                     ;; Expand noweb references in BODY and remove any
+                     ;; coderef.
+                     (body
+                      (let ((coderef (nth 6 info))
+                            (expand
+                             (if (org-babel-noweb-p params :eval)
+                                 (org-babel-expand-noweb-references info)
+                               (nth 1 info))))
+                        (if (not coderef) expand
+                          (replace-regexp-in-string
+                           (org-src-coderef-regexp coderef) "" expand nil nil 1))))
+                     (dir (cdr (assq :dir params)))
+                     (default-directory
+                       (or (and dir (file-name-as-directory (expand-file-name dir)))
+                           default-directory))
+                     (cmd (intern (concat "org-babel-execute:" lang)))
+                     (org-babel-async-content
+                      (buffer-substring-no-properties (point-min) (point-max)))
+                     result)
+                (unless (fboundp cmd)
+                  (error "No org-babel-execute function for %s!" lang))
+                (message "executing %s code block%s..."
+                         (capitalize lang)
+                         (let ((name (nth 4 info)))
+                           (if name (format " (%s)" name) "")))
+                (progn
+                  (async-start
+                   `(lambda ()
+                      ;; TODO: Put this in a function so it can be overidden
+                      ;; Initialize the new Emacs process with org-babel functions
+                      (setq exec-path ',exec-path)
+                      (setq load-path ',load-path)
+                      ,(async-inject-variables ob-async-inject-variables nil nil t) (ref:async-inject)
+                      (package-initialize)
+                      (setq ob-async-pre-execute-src-block-hook ',ob-async-pre-execute-src-block-hook)
+                      (run-hooks 'ob-async-pre-execute-src-block-hook)
+                      (org-babel-do-load-languages 'org-babel-load-languages ',org-babel-load-languages)
+                      (let ((default-directory ,default-directory))
+                        (with-temp-buffer
+                          (insert org-babel-async-content)
+                          (,cmd ,body ',params))))
+                   `(lambda (result)
+                      (with-current-buffer ,(current-buffer)
+                        (let ((default-directory ,default-directory))
+                          (save-excursion
+                            (cond
+                              ((member "none" ',result-params)
+                               (message "result silenced"))
+                              ((member "silent" ',result-params)
+                               (message (replace-regexp-in-string "%" "%%" (format "%S" result))))
+                              (t
+                               (goto-char ,src-block-marker)
+                               (let ((file (cdr (assq :file ',params))))
+                                 (when file
+                                   ;; when result type is link, don't write result content to file.
+                                   (unless (member "link" ',result-params)
+                                     ;; If non-empty result and :file then write to :file.
+                                     (when result
+                                       (with-temp-file file
+                                         (insert (org-babel-format-result
+                                                  result (cdr (assq :sep ',params)))))))
+                                   (setq result file))
+                                 ;; Possibly perform post process provided its
+                                 ;; appropriate.  Dynamically bind "*this*" to the
+                                 ;; actual results of the block.
+                                 (let ((post (cdr (assq :post ',params))))
+                                   (when post
+                                     (let ((*this* (if (not file) result
+                                                     (org-babel-result-to-file
+                                                      file
+                                                      (let ((desc (assq :file-desc ',params)))
+                                                        (and desc (or (cdr desc) result)))))))
+                                       (setq result (org-babel-ref-resolve post))
+                                       (when file
+                                         (setq result-params (remove "file" ',result-params))))))
+                                 (org-babel-insert-result result ',result-params ',info ',new-hash ',lang))))
+                            (run-hooks 'org-babel-after-execute-hook)))))))))))))))))
 #+end_src
 
 * 👁️ Appearance
@@ -1040,9 +1205,11 @@ In order to [[https://www.emacswiki.org/emacs/SmoothScrolling][facilitate smooth
                      :repo "emacsmirror/undo-fu"))
 #+end_src
 
-** Async
+** <<async>> Async
 
-[[https://github.com/jwiegley/emacs-async][Emacs async]] allows for some async code execution which can come in handy for logic that may otherwise have blocked Emacs main thread for too long.
+Emacs is single-threaded and this makes sense considering that many packages navigate the live buffers or affect change to these buffers. Just imagine the mess if these packages attempted to conduct these operations on Emacs buffers concurrently. 😧
+
+[[https://github.com/jwiegley/emacs-async][Emacs async]] allows for some async code execution which can come in handy for logic that may otherwise have blocked the Emacs main thread for too long.
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/jwiegley/emacs-async
@@ -1053,6 +1220,478 @@ In order to [[https://www.emacswiki.org/emacs/SmoothScrolling][facilitate smooth
   :config
   (async-bytecomp-package-mode 1))
 #+end_src
+
+*** WIP Debug invalid read read syntax error during variable injection
+When injecting variables, the default =ob-async-inject-variables= pattern seems to allow for propertized strings getting injected into the new environment which likely triggers invalid read syntax issues.
+
+#+begin_src text
+error in process sentinel: async-when-done: Invalid read syntax: "#"
+error in process sentinel: Invalid read syntax: "#"
+#+end_src
+
+**** COMMENT Yak Shaving
+
+Since Emacs 28.1, we can check an object for text properties in the following manner which we can use to collect the properties to strip from said object:
+
+#+begin_src elisp
+(object-intervals (concat
+                       (propertize "foo" 'face 'bold)
+                       " and "
+                       (propertize "bar" 'face 'italic
+                                   'mouse-face 'bold-italic)))
+#+end_src
+
+The idiomatic async package way to strip an object of its properties is through =async--purecopy=:
+
+#+begin_src elisp
+(async--purecopy (concat
+                       (propertize "foo" 'face 'bold)
+                       " and "
+                       (propertize "bar" 'face 'italic
+                                   'mouse-face 'bold-italic)))
+#+end_src
+
+A simple check of property-free-ness could be conducted by an equality check between the purecopy equivalent and the original object using the =equal-including-properties= function:
+
+#+begin_src elisp :results verbatim
+(let ((x (concat
+          (propertize "foo" 'face 'bold)
+          " and "
+          (propertize "bar" 'face 'italic
+                      'mouse-face 'bold-italic))))
+  (list (equal-including-properties "foo and bar" (async--purecopy x))
+        (equal-including-properties "foo and bar" x)))
+#+end_src
+
+#+RESULTS:
+: (t nil)
+
+For debugging purposes, we'll start off by trying to inject variables only when the variable names and properties are property-free.
+
+#+begin_src elisp -n -r :results none
+(defun async-inject-variables
+    (include-regexp &optional predicate exclude-regexp noprops)
+  "Return a `setq' form that replicates part of the calling environment.
+
+It sets the value for every variable matching INCLUDE-REGEXP and
+also PREDICATE.  It will not perform injection for any variable
+matching EXCLUDE-REGEXP (if present) or representing a `syntax-table'
+i.e. ending by \"-syntax-table\".
+When NOPROPS is non nil it tries to strip out text properties of each
+variable's value with `async-variables-noprops-function'.
+
+It is intended to be used as follows:
+
+    (async-start
+       \\=`(lambda ()
+          (require \\='smtpmail)
+          (with-temp-buffer
+            (insert ,(buffer-substring-no-properties (point-min) (point-max)))
+            ;; Pass in the variable environment for smtpmail
+            ,(async-inject-variables \"\\\\=`\\(smtpmail\\|\\(user-\\)?mail\\)-\")
+            (smtpmail-send-it)))
+       \\='ignore)"
+  `(setq
+    ,@(let (bindings)
+        (mapatoms
+         (lambda (sym)
+           (let* ((sname (and (boundp sym) (symbol-name sym)))
+                  (value (and sname (symbol-value sym))))
+             (when (and sname
+                        (eq nil (object-intervals sname)) ; check that sname is props-free
+                        (or (null include-regexp)
+                            (string-match include-regexp sname))
+                        (or (null exclude-regexp)
+                            (not (string-match exclude-regexp sname)))
+                        (not (string-match "-syntax-table\\'" sname)))
+               (unless (or (stringp value)
+                           (memq value '(nil t))
+                           (numberp value)
+                           (vectorp value))
+                 (setq my-debug-last-unless-sname sname)
+                 (setq value `(quote ,value)))
+               (when noprops
+                 (setq my-debug-last-noprops-sname sname)
+                 (setq value (funcall async-variables-noprops-function
+                                      value)))
+               (when (or (null predicate)
+                         (funcall predicate sym))
+                 (setq bindings (cons value bindings)
+                       bindings (cons sym bindings)))))))
+        bindings)))
+#+end_src
+
+From the following error output we instrument =async-handle-result=:
+
+#+begin_src text
+Debugger entered--Lisp error: (invalid-read-syntax "#")
+async-handle-result((lambda (result) (with-current-buffer #<buffer README.org<concept-clj-react>> (let ((default-directory "/home/vidbina/src/formation.tools/eng/concept-clj-...")) (save-excursion (cond ((member "none" ...) (message "result silenced")) ((member "silent" ...) (message ...)) (t (goto-char #<marker at 2280 in README.org<concept-clj-react>>) (let ... ... ... ...))) (run-hooks 'org-babel-after-execute-hook))))) (async-signal (invalid-read-syntax "#")) #<buffer *emacs*<26>>)
+async-when-done(#<process emacs> "finished\n")
+#+end_src
+
+Inside =async-handle-result= we evaluated =result= which is already =async-signal (invalid-read-syntax "#")= which leads me to conclude that the caller =async-when-done= is already in an error state. The caller basically populates the value for the arg-of-interest through ~(read (current-buffer))~
+
+#+begin_center
+⚠️ I once instrumented =async-when-done= and ended up in a curous GC infinite loop that was difficult to meaningfully debug with GDB on account of lacking symbols.
+#+end_center
+
+Note that =(read (current-buffer))= [[(handle-old)]] can be resolved for a hard-coded value like ="hi"= which does complete without error. Furthermore, ~(vidbina/open-proc-below proc)~ [[(handle-dbg)]] is a helper to spawn the proc buffer for improved visibility during debugging. The ~(edebug)~ source breakpoint allows us to stop at this point for further investigation.
+
+#+begin_src elisp -n -r :results none
+(defun async-when-done (proc &optional _change)
+  "Process sentinel used to retrieve the value from the child process."
+  (when (eq 'exit (process-status proc))
+    (with-current-buffer (process-buffer proc)
+      (let ((async-current-process proc))
+        (if (= 0 (process-exit-status proc))
+            (if async-callback-for-process
+                (if async-callback
+                    (prog1
+                        (funcall async-callback proc)
+                      ;; (edebug)
+                      (unless async-debug
+                        (kill-buffer (current-buffer))))
+                  (set (make-local-variable 'async-callback-value) proc)
+                  (set (make-local-variable 'async-callback-value-set) t))
+              ;;(vidbina/open-proc-below proc) ;; open a debug window below with the proc results (ref:handle-dbg)
+              ;;(edebug)
+              (goto-char (point-max))
+              (backward-sexp)
+              (async-handle-result async-callback (read (current-buffer)) ;; this read fails (ref:handle-old)
+                                   (current-buffer)))
+          (set (make-local-variable 'async-callback-value)
+               (list 'error
+                     (format "Async process '%s' failed with exit code %d"
+                             (process-name proc) (process-exit-status proc))))
+          (set (make-local-variable 'async-callback-value-set) t))))))
+#+end_src
+
+Before =async-when-done= is called the proc already exists and contains the following content as the =vidbina/debug-open-proc= call above on line [[(handle-dbg)]] has revealed:
+
+#+begin_src text
+Lisp expression: (async-signal (invalid-read-syntax "#"))
+#+end_src
+
+This leads us to the caller =async-start-process= which we can debug next, where =proc= calls =apply= against =#'start-process name buf program program-args= as demonstrated in [[(proc-apply)]].
+
+The =async-start-process= function fires another process and attaches callbacks for when its state changes through the =set-process-sentinel= function.
+
+#+begin_src elisp -n -r :results none
+(defun async-start-process (name program finish-func &rest program-args)
+  "Start the executable PROGRAM asynchronously named NAME.  See `async-start'.
+PROGRAM is passed PROGRAM-ARGS, calling FINISH-FUNC with the
+process object when done.  If FINISH-FUNC is nil, the future
+object will return the process object when the program is
+finished.  Set DEFAULT-DIRECTORY to change PROGRAM's current
+working directory."
+  (let* ((buf (generate-new-buffer (concat "*" name "*")))
+         (proc (let ((process-connection-type nil))
+                 (apply #'start-process name buf program program-args)))) ;; where the async work happens (ref:proc-apply)
+    (with-current-buffer buf
+      (set (make-local-variable 'async-callback) finish-func)
+      (set-process-sentinel proc #'async-when-done)
+      (unless (string= name "emacs")
+        (set (make-local-variable 'async-callback-for-process) t))
+      proc)))
+#+end_src
+
+In my setup, there are the following variables and values:
+- program  =/nix/store/9b2cr2b5ldkclxkiascbslrczzg2y5y2-emacs-git-20220101.0/bin/emacs-29.0.50=
+- program-args
+  - =-Q=
+  - =-l=
+  - =/home/vidbina/.emacs.d/straight/build/async/async.el=
+  - =-batch=
+  - =-f=
+  - =async-batch-invoke= which is the function that is invoked on the executioner end.
+  - =<none>=
+
+Going one level higher, one will notice that =async-start= attempts to serialize =start-func= at line [[(async-serialization)]]. This serialization attempt isn't fool-proof.
+
+#+begin_src elisp -n -r :results none
+(defun async-start (start-func &optional finish-func)
+  "Execute START-FUNC (often a lambda) in a subordinate Emacs process.
+When done, the return value is passed to FINISH-FUNC.  Example:
+
+    (async-start
+       ;; What to do in the child process
+       (lambda ()
+         (message \"This is a test\")
+         (sleep-for 3)
+         222)
+
+       ;; What to do when it finishes
+       (lambda (result)
+         (message \"Async process done, result should be 222: %s\"
+                  result)))
+
+If FINISH-FUNC is nil or missing, a future is returned that can
+be inspected using `async-get', blocking until the value is
+ready.  Example:
+
+    (let ((proc (async-start
+                   ;; What to do in the child process
+                   (lambda ()
+                     (message \"This is a test\")
+                     (sleep-for 3)
+                     222))))
+
+        (message \"I'm going to do some work here\") ;; ....
+
+        (message \"Waiting on async process, result should be 222: %s\"
+                 (async-get proc)))
+
+If you don't want to use a callback, and you don't care about any
+return value from the child process, pass the `ignore' symbol as
+the second argument (if you don't, and never call `async-get', it
+will leave *emacs* process buffers hanging around):
+
+    (async-start
+     (lambda ()
+       (delete-file \"a remote file on a slow link\" nil))
+     \\='ignore)
+
+Note: Even when FINISH-FUNC is present, a future is still
+returned except that it yields no value (since the value is
+passed to FINISH-FUNC).  Call `async-get' on such a future always
+returns nil.  It can still be useful, however, as an argument to
+`async-ready' or `async-wait'."
+  (let ((sexp start-func)
+        ;; Subordinate Emacs will send text encoded in UTF-8.
+        (coding-system-for-read 'utf-8-auto))
+    (setq async--procvar
+          (async-start-process
+           "emacs" (file-truename
+                    (expand-file-name invocation-name
+                                      invocation-directory))
+           finish-func
+           async-quiet-switch "-l"
+           ;; Using `locate-library' ensure we use the right file
+           ;; when the .elc have been deleted.
+           (locate-library "async")
+           "-batch" "-f" "async-batch-invoke"
+           (if async-send-over-pipe
+               "<none>"
+             (with-temp-buffer
+               (async--insert-sexp (list 'quote sexp))
+               (buffer-string)))))
+    (if async-send-over-pipe
+        (async--transmit-sexp async--procvar (list 'quote sexp))) ;; (ref:async-serialization)
+    async--procvar))
+#+end_src
+
+#+begin_src elisp
+(setq async-debug nil)
+#+end_src
+
+**** Root cause
+
+From a deeper analysis of =async-inject-variables= on the ob-async pattern, the following
+
+#+begin_src elisp -n -r :results none
+(read (pp-to-string (async-inject-variables ob-async-inject-variables)))
+#+end_src
+
+Note that =org-babel-hide-result-overlays= may contain a list containing /overlay/ values.
+
+#+begin_src elisp :results verbatim
+(overlayp (car org-babel-hide-result-overlays))
+#+end_src
+
+#+RESULTS:
+: t
+
+The overlay value may be incompatible with the Emacs reader.
+
+#+begin_src elisp
+(read (pp-to-string org-babel-hide-result-overlays))
+#+end_src
+
+#+RESULTS:
+: (#<overlay from 39236 to 39236 in README.org<emacs>>)
+
+A sexp will be sent to the executor using the =pp-to-string=
+
+#+begin_src elisp
+(and (boundp 'org-babel-hide-result-overlays) (symbol-value 'org-babel-hide-result-overlays))
+#+end_src
+
+**** Solution
+
+We can exclude the problem by eliminating "-overlays" from the variable injection form.
+
+#+begin_src elisp -n -r :results none
+(read (pp-to-string (async-inject-variables ob-async-inject-variables nil "-overlays")))
+#+end_src
+
+We define a rejection pattern:
+
+#+begin_src elisp :tangle init.el
+(defvar ob-async-inject-variables-exclude "-overlays"
+  "Regex of variables to exclude from injection into the async process.
+It's a good idea to exclude any variables that contain overlays.")
+#+end_src
+
+We define the execute handler:
+
+#+begin_src elisp :tangle init.el
+;;;###autoload
+(defun ob-async-org-babel-execute-src-block (&optional orig-fun arg info params)
+  "Like org-babel-execute-src-block, but run asynchronously.
+
+Original docstring for org-babel-execute-src-block:
+
+Execute the current source code block.  Insert the results of
+execution into the buffer.  Source code execution and the
+collection and formatting of results can be controlled through a
+variety of header arguments.
+
+With prefix argument ARG, force re-execution even if an existing
+result cached in the buffer would otherwise have been returned.
+
+Optionally supply a value for INFO in the form returned by
+`org-babel-get-src-block-info'.
+
+Optionally supply a value for PARAMS which will be merged with
+the header arguments specified at the front of the source code
+block."
+  (interactive "P")
+  (cond
+   ;; If this function is not called as advice, do nothing
+   ((not orig-fun)
+    (warn "ob-async-org-babel-execute-src-block is no longer needed in org-ctrl-c-ctrl-c-hook")
+    nil)
+   ;; If there is no :async parameter, call the original function
+   ((not (assoc :async (nth 2 (or info (org-babel-get-src-block-info)))))
+    (funcall orig-fun arg info params))
+   ;; If the src block language is in the list of languages async is not to be
+   ;; used for, call the original function
+   ((member (nth 0 (or info (org-babel-get-src-block-info)))
+            ob-async-no-async-languages-alist)
+    (funcall orig-fun arg info params))
+   ;; Otherwise, perform asynchronous execution
+   (t
+    (let ((placeholder (ob-async--generate-uuid)))
+      ;; Here begins the original source of org-babel-execute-src-block
+      (let* ((org-babel-current-src-block-location
+              (or org-babel-current-src-block-location
+                  (nth 5 info)
+                  (org-babel-where-is-src-block-head)))
+             (src-block-marker (save-excursion
+                                 (goto-char org-babel-current-src-block-location)
+                                 (point-marker)))
+             (info (if info (copy-tree info) (org-babel-get-src-block-info))))
+        ;; Merge PARAMS with INFO before considering source block
+        ;; evaluation since both could disagree.
+        (cl-callf org-babel-merge-params (nth 2 info) params)
+        (when (org-babel-check-evaluate info)
+          (cl-callf org-babel-process-params (nth 2 info))
+          (let* ((params (nth 2 info))
+                 (cache (let ((c (cdr (assq :cache params))))
+                          (and (not arg) c (string= "yes" c))))
+                 (new-hash (and cache (org-babel-sha1-hash info)))
+                 (old-hash (and cache (org-babel-current-result-hash)))
+                 (current-cache (and new-hash (equal new-hash old-hash)))
+                 (result-params (cdr (assq :result-params params))))
+            (cond
+             (current-cache
+              (save-excursion		;Return cached result.
+                (goto-char (org-babel-where-is-src-block-result nil info))
+                (forward-line)
+                (skip-chars-forward " \t")
+                (let ((result (org-babel-read-result)))
+                  (message (replace-regexp-in-string "%" "%%" (format "%S" result)))
+                  result)))
+             ((org-babel-confirm-evaluate info)
+              ;; Insert a GUID as a placeholder in our RESULTS block
+              (when (not (or (member "none" result-params)
+                             (member "silent" result-params)))
+                (org-babel-insert-result placeholder '("replace")))
+              (let* ((lang (nth 0 info))
+                     ;; Expand noweb references in BODY and remove any
+                     ;; coderef.
+                     (body
+                      (let ((coderef (nth 6 info))
+                            (expand
+                             (if (org-babel-noweb-p params :eval)
+                                 (org-babel-expand-noweb-references info)
+                               (nth 1 info))))
+                        (if (not coderef) expand
+                          (replace-regexp-in-string
+                           (org-src-coderef-regexp coderef) "" expand nil nil 1))))
+                     (dir (cdr (assq :dir params)))
+                     (default-directory
+                       (or (and dir (file-name-as-directory (expand-file-name dir)))
+                           default-directory))
+                     (cmd (intern (concat "org-babel-execute:" lang)))
+                     (org-babel-async-content
+                      (buffer-substring-no-properties (point-min) (point-max)))
+                     result)
+                (unless (fboundp cmd)
+                  (error "No org-babel-execute function for %s!" lang))
+                (message "executing %s code block%s..."
+                         (capitalize lang)
+                         (let ((name (nth 4 info)))
+                           (if name (format " (%s)" name) "")))
+                (progn
+                  (async-start
+                   `(lambda ()
+                      ;; TODO: Put this in a function so it can be overidden
+                      ;; Initialize the new Emacs process with org-babel functions
+                      (setq exec-path ',exec-path)
+                      (setq load-path ',load-path)
+                      ,(async-inject-variables ob-async-inject-variables nil ob-async-inject-variables-exclude)
+                      (package-initialize)
+                      (setq ob-async-pre-execute-src-block-hook ',ob-async-pre-execute-src-block-hook)
+                      (run-hooks 'ob-async-pre-execute-src-block-hook)
+                      (org-babel-do-load-languages 'org-babel-load-languages ',org-babel-load-languages)
+                      (let ((default-directory ,default-directory))
+                        (with-temp-buffer
+                          (insert org-babel-async-content)
+                          (,cmd ,body ',params))))
+                   `(lambda (result)
+                      (with-current-buffer ,(current-buffer)
+                        (let ((default-directory ,default-directory))
+                          (save-excursion
+                            (cond
+                              ((member "none" ',result-params)
+                               (message "result silenced"))
+                              ((member "silent" ',result-params)
+                               (message (replace-regexp-in-string "%" "%%" (format "%S" result))))
+                              (t
+                               (goto-char ,src-block-marker)
+                               (let ((file (cdr (assq :file ',params))))
+                                 (when file
+                                   ;; when result type is link, don't write result content to file.
+                                   (unless (member "link" ',result-params)
+                                     ;; If non-empty result and :file then write to :file.
+                                     (when result
+                                       (with-temp-file file
+                                         (insert (org-babel-format-result
+                                                  result (cdr (assq :sep ',params)))))))
+                                   (setq result file))
+                                 ;; Possibly perform post process provided its
+                                 ;; appropriate.  Dynamically bind "*this*" to the
+                                 ;; actual results of the block.
+                                 (let ((post (cdr (assq :post ',params))))
+                                   (when post
+                                     (let ((*this* (if (not file) result
+                                                     (org-babel-result-to-file
+                                                      file
+                                                      (let ((desc (assq :file-desc ',params)))
+                                                        (and desc (or (cdr desc) result)))))))
+                                       (setq result (org-babel-ref-resolve post))
+                                       (when file
+                                         (setq result-params (remove "file" ',result-params))))))
+                                 (org-babel-insert-result result ',result-params ',info ',new-hash ',lang))))
+                            (run-hooks 'org-babel-after-execute-hook)))))))))))))))))
+#+end_src
+
+**** TODO Compose PR upstream 
+
+in [[file:~/src/vidbina/ob-async]]
+but file issue first as per CONTRIBUTING
+
 
 ** PROTOTYPE iedit
 
