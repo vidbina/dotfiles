@@ -371,6 +371,10 @@ Looking into htmlize started when stumbling upon errors in exporting Org blocks 
   (htmlize-ignore-face-size t))
 #+end_src
 
+*** TODO Merge change to =htmlize-face-size= upstream
+
+https://github.com/hniksic/emacs-htmlize/pull/41
+
 ** COMMENT ox-slimhtml
 
 https://github.com/balddotcat/ox-slimhtml
@@ -777,37 +781,84 @@ block."
                         (let ((default-directory ,default-directory))
                           (save-excursion
                             (cond
-                              ((member "none" ',result-params)
-                               (message "result silenced"))
-                              ((member "silent" ',result-params)
-                               (message (replace-regexp-in-string "%" "%%" (format "%S" result))))
-                              (t
-                               (goto-char ,src-block-marker)
-                               (let ((file (cdr (assq :file ',params))))
-                                 (when file
-                                   ;; when result type is link, don't write result content to file.
-                                   (unless (member "link" ',result-params)
-                                     ;; If non-empty result and :file then write to :file.
-                                     (when result
-                                       (with-temp-file file
-                                         (insert (org-babel-format-result
-                                                  result (cdr (assq :sep ',params)))))))
-                                   (setq result file))
-                                 ;; Possibly perform post process provided its
-                                 ;; appropriate.  Dynamically bind "*this*" to the
-                                 ;; actual results of the block.
-                                 (let ((post (cdr (assq :post ',params))))
-                                   (when post
-                                     (let ((*this* (if (not file) result
-                                                     (org-babel-result-to-file
-                                                      file
-                                                      (let ((desc (assq :file-desc ',params)))
-                                                        (and desc (or (cdr desc) result)))))))
-                                       (setq result (org-babel-ref-resolve post))
-                                       (when file
-                                         (setq result-params (remove "file" ',result-params))))))
-                                 (org-babel-insert-result result ',result-params ',info ',new-hash ',lang))))
+                             ((member "none" ',result-params)
+                              (message "result silenced"))
+                             ((member "silent" ',result-params)
+                              (message (replace-regexp-in-string "%" "%%" (format "%S" result))))
+                             (t
+                              (goto-char ,src-block-marker)
+                              (let ((file (cdr (assq :file ',params))))
+                                (when file
+                                  ;; when result type is link, don't write result content to file.
+                                  (unless (member "link" ',result-params)
+                                    ;; If non-empty result and :file then write to :file.
+                                    (when result
+                                      (with-temp-file file
+                                        (insert (org-babel-format-result
+                                                 result (cdr (assq :sep ',params)))))))
+                                  (setq result file))
+                                ;; Possibly perform post process provided its
+                                ;; appropriate.  Dynamically bind "*this*" to the
+                                ;; actual results of the block.
+                                (let ((post (cdr (assq :post ',params))))
+                                  (when post
+                                    (let ((*this* (if (not file) result
+                                                    (org-babel-result-to-file
+                                                     file
+                                                     (let ((desc (assq :file-desc ',params)))
+                                                       (and desc (or (cdr desc) result)))))))
+                                      (setq result (org-babel-ref-resolve post))
+                                      (when file
+                                        (setq result-params (remove "file" ',result-params))))))
+                                (org-babel-insert-result result ',result-params ',info ',new-hash ',lang))))
                             (run-hooks 'org-babel-after-execute-hook)))))))))))))))))
+#+end_src
+
+** WIP org links broken
+
+<<cursor>>
+
+#+begin_src text
+Debugger entered--Lisp error: (void-function org-mairix-store-gnus-link)
+org-mairix-store-gnus-link()
+org-store-link(nil 1)
+funcall-interactively(org-store-link nil 1)
+command-execute(org-store-link record)
+execute-extended-command(nil "org-store-link" "org-store-link")
+funcall-interactively(execute-extended-command nil "org-store-link" "org-store-link")
+command-execute(execute-extended-command)
+#+end_src
+
+- when =ob-async-org-babel-execute-src-block= is highled through =C-;=
+
+  =< s TAB= with the cursor at [[cursor]] breaks with the following profile
+
+#+begin_src text
+1448  79% - command-execute
+1266  69%  - byte-code
+1266  69%   - read-extended-command
+1266  69%    - completing-read-default
+1266  69%     - apply
+1266  69%      - vertico--advice
+1256  68%       + #<subr completing-read-default>
+181   9%  - funcall-interactively
+96   5%   - evil-open-below
+2   0%    - evil-insert-newline-below
+2   0%     - evil-move-end-of-line
+2   0%      + move-end-of-line
+2   0%    + evil-insert-state
+1   0%    + indent-according-to-mode
+61   3%   + evil-previous-visual-line
+13   0%   + execute-extended-command
+11   0%     iedit-next-occurrence
+288  15% - ...
+288  15%    Automatic GC
+48   2% + timer-event-handler
+23   1% + evil-normal-post-command
+9   0% + redisplay_internal (C function)
+2   0% + which-key--hide-popup
+2   0% + evil--jump-hook
+1   0% + evil-repeat-pre-hook
 #+end_src
 
 * 👁️ Appearance
@@ -2449,9 +2500,28 @@ The problematic call is the following:
 (persp-frame-switch)
 #+end_src
 
+#+begin_quote
+Debugger entered--Lisp error: (wrong-number-of-arguments #<subr persp-activate> 2)
+persp-activate(#s(perspective :name "conf" :buffers (#<buffer x.nix<dotfiles>> #<buffer x.nix<nixos-configuration>> #<buffer home-linux.nix> #<buffer utils.nix> #<buffer TAGS> #<buffer README.org<emacs>> #<buffer org.el.gz>) :killed (((min-height . 4) (min-width . 20) (min-height-ignore . 3) (min-width-ignore . 6) (min-height-safe . 1) (min-width-safe . 4) (min-pixel-height . 152) (min-pixel-width . 380) (min-pixel-height-ignore . 114) (min-pixel-width-ignore . 114) (min-pixel-height-safe . 38) (min-pixel-width-safe . 76)) hc (pixel-width . 3192) (pixel-height . 1718) (total-width . 168) (total-height . 45) (normal-height . 1.0) (normal-width . 1.0) (combination-limit) (leaf (pixel-width . 1592) (pixel-height . 1718) (total-width . 84) (total-height . 45) (normal-height . 1.0) (normal-width . 0.4987468671679198) (buffer "README.org<emacs>" (selected . t) (hscroll . 0) (fringes 8 8 nil nil) (margins nil) (scroll-bars nil 0 t nil 0 t nil) (vscroll . 0) (dedicated) (point . 98310) (start . 96955)) (prev-buffers ("x.nix<dotfiles>" 1 205) ("README.org<emacs>" 13189 13895) ("README.org<product>" 1 68) ("README.org<concept-clj-react>" 1 1) ("20210719134552-elisp.org" 42736 44426) ("home-linux.nix" 1 99) ("x.nix<nixos-configuration>" 1 101) ("utils.nix" 1488 2099) ("keyformat.txt" 1 1) ("nix-develop" 1 92) ("magit-diff: dotfiles" 1 1) ("README.backup.md" 1 1) ("20211215130037-typescript.org" 854 1110) ("dotfiles" 1 188) ("20210607090600-gpg.org" 764 1805) ("references.bib" 2079 3109) ("20210319152815-org_mode.org" 1243 1879) ("gnupg-backup" 1 608) ("README.md" 1 1) ("*scratch*" 1 140))) (leaf (last . t) (pixel-width . 1600) (pixel-height . 1718) (total-width . 84) (total-height . 45) (normal-height . 1.0) (normal-width . 0.5012531328320802) (buffer "org.el.gz" (selected) (hscroll . 0) (fringes 8 8 nil nil) (margins nil) (scroll-bars nil 0 t nil 0 t nil) (vscroll . 0) (dedicated) (point . 197764) (start . 196780)) (prev-buffers ("20210421011345-philipps_byrne_gmbh.org" 183939 220125) ("org.el.gz" 196780 197828) ("magit: dotfiles" 1 1) ("README.org<emacs>" 99856 115471)))) :local-variables nil :last-switch-time nil :created-time nil :window-configuration nil :point-marker 
+persp-frame-switch(nil)
+funcall-interactively(persp-frame-switch nil)
+command-execute(persp-frame-switch)
+#+end_quote
+
 The =persp-frame-switch= function should never be called without valid arguments.
 
 The invalid call also happens when calling the ~persp-frame-switch~ interactive command and selecting an option from the completion list that is no longer in memory as evident from the following trace:
+
+#+begin_quote
+Debugger entered--Lisp error: (wrong-number-of-arguments #<subr persp-activate> 2)
+persp-activate(#s(perspective :name "conf" :buffers (#<buffer x.nix<dotfiles>> #<buffer x.nix<nixos-configuration>> #<buffer home-linux.nix> #<buffer utils.nix> #<buffer TAGS> #<buffer README.org<emacs>> #<buffer org.el.gz>) :killed (((min-height . 4) (min-width . 20) (min-height-ignore . 3) (min-width-ignore . 6) (min-height-safe . 1) (min-width-safe . 4) (min-pixel-height . 152) (min-pixel-width . 380) (min-pixel-height-ignore . 114) (min-pixel-width-ignore . 114) (min-pixel-height-safe . 38) (min-pixel-width-safe . 76)) hc (pixel-width . 3192) (pixel-height . 1718) (total-width . 168) (total-height . 45) (normal-height . 1.0) (normal-width . 1.0) (combination-limit) (leaf (pixel-width . 1592) (pixel-height . 1718) (total-width . 84) (total-height . 45) (normal-height . 1.0) (normal-width . 0.4987468671679198) (buffer "README.org<emacs>" (selected . t) (hscroll . 0) (fringes 8 8 nil nil) (margins nil) (scroll-bars nil 0 t nil 0 t nil) (vscroll . 0) (dedicated) (point . 98310) (start . 96955)) (prev-buffers ("x.nix<dotfiles>" 1 205) ("README.org<emacs>" 13189 13895) ("README.org<product>" 1 68) ("README.org<concept-clj-react>" 1 1) ("20210719134552-elisp.org" 42736 44426) ("home-linux.nix" 1 99) ("x.nix<nixos-configuration>" 1 101) ("utils.nix" 1488 2099) ("keyformat.txt" 1 1) ("nix-develop" 1 92) ("magit-diff: dotfiles" 1 1) ("README.backup.md" 1 1) ("20211215130037-typescript.org" 854 1110) ("dotfiles" 1 188) ("20210607090600-gpg.org" 764 1805) ("references.bib" 2079 3109) ("20210319152815-org_mode.org" 1243 1879) ("gnupg-backup" 1 608) ("README.md" 1 1) ("*scratch*" 1 140))) (leaf (last . t) (pixel-width . 1600) (pixel-height . 1718) (total-width . 84) (total-height . 45) (normal-height . 1.0) (normal-width . 0.5012531328320802) (buffer "org.el.gz" (selected) (hscroll . 0) (fringes 8 8 nil nil) (margins nil) (scroll-bars nil 0 t nil 0 t nil) (vscroll . 0) (dedicated) (point . 197764) (start . 196780)) (prev-buffers ("20210421011345-philipps_byrne_gmbh.org" 183939 220125) ("org.el.gz" 196780 197828) ("magit: dotfiles" 1 1) ("README.org<emacs>" 99856 115471)))) :local-variables nil :last-switch-time nil :created-time nil :window-configuration nil :point-marker 
+persp-frame-switch(nil)
+funcall-interactively(persp-frame-switch nil)
+command-execute(persp-frame-switch record)
+execute-extended-command(nil "persp-frame-switch" "pers")
+funcall-interactively(execute-extended-command nil "persp-frame-switch" "pers")
+command-execute(execute-extended-command)
+#+end_quote
 
 To debug
 
@@ -2509,6 +2579,41 @@ To debug
 (f-file-p "~/.emacs.d/persp-confs/2022.06.05")
 (persp-load-state-from-file "~/.emacs.d/persp-confs/2022.06.05")
       #+end_src
+
+*** WIP Debug value as variable is void error
+
+In some cases, I bump into the following error:
+
+#+begin_src text
+error in process sentinel: async-handle-result: Symbol’s value as variable is void: org-babel-async-content
+#+end_src
+
+**** COMMENT Yak Shaving
+
+In my current buffer, I have no reference to this structure.
+
+When the debugger is enabled, we observe the following output:
+
+#+begin_src text
+Debugger entered--Lisp error: (void-variable org-babel-async-content)
+  signal(void-variable (org-babel-async-content))
+  async-handle-result((lambda (result) (with-current-buffer #<buffer README.org<concept-clj-react>> (let ((default-directory "/home/vidbina/src/formation.tools/eng/concept-clj-...")) (save-excursion (cond ((member "none" ...) (message "result silenced")) ((member "silent" ...) (message ...)) (t (goto-char #<marker at 2452 in README.org<concept-clj-react>>) (let ... ... ... ...))) (run-hooks 'org-babel-after-execute-hook))))) (async-signal (void-variable org-babel-async-content)) #<buffer *emacs*>)
+  async-when-done(#<process emacs> "finished\n")
+#+end_src
+
+***** Check =result= in =async-handle-result=
+
+Where is seems that =async-handle-result= is called by =async-when-done= with an erronous =result= value being the form ~(async-signal (void-variable org-babel-async-content))~.
+
+***** Check ~(read (current-buffer))~ in =async-when-done=
+
+Inside =async-when-done=, the output of ~(read (current-buffer))~ already reports the error =(async-signal (void-variable org-babel-async-content))= so the async executor is just missing some context.
+
+It seems that =org-babel-async-content= is referenced in =ob-async-org-babel-execute-src-block=
+
+***** Check =ob-async-org-babel-execute-src-block=
+
+We had overwritten 
 
 * 🏁 Finale
 
@@ -2951,6 +3056,48 @@ At some point it becomes too Inception-esque to reasonably assume that future me
   (vidbina-mime-handle--open window-name #'mu4e target create-frame))
 #+end_src
 
+*** Conveniences
+
+**** WIP Store input to kill-ring
+
+Writing to the kill ring is done on a buffer-basis. Sometimes one just want to yank (in vim-lingo) or kill (in Emacs-lingo) a value to the kill-ring for later reference.
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/kill (object)
+  "Yank object"
+  (with-temp-buffer
+    (insert object)
+    (kill-region (point-min) (point-max))))
+#+end_src
+
+**** WIP Open process buffer below active buffer
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/open-proc-below (proc)
+  "Open proc buffer below the current buffer"
+  (save-excursion
+    (split-window-below)
+    (evil-window-down 1)
+    (switch-to-buffer (process-buffer proc))
+    (evil-window-up 1)))
+#+end_src
+
+**** WIP Remove text properties
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/unpropertize (string)
+  "Remove the text properties from a string"
+  (let* ((s string)
+         (start 0)
+         (end (length string)))
+    (set-text-properties start end nil s)
+    s))
+
+(defalias 'vidbina/depropertize 'vidbina/unpropertize)
+;; https://nullprogram.com/blog/2019/12/10/
+(put 'vidbina/depropertize 'byte-optimizer 'byte-compile-inline-expand)
+#+end_src
+
 ** TODO Misc
 
 *** Global Keybindings
@@ -3382,6 +3529,354 @@ hello
 
 - https://www.reddit.com/r/NixOS/comments/r15hx4/nix_shell_vs_nix_develop/
 - https://blog.ysndr.de/posts/guides/2021-12-01-nix-shells/
+
+***** Define org-babel-execute for nix-develop
+
+****** Background
+
+Refer to [[https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-shell.html#org9ad9ef2
+][Shell Code Blocks in Babel]] for details on how Org-babel executes shell blocks.
+
+:CODESTUDY:
+The =org-babel-shell-initialize= function defines specialized ob-execute handlers for every one of the supported shells in =org-babel-shell-names= (of which bash, sh and zsh are members).
+
+#+begin_src elisp :results none
+(defun org-babel-shell-initialize ()
+  "Define execution functions associated to shell names.
+This function has to be called whenever `org-babel-shell-names'
+is modified outside the Customize interface."
+  (interactive)
+  (dolist (name org-babel-shell-names)
+    (eval `(defun ,(intern (concat "org-babel-execute:" name))
+	       (body params)
+	     ,(format "Execute a block of %s commands with Babel." name)
+	     (let ((shell-file-name ,name))
+	       (org-babel-execute:shell body params))))
+    (eval `(defalias ',(intern (concat "org-babel-variable-assignments:" name))
+	     'org-babel-variable-assignments:shell
+	     ,(format "Return list of %s statements assigning to the block's \
+variables."
+		      name)))
+    (eval `(defvar ,(intern (concat "org-babel-default-header-args:" name)) '()))))
+#+end_src
+
+The generalized ob-exec (short form for Org-babel execute 🤦🏿‍♂️) handler =org-babel-execute:shell= is the entrypoint for all shell execution tasks and is called by =org-babel-execute-src-block= which packages like [[ob-async]] retrofit (through the advice facility) to provide async execution capability.
+
+#+begin_src elisp :results none
+(defun org-babel-execute:shell (body params)
+  "Execute a block of Shell commands with Babel.
+This function is called by `org-babel-execute-src-block'."
+  (let* ((session (org-babel-sh-initiate-session
+		   (cdr (assq :session params))))
+	 (stdin (let ((stdin (cdr (assq :stdin params))))
+                  (when stdin (org-babel-sh-var-to-string
+                               (org-babel-ref-resolve stdin)))))
+	 (results-params (cdr (assq :result-params params)))
+	 (value-is-exit-status
+	  (or (and
+	       (equal '("replace") results-params)
+	       (not org-babel-shell-results-defaults-to-output))
+	      (member "value" results-params)))
+	 (cmdline (cdr (assq :cmdline params)))
+         (full-body (concat
+		     (org-babel-expand-body:generic
+		      body params (org-babel-variable-assignments:shell params))
+		     (when value-is-exit-status "\necho $?"))))
+    (org-babel-reassemble-table
+     (org-babel-sh-evaluate session full-body params stdin cmdline)
+     (org-babel-pick-name
+      (cdr (assq :colname-names params)) (cdr (assq :colnames params)))
+     (org-babel-pick-name
+      (cdr (assq :rowname-names params)) (cdr (assq :rownames params))))))
+#+end_src
+
+The results of the =org-babel-execute:shell= call is a table as indicated by the =org-babel-reassemble-table=.
+:END:
+
+Note that the =org-babel-sh-evaluate= function is the main worker we need to pay attention to. It roughly handles 4 cases:
+1. when =stdin= or =cmdline= are defined \to external shell script w/ stdin
+2. when =session= is defined \to session evaluation
+3. if =shebang= is not empty, external shell script w/ or w/o shebang
+4. otherwise, ~(org-babel-eval EXEC_FILE BODY)~
+
+#+begin_src elisp :results verbatim
+(let ((session-name "*dummy-session*")
+      (body "echo hi")
+      (params '())
+      (stdin nil)
+      (cmdline nil))
+  (org-babel-sh-initiate-session session-name)
+  (org-babel-sh-evaluate session-name body params stdin cmdline))
+#+end_src
+
+:CODESTUDY:
+:END:
+
+#+begin_src elisp :results output
+(org-babel-eval "xargs echo" "hi")
+#+end_src
+
+#+RESULTS:
+
+It takes a session that is initiated with "none" by default resulting to:
+
+#+begin_src elisp :results verbatim
+(org-babel-sh-initiate-session)
+#+end_src
+
+#+RESULTS:
+: nil
+
+Initiating a session with a name yields a namesake buffer:
+
+#+begin_src elisp :results verbatim
+(org-babel-sh-initiate-session "my-temporary-session")
+#+end_src
+
+#+RESULTS:
+: #<buffer my-temporary-session>
+
+Note that =params= can be set through code-block headers
+
+ :session "*blah*"
+#+begin_src bash :session "*my-bash-session*" :results output :output verbatim
+echo "hi"
+echo "other"
+#+end_src
+
+#+RESULTS:
+: hi
+: other
+
+****** TODO Define nix-develop ob-execute handler
+
+The nix-develop prompt will either default to "> " or the value of the =nixConfig.bash-prompt= attribute.
+
+:BACKGROUND:
+The =nixConfig.bash-prompt{,-{prefix,suffix}}= can be defined to specify the =PS1= variable within the /nix develop shell/ and is defined in the [[https://github.com/NixOS/nix/blob/bf89cd95a4af35ab15f7fad3186c8f6190f87c84/src/nix/develop.cc
+][nix/src/nix/develop.cc]].
+:END:
+
+******* Prompt
+
+We describe our prompt matcher through the following regexp:
+
+#+begin_src elisp :noweb-ref nix-develop-prompt-regexp :results none
+"^>\s+"
+#+end_src
+
+We verify the previously defined regexp by calling the =re-search-forward=
+
+#+begin_src elisp :noweb yes :results none
+(re-search-forward <<nix-develop-prompt-regexp>> nil t)
+#+end_src
+
+Execution of the previously listed =re-search-forward= call should move the cursor to the ">   here" line in the following block:
+
+#+begin_quote
+>no
+...
+$ not a valid prompt
+>   here
+> here too
+#+end_quote
+
+Define the previously defined regexp as the default nix-develop prompt:
+
+#+begin_src elisp :noweb yes :noweb-ref nix-develop-mode :results none
+(defcustom nix-develop-default-prompt-regexp <<nix-develop-prompt-regexp>>
+  "Custom prompt for nix-develop"
+  :type 'string
+  :group 'nix-develop)
+
+#+end_src
+
+******* Execute Handler
+
+In order to process code blocks through Org-Babel execute, we define a =org-babel-execute= handler.
+
+#+begin_src elisp :noweb-ref nix-develop-ob-execute :results none
+(defun org-babel-execute:nix-develop (body params)
+  "Execute a block of nix develop commands with Babel."
+  (save-window-excursion
+    (let* (
+           (shell-buffer (org-babel-sh-initiate-session "*nix-develop*"))
+           (prompt-regexp nix-develop-default-prompt-regexp))
+      (org-babel-comint-with-output
+          (shell-buffer org-babel-sh-eoe-output t body)
+        (dolist (line (append ;;(list "nix develop")
+                              (split-string (org-trim body) "\n")
+                              (list org-babel-sh-eoe-indicator)))
+          (insert line)
+          (comint-send-input nil t)
+          (while (save-excursion
+                   (goto-char comint-last-input-end)
+                   (edebug)
+                   (not (re-search-forward
+                         prompt-regexp nil t)))
+            (accept-process-output
+             (get-buffer-process (current-buffer)))))))))
+#+end_src
+
+******** COMMENT Dumpster fire
+
+#+begin_src elisp :results none
+(defun org-babel-execute:nix-develop (body params)
+  "Execute a block of nix develop commands with Babel."
+  ;;(message (org-babel-chomp body))
+  (save-window-excursion
+    (let* (;;(tmp-file (org-babel-temp-file "sh-"))
+           ;;(shell-body tmp-file)
+           (shell-buffer (org-babel-sh-initiate-session "nix-develop"))
+           (prompt-regexp nix-develop-default-prompt-regexp))
+      ;;(with-temp-file tmp-file (insert body))
+      ;;(set-file-modes tmp-file #o755)
+
+      ;;(mapconcat #'org-babel-sh-strip-weird-long-prompt
+      ;;           (mapcar #'org-trim
+      ;;                   (butlast
+      ;;                    ;; TODO
+      ;;                    2))
+      ;;           "hi")
+
+      (org-babel-comint-with-output
+          (shell-buffer org-babel-sh-eoe-output t body)
+        ;;(insert "nix develop")
+        ;;(comint-send-input nil t)
+        ;;(insert shell-body)
+        ;;(comint-send-input nil t)
+        ;;(insert org-babel-sh-eoe-indicator)
+        ;;(accept-process-output (get-buffer-process (current-buffer)))
+        ;;(message "hi")
+        (dolist (line (append (list "nix develop")
+                              (split-string (org-trim body) "\n")
+                              (list org-babel-sh-eoe-indicator)))
+          (edebug)
+          (insert line)
+          (comint-send-input nil t)
+          (while (save-excursion
+                   (goto-char comint-last-input-end)
+                   (not (re-search-forward
+                         prompt-regexp nil t)))
+            (accept-process-output
+             (get-buffer-process (current-buffer))))))
+
+      ;;(let ((body "hi\nthere"))
+      ;;  (append (split-string (org-trim body) "\n")
+      ;;          (list org-babel-sh-eoe-indicator)))
+
+      ;;(with-current-buffer shell-buffer)
+      ;;(org-babel-import-elisp-from-file tmp-file)
+      ;;(message body)
+      ;;(message (org-babel-chomp body))
+      ;;(message "content written to %s" tmp-file)
+      )))
+#+end_src
+
+****** TODO Define syntax major mode for highlighting
+
+We define sparse keymap:
+
+#+begin_src elisp :noweb-ref nix-develop-mode :results none
+(defvar nix-develop-mode-map
+  (let ((map (make-sparse-keymap)))
+    map))
+
+#+end_src
+
+Define a syntax table that is inherits from =shell-mode= since we're expecting code blocks to only contain shell-like syntax:
+
+#+begin_src elisp :noweb-ref nix-develop-mode :results none
+(defvar nix-develop-mode-syntax-table
+  (make-syntax-table shell-mode-syntax-table))
+
+#+end_src
+
+Derive a major mode from comint-mode because we want to do the interactive thing:
+
+#+begin_src elisp :noweb-ref nix-develop-mode :results none
+(define-derived-mode nix-develop-mode comint-mode "Nix Develop"
+  "Major mode for `nix-develop'"
+  (setq comint-prompt-regexp nix-develop-default-prompt-regexp))
+
+#+end_src
+
+******* Example: Code blocks of different major-modes
+
+#+begin_src shell :results verbatim
+echo "hi"
+for i in a b; do testing; done
+#+end_src
+
+#+begin_src sh :results verbatim
+echo "hi"
+for i in a b; do testing; done
+#+end_src
+
+#+begin_src nix-develop :results verbatim
+echo "hi"
+for i in a b; do testing; done
+#+end_src
+
+****** Compose nix-develop-mode and ob-execute handler
+
+#+begin_src elisp :noweb yes :tangle lang.example.el :results none
+<<nix-develop-mode>>
+<<nix-develop-ob-execute>>
+
+(provide 'nix-develop-mode)
+#+end_src
+
+***** TODO Prep Reddit question
+
+#+begin_src markdown
+I've noticed that calling `define-derived-mode` multiple times and then refreshing syntax highlighing on a code block (by reentering the syntax descriptor) to another buffer to test that mode in a code block doesn't seem to reflect the changes made in the `define-derived-mode` call.
+
+As an example let's define a dummy mode blah and use it in a code block as follows:
+
+```
+,#+begin_src blah :results verbatim
+echo "hi"
+,#+end_src
+```
+
+A. Deriving a mode from shell-mode
+
+```
+(define-derived-mode blah-mode
+  sh-mode "Nix Develop"
+  "Major mode for `nix-develop`")
+```
+
+B. Deriving a mode from sh-mode
+
+```
+(define-derived-mode blah-mode
+  emacs-lisp-mode "Nix Develop"
+  "Major mode for `nix-develop`")
+```
+
+Running A and then opening/reloading the buffer (through `revert-buffer-quick`) and then running B and reloading the buffer again doesn't seem to render different results in the buffer.
+
+When we reload Emacs and run B, the rendering in the source block seems quite different.
+
+```
+,#+begin_src blah :results verbatim
+echo "hi"
+,#+end_src
+```
+#+end_src
+
+#+begin_src markdown
+I am aware that I can define a nix-shell shebang as follows
+
+```shell
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash /PATH/TO/shell.nix
+```
+
+but I am trying to figure out how to spawn a nix shell interpreter in a Flake-based configuration where I may have to use nix-develop
+#+end_src
 
 *** Web
 
