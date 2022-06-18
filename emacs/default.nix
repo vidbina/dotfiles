@@ -16,11 +16,13 @@ in
       ];
   in
   [
+    cask
+
     (writeScriptBin "e" ''
       exec emacsclient -a emacs -c "$@"
     '')
 
-    (makeDesktopItem {
+   (makeDesktopItem {
       name = "emacs-org-protocol";
       exec = "${(baseCommand "emacs-org-protocol")} %u";
       comment = "Org Protocol";
