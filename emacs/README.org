@@ -247,6 +247,8 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
         org-odd-levels-only nil)
+  :hook
+  <<org-hook>>
   :config
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
@@ -260,6 +262,12 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation")
   (org-catch-invisible-edits 'error "Disable invisible edits")
   (org-src-window-setup 'current-window "Show edit buffer in calling window"))
+  #+end_src
+
+** Hide Line numbers when in org-mode
+
+#+begin_src elisp :noweb-ref org-hook
+(org-mode . (lambda () (display-line-numbers-mode 0)))
 #+end_src
 
 ** Tips

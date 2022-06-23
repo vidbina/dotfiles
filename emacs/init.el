@@ -32,6 +32,8 @@
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
         org-odd-levels-only nil)
+  :hook
+  (org-mode . (lambda () (display-line-numbers-mode 0)))
   :config
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
