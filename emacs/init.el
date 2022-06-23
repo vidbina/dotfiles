@@ -848,7 +848,8 @@ block."
   (notmuch-search-oldest-first nil)
   (sendmail-program (executable-find "msmtp"))
   :config
-  (notmuch-address-harvest))
+  (notmuch-address-harvest)
+  (require 'ol-notmuch))
 
 (use-package pdf-tools
   :straight (:type built-in)

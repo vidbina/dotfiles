@@ -2291,8 +2291,9 @@ The =dired-mode-hook= (see [[https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
   (notmuch-search-oldest-first nil)
   (sendmail-program (executable-find "msmtp"))
   :config
-  (notmuch-address-harvest))
-#+end_src
+  (notmuch-address-harvest)
+  (require 'ol-notmuch))
+  #+end_src
 
 Notmuch has the following modes:
 - *hello* which presents the starting page
