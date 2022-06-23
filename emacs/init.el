@@ -86,7 +86,8 @@
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation")
   (org-catch-invisible-edits 'error "Disable invisible edits")
-  (org-src-window-setup 'current-window "Show edit buffer in calling window"))
+  (org-src-window-setup 'current-window "Show edit buffer in calling window")
+  (org-refile-targets '((nil . (:maxlevel . 3))) "Allow refiling to 3rd level headings"))
 
 ;; https://github.com/jkitchin/ox-clip
 ;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
