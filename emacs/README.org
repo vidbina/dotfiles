@@ -3113,7 +3113,6 @@ Writing to the kill ring is done on a buffer-basis. Sometimes one just want to y
 (global-set-key (kbd "C-c v \\") 'visual-fill-column-mode)
 (global-set-key (kbd "C-c v SPC") 'global-whitespace-mode)
 (global-set-key (kbd "C-c v c") 'completion-at-point)
-(global-set-key (kbd "C-c v (") 'paredit-mode)
 (global-set-key (kbd "C-c v O") 'vidbina/orui-node-zoom-padding-set)
 (global-set-key (kbd "C-c v _") 'vidbina/tail-buffer)
 (global-set-key (kbd "C-c v .") 'vidbina/orui-node-zoom)
@@ -4082,16 +4081,63 @@ To add another layer of convenience or complexity, depending on how you want to 
   )
 #+end_src
 
-*** Paredit
+*** <<paredit>> Paredit
 
 In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][paredit]] can be used to assist in keeping forms balanced (i.e.: ensuring that a form always has as many opening as closing parenthesis).
 
-#+begin_src elisp :tangle lang.example.el
+#+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/emacsmirror/paredit
 (use-package paredit
   :straight (paredit :type git
                      :host github
-                     :repo "emacsmirror/paredit"))
+                     :repo "emacsmirror/paredit")
+  <<paredit-config>>)
+#+end_src
+
+**** Set lighter
+
+#+begin_src elisp :noweb-ref paredit-config
+:delight
+(paredit-mode "🛝")
+#+end_src
+
+**** Set global binding
+
+Enable paredit mode using the =C-c v (= binding.
+
+#+begin_src elisp :noweb-ref paredit-config
+:bind (("C-c v (" . paredit-mode))
+#+end_src
+
+**** Usage
+
+Once paredit mode is enabled, we can do the following:
+- =C-right= slurp
+  - src_elisp[:exports code]{(a (here) b)} \to  src_elisp[:exports code]{(a (here b))}
+- =C-left= barf
+  - src_elisp[:exports code]{(a (here b))} \to  src_elisp[:exports code]{(a (here) b)}
+- =M-S= split sexp
+  - with point before =b=, src_elisp[:exports code]{(a b)} \to  src_elisp[:exports code]{(a) (b)}
+- =C-M-b= / =C-M-f= move backward/forward
+- =C-M-u= / =C-M-n= move backward/forward out of enclosing list
+
+You can enter a special edit mode by placing point on the codeblock below and entering =C-c '=.
+
+#+begin_src elisp
+'(a (here) b)
+
+(progn
+  (message "hi")
+  (+ 40 2) :42)
+
+(progn
+  (let ((a 4))
+    '(a (b c) d)
+    (+ (* 12 3)
+       (1+ 12))))
+
+
+(+ 1 (* 2 3) 4)
 #+end_src
 
 *** <<inheritenv>> Inheritenv

@@ -226,7 +226,10 @@
 (use-package paredit
   :straight (paredit :type git
                      :host github
-                     :repo "emacsmirror/paredit"))
+                     :repo "emacsmirror/paredit")
+  :delight
+  (paredit-mode "🛝")
+  :bind (("C-c v (" . paredit-mode)))
 
 ;; https://github.com/purcell/inheritenv
 (use-package inheritenv
