@@ -608,7 +608,9 @@ block."
   :straight (diff-hl :type git
                      :host github
                      :repo "dgutov/diff-hl")
-  :hook (after-init . global-diff-hl-mode))
+  :hook (after-init . global-diff-hl-mode)
+  :custom
+  (diff-hl-margin-mode t "Use margin mode to clear up the fringe"))
 
 ;; https://github.com/jrblevin/deft
 (use-package deft

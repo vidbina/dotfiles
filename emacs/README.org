@@ -1872,7 +1872,9 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
   :straight (diff-hl :type git
                      :host github
                      :repo "dgutov/diff-hl")
-  :hook (after-init . global-diff-hl-mode))
+  :hook (after-init . global-diff-hl-mode)
+  :custom
+  (diff-hl-margin-mode t "Use margin mode to clear up the fringe"))
 #+end_src
 
 ** 📁 Navigation
