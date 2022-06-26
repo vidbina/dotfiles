@@ -650,6 +650,13 @@ In the most basic usage form you can basically run ~org-ql-search~ and just ente
 
 In some cases, code blocks need to be executed in a non-blocking manner (e.g.: when firing up a test instance of emacs or triggering a large file transfer). The [[https://github.com/astahlman/ob-async][ob-async]] package allow async execution of code-blocks by simply adding the =:async= keyword to the a codeblock of interest.
 
+#+begin_center
+Since the [[https://blog.tecosaur.com/tmio/2021-05-31-async.html#async-babel-sessions
+][introduction of ob-comint.el]] there is support for sessions and async code execution built into Org itself. The only gotcha is that, at the time of writing [2022-06-26 Sun], there is only a Python implementation that is ob-comint compatible while there are implementations for R and Ruby in the works. For other runtimes, ob-async is a bit more flexible because we can use this on any language since there is no requirement on providing a ob-comint-compatible implementation but we simply spawn another Emacs sessions asynchronously to just run the code.
+#+end_center
+
+*** COMMENT Original
+
 #+begin_src elisp :tangle init.el
 ;; https://github.com/astahlman/ob-async
 (use-package ob-async
@@ -658,14 +665,30 @@ In some cases, code blocks need to be executed in a non-blocking manner (e.g.: w
                       :repo "astahlman/ob-async"))
 #+end_src
 
+*** Fork
+
+In order to fix the ob-async for my own setup, I've [[https://github.com/vidbina/ob-async][forked]] the [[https://github.com/astahlman/ob-async][original repo]] with a few minor changes/fixes.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/vidbina/ob-async
+(use-package ob-async
+  :straight (ob-async :type git
+                      :host github
+                      :branch "main"
+                      :repo "vidbina/ob-async"))
+#+end_src
+
+*** Usage
+
 Under the hood ob-async depends on [[async]] and can be used by specifying an =:async= header on a code block as demonstrated below:
 
-#+begin_src bash :async
-echo hi
+#+begin_src bash :async t :session *blah*
+sleep 2; echo hi
 #+end_src
 
 #+RESULTS:
-: hi
+|          |
+| [0m hi |
 
 *** WIP Debug invalid read read syntax error during variable injection
 
@@ -954,7 +977,7 @@ A sexp will be sent to the executor after serialization of the sexp through =pp-
 (read (#<overlay from 39236 to 39236 in README.org<emacs>>))
 #+end_src
 
-**** Solution
+**** COMMENT Solution
 
 We can exclude the problem by eliminating "-overlays" from the variable injection form.
 
@@ -1085,7 +1108,6 @@ block."
                       (org-babel-do-load-languages 'org-babel-load-languages ',org-babel-load-languages)
                       (let ((default-directory ,default-directory))
                         (with-temp-buffer
-                          (edebug)
                           (insert org-babel-async-content)
                           (,cmd ,body ',params))))
                    `(lambda (result)
@@ -1126,10 +1148,11 @@ block."
                             (run-hooks 'org-babel-after-execute-hook)))))))))))))))))
 #+end_src
 
-**** TODO Compose PR upstream 
+**** WIP Compose PR upstream
 
-in [[file:~/src/vidbina/ob-async]]
+see repo [[file:~/src/vidbina/ob-async]]
 but file issue first as per CONTRIBUTING
+see [[https://github.com/astahlman/ob-async/pull/88][PR]]
 
 *** WIP Remove properties from injected variable values
 
