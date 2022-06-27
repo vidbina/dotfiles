@@ -2247,8 +2247,8 @@ For mail, there are a couple of options within Emacs. First one needs to underst
         mu4e-view-show-addresses t)
 
   ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing
-  (setq mu4e-index-cleanup nil      ; don't do a full cleanup check
-        mu4e-index-lazy-check t)    ; don't consider up-to-date dirs
+  (setq mu4e-index-cleanup t        ; do a full cleanup check
+        mu4e-index-lazy-check nil)  ; consider up-to-date dirs
 
   ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Example-setup
   (setq mu4e-get-mail-command "offlineimap"   ; or fetchmail, or ...
