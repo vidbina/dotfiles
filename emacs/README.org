@@ -536,7 +536,7 @@ A good solution for maintaining a Zettelkasten-inspired note-taking system is [[
 #+CAPTION: Screenshot of Org-Roam in use with an Org-Roam-UI note network graph
 [[file:images/screenshot-orui-org-cite-dark.png]]
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :tangle init.el :noweb yes
 ;; https://github.com/org-roam/org-roam
 (use-package org-roam
   :straight (org-roam :type git
@@ -545,17 +545,72 @@ A good solution for maintaining a Zettelkasten-inspired note-taking system is [[
   :after org
   :init
   (setq org-roam-v2-ack t)
-  (make-directory (file-truename "~/org/roam/") t)
-  :custom
-  (org-roam-file-extensions '("org" "md"))
-  (org-roam-directory (file-truename "~/org/roam/"))
-  (org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
+  <<org-roam-init>>
+
   :config
   (message "📔 org-roam is loaded")
-  (org-roam-db-autosync-mode 1)
+  <<org-roam-config>>
+
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-node-insert)))
+         ("C-c n i" . org-roam-node-insert)
+         <<org-roam-bind>>))
+#+end_src
+
+*** Org-Roam Directory
+
+#+begin_src elisp :noweb-ref org-roam-init
+(let ((directory (file-truename "~/org/roam/")))
+  (make-directory directory t)
+  (setq org-roam-directory directory))
+(setq org-roam-file-extensions '("org" "md"))
+#+end_src
+
+*** Database
+
+Set the Org-roam database location:
+
+#+begin_src elisp :noweb-ref org-roam-init
+(setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
+#+end_src
+
+Disable autosync mode (is default behavior):
+
+#+begin_src elisp :noweb-ref org-roam-config
+(org-roam-db-autosync-mode nil)
+#+end_src
+
+**** WIP <<org-roam-db-sync-async>> Async Org-Roam-DB Sync or rather Non-blocking Org-Roam DB Sync
+
+Yes, naming of this section is problematic but we're trying to conduct the synchronization in an asynchronous manner such that we don't have to block the main thread all the time we conduct an =org-roam-db-sync=.
+
+We define a =vidbina/org-roam-async-forced-sync= interactive function that runs src_elisp[:exports code]{(org-roam-db-sync 'force)} asychronously.
+
+#+begin_src elisp :noweb yes :tangle personal-example.el
+(defun vidbina/org-roam-db-async-forced-sync ()
+  "Fully sync"
+  (interactive)
+  <<vidbina/org-roam-db-async-sync>>)
+#+end_src
+
+The async handler is defined in the following block which allows us to quickly debug it by triggered ~org-edit-special~ on the block and executing the block by running ~eval-defun~:
+
+#+begin_src elisp :noweb-ref vidbina/org-roam-db-async-sync
+(async-start `(lambda ()
+                (setq exec-path ',exec-path
+                      load-path ',load-path)
+                ,(async-inject-variables "\\`\\org-roam-directory")
+                (package-initialize)
+                (require 'org-roam)
+                (org-roam-db-sync 'force))
+             `(lambda (result)
+                (message "Async Org-Roam sync from %s" result)))
+#+end_src
+
+We define a binding that calls our async synchronization function:
+
+#+begin_src elisp :noweb-ref org-roam-bind :results none
+("C-c n u" . vidbina/org-roam-db-async-forced-sync)
 #+end_src
 
 *** Org-Roam-UI

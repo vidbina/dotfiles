@@ -133,17 +133,20 @@
   :after org
   :init
   (setq org-roam-v2-ack t)
-  (make-directory (file-truename "~/org/roam/") t)
-  :custom
-  (org-roam-file-extensions '("org" "md"))
-  (org-roam-directory (file-truename "~/org/roam/"))
-  (org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
+  (let ((directory (file-truename "~/org/roam/")))
+    (make-directory directory t)
+    (setq org-roam-directory directory))
+  (setq org-roam-file-extensions '("org" "md"))
+  (setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
+
   :config
   (message "📔 org-roam is loaded")
-  (org-roam-db-autosync-mode 1)
+  (org-roam-db-autosync-mode nil)
+
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-node-insert)))
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n u" . vidbina/org-roam-db-async-forced-sync)))
 
 ;; https://github.com/org-roam/org-roam-ui
 (use-package org-roam-ui
