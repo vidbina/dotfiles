@@ -641,18 +641,14 @@
         mu4e-context-policy 'always-ask
         mu4e-index-update-in-background t
         mu4e-view-show-addresses t)
-
   ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing
   (setq mu4e-index-cleanup t        ; do a full cleanup check
         mu4e-index-lazy-check nil)  ; consider up-to-date dirs
-
   ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Example-setup
   (setq mu4e-get-mail-command "offlineimap"   ; or fetchmail, or ...
         mu4e-update-interval 300)             ; update every 5 minutes
-
   ;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
   (require 'gnus-dired)
-
   ;; make the `gnus-dired-mail-buffers' function also work on
   ;; message-mode derived modes, such as mu4e-compose-mode
   (defun gnus-dired-mail-buffers ()
@@ -665,7 +661,6 @@
                      (null message-sent-message-via))
             (push (buffer-name buffer) buffers))))
       (nreverse buffers)))
-
   (setq gnus-dired-mail-mode 'mu4e-user-agent))
 
 ;; https://git.notmuchmail.org/git/notmuch
