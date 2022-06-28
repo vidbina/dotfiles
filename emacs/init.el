@@ -503,7 +503,7 @@
   :straight (orderless :type git
                        :host github
                        :repo "oantolin/orderless")
-
+  ;; NOTE: Load Orderless after Swiper when using the Ivy integration
   :custom
   (completion-styles '(orderless)))
 
