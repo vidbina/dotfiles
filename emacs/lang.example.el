@@ -126,6 +126,43 @@
   :init
   (setq nix-nixfmt-bin "nixpkgs-fmt"))
 
+(defcustom nix-develop-default-prompt-regexp "^>\s+"
+  "Custom prompt for nix-develop"
+  :type 'string
+  :group 'nix-develop)
+
+(defvar nix-develop-mode-map
+  (let ((map (make-sparse-keymap)))
+    map))
+
+(defvar nix-develop-mode-syntax-table
+  (make-syntax-table shell-mode-syntax-table))
+
+(define-derived-mode nix-develop-mode comint-mode "Nix Develop"
+  "Major mode for `nix-develop'"
+  (setq comint-prompt-regexp nix-develop-default-prompt-regexp))
+
+(defun org-babel-execute:nix-develop (body params)
+  "Execute a block of nix develop commands with Babel."
+  (save-window-excursion
+    (let* ((shell-buffer (org-babel-sh-initiate-session "*nix-develop*"))
+           (prompt-regexp nix-develop-default-prompt-regexp))
+      (org-babel-comint-with-output
+          (shell-buffer org-babel-sh-eoe-output t body)
+        (dolist (line (append (list "nix develop")
+                              (split-string (org-trim body) "\n")
+                              (list org-babel-sh-eoe-indicator)))
+          (insert line)
+          (comint-send-input nil t)
+          (while (save-excursion
+                   (goto-char comint-last-input-end)
+                   (not (re-search-forward
+                         prompt-regexp nil t)))
+            (accept-process-output
+             (get-buffer-process (current-buffer)))))))))
+
+(provide 'nix-develop-mode)
+
 ;; https://github.com/fxbois/web-mode
 (use-package web-mode
   :straight (web-mode :type git

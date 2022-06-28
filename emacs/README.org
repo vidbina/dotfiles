@@ -3908,66 +3908,10 @@ In order to process code blocks through Org-Babel execute, we define a =org-babe
           (comint-send-input nil t)
           (while (save-excursion
                    (goto-char comint-last-input-end)
-                   (edebug)
                    (not (re-search-forward
                          prompt-regexp nil t)))
             (accept-process-output
              (get-buffer-process (current-buffer)))))))))
-#+end_src
-
-******** COMMENT Dumpster fire
-
-#+begin_src elisp :results none
-(defun org-babel-execute:nix-develop (body params)
-  "Execute a block of nix develop commands with Babel."
-  ;;(message (org-babel-chomp body))
-  (save-window-excursion
-    (let* (;;(tmp-file (org-babel-temp-file "sh-"))
-           ;;(shell-body tmp-file)
-           (shell-buffer (org-babel-sh-initiate-session "nix-develop"))
-           (prompt-regexp nix-develop-default-prompt-regexp))
-      ;;(with-temp-file tmp-file (insert body))
-      ;;(set-file-modes tmp-file #o755)
-
-      ;;(mapconcat #'org-babel-sh-strip-weird-long-prompt
-      ;;           (mapcar #'org-trim
-      ;;                   (butlast
-      ;;                    ;; TODO
-      ;;                    2))
-      ;;           "hi")
-
-      (org-babel-comint-with-output
-          (shell-buffer org-babel-sh-eoe-output t body)
-        ;;(insert "nix develop")
-        ;;(comint-send-input nil t)
-        ;;(insert shell-body)
-        ;;(comint-send-input nil t)
-        ;;(insert org-babel-sh-eoe-indicator)
-        ;;(accept-process-output (get-buffer-process (current-buffer)))
-        ;;(message "hi")
-        (dolist (line (append (list "nix develop")
-                              (split-string (org-trim body) "\n")
-                              (list org-babel-sh-eoe-indicator)))
-          (edebug)
-          (insert line)
-          (comint-send-input nil t)
-          (while (save-excursion
-                   (goto-char comint-last-input-end)
-                   (not (re-search-forward
-                         prompt-regexp nil t)))
-            (accept-process-output
-             (get-buffer-process (current-buffer))))))
-
-      ;;(let ((body "hi\nthere"))
-      ;;  (append (split-string (org-trim body) "\n")
-      ;;          (list org-babel-sh-eoe-indicator)))
-
-      ;;(with-current-buffer shell-buffer)
-      ;;(org-babel-import-elisp-from-file tmp-file)
-      ;;(message body)
-      ;;(message (org-babel-chomp body))
-      ;;(message "content written to %s" tmp-file)
-      )))
 #+end_src
 
 ****** TODO Define syntax major mode for highlighting
