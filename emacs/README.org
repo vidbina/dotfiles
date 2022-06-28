@@ -249,6 +249,7 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
         org-odd-levels-only nil)
   :hook
   <<org-hook>>
+  <<org-bind>>
   :config
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
@@ -256,7 +257,6 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
   (setq org-src-preserve-indentation t
         org-hide-block-startup t)
-
   <<org-config>>
   :custom
   (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation")
@@ -264,6 +264,58 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
   (org-src-window-setup 'current-window "Show edit buffer in calling window")
   (org-refile-targets '((nil . (:maxlevel . 3))) "Allow refiling to 3rd level headings"))
   #+end_src
+
+** <<org-babel>> Org-Babel
+
+*** PROTOTYPE <<org-babel-tangle>> Asynchronous Tangle
+:LOGBOOK:
+- State "PROTOTYPE"  from "WIP"        [2022-06-28 Tue 13:34] \\
+  initial concept using =find-file= which may be inefficient but we'll eat the gun on account of the ease of use
+:END:
+
+Tangling sometimes takes a fair amount of time that we can't always afford to waste by simply waiting. The following =org-babel-tangle-async= function is a wraps the original =org-babel-tangle= call in an async handler in order to allow us to regain control of our buffer while Org does its tangling magic.
+
+#+begin_src elisp :noweb yes :noweb-ref org-config
+(defun org-babel-tangle-async (&optional arg target-file lang-re)
+  "Call `org-babel-tangle' asynchronously"
+  (interactive "P")
+  <<org-babel-tangle-async-start>>)
+  #+end_src
+
+The =org-babel-map= is defined in org-keys.el and maps =t= and =C-t= to =org-babel-tangle= of which we only need one alternative mapped to the async variant. Since I use lower keystroke variant =C-v C-c t= most, we'll map that one to our async variant.
+
+#+begin_src elisp :noweb-ref org-bind
+:bind (:map org-babel-map ("t" . org-babel-tangle-async))
+#+end_src
+
+The async handler, doesn't have to copy over the buffer contents since saving is a prerequisite to tangling.
+
+#+begin_src elisp :noweb-ref org-babel-tangle-async-start
+(run-hooks 'org-babel-pre-tangle-hook)
+#+end_src
+
+The async handler disables the auto-save facility and clears the pre-tangle hooks (perhaps a bad idea 🤷🏿‍♂️). We then just simply check that buffer-file-name is a string representing a valid file name and then open the file, navigate to point and trigger the intended [[(org-babel-tangle-call)][=org-babel-tangle= call]].
+
+#+begin_center
+It's unclear if the use of =find-file= is a really bad idea. I've considered that =with-temp-buffer= in combination with =insert= may be faster (see [[http://xahlee.info/emacs/emacs/elisp_find-file_vs_with-temp-buffer.html][Xahlee]]), but since we're tangling we'd need to spawn Org-mode anyways, so using =find-file= handles the major-mode switching for us to ensure that Org facilities are within reach. I may have to initialize packages if we need to mirror more of the configuration of the calling environment but we'll cross that bridge when we get there -- hence /prototype/. 🐉
+#+end_center
+
+#+begin_src elisp :noweb-ref org-babel-tangle-async-start
+(async-start `(lambda ()
+                (setq auto-save-default nil
+                      org-babel-pre-tangle-hook '())
+                (if (and (stringp ,buffer-file-name)
+                         (file-exists-p ,buffer-file-name))
+                    (progn
+                      (find-file ,(buffer-file-name))
+                      (read-only-mode t)
+                      (goto-char ,(point))
+                      (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
+                      buffer-file-name)
+                  (error "Not visiting a file")))
+             `(lambda (result)
+                (message "🧬 Async Org-Babel tangled %s" result)))
+#+end_src
 
 ** Hide Line numbers when in org-mode
 

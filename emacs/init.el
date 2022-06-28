@@ -34,6 +34,7 @@
         org-odd-levels-only nil)
   :hook
   (org-mode . (lambda () (display-line-numbers-mode 0)))
+  :bind (:map org-babel-map ("t" . org-babel-tangle-async))
   :config
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
@@ -41,7 +42,24 @@
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
   (setq org-src-preserve-indentation t
         org-hide-block-startup t)
-
+  (defun org-babel-tangle-async (&optional arg target-file lang-re)
+    "Call `org-babel-tangle' asynchronously"
+    (interactive "P")
+    (run-hooks 'org-babel-pre-tangle-hook)
+    (async-start `(lambda ()
+                    (setq auto-save-default nil
+                          org-babel-pre-tangle-hook '())
+                    (if (and (stringp ,buffer-file-name)
+                             (file-exists-p ,buffer-file-name))
+                        (progn
+                          (find-file ,(buffer-file-name))
+                          (read-only-mode t)
+                          (goto-char ,(point))
+                          (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
+                          buffer-file-name)
+                      (error "Not visiting a file")))
+                 `(lambda (result)
+                    (message "🧬 Async Org-Babel tangled %s" result))))
   ;; https://orgmode.org/manual/Structure-Templates.html
   (require 'org-tempo)
   ;; https://www.reddit.com/r/emacs/comments/c1b70i/best_way_to_include_source_code_blocks_in_a_latex/
