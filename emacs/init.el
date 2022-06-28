@@ -205,7 +205,9 @@
   :straight (org-roam-bibtex :type git
                              :host github
                              :repo "org-roam/org-roam-bibtex")
-  :after org-roam)
+  :after org-roam
+  ;; NOTE: Using org-ref requires additional configuration
+  )
 
 ;; https://github.com/alphapapa/org-ql
 (use-package org-ql

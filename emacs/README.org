@@ -747,26 +747,43 @@ It isn't unlikely that you will have some of your notes captured in Markdown fil
         org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias))))
 #+end_src
 
-*** Org-Roam-BibTeX (ORB)
+*** <<org-roam-bibtex>> Org-Roam-BibTeX (ORB)
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/org-roam/org-roam-bibtex
 (use-package org-roam-bibtex
   :straight (org-roam-bibtex :type git
                              :host github
                              :repo "org-roam/org-roam-bibtex")
-  :after org-roam)
-;;:config
-;;(require 'org-ref)
-;;:custom
-;;(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property"))
+  :after org-roam
+  <<org-roam-bibtex-org-ref>>
+  )
 #+end_src
 
-** COMMENT Org-ref
+We add a reminder in the source that usage of org-roam-bibtex in combination with [[org-ref][org-ref]] requires additional configuration -- lest I forget. 😅
 
-[[https://github.com/jkitchin/org-ref][Org-ref]] provides a system to define citations and cross-references. With Org-cite becoming part of standard-Org since 9.5, I am trying to use standard Org as much as possible which means dropping Org-ref out of my toolbox for a little while.
+#+begin_src elisp :noweb-ref org-roam-bibtex-org-ref
+;; NOTE: Using org-ref requires additional configuration
+#+end_src
 
+**** COMMENT Using ORB with Org-ref
+
+Since Org-cite is shipped with Org now (as per Org 9.5), we may not need [[org-ref][Org-ref]] anymore. In case you still want to use the org-ref citation package in combination with Org-Roam, the following configurations may come in handy:
+
+#+begin_src elisp :noweb-ref org-roam-bibtex-org-ref
+:config
+(require 'org-ref)
+:custom
+(orb-roam-ref-format 'org-ref-v3 "Use new org-ref cite:&links notation in ROAM_REFS property")
+#+end_src
+
+** COMMENT <<org-ref>> Org-ref
+
+[[https://github.com/jkitchin/org-ref][Org-ref]] provides a system to define citations and cross-references. With Org-cite becoming part of standard-Org since 9.5, I am trying to use standard Org as much as possible which means dropping Org-ref out of my toolbox for a bit.
+
+#+begin_center
 Org-ref has provisions for cross-referencing that Org-cite doesn't quite provide, so you may want to enable Org-ref in your configuration if you use the Org-ref cite syntax or rely on cross-referencing capability.
+#+end_center
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/jkitchin/org-ref
