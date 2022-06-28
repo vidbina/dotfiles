@@ -302,11 +302,15 @@ It's unclear if the use of =find-file= is a really bad idea. I've considered tha
 
 #+begin_src elisp :noweb-ref org-babel-tangle-async-start
 (async-start `(lambda ()
-                (setq auto-save-default nil
-                      org-babel-pre-tangle-hook '())
                 (if (and (stringp ,buffer-file-name)
                          (file-exists-p ,buffer-file-name))
                     (progn
+                      (setq exec-path ',exec-path
+                            load-path ',load-path
+                            enable-local-eval t
+                            auto-save-default nil
+                            org-babel-pre-tangle-hook '())
+                      (package-initialize)
                       (find-file ,(buffer-file-name))
                       (read-only-mode t)
                       (goto-char ,(point))

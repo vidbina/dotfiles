@@ -47,11 +47,15 @@
     (interactive "P")
     (run-hooks 'org-babel-pre-tangle-hook)
     (async-start `(lambda ()
-                    (setq auto-save-default nil
-                          org-babel-pre-tangle-hook '())
                     (if (and (stringp ,buffer-file-name)
                              (file-exists-p ,buffer-file-name))
                         (progn
+                          (setq exec-path ',exec-path
+                                load-path ',load-path
+                                enable-local-eval t
+                                auto-save-default nil
+                                org-babel-pre-tangle-hook '())
+                          (package-initialize)
                           (find-file ,(buffer-file-name))
                           (read-only-mode t)
                           (goto-char ,(point))
