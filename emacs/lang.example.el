@@ -242,8 +242,17 @@
   :straight (envrc :type git
                    :host github
                    :repo "purcell/envrc")
+  :after inheritenv
   :hook (after-init . envrc-global-mode)
   :bind-keymap ("C-c e" . envrc-command-map))
+
+;; https://github.com/purcell/exec-path-from-shell
+(use-package exec-path-from-shell
+  :straight (exec-path-from-shell :type git
+                                  :host github
+                                  :repo "purcell/exec-path-from-shell")
+  :config (when (daemonp)
+            (exec-path-from-shell-initialize)))
 
 ;; https://github.com/joaotavora/eglot
 (use-package eglot
