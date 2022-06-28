@@ -1508,6 +1508,16 @@ mairix is a program for indexing and searching email messages stored in Maildir,
 
 https://github.com/rc0/mairix
 
+** TODO Fix nested code block eldoc recursion issue
+
+When navigating through code blocks inside of Org buffers, we often seem to run into GC issues along with the following errors:
+
+#+begin_src text
+eldoc error: (error Lisp nesting exceeds ‘max-lisp-eval-depth’)
+#+end_src
+
+Advising =(org-eldoc-documentation-function &rest ARGS)= to skip doc lookup when inside of a code block may be a potential fix here.
+
 * 👁️ Appearance
 
 This section will deal with some of the visual trappings of Emacs. My design goal is to arrive at a rather minimal, or rather clean, design while providing the needed information scope perhaps through toggles (i.e.: showing whitespace characters at command).
