@@ -2,9 +2,11 @@
 
 {
   home.packages = with pkgs; [
+    brightnessctl
     neofetch
     peek
     screenkey
+    xdotool
     xsel-copy-url
 
     (writeScriptBin "colors" ''
