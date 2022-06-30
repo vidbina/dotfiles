@@ -18,7 +18,7 @@ I manage both my Emacs installation and my Emacs configuration declaratively. A 
 
 My Emacs version is pretty up-to-date as per [2022-06-30 Thu 14:06] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to rebuild Emacs from scratch whenever needed.
 
-#+begin_src elisp :results raw
+#+begin_src elisp :results raw :exports both
 (emacs-version)
 #+end_src
 
@@ -4911,13 +4911,13 @@ Perhaps we use differing builds because of issues like [[https://github.com/nix-
 
 ***** Expansion
 
-For reference's sake, observe how the definition of =emacsGit= calls =mkGitEmacs=:
+For reference's sake, observe how the definition of =emacsGit= wraps =mkGitEmacs=:
 
 #+begin_src nix
 emacsGit = mkGitEmacs "emacs-git" ./repos/emacs/emacs-master.json { withSQLite3 = true; };
 #+end_src
 
-****** Yak Shaving
+****** TL;DR
 
 The =emacsPgtkNativeComp= definition calls =mkPkgEmacs= and is listed below:
 
@@ -4925,7 +4925,7 @@ The =emacsPgtkNativeComp= definition calls =mkPkgEmacs= and is listed below:
 emacsPgtkNativeComp = mkPgtkEmacs "emacs-pgtk-native-comp" ./repos/emacs/emacs-master.json { nativeComp = true; withSQLite3 = true; };
 #+end_src
 
-The =mkPgtkEmacs= definition just provides a wrapper around =mkGitEmacs= to removes the =--with-xft= configuration flag and add the =--with-pgtk= flag.
+The =mkPgtkEmacs= definition just provides a wrapper around =mkGitEmacs=, removes the =--with-xft= configuration flag and adds the =--with-pgtk= flag.
 
 #+begin_src nix
 mkPgtkEmacs = namePrefix: jsonFile: { ... }@args: (mkGitEmacs namePrefix jsonFile args).overrideAttrs (
@@ -4938,7 +4938,7 @@ mkPgtkEmacs = namePrefix: jsonFile: { ... }@args: (mkGitEmacs namePrefix jsonFil
 
 ****** Conclusion
 
-It is fair to assume that the =emacsPgtkNativeComp= expands to the following:
+It is fair to assume that =emacsPgtkNativeComp= expands to the following:
 
 #+begin_src nix
 (mkGitEmacs "emacs-pgtk-native-comp" ./repos/emacs/emacs-master.json {
