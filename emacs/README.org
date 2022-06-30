@@ -4508,181 +4508,255 @@ Disable the tangle helper by running the following snippet with ~(org-ctrl-c-ctr
 
 ** <<nix-config-linux>> 🐧 GNU/Linux
 
-#+begin_src nix :tangle default.nix
+#+begin_src nix :noweb yes :tangle default.nix
 { config, pkgs, lib, options, ... }:
 
 let
   sources = import ../nix/sources.nix;
-  emacs-overlay-src = sources."emacs-overlay";
+  <<nix-linux-let-bindings>>
 in
 {
   home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
 
-  home.packages = with pkgs; let
-    baseCommand = windowName:
-      builtins.concatStringsSep " " [
-        "emacsclient -a emacs"
-        ''-F "((name . \\\"${windowName}\\\"))"''
-        "-c"
-      ];
-  in
-  [
-    cask
-
-    (writeScriptBin "e" ''
-      exec emacsclient -a emacs -c "$@"
-    '')
-
-   (makeDesktopItem {
-      name = "emacs-org-protocol";
-      exec = "${(baseCommand "emacs-org-protocol")} %u";
-      comment = "Org Protocol";
-      desktopName = "org-protocol";
-      categories = builtins.concatStringsSep ";" [
-        "Utility"
-        "Database"
-        "TextTools"
-        "TextEditor"
-        "Office"
-      ] + ";";
-      mimeType = builtins.concatStringsSep ";" [
-        "x-scheme-handler/org-protocol"
-      ] + ";";
-      terminal = false;
-    })
-
-    # https://www.emacswiki.org/emacs/MailtoHandler
-    # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
-    (makeDesktopItem {
-      name = "emacs-mu4e";
-      exec = "emacs-mu4e %u";
-      comment = "Emacs mu4e";
-      desktopName = "emacs-mu4e";
-      type = "Application";
-      categories = builtins.concatStringsSep ";" [
-        "Network"
-        "Email"
-      ] + ";";
-      mimeType = builtins.concatStringsSep ";" [
-        # Email
-        "x-scheme-handler/mailto"
-        "message/rfc822"
-      ] + ";";
-      terminal = false;
-    })
-
-    (writeScriptBin "emacs-mu4e" ''
-      set -e
-      target_path=$@
-      echo "Target: $target_path"
-
-      exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-dired\" \"$target_path\")"
-    '')
-
-    # https://emacs.stackexchange.com/questions/13927/how-to-set-emacs-as-the-default-file-manager
-    (makeDesktopItem {
-      name = "emacs-dired";
-      exec = "emacs-dired %f";
-      comment = "Emacs Dired";
-      desktopName = "emacs-dired";
-      categories = builtins.concatStringsSep ";" [
-        "Utility"
-        "FileManager"
-        "FileTools"
-      ] + ";";
-      mimeType = builtins.concatStringsSep ";" [
-        "inode/directory"
-        "inode/symlink"
-      ] + ";";
-      terminal = false;
-    })
-
-    (writeScriptBin "emacs-dired" ''
-      set -e
-      target_path=$(printf '%q\n' "$@" | xargs realpath -e)
-      echo "Sanitized target to: $target_path"
-
-      exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-directory \"emacs-dired\" \"$target_path\")"
-    '')
-  ];
+  <<nix-linux-packages>>
 
   programs.emacs = {
     enable = true;
     package = pkgs.my-emacs;
   };
 
-  services.emacs = {
-    # Restart using `systemctl --user restart emacs`
-    enable = true;
-    package = pkgs.my-emacs;
+  <<nix-linux-services>>
 
-    client.enable = true;
-  };
+  <<nix-linux-overlays>>
 
-  nixpkgs.overlays = [
-    (import emacs-overlay-src)
-
-    (self: super: {
-      my-emacs =
-        let
-          emacs = (pkgs.emacsGit.override {
-            nativeComp = true;
-            withSQLite3 = true;
-            withGTK2 = false;
-            withGTK3 = false;
-          });
-          emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
-          bundled-emacs = emacsWithPackages (epkgs: (
-            with epkgs; [
-              notmuch
-              vterm
-              pdf-tools
-            ]
-          ) ++ (
-            with epkgs.melpaStablePackages; [
-            ]
-          ) ++ (
-            with epkgs.melpaPackages; [
-            ]
-          ));
-          ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-            withPCRE2 = true;
-          });
-          jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
-            jupyter
-          ]));
-        in
-        (pkgs.buildEnv {
-          name = "my-emacs";
-          paths = [
-            bundled-emacs
-            pkgs.clang
-            pkgs.cmake
-            pkgs.coreutils
-            pkgs.fd
-            pkgs.multimarkdown
-            jupyter-for-emacs
-            ripgrep-for-doom-emacs
-          ];
-        });
-    })
-  ];
-
-  xdg.mimeApps.defaultApplications = {
-    "inode/directory" = [ "emacs-dired.desktop" ];
-    "inode/symlink" = [ "emacs-dired.desktop" ];
-
-    "message/rfc822" = [ "emacs-mu4e.desktop" ];
-    "x-scheme-handler/mailto" = [ "emacs-mu4e.desktop" ];
-
-    "x-scheme-handler/org-protocol" = [ "emacs-org-protocol.desktop" ];
-  };
+  <<nix-linux-mime>>
 }
+#+end_src
+
+*** Packages
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-packages
+home.packages = with pkgs; let
+  <<nix-linux-packages-let-bindings>>
+in
+[
+  cask
+
+  <<nix-linux-packages-e>>
+
+  <<nix-linux-packages-emacs-org-protocol>>
+
+  <<nix-linux-packages-emacs-mu4e>>
+
+  <<nix-linux-packages-emacs-dired>>
+];
+#+end_src
+
+**** Helpers
+
+#+begin_src nix :noweb-ref nix-linux-packages-let-bindings
+baseCommand = windowName:
+  builtins.concatStringsSep " " [
+    "emacsclient -a emacs"
+    ''-F "((name . \\\"${windowName}\\\"))"''
+    "-c"
+  ];
+#+end_src
+
+**** Shorthand to emacsclient
+
+#+begin_src nix :noweb-ref nix-linux-packages-e
+(writeScriptBin "e" ''
+  exec emacsclient -a emacs -c "$@"
+'')
+#+end_src
+
+**** Emacs Org-Protocol
+
+#+begin_src nix :noweb-ref nix-linux-packages-emacs-org-protocol
+(makeDesktopItem {
+  name = "emacs-org-protocol";
+  exec = "${(baseCommand "emacs-org-protocol")} %u";
+  comment = "Org Protocol";
+  desktopName = "org-protocol";
+  categories = builtins.concatStringsSep ";" [
+    "Utility"
+    "Database"
+    "TextTools"
+    "TextEditor"
+    "Office"
+  ] + ";";
+  mimeType = builtins.concatStringsSep ";" [
+    "x-scheme-handler/org-protocol"
+  ] + ";";
+  terminal = false;
+})
+#+end_src
+
+**** Emacs mu4e
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-packages-emacs-mu4e
+<<nix-linux-packages-desktop-emacs-mu4e>>
+
+<<nix-linux-packages-wrapper-emacs-mu4e>>
+#+end_src
+
+#+begin_src nix :noweb-ref nix-linux-packages-desktop-emacs-mu4e
+# https://www.emacswiki.org/emacs/MailtoHandler
+# https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
+(makeDesktopItem {
+  name = "emacs-mu4e";
+  exec = "emacs-mu4e %u";
+  comment = "Emacs mu4e";
+  desktopName = "emacs-mu4e";
+  type = "Application";
+  categories = builtins.concatStringsSep ";" [
+    "Network"
+    "Email"
+  ] + ";";
+  mimeType = builtins.concatStringsSep ";" [
+    # Email
+    "x-scheme-handler/mailto"
+    "message/rfc822"
+  ] + ";";
+  terminal = false;
+})
+#+end_src
+
+#+begin_src nix :noweb-ref nix-linux-packages-wrapper-emacs-mu4e
+(writeScriptBin "emacs-mu4e" ''
+  set -e
+  target_path=$@
+  echo "Target: $target_path"
+
+  exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-dired\" \"$target_path\")"
+'')
+#+end_src
+
+**** Dired
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-packages-emacs-dired
+<<nix-linux-packages-desktop-emacs-dired>>
+
+<<nix-linux-packages-wrapper-emacs-dired>>
+#+end_src
+
+#+begin_src nix :noweb-ref nix-linux-packages-desktop-emacs-dired
+# https://emacs.stackexchange.com/questions/13927/how-to-set-emacs-as-the-default-file-manager
+(makeDesktopItem {
+  name = "emacs-dired";
+  exec = "emacs-dired %f";
+  comment = "Emacs Dired";
+  desktopName = "emacs-dired";
+  categories = builtins.concatStringsSep ";" [
+    "Utility"
+    "FileManager"
+    "FileTools"
+  ] + ";";
+  mimeType = builtins.concatStringsSep ";" [
+    "inode/directory"
+    "inode/symlink"
+  ] + ";";
+  terminal = false;
+})
+#+end_src
+
+#+begin_src nix :noweb-ref nix-linux-packages-wrapper-emacs-dired
+(writeScriptBin "emacs-dired" ''
+  set -e
+  target_path=$(printf '%q\n' "$@" | xargs realpath -e)
+  echo "Sanitized target to: $target_path"
+
+  exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-directory \"emacs-dired\" \"$target_path\")"
+'')
+#+end_src
+
+*** Service
+
+#+begin_src nix :noweb-ref nix-linux-services
+services.emacs = {
+  # Restart using `systemctl --user restart emacs`
+  enable = true;
+  package = pkgs.my-emacs;
+
+  client.enable = true;
+};
+#+end_src
+
+*** Overlay
+
+#+begin_src nix :noweb-ref nix-linux-let-bindings
+emacs-overlay-src = sources."emacs-overlay";
+#+end_src
+
+#+begin_src nix :noweb-ref nix-linux-overlays
+nixpkgs.overlays = [
+  (import emacs-overlay-src)
+
+  (self: super: {
+    my-emacs =
+      let
+        emacs = (pkgs.emacsGit.override {
+          nativeComp = true;
+          withSQLite3 = true;
+          withGTK2 = false;
+          withGTK3 = false;
+        });
+        emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+        bundled-emacs = emacsWithPackages (epkgs: (
+          with epkgs; [
+            notmuch
+            vterm
+            pdf-tools
+          ]
+        ) ++ (
+          with epkgs.melpaStablePackages; [
+          ]
+        ) ++ (
+          with epkgs.melpaPackages; [
+          ]
+        ));
+        ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+          withPCRE2 = true;
+        });
+        jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
+          jupyter
+        ]));
+      in
+      (pkgs.buildEnv {
+        name = "my-emacs";
+        paths = [
+          bundled-emacs
+          pkgs.clang
+          pkgs.cmake
+          pkgs.coreutils
+          pkgs.fd
+          pkgs.multimarkdown
+          jupyter-for-emacs
+          ripgrep-for-doom-emacs
+        ];
+      });
+  })
+];
+#+end_src
+
+*** XDG mimeApps
+
+#+begin_src nix :noweb-ref nix-linux-mime
+xdg.mimeApps.defaultApplications = {
+  "inode/directory" = [ "emacs-dired.desktop" ];
+  "inode/symlink" = [ "emacs-dired.desktop" ];
+
+  "message/rfc822" = [ "emacs-mu4e.desktop" ];
+  "x-scheme-handler/mailto" = [ "emacs-mu4e.desktop" ];
+
+  "x-scheme-handler/org-protocol" = [ "emacs-org-protocol.desktop" ];
+};
 #+end_src
 
 ** <<nix-config-darwin>> 🍏 Darwin
 
-#+begin_src nix :tangle default-darwin.nix
+#+begin_src nix :noweb yes :tangle default-darwin.nix
 { config, pkgs, lib, options, ... }:
 
 let
@@ -4782,7 +4856,7 @@ in
 
 [fn:2] I am the /perpetual beginner/ 🌱 so I'm mostly writing this for my future self. 😅
 
-[fn:1] Literal in the "Literal Programming" way as coined by Donald Knuth
+[fn:1] Literal in the "Literal Programming" way as coined by Donald Knuth. There are a bunch of interesting bytes on the topic at [[http://literateprogramming.com/][literateprogramming.com]] and numerous other resources that can be link-followed when starting from one of the more recent related HN threads as per [2022-06-30 Thu] to the article [[https://news.ycombinator.com/item?id=31301777#31302835][Donald Knuth was framed (2020)]].
 
 [fn:5] Keywords can be recognized by the =:= (colon character) prefix.
 
