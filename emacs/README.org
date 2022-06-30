@@ -4504,26 +4504,71 @@ Disable the tangle helper by running the following snippet with ~(org-ctrl-c-ctr
 (advice-remove 'org-babel-tangle #'my-dotfiles-tangle-wrapper)
 #+end_src
 
-* <<nix-config>> Nix ❄️ Configuration
+* <<nix-config>> Nix ❄️ Home-manager Configuration
+
+[[https://github.com/nix-community/home-manager][Home-manager]] allows management of a user environment through Nix -- the package-manager and language.
+
+** General
+
+We use Nix (the language) to define our Emacs builds for GNU/Linux and Darwin (macOS) systems. For both systems, we need to specify the inputs (sources), setup the emacs configuration directory and build and install Emacs.
+
+*** Nix Sources
+
+The Nix configuration will be importing the sources managed through [[https://github.com/nmattia/niv][niv]] and captured in the [[file:../nix/sources.nix]] file.
+
+#+begin_src nix :noweb-ref nix-let-bindings
+sources = import ../nix/sources.nix;
+#+end_src
+
+#+begin_center
+💡 I don't manage my home-configuration through [[https://nix-community.github.io/home-manager/index.html#ch-nix-flakes][Nix Flakes]] because parts of my home-manager  configuration depends on files that I can't track in Git for privacy reasons. Nix Flakes doesn't play ball well when files are in play that aren't tracked, so I opted out of Flake-based usage and opted for managing versions with niv.
+#+end_center
+
+*** Setup Emacs configuration directory
+
+We instruct home-manager to symlink the current directory into the [[file:~/.emacs.d]] destination.
+
+#+begin_src nix :noweb-ref nix-home-emacsdir-source
+home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
+#+end_src
+
+*** Install Emacs
+
+Home-manager enables the installation of Emacs through the =programs= facility. For the different systems that we use, we will define custom packages through [[nix-overlays-source][overlays]].
+
+#+begin_src nix :noweb-ref nix-home-programs
+programs.emacs = {
+  enable = true;
+  package = pkgs.my-emacs;
+};
+#+end_src
+
+*** <<nix-overlays-source>> Overlays
+
+The [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] project is used to build the bundles of Emacs that we want on our systems.
+
+#+begin_src nix :noweb-ref nix-let-bindings
+emacs-overlay-src = sources."emacs-overlay";
+#+end_src
+
+Refer to the definitions for the [[nix-overlays-linux][Linux]] and [[nix-overlays-darwin][Darwin (macOS)]] overlays to understand what we're bundling into our Emacs builds.
 
 ** <<nix-config-linux>> 🐧 GNU/Linux
+
+On GNU/Linux, home-manager allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
 
 #+begin_src nix :noweb yes :tangle default.nix
 { config, pkgs, lib, options, ... }:
 
 let
-  sources = import ../nix/sources.nix;
-  <<nix-linux-let-bindings>>
+  <<nix-let-bindings>>
 in
 {
-  home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
+  <<nix-home-emacsdir-source>>
 
   <<nix-linux-packages>>
 
-  programs.emacs = {
-    enable = true;
-    package = pkgs.my-emacs;
-  };
+  <<nix-home-programs>>
 
   <<nix-linux-services>>
 
@@ -4531,6 +4576,61 @@ in
 
   <<nix-linux-mime>>
 }
+#+end_src
+
+*** <<nix-overlays-linux>> Overlays
+
+Using [[https://github.com/nix-community/emacs-overlay][emacs-overlay]], we define an Emacs build that bundles packages that are difficult to install just with straight on account of non-elisp dependencies such as system dependencies that may require special privileges of a specialized build process.
+
+#+begin_src nix :noweb-ref nix-linux-overlays
+nixpkgs.overlays = [
+  (import emacs-overlay-src)
+
+  (self: super: {
+    my-emacs =
+      let
+        emacs = (pkgs.emacsGit.override {
+          nativeComp = true;
+          withSQLite3 = true;
+          withGTK2 = false;
+          withGTK3 = false;
+        });
+        emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+        bundled-emacs = emacsWithPackages (epkgs: (
+          with epkgs; [
+            notmuch
+            vterm
+            pdf-tools
+          ]
+        ) ++ (
+          with epkgs.melpaStablePackages; [
+          ]
+        ) ++ (
+          with epkgs.melpaPackages; [
+          ]
+        ));
+        ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+          withPCRE2 = true;
+        });
+        jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
+          jupyter
+        ]));
+      in
+      (pkgs.buildEnv {
+        name = "my-emacs";
+        paths = [
+          bundled-emacs
+          pkgs.clang
+          pkgs.cmake
+          pkgs.coreutils
+          pkgs.fd
+          pkgs.multimarkdown
+          jupyter-for-emacs
+          ripgrep-for-doom-emacs
+        ];
+      });
+  })
+];
 #+end_src
 
 *** Packages
@@ -4683,25 +4783,59 @@ services.emacs = {
 };
 #+end_src
 
-*** Overlay
+*** XDG mimeApps
 
-#+begin_src nix :noweb-ref nix-linux-let-bindings
-emacs-overlay-src = sources."emacs-overlay";
+#+begin_src nix :noweb-ref nix-linux-mime
+xdg.mimeApps.defaultApplications = {
+  "inode/directory" = [ "emacs-dired.desktop" ];
+  "inode/symlink" = [ "emacs-dired.desktop" ];
+
+  "message/rfc822" = [ "emacs-mu4e.desktop" ];
+  "x-scheme-handler/mailto" = [ "emacs-mu4e.desktop" ];
+
+  "x-scheme-handler/org-protocol" = [ "emacs-org-protocol.desktop" ];
+};
 #+end_src
 
-#+begin_src nix :noweb-ref nix-linux-overlays
+** PROTOTYPE <<nix-config-darwin>> 🍏 Darwin
+
+On Darwin, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd).
+
+#+begin_src nix :noweb yes :tangle default-darwin.nix
+{ config, pkgs, lib, options, ... }:
+
+let
+  <<nix-let-bindings>>
+in
+{
+  <<nix-home-emacsdir-source>>
+
+  <<nix-home-programs>>
+
+  <<nix-darwin-overlays>>
+}
+#+end_src
+
+*** <<nix-overlays-darwin>> Overlays
+
+#+begin_center
+🐉 This has not been sufficiently tested so use with caution. I'm using NixOS mainly, so anything Darwin-related has probably been run once on a MacBook that I haven't touched for a good 4 months at the time of writing (being [2022-06-30 Thu 18:31]).
+#+end_center
+
+Using [[https://github.com/nix-community/emacs-overlay][emacs-overlay]], we compose a custom Emacs build that looks quite similar to the GNU/Linux configuration sans the graphical facilities and native compilation capabilities. Furthermore, the Darwin configuration has some =makeDesktopItem= packages bundled within it.
+
+#+begin_center
+🤔 Looking at the [[https://nixos.wiki/wiki/Emacs][NixOS Emacs wiki entry]], it may be worthwhile to revaluate what the difference between =emacsGit=, used in my GNU/Linux config, and =emacsPgtkGcc= (now known as =emacsPgtkNativeComp=) really is.
+#+end_center
+
+#+begin_src nix :noweb-ref nix-darwin-overlays
 nixpkgs.overlays = [
   (import emacs-overlay-src)
 
   (self: super: {
     my-emacs =
       let
-        emacs = (pkgs.emacsGit.override {
-          nativeComp = true;
-          withSQLite3 = true;
-          withGTK2 = false;
-          withGTK3 = false;
-        });
+        emacs = pkgs.emacsPgtkGcc;
         emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
         bundled-emacs = emacsWithPackages (epkgs: (
           with epkgs; [
@@ -4734,117 +4868,89 @@ nixpkgs.overlays = [
           pkgs.multimarkdown
           jupyter-for-emacs
           ripgrep-for-doom-emacs
+
+          # for Emacs
+          (pkgs.makeDesktopItem {
+            name = "org-protocol";
+            exec = "${bundled-emacs}/bin/emacsclient --create-frame %u";
+            comment = "Org Protocol";
+            desktopName = "org-protocol";
+            type = "Application";
+            mimeType = "x-scheme-handler/org-protocol";
+          })
+
+          # for Emacs
+          # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.5.html
+          # https://www.emacswiki.org/emacs/MailtoHandler
+          # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
+          (pkgs.makeDesktopItem {
+            name = "emacs-mu4e";
+            exec = ''
+              ${bundled-emacs}/bin/emacsclient --create-frame --eval "(browse-url-mail \"%u\")"
+            '';
+            comment = "Emacs mu4e";
+            desktopName = "emacs-mu4e";
+            type = "Application";
+            mimeType = builtins.concatStringsSep ";" [
+              # Email
+              "x-scheme-handler/mailto"
+              "message/rfc822"
+            ];
+          })
         ];
       });
   })
 ];
 #+end_src
 
-*** XDG mimeApps
+**** emacsPgtkNativeComp vs emacsGit
 
-#+begin_src nix :noweb-ref nix-linux-mime
-xdg.mimeApps.defaultApplications = {
-  "inode/directory" = [ "emacs-dired.desktop" ];
-  "inode/symlink" = [ "emacs-dired.desktop" ];
+Looking at [[https://github.com/nix-community/emacs-overlay/blob/master/default.nix][emacs-overlay default.nix]], the diff between =emacsGit= and =emacsPgtkNativeComp= is basically that the latter extends the former with native compilation. 🤷🏿‍♂️
 
-  "message/rfc822" = [ "emacs-mu4e.desktop" ];
-  "x-scheme-handler/mailto" = [ "emacs-mu4e.desktop" ];
+Perhaps we use differing builds because of issues like [[https://github.com/nix-community/emacs-overlay/issues/187][emacs-overlay issue 187]] but I simply can't recall how I settled on the current design.
 
-  "x-scheme-handler/org-protocol" = [ "emacs-org-protocol.desktop" ];
-};
+***** Expansion
+
+For reference's sake, observe how the definition of =emacsGit= calls =mkGitEmacs=:
+
+#+begin_src nix
+emacsGit = mkGitEmacs "emacs-git" ./repos/emacs/emacs-master.json { withSQLite3 = true; };
 #+end_src
 
-** <<nix-config-darwin>> 🍏 Darwin
+****** Yak Shaving
 
-#+begin_src nix :noweb yes :tangle default-darwin.nix
-{ config, pkgs, lib, options, ... }:
+The =emacsPgtkNativeComp= definition calls =mkPkgEmacs= and is listed below:
 
-let
-  sources = import ../nix/sources.nix;
-  emacs-overlay-src = sources."emacs-overlay";
-in
-{
-  home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
-
-  programs.emacs = {
-    enable = true;
-    package = pkgs.my-emacs;
-  };
-
-  nixpkgs.overlays = [
-    (import emacs-overlay-src)
-
-    (self: super: {
-      my-emacs =
-        let
-          emacs = pkgs.emacsPgtkGcc;
-          emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
-          bundled-emacs = emacsWithPackages (epkgs: (
-            with epkgs; [
-              notmuch
-              vterm
-              pdf-tools
-            ]
-          ) ++ (
-            with epkgs.melpaStablePackages; [
-            ]
-          ) ++ (
-            with epkgs.melpaPackages; [
-            ]
-          ));
-          ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-            withPCRE2 = true;
-          });
-          jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
-            jupyter
-          ]));
-        in
-        (pkgs.buildEnv {
-          name = "my-emacs";
-          paths = [
-            bundled-emacs
-            pkgs.clang
-            pkgs.cmake
-            pkgs.coreutils
-            pkgs.fd
-            pkgs.multimarkdown
-            jupyter-for-emacs
-            ripgrep-for-doom-emacs
-
-            # for Emacs
-            (pkgs.makeDesktopItem {
-              name = "org-protocol";
-              exec = "${bundled-emacs}/bin/emacsclient --create-frame %u";
-              comment = "Org Protocol";
-              desktopName = "org-protocol";
-              type = "Application";
-              mimeType = "x-scheme-handler/org-protocol";
-            })
-
-            # for Emacs
-            # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.5.html
-            # https://www.emacswiki.org/emacs/MailtoHandler
-            # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
-            (pkgs.makeDesktopItem {
-              name = "emacs-mu4e";
-              exec = ''
-                ${bundled-emacs}/bin/emacsclient --create-frame --eval "(browse-url-mail \"%u\")"
-              '';
-              comment = "Emacs mu4e";
-              desktopName = "emacs-mu4e";
-              type = "Application";
-              mimeType = builtins.concatStringsSep ";" [
-                # Email
-                "x-scheme-handler/mailto"
-                "message/rfc822"
-              ];
-            })
-          ];
-        });
-    })
-  ];
-}
+#+begin_src nix
+emacsPgtkNativeComp = mkPgtkEmacs "emacs-pgtk-native-comp" ./repos/emacs/emacs-master.json { nativeComp = true; withSQLite3 = true; };
 #+end_src
+
+The =mkPgtkEmacs= definition just provides a wrapper around =mkGitEmacs= to removes the =--with-xft= configuration flag and add the =--with-pgtk= flag.
+
+#+begin_src nix
+mkPgtkEmacs = namePrefix: jsonFile: { ... }@args: (mkGitEmacs namePrefix jsonFile args).overrideAttrs (
+  old: {
+    configureFlags = (super.lib.remove "--with-xft" old.configureFlags)
+      ++ super.lib.singleton "--with-pgtk";
+  }
+);
+#+end_src
+
+****** Conclusion
+
+It is fair to assume that the =emacsPgtkNativeComp= expands to the following:
+
+#+begin_src nix
+(mkGitEmacs "emacs-pgtk-native-comp" ./repos/emacs/emacs-master.json {
+  nativeComp = true;
+  withSQLite3 = true;
+}).overrideAttrs (old: {
+  configureFlags = (super.lib.remove "--with-xft" old.configureFlags)
+                   ++ super.lib.singleton "--with-pgtk";
+});
+#+end_src
+
+The only diff being the change of name of the package, the attribute set (which now sets =nativeComp= to true) and the =configureFlags= override. Perhaps it is time to use =emacsPgtkNativeComp= for all builds after all. 🤷🏿‍♂️
 
 * Footnotes
 
