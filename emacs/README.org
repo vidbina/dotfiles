@@ -8,8 +8,40 @@ This is an emoji-heavy 😅 literal[fn:1] configuration for [[https://www.gnu.or
 
 * Installation
 
+I manage both my Emacs installation and my Emacs configuration declaratively. A [[nix-config][home-manager configuration written in Nix]] manages the version and bundle of Emacs on my system while classic Emacs LISP manages the Emacs configuration itself.
+
+#+begin_center
+⚠️ In case you don't use Nix ❄️ or can't be bothered to dive into it (in the same way I can't be bothered to remember the different build instructions for the tools that I depend on), please skip the part where I [[install-hm][install Emacs with home-manager]] and focus on the [[install-manual][manual installation]] instructions instead.
+#+end_center
+
+** <<install-hm>> Install with Home-Manager
+
+My Emacs version is pretty up-to-date as per [2022-06-30 Thu 14:06] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to rebuild Emacs from scratch whenever needed.
+
+#+begin_src elisp :results raw
+(emacs-version)
+#+end_src
+
+#+RESULTS:
+GNU Emacs 29.0.50 (build 1, x86_64-pc-linux-gnu, X toolkit, cairo version 1.16.0, Xaw scroll bars)
+
+The good bit about home-manager is that is will go as far as setting up home directories for me as well so there is little that I need to manually do other than the following steps:
+
+1. clone this repo to a path of choice (e.g.: =~/src/THIS_REPO=)
+2. to install either
+   1. my entire config:
+      1. enter root of the repo and
+      2. run =make install=
+   2. or just my Emacs-related config:
+      1. borrow ideas from [[file:default.nix]] (or [[file:default-darwin.nix]] for macOS users) and place them into your own home-manager configuration
+3. profit 💰
+
+** <<install-manual>> Install manually
+
 <<emacsconfdir>>
+#+begin_center
 ⚠️ For this configuration we will refer to your /emacs configuration directory/ as =~/.emacs.d= for historic and didactic reasons, but it may be =~/.config/emacs= in your case. Consult [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Find-Init.html][How Emacs Finds Your Init File]] for explanation on how Emacs loads configurations and note that every mention of =~/.emacs.d= in this literate config assumes that you substitute it for your actual /emacs configuration directory/.
+#+end_center
 
 Clone this repository and symlink =~/.emacs.d= into the =emacs= directory of this configuration:
 1. clone this repo to a path of choice (e.g.: =~/src/THIS_REPO=)
@@ -21,7 +53,7 @@ Clone this repository and symlink =~/.emacs.d= into the =emacs= directory of thi
 
 * Usage
 
-Use this configuration by changing [[file:README.org][this README.org file]], the only source of truth, and tangling it to produce Elisp files [[file:early-init.el]], [[file:init.el]], [[file:lang.el]] and [[file:personal-example.el]] using the ~(org-babel-tangle)~ function which is mapped to =C-c C-v C-t= or =C-c C-v t= by default.
+Use this configuration by changing [[file:README.org][this README.org file]], the only source of truth, and tangling it to produce the Emacs LISP files [[file:early-init.el]], [[file:init.el]], [[file:lang.el]] and [[file:personal-example.el]] along with the relevant Nix configuration files [[file:default.nix]] and [[file:default-darwin.nix]] using the ~(org-babel-tangle)~ function which is mapped to =C-c C-v C-t= or =C-c C-v t= by default.
 
 The files of this configuration are as follows:
 - [[file:README.org]] :: source of truth that describes the entire configuration and tangles into the Elisp files listed below
@@ -30,6 +62,8 @@ The files of this configuration are as follows:
 - [[file:lang.el]] :: optional configuration file for language-specific settings, and
 - [[file:personal-example.el]] :: reference for [[file:personal.el]] where you can add your personally sensitive configuration.
 - [[file:personal.el]] :: optional configuration file for personal setting which can be populated by copying [[file:personal-example.el]] for to get started and modifying the code as necessary
+- [[file:default.nix]] :: Nix home-manager configuration for GNU/Linux systems
+- [[file:default-darwin.nix]] :: Nix home-manager configuration for Darwin system (macOS)
 
 #+begin_src dot :file images/conf-setup.png :exports results
 digraph G {
@@ -46,10 +80,13 @@ digraph G {
 
   node_this [shape=box, label="README.org"]
   node_personal_example [shape=box, label="personal-example.el"]
+  node_default_nix [shape=box, style=dotted, label="default.nix"]
+  node_default_darwin_nix [shape=box, style=dotted, label="default-darwin.nix"]
 
   node_this -> node_earlyinit [label="tangles to"]
   node_this -> node_init [label="tangles to"]
-  node_this -> node_personal_example [label="tangles to"]
+  node_this -> node_default_nix [label="tangles to", style=dotted]
+  node_this -> node_default_darwin_nix [label="tangles to", style=dotted]
   node_personal_example -> node_personal [style=dotted]
 }
 #+end_src
@@ -4465,6 +4502,274 @@ Disable the tangle helper by running the following snippet with ~(org-ctrl-c-ctr
 
 #+begin_src elisp :results none
 (advice-remove 'org-babel-tangle #'my-dotfiles-tangle-wrapper)
+#+end_src
+
+* <<nix-config>> Nix ❄️ Configuration
+
+** <<nix-config-linux>> 🐧 GNU/Linux
+
+#+begin_src nix :tangle default.nix
+{ config, pkgs, lib, options, ... }:
+
+let
+  sources = import ../nix/sources.nix;
+  emacs-overlay-src = sources."emacs-overlay";
+in
+{
+  home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
+
+  home.packages = with pkgs; let
+    baseCommand = windowName:
+      builtins.concatStringsSep " " [
+        "emacsclient -a emacs"
+        ''-F "((name . \\\"${windowName}\\\"))"''
+        "-c"
+      ];
+  in
+  [
+    cask
+
+    (writeScriptBin "e" ''
+      exec emacsclient -a emacs -c "$@"
+    '')
+
+   (makeDesktopItem {
+      name = "emacs-org-protocol";
+      exec = "${(baseCommand "emacs-org-protocol")} %u";
+      comment = "Org Protocol";
+      desktopName = "org-protocol";
+      categories = builtins.concatStringsSep ";" [
+        "Utility"
+        "Database"
+        "TextTools"
+        "TextEditor"
+        "Office"
+      ] + ";";
+      mimeType = builtins.concatStringsSep ";" [
+        "x-scheme-handler/org-protocol"
+      ] + ";";
+      terminal = false;
+    })
+
+    # https://www.emacswiki.org/emacs/MailtoHandler
+    # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
+    (makeDesktopItem {
+      name = "emacs-mu4e";
+      exec = "emacs-mu4e %u";
+      comment = "Emacs mu4e";
+      desktopName = "emacs-mu4e";
+      type = "Application";
+      categories = builtins.concatStringsSep ";" [
+        "Network"
+        "Email"
+      ] + ";";
+      mimeType = builtins.concatStringsSep ";" [
+        # Email
+        "x-scheme-handler/mailto"
+        "message/rfc822"
+      ] + ";";
+      terminal = false;
+    })
+
+    (writeScriptBin "emacs-mu4e" ''
+      set -e
+      target_path=$@
+      echo "Target: $target_path"
+
+      exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-dired\" \"$target_path\")"
+    '')
+
+    # https://emacs.stackexchange.com/questions/13927/how-to-set-emacs-as-the-default-file-manager
+    (makeDesktopItem {
+      name = "emacs-dired";
+      exec = "emacs-dired %f";
+      comment = "Emacs Dired";
+      desktopName = "emacs-dired";
+      categories = builtins.concatStringsSep ";" [
+        "Utility"
+        "FileManager"
+        "FileTools"
+      ] + ";";
+      mimeType = builtins.concatStringsSep ";" [
+        "inode/directory"
+        "inode/symlink"
+      ] + ";";
+      terminal = false;
+    })
+
+    (writeScriptBin "emacs-dired" ''
+      set -e
+      target_path=$(printf '%q\n' "$@" | xargs realpath -e)
+      echo "Sanitized target to: $target_path"
+
+      exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-directory \"emacs-dired\" \"$target_path\")"
+    '')
+  ];
+
+  programs.emacs = {
+    enable = true;
+    package = pkgs.my-emacs;
+  };
+
+  services.emacs = {
+    # Restart using `systemctl --user restart emacs`
+    enable = true;
+    package = pkgs.my-emacs;
+
+    client.enable = true;
+  };
+
+  nixpkgs.overlays = [
+    (import emacs-overlay-src)
+
+    (self: super: {
+      my-emacs =
+        let
+          emacs = (pkgs.emacsGit.override {
+            nativeComp = true;
+            withSQLite3 = true;
+            withGTK2 = false;
+            withGTK3 = false;
+          });
+          emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+          bundled-emacs = emacsWithPackages (epkgs: (
+            with epkgs; [
+              notmuch
+              vterm
+              pdf-tools
+            ]
+          ) ++ (
+            with epkgs.melpaStablePackages; [
+            ]
+          ) ++ (
+            with epkgs.melpaPackages; [
+            ]
+          ));
+          ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+            withPCRE2 = true;
+          });
+          jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
+            jupyter
+          ]));
+        in
+        (pkgs.buildEnv {
+          name = "my-emacs";
+          paths = [
+            bundled-emacs
+            pkgs.clang
+            pkgs.cmake
+            pkgs.coreutils
+            pkgs.fd
+            pkgs.multimarkdown
+            jupyter-for-emacs
+            ripgrep-for-doom-emacs
+          ];
+        });
+    })
+  ];
+
+  xdg.mimeApps.defaultApplications = {
+    "inode/directory" = [ "emacs-dired.desktop" ];
+    "inode/symlink" = [ "emacs-dired.desktop" ];
+
+    "message/rfc822" = [ "emacs-mu4e.desktop" ];
+    "x-scheme-handler/mailto" = [ "emacs-mu4e.desktop" ];
+
+    "x-scheme-handler/org-protocol" = [ "emacs-org-protocol.desktop" ];
+  };
+}
+#+end_src
+
+** <<nix-config-darwin>> 🍏 Darwin
+
+#+begin_src nix :tangle default-darwin.nix
+{ config, pkgs, lib, options, ... }:
+
+let
+  sources = import ../nix/sources.nix;
+  emacs-overlay-src = sources."emacs-overlay";
+in
+{
+  home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
+
+  programs.emacs = {
+    enable = true;
+    package = pkgs.my-emacs;
+  };
+
+  nixpkgs.overlays = [
+    (import emacs-overlay-src)
+
+    (self: super: {
+      my-emacs =
+        let
+          emacs = pkgs.emacsPgtkGcc;
+          emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+          bundled-emacs = emacsWithPackages (epkgs: (
+            with epkgs; [
+              notmuch
+              vterm
+              pdf-tools
+            ]
+          ) ++ (
+            with epkgs.melpaStablePackages; [
+            ]
+          ) ++ (
+            with epkgs.melpaPackages; [
+            ]
+          ));
+          ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+            withPCRE2 = true;
+          });
+          jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
+            jupyter
+          ]));
+        in
+        (pkgs.buildEnv {
+          name = "my-emacs";
+          paths = [
+            bundled-emacs
+            pkgs.clang
+            pkgs.cmake
+            pkgs.coreutils
+            pkgs.fd
+            pkgs.multimarkdown
+            jupyter-for-emacs
+            ripgrep-for-doom-emacs
+
+            # for Emacs
+            (pkgs.makeDesktopItem {
+              name = "org-protocol";
+              exec = "${bundled-emacs}/bin/emacsclient --create-frame %u";
+              comment = "Org Protocol";
+              desktopName = "org-protocol";
+              type = "Application";
+              mimeType = "x-scheme-handler/org-protocol";
+            })
+
+            # for Emacs
+            # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.5.html
+            # https://www.emacswiki.org/emacs/MailtoHandler
+            # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
+            (pkgs.makeDesktopItem {
+              name = "emacs-mu4e";
+              exec = ''
+                ${bundled-emacs}/bin/emacsclient --create-frame --eval "(browse-url-mail \"%u\")"
+              '';
+              comment = "Emacs mu4e";
+              desktopName = "emacs-mu4e";
+              type = "Application";
+              mimeType = builtins.concatStringsSep ";" [
+                # Email
+                "x-scheme-handler/mailto"
+                "message/rfc822"
+              ];
+            })
+          ];
+        });
+    })
+  ];
+}
 #+end_src
 
 * Footnotes
