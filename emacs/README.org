@@ -18,12 +18,12 @@ I manage both my Emacs installation and my Emacs configuration declaratively. A 
 
 My Emacs version is pretty up-to-date as per [2022-06-30 Thu 14:06] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to rebuild Emacs from scratch whenever needed.
 
-#+begin_src elisp :results raw :exports both
+#+begin_src elisp :results verbatim :exports both
 (emacs-version)
 #+end_src
 
 #+RESULTS:
-GNU Emacs 29.0.50 (build 1, x86_64-pc-linux-gnu, X toolkit, cairo version 1.16.0, Xaw scroll bars)
+: "GNU Emacs 29.0.50 (build 1, x86_64-pc-linux-gnu, X toolkit, cairo version 1.16.0, Xaw scroll bars)"
 
 The good bit about home-manager is that is will go as far as setting up home directories for me as well so there is little that I need to manually do other than the following steps:
 
