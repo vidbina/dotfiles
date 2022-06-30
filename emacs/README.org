@@ -2408,6 +2408,22 @@ For insight into the evil bindings for notmuch, go have a look at the definition
 - =p= ~notmuch-show-save-attachments~ (like mu4e)
 - =gd= goto address at point
 
+**** WIP Face for "deleted" tag
+
+We can customize the face messages that we want to mark as deleted. The relevant section of my custom.el section at [2022-06-30 Thu 13:52] is displayed below for convenience:
+
+#+begin_src elisp
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :height 203))))
+ '(notmuch-tag-deleted ((t (:foreground "#a60000" :inverse-video t :strike-through "#a60000")))))
+#+end_src
+
+The =notmuch-tag-deleted= bit is customization of interest and it should be managed through the customization facility in Emacs
+
 ** TODO 🕳️ Terminals and Shells 🐚
 
 *** COMMENT vterm
