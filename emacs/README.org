@@ -499,7 +499,7 @@ Looking into htmlize started when stumbling upon errors in exporting Org blocks 
 #+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/hniksic/emacs-htmlize
 (use-package htmlize
-  <<htmlize-straight-github-original>>
+  <<htmlize-straight-github-fork>>
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
   (setq org-html-htmlize-output-type 'inline-css)
@@ -507,11 +507,15 @@ Looking into htmlize started when stumbling upon errors in exporting Org blocks 
   (htmlize-ignore-face-size t))
 #+end_src
 
+:DRAWER:
 Running into the following pesky warning which is why this is still in WIP:
 
 #+begin_src text
 Warning (straight): Two different recipes given for "htmlize" (:repo cannot be both "hniksic/emacs-htmlize" and "vidbina/emacs-htmlize") Disable showing Disable logging
 #+end_src
+
+There was a dialog to resolve this by renaming one of the origins to =origin-1= and configuring the new target as =origin= but this broke in a manner that required me to drop into Dired or Magit to fix it anyways. I ended up removing the offending folder in the straight/repos directory.
+:END:
 
 *** Source from Github
 
@@ -535,6 +539,10 @@ In order to refer to a self-cooked fix in a local-system independent way, I have
 *** Source Locally
 
 For the testing of changes, I may opt to directly refer to a folder local to my system and ignore version control and consider the folder state authoritative to accellerate development.
+
+#+begin_center
+⚠️ Setting =:type nil= seems invalid.
+#+end_center
 
 #+begin_src elisp :noweb-ref htmlize-straight-local
 :straight (htmlize :type nil

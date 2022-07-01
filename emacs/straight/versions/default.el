@@ -23,7 +23,7 @@
  ("eldoc" . "036b9478ca77b29733fa4405c89dae28d0894818")
  ("elm-mode" . "d4e434fa1857ba2f58d27c7520ebeac0515cd140")
  ("emacs-async" . "9a8cd0c3d5c120bfa03187c54dba6e33f6e3ca19")
- ("emacs-htmlize" . "dd27bc3f26efd728f2b1f01f9e4ac4f61f2ffbf9")
+ ("emacs-htmlize" . "ca9d7e2946e04a275f29125565ff87418d8d10ee")
  ("emacs-reformatter" . "84cff54b0873fcca6fc0314d7584284e86708e8d")
  ("emacs-request" . "f3a5b4352e9f444ace2a332939abff504b573887")
  ("emacs-rotate" . "4e9ac3ff800880bd9b705794ef0f7c99d72900a6")

@@ -124,7 +124,8 @@
 (use-package htmlize
   :straight (htmlize :type git
                      :host github
-                     :repo "hniksic/emacs-htmlize")
+                     :branch "fix-face-size-unspecified-head"
+                     :repo "vidbina/emacs-htmlize")
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
   (setq org-html-htmlize-output-type 'inline-css)
