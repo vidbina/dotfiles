@@ -499,7 +499,7 @@ Looking into htmlize started when stumbling upon errors in exporting Org blocks 
 #+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/hniksic/emacs-htmlize
 (use-package htmlize
-  <<htmlize-straight-local>>
+  <<htmlize-straight-github-fork>>
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
   (setq org-html-htmlize-output-type 'inline-css)
@@ -510,8 +510,16 @@ Looking into htmlize started when stumbling upon errors in exporting Org blocks 
 :DRAWER:
 Running into the following pesky warning which is why this is still in WIP:
 
+When using my fork on Github, I get:
+
 #+begin_src text
 Warning (straight): Two different recipes given for "htmlize" (:repo cannot be both "hniksic/emacs-htmlize" and "vidbina/emacs-htmlize") Disable showing Disable logging
+#+end_src
+
+When pointing straight to a local directory, I get:
+
+#+begin_src text
+Warning (straight): Two different recipes given for "htmlize" (:local-repo cannot be both "emacs-htmlize" and "~/src/vidbina/emacs-htmlize") Disable showing Disable logging
 #+end_src
 
 There was a dialog to resolve this by renaming one of the origins to =origin-1= and configuring the new target as =origin= but this broke in a manner that required me to drop into Dired or Magit to fix it anyways. I ended up removing the offending folder in the straight/repos directory.
