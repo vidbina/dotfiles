@@ -499,7 +499,7 @@ Looking into htmlize started when stumbling upon errors in exporting Org blocks 
 #+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/hniksic/emacs-htmlize
 (use-package htmlize
-  <<htmlize-straight-github-fork>>
+  <<htmlize-straight-local>>
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
   (setq org-html-htmlize-output-type 'inline-css)
@@ -545,8 +545,7 @@ For the testing of changes, I may opt to directly refer to a folder local to my 
 #+end_center
 
 #+begin_src elisp :noweb-ref htmlize-straight-local
-:straight (htmlize :type nil
-                   :local-repo "~/src/vidbina/emacs-htmlize")
+:straight (htmlize :local-repo "~/src/vidbina/emacs-htmlize")
 #+end_src
 
 *** TODO Merge change to =htmlize-face-size= upstream
