@@ -27,7 +27,6 @@
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
 (use-package org
   :straight (:type built-in)
-  :after htmlize
   :init
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
@@ -117,16 +116,15 @@
   :straight (ox-clip :type git
                      :host github
                      :repo "jkitchin/ox-clip")
-  :after (org htmlize)
+  :after (org)
   :bind
   ("C-c y" . ox-clip-formatted-copy))
 
+;; https://github.com/hniksic/emacs-htmlize
 (use-package htmlize
   :straight (htmlize :type git
                      :host github
-                     :branch "fix-face-size-unspecified-head"
-                     :repo "vidbina/emacs-htmlize"
-                     :local-repo "~/src/vidbina/emacs-htmlize")
+                     :repo "hniksic/emacs-htmlize")
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
   (setq org-html-htmlize-output-type 'inline-css)

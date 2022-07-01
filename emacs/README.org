@@ -279,7 +279,6 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
 (use-package org
   :straight (:type built-in)
-  :after htmlize
   :init
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
@@ -484,7 +483,7 @@ The ox-clip exporters allow us to export fragments of our org documents into ric
   :straight (ox-clip :type git
                      :host github
                      :repo "jkitchin/ox-clip")
-  :after (org htmlize)
+  :after (org)
   :bind
   ("C-c y" . ox-clip-formatted-copy))
 #+end_src
@@ -497,18 +496,49 @@ Running ~(straight-dependants "htmlize")~ yields =("ox-clip" ("org-ref" "org-roa
 Looking into htmlize started when stumbling upon errors in exporting Org blocks to HTML. Just export this entire file to HTML would eventually fail with =Invalid face: unspecified= to which I authored a [[https://github.com/hniksic/emacs-htmlize/pull/41/files][PR]] with a coarse fix.
 :END:
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
+;; https://github.com/hniksic/emacs-htmlize
 (use-package htmlize
-  :straight (htmlize :type git
-                     :host github
-                     :branch "fix-face-size-unspecified-head"
-                     :repo "vidbina/emacs-htmlize"
-                     :local-repo "~/src/vidbina/emacs-htmlize")
+  <<htmlize-straight-github-original>>
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
   (setq org-html-htmlize-output-type 'inline-css)
   :custom
   (htmlize-ignore-face-size t))
+#+end_src
+
+Running into the following pesky warning which is why this is still in WIP:
+
+#+begin_src text
+Warning (straight): Two different recipes given for "htmlize" (:repo cannot be both "hniksic/emacs-htmlize" and "vidbina/emacs-htmlize") Disable showing Disable logging
+#+end_src
+
+*** Source from Github
+
+The original repository is [[https://github.com/hniksic/emacs-htmlize][hniksic/emacs-htmlize]]:
+
+#+begin_src elisp :noweb-ref htmlize-straight-github-original
+:straight (htmlize :type git
+                   :host github
+                   :repo "hniksic/emacs-htmlize")
+#+end_src
+
+In order to refer to a self-cooked fix in a local-system independent way, I have a [[https://github.com/vidbina/emacs-htmlize][fork]] with a fix branch.
+
+#+begin_src elisp :noweb-ref htmlize-straight-github-fork
+:straight (htmlize :type git
+                   :host github
+                   :branch "fix-face-size-unspecified-head"
+                   :repo "vidbina/emacs-htmlize")
+#+end_src
+
+*** Source Locally
+
+For the testing of changes, I may opt to directly refer to a folder local to my system and ignore version control and consider the folder state authoritative to accellerate development.
+
+#+begin_src elisp :noweb-ref htmlize-straight-local
+:straight (htmlize :type nil
+                   :local-repo "~/src/vidbina/emacs-htmlize")
 #+end_src
 
 *** TODO Merge change to =htmlize-face-size= upstream
@@ -832,7 +862,7 @@ Org-ref has provisions for cross-referencing that Org-cite doesn't quite provide
   :straight (org-ref :type git
                      :host github
                      :repo "jkitchin/org-ref")
-  :after (org-roam htmlize))
+  :after (org-roam))
 #+end_src
 
 ** Org-QL
