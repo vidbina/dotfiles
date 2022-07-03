@@ -766,15 +766,23 @@ We define a =vidbina/org-roam-async-forced-sync= interactive function that runs 
 The async handler is defined in the following block which allows us to quickly debug it by triggered ~org-edit-special~ on the block and executing the block by running ~eval-defun~:
 
 #+begin_src elisp :noweb-ref vidbina/org-roam-db-async-sync
-(async-start `(lambda ()
-                (setq exec-path ',exec-path
-                      load-path ',load-path)
-                ,(async-inject-variables "\\`\\org-roam-directory")
-                (package-initialize)
-                (require 'org-roam)
-                (org-roam-db-sync 'force))
-             `(lambda (result)
-                (message "Async Org-Roam sync from %s" result)))
+(let* ((my-org-roam-vars '("org-roam-directory"
+                           "org-roam-db-location"
+                           "org-roam-file-extensions"
+                           "org-roam-v2-ack"))
+       (my-setq-form (async-inject-variables (regexp-opt my-org-roam-vars))))
+  (message "Async Org-Roam sync injection form: %s" (pp my-setq-form))
+  (async-start `(lambda ()
+                  (message "Async Org-Roam sync async process entry")
+                  (setq exec-path ',exec-path
+                        load-path ',load-path)
+                  ,my-setq-form
+                  (package-initialize)
+                  (require 'org-roam)
+                  (message "Async Org-Roam sync dir %s for file extensions %s" org-roam-directory org-roam-file-extensions)
+                  (org-roam-db-sync 'force))
+               `(lambda (result)
+                  (message "Async Org-Roam sync from %s" result))))
 #+end_src
 
 We define a binding that calls our async synchronization function:
