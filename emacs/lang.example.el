@@ -213,6 +213,15 @@
   :config
   (require 'ob-clojure))
 
+;; https://github.com/clojure-emacs/cider
+(use-package cider
+  :straight (cider :type git
+                   :host github
+                   :repo "clojure-emacs/cider")
+  :config
+  (setq org-babel-clojure-backend 'cider
+        cider-lein-parameters "with-profile -user repl :headless :host localhost"))
+
 ;; https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode
 (use-package kotlin-mode
   :straight (kotlin-mode :type git

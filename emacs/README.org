@@ -4049,17 +4049,25 @@ Superset of JavaScript that folks really should be using instead of just vanilla
 
 *** Clojure
 
-#+begin_src elisp :tangle lang.example.el
+#+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/clojure-emacs/clojure-mode
 (use-package clojure-mode
   :straight (clojure-mode :type git
                           :host github
                           :repo "clojure-emacs/clojure-mode")
   :config
-  (require 'ob-clojure))
+  <<clojure-config>>)
 #+end_src
 
-**** COMMENT IDE Helper
+The =ob-clojure= package provides Org-Babel support for Clojure code blocks.
+
+#+begin_src elisp :noweb-ref clojure-config
+(require 'ob-clojure)
+#+end_src
+
+Refer to the [[https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-clojure.html][Org-babel-clojure documentation]] for instructions on how to install your environment to use Clojure with Emacs.
+
+**** CIDER
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/clojure-emacs/cider
