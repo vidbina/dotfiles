@@ -162,7 +162,7 @@
 
   :config
   (message "📔 org-roam is loaded")
-  (org-roam-db-autosync-mode nil)
+  (org-roam-db-autosync-disable)
 
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
