@@ -4265,9 +4265,9 @@ You can enter a special edit mode by placing point on the codeblock below and en
 (+ 1 (* 2 3) 4)
 #+end_src
 
-*** <<inheritenv>> Inheritenv
+*** <<inheritenv>> inheritenv
 
-The [[https://github.com/purcell/inheritenv][inheritenv]] package configures background processes to adopt the =process environment= and =exec-path= of the calling Emacs buffer. This pacakge is used by [[envrc][envrc]] which means that we don't really have to do anything if we configure the envrc to run the show for us.
+The [[https://github.com/purcell/inheritenv][inheritenv]] package configures background processes to adopt the =process environment= and =exec-path= of the calling Emacs buffer. This package is used by [[envrc][envrc]] which means that we don't really have to do anything if we configure the envrc to run the show for us.
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/purcell/inheritenv
@@ -4277,7 +4277,7 @@ The [[https://github.com/purcell/inheritenv][inheritenv]] package configures bac
                         :repo "purcell/inheritenv"))
 #+end_src
 
-*** <<envrc>> Envrc
+*** <<envrc>> envrc
 
 By using the [[https://github.com/purcell/envrc][envrc]] package, buffer-local variables can be managed through the configuration of the [[https://direnv.net/][direnv]] .envrc file.
 
