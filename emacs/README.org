@@ -750,12 +750,6 @@ Set the Org-roam database location:
 (setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
 #+end_src
 
-Disable autosync mode (is default behavior):
-
-#+begin_src elisp :noweb-ref org-roam-config
-(org-roam-db-autosync-mode nil)
-#+end_src
-
 **** WIP <<org-roam-db-sync-async>> Async Org-Roam-DB Sync or rather Non-blocking Org-Roam DB Sync
 
 Yes, naming of this section is problematic but we're trying to conduct the synchronization in an asynchronous manner such that we don't have to block the main thread all the time we conduct an =org-roam-db-sync=.
@@ -787,6 +781,12 @@ We define a binding that calls our async synchronization function:
 
 #+begin_src elisp :noweb-ref org-roam-bind :results none
 ("C-c n u" . vidbina/org-roam-db-async-forced-sync)
+#+end_src
+
+Since I want to handle synchronization of my Org-Roam database manually through my async handler, we disable autosync:
+
+#+begin_src elisp :noweb-ref org-roam-config
+(org-roam-db-autosync-disable)
 #+end_src
 
 *** Org-Roam-UI
