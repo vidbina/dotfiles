@@ -1753,20 +1753,19 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
                           `((slot . 10) ,@sidebar))))))
 #+end_src
 
-*** 🔍 Zoom-window: Zoom to a single window
+*** 🔍 <<zoom-window>> Zoom-window: Zoom to a single window
 
 In order to single out a particular window in order to return to the preceding layout shortly thereafter again, one may use the [[https://github.com/emacsorphanage/zoom-window][zoom-window]] package. It's a great way to clear some screen real estate and obtain some focus.
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/emacsorphanage/zoom-window
 (use-package zoom-window
   :straight (zoom-window :type git
                          :host github
                          :repo "emacsorphanage/zoom-window")
   :init
-  (with-eval-after-load 'persp-mode
-    (message "Configuring zoom-window to work with persp-mode")
-    (setq zoom-window-use-persp t)))
+  (message "Configuring ‘zoom-window’")
+  <<zoom-window-init>>)
 #+end_src
 
 *** 🪄 Ace Window
@@ -2631,7 +2630,7 @@ The following snippet is a rough example of a Projectile lifecycle command that 
 
 For some reason, changing the .dir-locals.el file requires a reset of the corresponding map which, in the case above, happens to be the =projectile-test-cmd-map=. This hashmap can be reset by navigating to the source where is is defined and reevaluating the defining sexpr.
 
-*** COMMENT Perspective
+*** COMMENT <<perspective>> Perspective
 
 The [[https://github.com/nex3/perspective-el][Perspective]] package provides some conveniences to manage different workspaces. I use perspectives to keep buffers and layouts isolated between different contexts e.g.: sometimes projects, sometimes features, sometimes tasks (e.g.: wedding planning notes and emails, 1-on-1 work-related notes and details, notes and buffers on a particular research topic, etc.).
 
@@ -2644,7 +2643,8 @@ The [[https://github.com/nex3/perspective-el][Perspective]] package provides som
   :bind (("C-x C-b" . persp-ivy-switch-buffer)
          ("C-x k" . persp-kill-buffer*))
   :config
-  (persp-mode t)
+  (message "Configuring ‘perspective’")
+  <<perspective-config>>
   :init
   (setq persp-state-default-file "~/.emacs.d/perspective"
         persp-modestring-short t))
@@ -2680,6 +2680,28 @@ Here are some of the relevant bindings to remember, provided that =persp-keymap-
 - =C-c p K= *kill* buffer
 
 Killing a buffer through =C-x k= will only kill the buffer if it is only member of the current perspective i.e.: a buffer that is a member of multiple perspectives will only be removed from the current perspective when the ~kill-buffer~ command is invoked.
+
+**** Integrate with zoom-window
+
+The [[zoom-window][zoom-window]] package can be configured to work with persp-mode
+
+#+begin_src elisp :noweb-ref zoom-window-init
+(with-eval-after-load 'persp-mode
+  (message "Configuring ‘zoom-window’ to work with ‘persp-mode’")
+  (setq zoom-window-use-persp t))
+#+end_src
+
+***** TODO Determine if =:defer= can be used to avoid having to define an =eval-after-load= form
+
+I’m not sure if we can define our =eval-after-load= forms through =:defer= in [[file:straight/repos/use-package/use-package-core.el::`((eval-after-load ',name ',(macroexp-progn body)))))))][use-package-core.el]]) and I don’t have time to think about it at the moment.
+
+**** Integrate with Perspective
+
+The [[perspective][Perspective]] package can be configured to work with persp-mode by loading it within Perspective's config block.
+
+#+begin_src elisp :noweb-ref perspective-config
+(persp-mode t)
+#+end_src
 
 **** TODO Fix perspective switching bug
 
