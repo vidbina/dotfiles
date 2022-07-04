@@ -295,12 +295,57 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
         org-hide-block-startup t)
   <<org-config>>
   :custom
-  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation")
-  (org-todo-keywords '((sequence "TODO(t)" "WIP(w)" "|" "DONE(d)" "CANCELED(@c)")) "Allow fast-selection for my standard TODO states")
-  (org-catch-invisible-edits 'error "Disable invisible edits")
-  (org-src-window-setup 'current-window "Show edit buffer in calling window")
-  (org-refile-targets '((nil . (:maxlevel . 3))) "Allow refiling to 3rd level headings"))
+  <<org-custom>>)
   #+end_src
+
+** Customizations
+
+#+begin_src elisp :noweb-ref org-custom
+(org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation")
+(org-catch-invisible-edits 'error "Disable invisible edits")
+(org-src-window-setup 'current-window "Show edit buffer in calling window")
+(org-refile-targets '((nil . (:maxlevel . 3))) "Allow refiling to 3rd level headings")
+#+end_src
+
+*** Default workflow states
+
+To facilitate my [[https://orgmode.org/manual/Workflow-states.html][workflow states]], we define:
+- TODO :: something we want to work on
+- WIP :: something that is work-in-progress but not yet "usable"
+- PROTOTYPE :: something that is "usable"
+- CANCELED :: something that we aborted and we'll have to provide explanation
+- +DONE+ :: something that works and is ready for prime-time
+
+#+begin_src elisp :noweb-ref org-custom
+(org-todo-keywords '((sequence "TODO(t)" "WIP(w)" "|" "DONE(d)" "CANCELED(@c)")) "Allow fast-selection for my standard TODO states")
+#+end_src
+
+After a while, we can drop the =DONE= state from headings to just promote them to regular "features". In fact, we may as well remove 
+
+#+begin_src plantuml :file images/org-default-workflow-states.png :exports results
+@startuml
+
+state "TODO" as state_todo #yellow
+state "WIP" as state_wip #yellow
+state "PROTOTYPE" as state_prototype #yellow
+state "CANCELED" as state_canceled #pink
+state "DONE" as state_done #lightgreen
+
+[*] -> state_todo
+state_todo -> state_wip : stub concept
+state_todo --> state_canceled : abort
+state_wip -> state_prototype : release alpha/beta
+state_wip --> state_canceled : abort
+state_prototype -> state_done : release production
+state_prototype --> state_canceled : abort
+state_canceled --> state_todo : reboot
+state_done -> [*]
+
+@enduml
+#+end_src
+
+#+RESULTS:
+[[file:images/org-default-workflow-states.png]]
 
 ** <<org-babel>> Org-Babel
 
