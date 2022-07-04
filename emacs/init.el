@@ -750,7 +750,15 @@
                         :repo "Bad-ptr/persp-mode.el")
   :diminish persp-mode
   :config
-  (persp-mode t))
+  (persp-mode t)
+  :custom
+  (persp-auto-resume-time 0 "Avoid autoloading perspective")
+  (persp-nil-name "unpersp-ed" "Just to be clearer")
+  (persp-filter-save-buffers-functions
+   (list #'(lambda (b) (string-prefix-p "*" (buffer-name b)))
+         #'(lambda (b) (not (null (string-match-p (rx (seq word-boundary "magit"
+                                                           (zero-or-more (seq "-" (one-or-more any))) ":")) (buffer-name b))))))
+   "Filter out special and magit buffers from saving"))
 
 (message "💥 Debug on error is %s" debug-on-error)
 
