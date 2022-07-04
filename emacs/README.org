@@ -315,6 +315,8 @@ To facilitate my [[https://orgmode.org/manual/Workflow-states.html][workflow sta
 - PROTOTYPE :: something that is "usable"
 - CANCELED :: something that we aborted and we'll have to provide explanation
 - +DONE+ :: something that works and is ready for prime-time
+  - this state is struck-out because we should assume that any heading without a state is either done or not a task-like heading at all
+  - in practice, I sometimes unstate headings with a =DONE= state after I feel enough time has passed to just turn them into boring headings
 
 #+begin_src elisp :noweb-ref org-custom
 (org-todo-keywords '((sequence "TODO(t)" "WIP(w)" "|" "DONE(d)" "CANCELED(@c)")) "Allow fast-selection for my standard TODO states")
@@ -1814,7 +1816,7 @@ In order to single out a particular window in order to return to the preceding l
   <<zoom-window-init>>)
 #+end_src
 
-*** 🪄 Ace Window
+*** 🪄 <<ace-window>> ace-window
 
 In order to quickly jump between windows by numbers, we can use the [[https://github.com/abo-abo/ace-window][ace-window]] package. This eliminates the need for the tedious next/previous window bindings (either native Emacs or evil).
 
@@ -1828,7 +1830,7 @@ In order to quickly jump between windows by numbers, we can use the [[https://gi
   :bind (("M-o" . ace-window)))
 #+end_src
 
-**** TODO Debug hangin =M-o= call on function =null= help page
+**** TODO Debug hanging when attempting to switchin windows through =M-o= from help page
 
 When the help page for function =null= is open, the =M-o= binding just ends up hanging up Emacs *sometimes*. Can't reproduce it yet. 😭
 
@@ -1850,9 +1852,10 @@ Return t if OBJECT is nil, and return nil otherwise.
 
 #+end_example
 
-***** Profiler output from the =null= help page
+***** Profiler results
+****** Profiler output from the =null= help page
 
-****** Memory
+******* Memory
 
 #+begin_src text
   1,362,566,599  99% - command-execute
@@ -1881,7 +1884,7 @@ Return t if OBJECT is nil, and return nil otherwise.
               0   0%   ...
 #+end_src
 
-****** CPU
+******* CPU
 
 #+begin_src text
         6135  59% - ...
@@ -1891,9 +1894,13 @@ Return t if OBJECT is nil, and return nil otherwise.
            1   0%   redisplay_internal (C function)
 #+end_src
 
-***** Profiler output from when trying to window switch with =persp-string-match-p= help page open
+****** COMMENT Profiler output from when trying to window switch with =persp-string-match-p= help page open
 
-****** Memory
+#+begin_comment
+I must have copied over the profile reports incorrectly since the CPU and Memory reports seem to deviate a bit from the other two reports that I've gathered. Just commenting this section out to avoid getting confused over this.
+#+end_comment
+
+******* Memory
 
 #+begin_src text
      11,653,264  97% - command-execute
@@ -1922,7 +1929,7 @@ Return t if OBJECT is nil, and return nil otherwise.
               0   0%   ...
 #+end_src
 
-****** CPU
+******* CPU
 
 #+begin_src text
         7930  99% - command-execute
@@ -1941,11 +1948,11 @@ Return t if OBJECT is nil, and return nil otherwise.
            0   0% + ...
 #+end_src
 
-***** Profiler output
+****** Profiler output
 
 This run was particularly problematic, as you can tell it has basically consumed a crapload of memory and GC seems to be going wild.
 
-****** Memory
+******* Memory
 
 #+begin_src text
   7,441,616,899  99% - command-execute
@@ -1972,7 +1979,7 @@ This run was particularly problematic, as you can tell it has basically consumed
               0   0%   ...
 #+end_src
 
-****** CPU
+******* CPU
 
 #+begin_src text
        36661  66% - ...
@@ -1982,7 +1989,11 @@ This run was particularly problematic, as you can tell it has basically consumed
            3   0% + redisplay_internal (C function)
 #+end_src
 
-*** Avy
+***** Yak Shaving
+
+Let's study what =avy-tree= really does. The signature is ~(avy-read TREE DISPLAY-FN CLEANUP-FN)~ and is defined in [[file:straight/repos/avy/avy.el::defun avy-read (tree display-fn cleanup-fn][avy.el]].
+
+*** <<avy>> avy
 
 In order to speed up text navigation, one can use [[https://github.com/abo-abo/avy][avy]] to produce jump points that one can navigate through single keystrokes.
 
