@@ -2901,7 +2901,11 @@ For the sake of clarity, a goofy name is selected for the nil perspective to mak
 This is mostly BS because "none" is clearly not nil-like but I'm just trynna keep things fun.
 #+end_center
 
-***** WIP Expand persp-auto-save filters to filter out magit buffers
+***** PROTOTYPE Expand persp-auto-save filters to filter out magit buffers
+:LOGBOOK:
+- State "PROTOTYPE"  from "WIP"        [2022-07-04 Mon 21:01] \\
+  We managed to conduct a restart of Emacs and noticed that Magit buffers were no longer persisted, so our filters seem to work.
+:END:
 
 Note that variable =persp-save-buffer-functions= (see [[file:straight/repos/persp-mode.el/persp-mode.el::(defcustom persp-save-buffer-functions][source]]) lists some functions that are used as filters to determine which buffers are persisted to the [[file:persp-confs/persp-auto-save][persp-auto-save]] files.
 
