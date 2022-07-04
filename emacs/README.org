@@ -1828,6 +1828,160 @@ In order to quickly jump between windows by numbers, we can use the [[https://gi
   :bind (("M-o" . ace-window)))
 #+end_src
 
+**** TODO Debug hangin =M-o= call on function =null= help page
+
+When the help page for function =null= is open, the =M-o= binding just ends up hanging up Emacs *sometimes*. Can't reproduce it yet. 😭
+
+#+begin_src elisp
+(describe-function #'null)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+null is a built-in function in ‘C source code’.
+
+(null OBJECT)
+
+Return t if OBJECT is nil, and return nil otherwise.
+
+  Other relevant functions are documented in the list group.
+  Probably introduced at or before Emacs version 1.9.
+  This function does not change global state, including the match data.
+
+#+end_example
+
+***** Profiler output from the =null= help page
+
+****** Memory
+
+#+begin_src text
+  1,362,566,599  99% - command-execute
+  1,359,050,303  99%  - funcall-interactively
+  1,355,593,128  99%   - ace-window
+  1,355,593,128  99%    - ace-select-window
+  1,355,593,128  99%     - aw-select
+  1,355,592,072  99%      - avy-read
+         22,136   0%       - aw--lead-overlay
+          6,336   0%        + #<compiled 0x21abf780a0956>
+          6,136   0%          aw--point-visible-p
+          5,280   0%        - aw--overlay-str
+          2,112   0%         - select-window
+          2,112   0%          - apply
+          2,112   0%             ad-Advice-select-window
+          2,112   0%         + #<compiled 0x21a7852646156>
+          4,224   0%        - select-window
+          4,224   0%         - apply
+          4,224   0%            ad-Advice-select-window
+      3,457,175   0%   + execute-extended-command
+      3,515,240   0%  + byte-code
+        249,481   0% + timer-event-handler
+         47,172   0% + redisplay_internal (C function)
+             24   0% + eldoc-schedule-timer
+             21   0% + #<compiled 0xdb7dccf4d947c67>
+              0   0%   ...
+#+end_src
+
+****** CPU
+
+#+begin_src text
+        6135  59% - ...
+        6135  59%    Automatic GC
+        3875  37% + command-execute
+         285   2% + timer-event-handler
+           1   0%   redisplay_internal (C function)
+#+end_src
+
+***** Profiler output from when trying to window switch with =persp-string-match-p= help page open
+
+****** Memory
+
+#+begin_src text
+     11,653,264  97% - command-execute
+      7,258,981  60%  - byte-code
+      7,258,938  60%   - read-extended-command
+      7,258,938  60%    - completing-read-default
+      7,258,938  60%     - apply
+      7,257,882  60%      - vertico--advice
+      7,177,718  60%       + #<subr completing-read-default>
+      4,394,283  36%  - funcall-interactively
+      3,697,527  31%   - execute-extended-command
+      3,697,431  31%    - command-execute
+      3,697,415  31%     - funcall-interactively
+            631   0%      - profiler-start
+            631   0%         apply
+             96   0%    + run-at-time
+        694,580   5%   + ace-window
+          2,112   0%   + digit-argument
+        131,812   1% + redisplay_internal (C function)
+         86,886   0% + timer-event-handler
+         36,345   0% + internal-echo-keystrokes-prefix
+          8,184   0%   evil-repeat-pre-hook
+          1,098   0% + #<compiled 0xdb7dccf4d947c67>
+          1,056   0% + which-key--hide-popup
+          1,056   0% + undo-auto--add-boundary
+              0   0%   ...
+#+end_src
+
+****** CPU
+
+#+begin_src text
+        7930  99% - command-execute
+        6878  86%  - funcall-interactively
+        6873  86%   - ace-window
+        6873  86%    - ace-select-window
+        6873  86%     - aw-select
+        6844  86%      + #<subr F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_26>
+          28   0%      + avy-read
+           1   0%      + mapcar
+           5   0%   + execute-extended-command
+        1052  13%  + byte-code
+           2   0% + redisplay_internal (C function)
+           2   0% + timer-event-handler
+           1   0%   evil-esc
+           0   0% + ...
+#+end_src
+
+***** Profiler output
+
+This run was particularly problematic, as you can tell it has basically consumed a crapload of memory and GC seems to be going wild.
+
+****** Memory
+
+#+begin_src text
+  7,441,616,899  99% - command-execute
+  7,435,010,443  99%  - funcall-interactively
+  7,424,303,916  99%   - ace-window
+  7,424,303,916  99%    - ace-select-window
+  7,424,303,916  99%     - aw-select
+  7,424,302,860  99%      - avy-read
+    133,056,380   1%       - aw--lead-overlay
+        129,404   0%          aw--point-visible-p
+          5,280   0%        + aw--overlay-str
+          5,280   0%        + #<compiled 0x47199a3e5d956>
+          4,224   0%        + select-window
+          1,056   0%        aw--make-backgrounds
+      8,762,616   0%   + describe-function
+      1,936,327   0%   + execute-extended-command
+      5,284,212   0%  + byte-code
+      1,321,188   0%  + help-fns--describe-function-or-command-prompt
+        130,504   0% + redisplay_internal (C function)
+         92,686   0% + timer-event-handler
+          5,224   0% + eldoc-schedule-timer
+          2,112   0% + jit-lock--antiblink-post-command
+          1,098   0% + #<compiled 0xdb7dccf4d947c67>
+              0   0%   ...
+#+end_src
+
+****** CPU
+
+#+begin_src text
+       36661  66% - ...
+       36661  66%    Automatic GC
+       18178  33% + command-execute
+           8   0% + timer-event-handler
+           3   0% + redisplay_internal (C function)
+#+end_src
+
 *** Avy
 
 In order to speed up text navigation, one can use [[https://github.com/abo-abo/avy][avy]] to produce jump points that one can navigate through single keystrokes.
