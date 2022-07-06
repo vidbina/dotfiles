@@ -946,6 +946,28 @@ Note that entering org-occur pulls up a buffer that provides some instructions.
 1   0% + evil-repeat-pre-hook
 #+end_src
 
+*** TODO Fix =Marker does not point anywhere= error when attempting to complete tempo template
+
+I sometimes get =Marker does not point anywhere= errors when attempting to insert snippets through, for example =<s=. Unable to reproduce, happens sporadically!
+
+#+begin_src text
+Debugger entered--Lisp error: (error "Marker does not point anywhere")
+  tempo-insert-mark(#<marker at 63749 in README.org>)
+  tempo-insert-template(tempo-template-org-src nil)
+  tempo-complete-tag(fail)
+  org-tempo-complete-tag()
+  org-cycle(nil)
+  funcall-interactively(org-cycle nil)
+  command-execute(org-cycle)
+#+end_src
+
+#+begin_src elisp
+(point-marker)
+(tempo-insert-mark (point-marker))
+;; run `(org-tempo-complete-tag)' with point at the end of the next line
+<s
+#+end_src
+
 ** Org LaTeX Listing Source Wrapping
 
 By default listings in LaTeX exports don't line-wrap which is really useless when you have blocks with long lines and are hoping for readable output in a printable form-factor -- not to say that you actually print it but hey... your e-reader may want that printable form-factor?!? 🤷🏿‍♂️
@@ -1478,6 +1500,10 @@ When injecting variables, the default =ob-async-inject-variables= pattern seems 
 error in process sentinel: async-when-done: Invalid read syntax: "#"
 error in process sentinel: Invalid read syntax: "#"
 #+end_src
+
+*** TODO Introduce =:async= header args for org-lint checks
+
+The =:async= header argument should be accepted by Org-lint when ob-async is loaded. IIRC the =:async= header arg should be legal for Python blocks.
 
 **** COMMENT Yak Shaving
 
@@ -2463,6 +2489,114 @@ This run was particularly problematic, as you can tell it has basically consumed
        18178  33% + command-execute
            8   0% + timer-event-handler
            3   0% + redisplay_internal (C function)
+#+end_src
+
+****** Profiler [2022-07-06 Wed 13:52]
+
+Point on README.org and trying to =M-o= to Help bufer with =org-html-head-include-default-style=.
+
+******* Memory
+
+#+begin_src text
+  3,719,970,307  99% - command-execute
+  3,715,823,503  99%  - funcall-interactively
+  3,712,721,656  99%   - ace-window
+  3,712,721,656  99%    - ace-select-window
+  3,712,721,656  99%     - aw-select
+  3,712,717,432  99%      - avy-read
+        390,744   0%       + aw--lead-overlay
+          2,112   0%      + aw-window-list
+          1,056   0%        aw--make-backgrounds
+          1,056   0%      + #<subr F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_26>
+      3,101,847   0%   + execute-extended-command
+      4,146,804   0%  + byte-code
+         91,678   0% + timer-event-handler
+         33,240   0% + redisplay_internal (C function)
+          1,056   0% + mode-local-post-major-mode-change
+             42   0% + #<compiled 0xd98e199f0b07c67>
+             24   0% + eldoc-schedule-timer
+              0   0%   ...
+#+end_src
+
+******* CPU
+
+#+begin_src text
+       18122  53% - ...
+       18122  53%    Automatic GC
+       15631  46% + command-execute
+          10   0% + timer-event-handler
+           1   0% + #<compiled 0xd98e199f0b07c67>
+#+end_src
+
+****** Profiler [2022-07-06 Wed 13:55]
+
+Point on README.org (avy 2) and ran =M-o= and the avy window labels appeared but pressing any number key yields no result. Tried entering 1 which should have moved point to the Help buffer and also tried 2 which should have kept point on README.org.
+
+******* Memory
+
+#+begin_src text
+     10,551,251  98% - command-execute
+      5,733,544  53%  - byte-code
+      5,729,400  53%   - read-extended-command
+      5,729,400  53%    - completing-read-default
+      5,729,400  53%     - apply
+      5,729,400  53%      - vertico--advice
+      4,813,351  45%       + #<subr completing-read-default>
+      4,817,707  45%  - funcall-interactively
+      3,694,391  34%   - execute-extended-command
+      3,693,287  34%    - command-execute
+      3,693,271  34%     - funcall-interactively
+            631   0%      - profiler-start
+            631   0%         apply
+          1,104   0%    + run-at-time
+      1,118,124  10%   - ace-window
+      1,118,124  10%    - ace-select-window
+      1,118,124  10%     - aw-select
+      1,113,908  10%      - avy-read
+        173,364   1%       - read-key
+        147,140   1%        - read-key-sequence-vector
+         10,812   0%         - redisplay_internal (C function)
+         10,812   0%          - eval
+         10,560   0%           - format
+          5,280   0%            - propertize
+          5,280   0%             - let
+          5,280   0%                get-current-persp
+          5,280   0%            - safe-persp-name
+          5,280   0%               get-current-persp
+          1,056   0%         + timer-event-handler
+         17,424   0%        + use-global-map
+          7,192   0%        + #<compiled 0x1449b5b163f5817e>
+         75,200   0%       + aw--lead-overlay
+          3,160   0%      + aw-window-list
+          1,056   0%      + avy-tree
+         74,096   0% + timer-event-handler
+         37,416   0% + redisplay_internal (C function)
+          1,080   0% + eldoc-schedule-timer
+          1,056   0% + mode-local-post-major-mode-change
+             63   0% + #<compiled 0xd98e199f0b07c67>
+              0   0%   ...
+#+end_src
+
+******* CPU
+
+#+begin_src text
+        8272  99% - command-execute
+        7685  92%  - funcall-interactively
+        7677  92%   - ace-window
+        7677  92%    - ace-select-window
+        7677  92%     - aw-select
+        7648  92%      - #<subr F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_26>
+        7648  92%       - aw--done
+        5433  65%        - aw--restore-windows-hscroll
+         775   9%           #<compiled 0xf5c1743c948468>
+          28   0%      + avy-read
+           1   0%      + aw-window-list
+           8   0%   + execute-extended-command
+         587   7%  + byte-code
+           4   0% + timer-event-handler
+           3   0% + redisplay_internal (C function)
+           1   0% + #<compiled 0xd98e199f0b07c67>
+           0   0% + ...
 #+end_src
 
 ***** Yak Shaving
@@ -4576,14 +4710,12 @@ Initiating a session with a name yields a namesake buffer:
 
 Note that =params= can be set through code-block headers
 
-#+begin_src bash :session "*my-bash-session*" :results output :output verbatim
+#+begin_src bash :session "*my-bash-session*" :results verbatim
 echo "hi"
-echo "other"
 #+end_src
 
 #+RESULTS:
 : hi
-: other
 
 ****** TODO Define nix-develop ob-execute handler
 
