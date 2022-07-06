@@ -4543,8 +4543,7 @@ Let's define a function to allow us to dynamically generate a valid shebang for 
 #+begin_src elisp :tangle personal-example.el :results none
 (defun vidbina/ob-shell-nix-shebang (&optional shell-file)
   "Shebang line for a nix-shell environment based on the buffer directory"
-  (unless (stringp shell-file) (error "shell-file must be a string"))
-  (let ((shell-file (or shell-file "shell.nix"))
+  (let ((shell-file (or (when (stringp shell-file) shell-file) "shell.nix"))
         (nix-file (expand-file-name shell-file
                                     (file-name-directory (buffer-file-name)))))
     (format "#!/usr/bin/env nix-shell\n#!nix-shell -i bash %s" nix-file)))
