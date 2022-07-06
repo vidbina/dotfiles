@@ -516,11 +516,42 @@ In order to configure custom styling, we should define the string variable =org-
 (org-html-head (format "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />" (expand-file-name "ox-html.css" user-emacs-directory)) "Point to our custom stylesheet")
 #+end_src
 
-**** COMMENT CSS Generation Helpers
+**** WIP CSS Generation Helpers
 
 #+begin_src elisp
 (defun vidbina/theme-switch-update-ox-html-css ()
-  (error "ox-html CSS update not yet implemented"))
+  (let* ((colors '((:main-bg . (default :background))
+                   (:main-fg . (default :foreground))
+                   (:link-fg . (link :foreground))
+                   (:todo-fg . (org-todo :foreground))
+                   (:done-fg . (org-done :foreground))
+                   (:prio-fg . (org-priority :foreground))
+                   (:tag-fg . (org-tag :foreground))
+                   (:tag-bg . (org-tag :background))
+                   (:timestamp-fg . (org-date :foreground))
+                   (:scheduled-fg . (org-scheduled :foreground))
+                   (:org-block-fg . (org-block :foreground))
+                   (:org-block-bg . (org-block :background))
+                   (:org-block-edge-fg . (org-block-begin-line :foreground))
+                   (:org-block-edge-bg . (org-block-begin-line :background))
+                   (:org-block-edge-bg . (org-block-begin-line :background))
+                   (:inlinetask-fg . (org-level-8 :foreground))
+                   (:inlinetask-bg . (org-level-8 :background))
+                   (:region-fg . (region :foreground))
+                   (:region-bg . (region :background))
+                   (:default . (default :foreground)))))
+    (-> (mapcar
+         (lambda (x)
+           (let ((key (car x))
+                 (val (pcase (cdr x)
+                        (`(,a ,b) (let ((v (face-attribute a b nil t)))
+                                    (if (eq 'unspecified v) nil (format "%s" v))))
+                        (_ nil))))
+             (list key (or val "none"))))
+         colors)
+        flatten-list))
+  ;; TODO: Merge values into template
+  )
 #+end_src
 
 ** Hide Line numbers when in org-mode
