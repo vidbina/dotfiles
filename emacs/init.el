@@ -109,7 +109,8 @@
   (org-catch-invisible-edits 'error "Disable invisible edits")
   (org-src-window-setup 'current-window "Show edit buffer in calling window")
   (org-refile-targets '((nil . (:maxlevel . 3))) "Allow refiling to 3rd level headings")
-  (org-todo-keywords '((sequence "TODO(t)" "WIP(w)" "|" "DONE(d)" "CANCELED(@c)")) "Allow fast-selection for my standard TODO states"))
+  (org-todo-keywords '((sequence "TODO(t)" "WIP(w)" "|" "DONE(d)" "CANCELED(@c)")) "Allow fast-selection for my standard TODO states")
+  (org-html-head (format "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />" (expand-file-name "ox-html.css" user-emacs-directory)) "Point to our custom stylesheet"))
 
 ;; https://github.com/jkitchin/ox-clip
 ;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
