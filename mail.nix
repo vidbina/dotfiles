@@ -11,6 +11,4 @@
     offlineimap
     urlview
   ];
-
-  # TODO: Setup get-mail worker
 }

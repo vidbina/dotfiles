@@ -463,9 +463,32 @@ I have multiple ways of handling e-mails. For starters, I process nearly all of 
 
 I have used neomutt in combination with neovim and mu4e in Emac for nearly half a year, I've recently
 
+#+begin_src nix :tangle mail.nix
+{ config, pkgs, ... }:
+
+{
+  home.packages = with pkgs; [
+    isync
+    mb2md
+    msmtp
+    neomutt
+    notmuch
+    notmuch-mutt
+    offlineimap
+    urlview
+  ];
+}
+#+end_src
+
+** msmtp
+
 ** Notmuch
 
 Much of my work-related comms transpires over e-mail. In order to obtain [[https://tongfamily.com/2022/01/22/superhuman-hidden-commands-to-top-and-bottom-are-gg-and-g/][superhuman-level-like-or-better]] 🙊 convenience, I am using [[https://notmuchmail.org/][notmuch]] which has [[https://notmuchmail.org/frontends/][plenty of frontends]] available.
+
+** TODO Workers
+
+We need to setup some background services to manage email updating.
 
 * Neovim
 
