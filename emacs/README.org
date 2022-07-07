@@ -3388,7 +3388,11 @@ Furthermore we load customization since some configurations and changes to our E
 💡 You can copy the content in this section to your own personal.org file in this directory and configure all the =:tangle= arguments to output to =personal.el= to cook up your own personal part of your configuration through literal programming. Remember that you can tangle an Org-file into the resulting code with the ~(org-babel-tangle)~ command (mapped to =C-c C-v t= by default).
 #+end_quote
 
-Populate a =personal.el= file which defines your name, your e-mail details and some other /very personal/ configuration bits such as theme customizations or personalized keybindings. Use the following snippet as an example of a configuration that may work.
+Populate a [[file:personal.el]] file which defines your name, your e-mail details and some other very personal configuration bits such as theme customizations or personalized keybindings. Use the following snippet as an example of a configuration that may work.
+
+#+begin_quote
+💡 Tangling this section/file should produce [[file:personal-example.el]] that you can use as a reference for your own file.
+#+end_quote
 
 #+begin_src elisp :tangle personal-example.el
 (setq user-full-name "David Asabina"

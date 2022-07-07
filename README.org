@@ -5,7 +5,7 @@
 
 These dotfiles make my life slightly more convenient. Not promising they'll do the same for yours though. 😉
 
-* TODO [1/19] Convert home-manager config to literate config
+* TODO [2/19] Convert home-manager config to literate config
 
 Refer to [[file:emacs/README.org]] for an example of a literate config that tangles into multiple output files.
 
@@ -26,7 +26,7 @@ Refer to [[file:emacs/README.org]] for an example of a literate config that tang
 - [ ] Lein
 - [ ] Colorit
 - [ ] Conky
-- [ ] Emacs
+- [X] Emacs
 - [X] Git
 
 * TODO Add MIME types
