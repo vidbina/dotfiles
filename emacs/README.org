@@ -508,6 +508,10 @@ pre.src:before {
 }
 #+end_src
 
+*** TODO XeLaTeX instead of pdfLaTeX
+
+The orgmode FAQ contains an entry on using [[https://orgmode.org/worg/org-faq.html#using-xelatex-for-pdf-export][XeLaTeX for LaTeX export instead of pdfLaTeX]] which we will use as a reference in order to simplify the export of my emoji-heavy files which are combined unicode characters which cause problems for pdfLaTeX.
+
 *** Define reference to custom CS Template
 
 In order to configure custom styling, we should define the string variable =org-html-head= (or its alias =org-html-style=) and clear =org-html-head-include-default-style=.
