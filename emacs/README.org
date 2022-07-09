@@ -975,9 +975,7 @@ Set the Org-roam database location:
 
 **** WIP <<org-roam-db-sync-async>> Async Org-Roam-DB Sync or rather Non-blocking Org-Roam DB Sync
 
-Yes, naming of this section is problematic but we're trying to conduct the synchronization in an asynchronous manner such that we don't have to block the main thread all the time we conduct an =org-roam-db-sync=.
-
-We define a =vidbina/org-roam-async-forced-sync= interactive function that runs src_elisp[:exports code]{(org-roam-db-sync 'force)} asychronously.
+Yes, naming of this section is problematic because of the async-sync bit but we're trying to conduct the /synchronization/ in an /asynchronous/ manner such that we don't have to block the main thread all the time we conduct an =org-roam-db-sync= so forgive me. We define interactive function =vidbina/org-roam-async-forced-sync= to expose the asynchronous synchronization logic.
 
 #+begin_src elisp :noweb yes :tangle personal-example.el
 (defun vidbina/org-roam-db-async-forced-sync ()
@@ -985,6 +983,16 @@ We define a =vidbina/org-roam-async-forced-sync= interactive function that runs 
   (interactive)
   <<vidbina/org-roam-db-async-sync>>)
 #+end_src
+
+Before triggering the async handler, we close all database connections in order to
+1. minimize issues with sqlite (which isn't a multi-connection database) and to
+2. hopefully invalidate some cache such that subsequent Org-roam lookups or other events become change aware.
+
+#+begin_src elisp :noweb-ref vidbina/org-roam-db-async-sync
+(org-roam-db--close-all)
+#+end_src
+
+that wraps the src_elisp[:exports code]{(org-roam-db-sync 'force)} call in an asych handler.
 
 The async handler is defined in the following block which allows us to quickly debug it by triggered ~org-edit-special~ on the block and executing the block by running ~eval-defun~:
 
