@@ -3582,17 +3582,6 @@ https://notmuchmail.org/emacstips/
         (:name "all mail" :query "*" :key "a")))
 #+end_src
 
-#+begin_src elisp
-(defun my/mail-sig ()
-  "Returns signature based on From field"
-  (let ((from-field (message-field-value "From")))
-    (message "Trying out signature for %S" from-field)
-    (pcase (or from-field "")
-      ((pred (vidbina/mail-sig-match "@example.com"))
-       (vidbina/mail-sig-file "/home/example/my-example.sig"))
-      (_ (format "\n\n-- \nBe kind! 🤗")))))
-#+end_src
-
 ** 🥳 Personal Helpers
 
 Here be dragons! 🐉 This is my personal collection of helpers that I use for little things like switching themes, managing wrapping inside of buffers, managing opening of URL's and more junk. I will not explain these as these are simple enough and I'm not expecting me needing to explain this to myself or others (you likely will want to write your own).
@@ -3736,6 +3725,17 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (format "\n\n-- \n%s" (with-temp-buffer
                           (insert-file-contents path)
                           (buffer-string))))
+
+(defun vidina/mail-sig ()
+  "Returns signature based on From field"
+  (let ((from-field (message-field-value "From")))
+    (message "Trying out signature for %S" from-field)
+    (pcase (or from-field "")
+      ((pred (vidbina/mail-sig-match "@example.com"))
+       (vidbina/mail-sig-file "/home/example/my-example.sig"))
+      (_ (format "\n\n-- \nBe kind! 🤗")))))
+
+(setq message-signature #'vidbina/mail-sig)
 #+end_src
 
 *** Org-roam UI Navigation
