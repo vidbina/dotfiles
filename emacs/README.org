@@ -2837,6 +2837,150 @@ For mail, there are a couple of options within Emacs. First one needs to underst
 - *gnus-user-agent*
 - *mu4e-user-agent*, in case you're using mu4e
 
+*** MTA (Mail Transport Agent) Configuration
+
+We configure sendmail to serve as our MTA (Mail Transport Agent) of choice to handle the sending of email.
+
+**** message.el
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable message-send-mail-function
+                        'message-send-mail-with-sendmail
+                        "Use sendmail as our MTA")
+#+end_src
+
+We are using msmtp, which is sendmail compatible, as the executable to be called. For a snappier experience one may also consider using msmtpq to locally queue messages in order to improve the UX.
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable sendmail-program (executable-find "msmtp")
+                        "Use msmtp as our sendmail compatible sender")
+#+end_src
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable message-sendmail-f-is-evil t
+                        "Avoid setting -f (--from) when calling sendmail")
+(customize-set-variable message-sendmail-envelope-from 'header
+                        "Use From: header")
+#+end_src
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable message-kill-buffer-on-exit t
+                        "Kill a buffer once a message is sent")
+#+end_src
+
+**** sendmail.el
+
+Check out the =sendmail-send-it= function definition for a glimpse into how sendmail is being called. With =mail-specify-envelope-from= set, this function calls ~(mail-envelope-from)~ or defaults to =user-mail-address=. With =mail-envelope-from= is set to ='header=, however; the ~(mail-envelope-from)~ function always returns the "From" header from the e-mail.
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable mail-specify-envelope-from t)
+(customize-set-variable mail-envelope-from 'header)
+#+end_src
+
+**** Additional Background
+
+#+begin_src dot :file images/sendmail-func-callgraph.png :exports results
+digraph A {
+  node [shape=box];
+
+  subgraph message {
+    msendwsendmail [label="message-send-mail-with-sendmail", style=filled, color=pink];
+    hmdefsendmailfn [label="message--default-send-mail-function"];
+    messagedefaultsendmailfunction [label="message-default-send-mail-function"];
+    messagemultismtpsendmail [label="message-multi-smtp-send-mail"];
+
+    feedmailsendit [label="feedmail-send-it"];
+    sendmailqueryonce [label="sendmail-query-once"];
+    messageusesendmailfunction [label="message-use-send-mail-function"];
+    messagesendmailfunction [label="message-send-mail-function"];
+
+    hmdefsendmailfn -> messagedefaultsendmailfunction [label="funcall"];
+    messagedefaultsendmailfunction -> feedmailsendit;
+    messagedefaultsendmailfunction -> sendmailqueryonce;
+    messagedefaultsendmailfunction -> msendwsendmail;
+    messagedefaultsendmailfunction -> messageusesendmailfunction;
+    messagesendmailfunction -> msendwsendmail;
+    messagemultismtpsendmail -> messagesendmailfunction;
+    label="messsage.el";
+  }
+
+  subgraph sendmail {
+    style=filled;
+    color=lightgrey;
+    sendmailsendit [label="sendmail-send-it", style=filled, color=pink];
+    sendmailprogram [label="sendmail-program"];
+    sendmailsendit -> sendmailprogram;
+    msendwsendmail -> sendmailprogram;
+    label="sendmail.el";
+  }
+}
+#+end_src
+
+#+ATTR_ORG: :width 800
+#+CAPTION: Exploration of of the callgraph in composing sendmail command strings
+#+ATTR_HTML: :width 100%
+#+RESULTS:
+[[file:images/sendmail-func-callgraph.png]]
+
+You'll find that both =message-send-mail-with-sendmail= (from message.el) and =sendmail-send-it= (from sendmail.el) compose sendmail command strings. This is relevant because it could mean that the composition of the sendmail command could be different with differeing results depending on the logic called.
+
+- =-f=
+  - message.el: if not =message-sendmail-f-is-evil=, ~(message-sendmail-envelope-from)~
+  - sendmail.el: =envelope-from=
+- extras
+  - message.el: =message-sendmail-extra-arguments=
+  - sendmail.el: nothing
+
+#+begin_src elisp
+;; sendmail
+(append (list (point-min) (point-max)
+              sendmail-program
+              nil errbuf nil "-oi")
+        (and envelope-from
+             (list "-f" envelope-from))
+        ;; ;; Don't say "from root" if running under su.
+        ;; (and (equal (user-real-login-name) "root")
+        ;;      (list "-f" (user-login-name)))
+        (and mail-alias-file
+             (list (concat "-oA" mail-alias-file)))
+        (if mail-interactive
+            sendmail-error-reporting-interactive
+          sendmail-error-reporting-non-interactive)
+        ;; Get the addresses from the message
+        ;; unless this is a resend.
+        ;; We must not do that for a resend
+        ;; because we would find the original addresses.
+        ;; For a resend, include the specific addresses.
+        (or resend-to-addresses '("-t"))
+        (if mail-use-dsn
+            (list "-N" (mapconcat #'symbol-name
+                                  mail-use-dsn ",")))
+        )
+#+end_src
+
+#+begin_src elisp
+;; message.el
+(append (list (point-min) (point-max)
+              sendmail-program
+              nil errbuf nil "-oi")
+        message-sendmail-extra-arguments
+        ;; Always specify who from,
+        ;; since some systems have broken sendmails.
+        ;; But some systems are more broken with -f, so
+        ;; we'll let users override this.
+        (and (null message-sendmail-f-is-evil)
+             (list "-f" (message-sendmail-envelope-from)))
+        ;; These mean "report errors by mail"
+        ;; and "deliver in background".
+        (if (null message-interactive) '("-oem" "-odb"))
+        ;; Get the addresses from the message
+        ;; unless this is a resend.
+        ;; We must not do that for a resend
+        ;; because we would find the original addresses.
+        ;; For a resend, include the specific addresses.
+        (if resend-to-addresses (list resend-to-addresses) '("-t")))
+#+end_src
+
 *** <<mu4e>> Mu4e
 
 [[https://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]] is Maildir-friendly mail client that uses mu as a backend.
@@ -2965,13 +3109,6 @@ We set our preferred mail composition package:
   (evil-collection-notmuch-setup)
   :hook (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
   :custom
-  (mail-envelope-from 'header)
-  (mail-specify-envelope-from t)
-  (message-kill-buffer-on-exit t)
-  (message-send-mail-function 'message-send-mail-with-sendmail)
-  (message-sendmail-envelope-from 'header)
-  (message-sendmail-f-is-evil nil)
-  (message-signature #'my/mail-sig)
   (notmuch-always-prompt-for-sender t)
   (notmuch-archive-tags '("-inbox" "-unread"))
   (notmuch-crypto-process-mime t)
@@ -2979,7 +3116,6 @@ We set our preferred mail composition package:
   (notmuch-labeler-hide-known-labels t)
   (notmuch-message-headers '("Subject" "To" "Cc" "Bcc"))
   (notmuch-search-oldest-first nil)
-  (sendmail-program (executable-find "msmtp"))
   :config
   (notmuch-address-harvest)
   (require 'ol-notmuch))

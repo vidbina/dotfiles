@@ -651,6 +651,24 @@
   :config
   (which-key-mode))
 
+(customize-set-variable message-send-mail-function
+                        'message-send-mail-with-sendmail
+                        "Use sendmail as our MTA")
+
+(customize-set-variable sendmail-program (executable-find "msmtp")
+                        "Use msmtp as our sendmail compatible sender")
+
+(customize-set-variable message-sendmail-f-is-evil t
+                        "Avoid setting -f (--from) when calling sendmail")
+(customize-set-variable message-sendmail-envelope-from 'header
+                        "Use From: header")
+
+(customize-set-variable message-kill-buffer-on-exit t
+                        "Kill a buffer once a message is sent")
+
+(customize-set-variable mail-specify-envelope-from t)
+(customize-set-variable mail-envelope-from 'header)
+
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
   :straight (:type built-in)
@@ -704,13 +722,6 @@
   (evil-collection-notmuch-setup)
   :hook (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
   :custom
-  (mail-envelope-from 'header)
-  (mail-specify-envelope-from t)
-  (message-kill-buffer-on-exit t)
-  (message-send-mail-function 'message-send-mail-with-sendmail)
-  (message-sendmail-envelope-from 'header)
-  (message-sendmail-f-is-evil nil)
-  (message-signature #'my/mail-sig)
   (notmuch-always-prompt-for-sender t)
   (notmuch-archive-tags '("-inbox" "-unread"))
   (notmuch-crypto-process-mime t)
@@ -718,7 +729,6 @@
   (notmuch-labeler-hide-known-labels t)
   (notmuch-message-headers '("Subject" "To" "Cc" "Bcc"))
   (notmuch-search-oldest-first nil)
-  (sendmail-program (executable-find "msmtp"))
   :config
   (notmuch-address-harvest)
   (require 'ol-notmuch))
