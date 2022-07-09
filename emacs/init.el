@@ -673,9 +673,6 @@
   ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing
   (setq mu4e-index-cleanup t        ; do a full cleanup check
         mu4e-index-lazy-check nil)  ; consider up-to-date dirs
-  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Example-setup
-  (setq mu4e-get-mail-command "offlineimap"   ; or fetchmail, or ...
-        mu4e-update-interval 300)             ; update every 5 minutes
   ;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
   (require 'gnus-dired)
   ;; make the `gnus-dired-mail-buffers' function also work on

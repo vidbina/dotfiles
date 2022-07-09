@@ -2878,12 +2878,12 @@ For convenience, remember to prefix the update command by entering it as =C-u u=
       mu4e-index-lazy-check nil)  ; consider up-to-date dirs
 #+end_src
 
-***** Updating
+***** COMMENT Updating
 
 #+begin_src elisp :noweb-ref mu4e-config
 ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Example-setup
 (setq mu4e-get-mail-command "offlineimap"   ; or fetchmail, or ...
-      mu4e-update-interval 300)             ; update every 5 minutes
+      mu4e-update-interval nil)             ; update every 5 minutes
 #+end_src
 
 ***** Attach files to mail through Dired
