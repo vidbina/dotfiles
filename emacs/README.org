@@ -3551,6 +3551,15 @@ In order to conveniently view HTML mail which may not always be presented in a p
 💡 Since there is so much trash hidden in HTML mails (e.g.: pixels), I tend to paste (and follow) these links in private, incognito or profile-isolated browser tabs instead. Perhaps something you can consider if you you're not in the mood to be too generous (or nonchalant) with your data.
 #+end_quote
 
+**** TODO Debug sendmail issue
+
+#+begin_src text
+QuitInvalid face attribute :inherit mu4e-contact-face
+Invalid face attribute :inherit mu4e-contact-face [2 times]
+#+end_src
+
+Finding this after attempts to sendmail and then noticing that Emacs hangs. I need to figure out async sendmail configuration. This all started when I tried to set up sending aliases but to be fair, yesterday ([2022-07-07 Thu 23:47]) our DNS config broke (due to a domain going into redemption status) so perhaps I need to retry in a few hours.
+
 *** Notmuch
 
 https://notmuchmail.org/emacstips/
