@@ -363,7 +363,8 @@
   (message "Configuring ‘zoom-window’")
   (with-eval-after-load 'persp-mode
     (message "Configuring ‘zoom-window’ to work with ‘persp-mode’")
-    (setq zoom-window-use-persp t)))
+    (customize-set-variable 'zoom-window-use-persp t
+                            "Use zoom-window with persp-mode")))
 
 ;; https://github.com/abo-abo/ace-window
 ;; https://jao.io/blog/2020-05-12-ace-window.html

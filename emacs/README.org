@@ -3497,7 +3497,8 @@ The [[zoom-window][zoom-window]] package can be configured to work with persp-mo
 #+begin_src elisp :noweb-ref zoom-window-init
 (with-eval-after-load 'persp-mode
   (message "Configuring ‘zoom-window’ to work with ‘persp-mode’")
-  (setq zoom-window-use-persp t))
+  (customize-set-variable 'zoom-window-use-persp t
+                          "Use zoom-window with persp-mode"))
 #+end_src
 
 ***** TODO Determine if =:defer= can be used to avoid having to define an =eval-after-load= form
