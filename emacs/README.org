@@ -2994,6 +2994,15 @@ I have a few sendmail settings that I want loaded, but we bumped into errors her
   <<sendmail-custom>>)
 #+end_src
 
+***** Enable debugging mode
+
+For visibility of our SMTP traffic, we enable debugging of SMTP output to a buffer named =*trace of SMTP session to <SOMEWHERE>*=.
+
+#+begin_src elisp :noweb-ref sendmail-custom
+(customize-set-variable 'smtpmail-debug-info t
+                        "Enable debugging")
+#+end_src
+
 ***** Set msmtp as sendmail-compatible program
 
 Let's use =msmtp=, which is sendmail compatible, as the executable to be called. For a snappier experience one may also consider using =msmtpq= to locally queue messages in order to improve the UX.
@@ -3652,8 +3661,6 @@ Populate a [[file:personal.el]] file which defines your name, your e-mail detail
 #+begin_src elisp :tangle personal-example.el
 (setq user-full-name "David Asabina"
       inhibit-startup-screen t
-      smtpmail-debug-info t
-      message-send-mail-function 'message-send-mail-with-sendmail
       frame-title-format '(multiple-frames "%b" ("" "Emacs :: %b")))
 #+end_src
 
