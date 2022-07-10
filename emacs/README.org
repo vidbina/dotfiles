@@ -2865,50 +2865,50 @@ Piecing the ecosystem of Emacs function and variables together is a lot easier w
 
 #+begin_src dot :file images/sendmail-func-callgraph.png :exports results
 digraph A {
-node [shape=box];
-feedmailsendit [label="feedmail-send-it"];
-mailclientsendit [label="mailclient-send-it"];
-smtpmailsendit [label="smtpmail-send-it"];
-
-subgraph cluster_message {
   node [shape=box];
-  messagesendmailwithsendmail [label="message-send-mail-with-sendmail", style=filled, color=pink];
-  hmdefsendmailfn [label="message--default-send-mail-function"];
-  messagedefaultsendmailfunction [label="message-default-send-mail-function"];
-  messagemultismtpsendmail [label="message-multi-smtp-send-mail"];
-
-  messageusesendmailfunction [label="message-use-send-mail-function"];
-  messagesendmailfunction [label="message-send-mail-function"];
-
-  hmdefsendmailfn -> messagedefaultsendmailfunction [label="funcall"];
-  messagedefaultsendmailfunction -> feedmailsendit;
-  messagedefaultsendmailfunction -> sendmailqueryonce;
-  messagedefaultsendmailfunction -> messagesendmailwithsendmail;
-  messagedefaultsendmailfunction -> messageusesendmailfunction;
-  messagesendmailfunction -> messagesendmailwithsendmail;
-  messagemultismtpsendmail -> messagesendmailfunction;
-  label="message.el";
-  style=dotted;
-}
-
-subgraph cluster_sendmail {
-  node [shape=box];
-
-  sendmailsendit [label="sendmail-send-it", style=filled, color=pink];
   feedmailsendit [label="feedmail-send-it"];
-  sendmailfunction [label="send-mail-function",shape=oval];
-  sendmailqueryonce [label="sendmail-query-once"];
-  sendmailprogram [label="sendmail-program",shape=oval,style=filled,color=yellow];
+  mailclientsendit [label="mailclient-send-it"];
+  smtpmailsendit [label="smtpmail-send-it"];
 
-  sendmailfunction -> sendmailsendit;
-  sendmailfunction -> sendmailqueryonce;
-  sendmailfunction -> smtpmailsendit;
-  sendmailfunction -> feedmailsendit;
-  sendmailfunction -> mailclientsendit;
-  sendmailsendit -> sendmailprogram;
-  messagesendmailwithsendmail -> sendmailprogram;
-  label="sendmail.el";
-}
+  subgraph cluster_message {
+    node [shape=box];
+    messagesendmailwithsendmail [label="message-send-mail-with-sendmail", style=filled, color=pink];
+    hmdefsendmailfn [label="message--default-send-mail-function"];
+    messagedefaultsendmailfunction [label="message-default-send-mail-function"];
+    messagemultismtpsendmail [label="message-multi-smtp-send-mail"];
+
+    messageusesendmailfunction [label="message-use-send-mail-function"];
+    messagesendmailfunction [label="message-send-mail-function"];
+
+    hmdefsendmailfn -> messagedefaultsendmailfunction [label="funcall"];
+    messagedefaultsendmailfunction -> feedmailsendit;
+    messagedefaultsendmailfunction -> sendmailqueryonce;
+    messagedefaultsendmailfunction -> messagesendmailwithsendmail;
+    messagedefaultsendmailfunction -> messageusesendmailfunction;
+    messagesendmailfunction -> messagesendmailwithsendmail;
+    messagemultismtpsendmail -> messagesendmailfunction;
+    label="message.el";
+    style=dotted;
+  }
+
+  subgraph cluster_sendmail {
+    node [shape=box];
+
+    sendmailsendit [label="sendmail-send-it", style=filled, color=pink];
+    feedmailsendit [label="feedmail-send-it"];
+    sendmailfunction [label="send-mail-function",shape=oval];
+    sendmailqueryonce [label="sendmail-query-once"];
+    sendmailprogram [label="sendmail-program",shape=oval,style=filled,color=yellow];
+
+    sendmailfunction -> sendmailsendit;
+    sendmailfunction -> sendmailqueryonce;
+    sendmailfunction -> smtpmailsendit;
+    sendmailfunction -> feedmailsendit;
+    sendmailfunction -> mailclientsendit;
+    sendmailsendit -> sendmailprogram;
+    messagesendmailwithsendmail -> sendmailprogram;
+    label="sendmail.el";
+  }
 }
 #+end_src
 
