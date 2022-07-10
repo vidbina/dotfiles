@@ -3031,19 +3031,6 @@ In our case, instead of setting /from/ throught the =-f= argument we can use the
   <<message-custom>>)
 #+end_src
 
-***** TODO Debug error
-
-#+begin_src text
-Debugger entered--Lisp error: (setting-constant nil)
-  set-default(nil t)
-  customize-set-variable(nil t "Avoid setting -f (--from) when calling sendmail")
-  load-with-code-conversion("/home/vidbina/.emacs.d/init.el" "/home/vidbina/.emacs.d/init.el" t t)
-  load("/home/vidbina/.emacs.d/init" noerror nomessage)
-  startup--load-user-init-file(#f(compiled-function () #<bytecode -0xa345a2851f33250>) #f(compiled-function () #<bytecode -0x1f3c6eaddc0ca9b5>) t)
-  command-line()
-  normal-top-level()
-#+end_src
-
 ***** Set MTA
 
 The message.el package provides a more general interfaces for message sending, so we will configure message.el to use sendmail as out MTA of choice:
