@@ -2987,10 +2987,19 @@ Observe the snippets below for a excerpt of how sendmail.el and message.el compo
 
 **** sendmail.el
 
+I have a few sendmail settings that I want loaded, but we bumped into errors here about =sendmail-program= being undefined that suggests that sendmail isn't fully autoloaded at this point in the code and instead of moveing everything to a later point, we will use =with-eval-after-load= instead to trigger our customizations after package loading.
+
+#+begin_src elisp :noweb yes :tangle init.el
+(with-eval-after-load 'sendmail
+  <<sendmail-custom>>)
+#+end_src
+
+***** Set msmtp as sendmail-compatible program
+
 Let's use =msmtp=, which is sendmail compatible, as the executable to be called. For a snappier experience one may also consider using =msmtpq= to locally queue messages in order to improve the UX.
 
-#+begin_src elisp :tangle init.el
-(customize-set-variable sendmail-program (executable-find "msmtp")
+#+begin_src elisp :noweb-ref sendmail-custom
+(customize-set-variable 'sendmail-program (executable-find "msmtp")
                         "Use msmtp as our sendmail compatible sender")
 #+end_src
 
@@ -3006,9 +3015,9 @@ Check out the definition of function =sendmail-send-it= for a glimpse into how s
 
 In our case, instead of setting /from/ throught the =-f= argument we can use the =-a account= CLI option to specify the context for sendmail. We still have to provide some logic to make this work but disabling sendmail from accidentally setting =-f envelope-from= when calling sendmail is a good starting point to avoid some embarassing mishaps.
 
-#+begin_src elisp :tangle init.el
-(customize-set-variable mail-specify-envelope-from nil)
-(customize-set-variable mail-envelope-from nil)
+#+begin_src elisp :noweb-ref sendmail-custom
+(customize-set-variable 'mail-specify-envelope-from nil)
+(customize-set-variable 'mail-envelope-from nil)
 #+end_src
 
 #+begin_center
@@ -3017,23 +3026,47 @@ In our case, instead of setting /from/ throught the =-f= argument we can use the
 
 **** message.el
 
+#+begin_src elisp :noweb yes :tangle init.el
+(with-eval-after-load 'message
+  <<message-custom>>)
+#+end_src
+
+***** TODO Debug error
+
+#+begin_src text
+Debugger entered--Lisp error: (setting-constant nil)
+  set-default(nil t)
+  customize-set-variable(nil t "Avoid setting -f (--from) when calling sendmail")
+  load-with-code-conversion("/home/vidbina/.emacs.d/init.el" "/home/vidbina/.emacs.d/init.el" t t)
+  load("/home/vidbina/.emacs.d/init" noerror nomessage)
+  startup--load-user-init-file(#f(compiled-function () #<bytecode -0xa345a2851f33250>) #f(compiled-function () #<bytecode -0x1f3c6eaddc0ca9b5>) t)
+  command-line()
+  normal-top-level()
+#+end_src
+
+***** Set MTA
+
 The message.el package provides a more general interfaces for message sending, so we will configure message.el to use sendmail as out MTA of choice:
 
-#+begin_src elisp :tangle init.el
-(customize-set-variable message-send-mail-function
+#+begin_src elisp :noweb-ref message-custom
+(customize-set-variable 'message-send-mail-function
                         'message-send-mail-with-sendmail
                         "Use sendmail as our MTA")
 #+end_src
 
-#+begin_src elisp :tangle init.el
-(customize-set-variable message-sendmail-f-is-evil t
+***** Envelope From
+
+#+begin_src elisp :noweb-ref message-custom
+(customize-set-variable 'message-sendmail-f-is-evil t
                         "Avoid setting -f (--from) when calling sendmail")
-(customize-set-variable message-sendmail-envelope-from 'header
+(customize-set-variable 'message-sendmail-envelope-from 'header
                         "Use From: header")
 #+end_src
 
-#+begin_src elisp :tangle init.el
-(customize-set-variable message-kill-buffer-on-exit t
+***** Misc
+
+#+begin_src elisp :noweb-ref message-custom
+(customize-set-variable 'message-kill-buffer-on-exit t
                         "Kill a buffer once a message is sent")
 #+end_src
 

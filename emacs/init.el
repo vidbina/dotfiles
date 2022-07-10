@@ -651,23 +651,22 @@
   :config
   (which-key-mode))
 
-(customize-set-variable sendmail-program (executable-find "msmtp")
-                        "Use msmtp as our sendmail compatible sender")
+(with-eval-after-load 'sendmail
+  (customize-set-variable 'sendmail-program (executable-find "msmtp")
+                          "Use msmtp as our sendmail compatible sender")
+  (customize-set-variable 'mail-specify-envelope-from nil)
+  (customize-set-variable 'mail-envelope-from nil))
 
-(customize-set-variable mail-specify-envelope-from nil)
-(customize-set-variable mail-envelope-from nil)
-
-(customize-set-variable message-send-mail-function
-                        'message-send-mail-with-sendmail
-                        "Use sendmail as our MTA")
-
-(customize-set-variable message-sendmail-f-is-evil t
-                        "Avoid setting -f (--from) when calling sendmail")
-(customize-set-variable message-sendmail-envelope-from 'header
-                        "Use From: header")
-
-(customize-set-variable message-kill-buffer-on-exit t
-                        "Kill a buffer once a message is sent")
+(with-eval-after-load 'message
+  (customize-set-variable 'message-send-mail-function
+                          'message-send-mail-with-sendmail
+                          "Use sendmail as our MTA")
+  (customize-set-variable 'message-sendmail-f-is-evil t
+                          "Avoid setting -f (--from) when calling sendmail")
+  (customize-set-variable 'message-sendmail-envelope-from 'header
+                          "Use From: header")
+  (customize-set-variable 'message-kill-buffer-on-exit t
+                          "Kill a buffer once a message is sent"))
 
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
