@@ -3070,33 +3070,59 @@ The message.el package provides a more general interfaces for message sending, s
   :hook (
          <<mu4e-hooks>>)
   :config
-  <<mu4e-config>>)
+  <<mu4e-config>>
+  :custom
+  <<mu4e-custom>>)
 #+end_src
 
 For convenience, remember to prefix the update command by entering it as =C-u u= in a *mu4e-main* buffer or by entering =C-u C-c C-u= from the *mu4e-headers* buffer such that the update commands *run in the background*.
 
 **** Config
 
+#+begin_src elisp :noweb-ref mu4e-custom
+(mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
+#+end_src
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-compose-format-flowed t "Compose messages as format=flowed")
+#+end_src
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-context-policy 'ask-if-none
+                     "Assume current context for ease-of-use, otherwise ask")
+#+end_src
+
 #+begin_src elisp :noweb-ref mu4e-config
-(setq mail-user-agent 'mu4e-user-agent
-      mu4e-compose-format-flowed t
-      mu4e-contexts `( ,(make-mu4e-context
-                         :name "Sample"
-                         :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
-                         :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
-                         :vars '(( user-mail-address . "foo@example.com"))))
-      mu4e-context-policy 'always-ask
-      mu4e-index-update-in-background t
-      mu4e-view-show-addresses t)
+(setq mu4e-contexts
+      `( ,(make-mu4e-context
+           :name "Sample"
+           :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
+           :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
+           :vars '(( user-mail-address . "foo@example.com")))))
+#+end_src
+
+#+begin_src elisp
+(customize-set-variable 'mu4e-confirm-quit nil "Stop asking to quit, it bugs me out")
 #+end_src
 
 ***** Indexing
 
-#+begin_src elisp :noweb-ref mu4e-config
-;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing
-(setq mu4e-index-cleanup t        ; do a full cleanup check
-      mu4e-index-lazy-check nil)  ; consider up-to-date dirs
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-update-in-background t)
 #+end_src
+
+The [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing][mu4e manual discusses how to speed up indexing]] which is something that we deliberately turn off to maximize index integrity -- even if it will cost a bit more time.
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-cleanup t "Run full cleanup phase after indexing")
+#+end_src
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-lazy-check nil "Don't use indexing shortcuts")
+#+end_src
+
+See [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html][Retrieval and indexing with mu4e (mu4e manual)]] for more insight on how to configure mail retrieval and indexing.
 
 ***** COMMENT Updating
 
@@ -3145,8 +3171,8 @@ We override it to return a list of buffers that derive =message-mode=.
 
 We set our preferred mail composition package:
 
-#+begin_src elisp :noweb-ref mu4e-config
-(setq gnus-dired-mail-mode 'mu4e-user-agent)
+#+begin_src elisp :noweb-ref mu4e-custom
+(gnus-dired-mail-mode 'mu4e-user-agent)
 #+end_src
 
 **** Figure out indexing shortcut

@@ -678,19 +678,12 @@
          ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
          (dired-mode . turn-on-gnus-dired-mode))
   :config
-  (setq mail-user-agent 'mu4e-user-agent
-        mu4e-compose-format-flowed t
-        mu4e-contexts `( ,(make-mu4e-context
-                           :name "Sample"
-                           :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
-                           :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
-                           :vars '(( user-mail-address . "foo@example.com"))))
-        mu4e-context-policy 'always-ask
-        mu4e-index-update-in-background t
-        mu4e-view-show-addresses t)
-  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing
-  (setq mu4e-index-cleanup t        ; do a full cleanup check
-        mu4e-index-lazy-check nil)  ; consider up-to-date dirs
+  (setq mu4e-contexts
+        `( ,(make-mu4e-context
+             :name "Sample"
+             :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
+             :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
+             :vars '(( user-mail-address . "foo@example.com")))))
   ;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
   (require 'gnus-dired)
   ;; make the `gnus-dired-mail-buffers' function also work on
@@ -705,7 +698,15 @@
                      (null message-sent-message-via))
             (push (buffer-name buffer) buffers))))
       (nreverse buffers)))
-  (setq gnus-dired-mail-mode 'mu4e-user-agent))
+  :custom
+  (mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
+  (mu4e-compose-format-flowed t "Compose messages as format=flowed")
+  (mu4e-context-policy 'ask-if-none
+                       "Assume current context for ease-of-use, otherwise ask")
+  (mu4e-index-update-in-background t)
+  (mu4e-index-cleanup t "Run full cleanup phase after indexing")
+  (mu4e-index-lazy-check nil "Don't use indexing shortcuts")
+  (gnus-dired-mail-mode 'mu4e-user-agent))
 
 ;; https://git.notmuchmail.org/git/notmuch
 (use-package notmuch
