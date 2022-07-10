@@ -653,7 +653,7 @@
   (which-key-mode))
 
 (with-eval-after-load 'sendmail
-  (customize-set-variable 'sendmail-program (executable-find "msmtp")
+  (customize-set-variable 'sendmail-program (executable-find "msmtpq")
                           "Use msmtp as our sendmail compatible sender")
   (customize-set-variable 'mail-specify-envelope-from nil)
   (customize-set-variable 'mail-envelope-from nil))

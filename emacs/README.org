@@ -2999,7 +2999,7 @@ I have a few sendmail settings that I want loaded, but we bumped into errors her
 Let's use =msmtp=, which is sendmail compatible, as the executable to be called. For a snappier experience one may also consider using =msmtpq= to locally queue messages in order to improve the UX.
 
 #+begin_src elisp :noweb-ref sendmail-custom
-(customize-set-variable 'sendmail-program (executable-find "msmtp")
+(customize-set-variable 'sendmail-program (executable-find "msmtpq")
                         "Use msmtp as our sendmail compatible sender")
 #+end_src
 
