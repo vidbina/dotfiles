@@ -2829,101 +2829,101 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 
 ** <<mail>> 📧 Mail
 
-For mail, there are a couple of options within Emacs. First one needs to understand that there are message user agents (MUAs) which are the tool for composing messages, there are some options for these:
+For mail, there are a couple of options within Emacs. First, one needs to understand that a mail user agent (MUA) is a tool used to compose and read messages and a mail transfer agent (MTA) is a tool to send messages.
 
+*** MUA (Mail User Agent)
+
+You will find the following MTA options in Emacs:
 - *message-user-agent*, typically the default
 - *sendmail-user-agent*
 - *mh-e-user-agent*
 - *gnus-user-agent*
 - *mu4e-user-agent*, in case you're using mu4e
 
-*** MTA (Mail Transport Agent) Configuration
+Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.html][Mail Composition Methods (Emacs Manual)]] for more information on how to compose mail in Emacs.
 
-We configure sendmail to serve as our MTA (Mail Transport Agent) of choice to handle the sending of email.
+*** MTA (Mail Transport Agent)
 
-**** message.el
+We configure *sendmail* to serve as our MTA (Mail Transport Agent) of choice to handle the sending of email. For sending (shipping) mail in Emacs, we have the following options:
+- sendmail
+- feedmail, which does some "massaging" (think transformations) on outgoing messages
+- smtpmail, which directly delivers mail to SMTP mail server from an Emacs buffer
+- mailclient, which triggers the system's mail client to continue editing of the message before shipping it off
 
-#+begin_src elisp :tangle init.el
-(customize-set-variable message-send-mail-function
-                        'message-send-mail-with-sendmail
-                        "Use sendmail as our MTA")
-#+end_src
+Some of the functions that are relevant:
+- *sendmail-send-it*
+- *feedmail-send-it*
+- *smtpmail-send-it*
+- *mailclient-send-it*
+- +*message-smtpmail-send-it*+ calls =smtpmail-send-it= after evaluating =message-send-mail-hook= but is obsolete and *message-use-send-mail-function* is recommended instead which does almost the same (running =message-send-mail-hook= and then firing =send-mail-function=)
 
-We are using msmtp, which is sendmail compatible, as the executable to be called. For a snappier experience one may also consider using msmtpq to locally queue messages in order to improve the UX.
-
-#+begin_src elisp :tangle init.el
-(customize-set-variable sendmail-program (executable-find "msmtp")
-                        "Use msmtp as our sendmail compatible sender")
-#+end_src
-
-#+begin_src elisp :tangle init.el
-(customize-set-variable message-sendmail-f-is-evil t
-                        "Avoid setting -f (--from) when calling sendmail")
-(customize-set-variable message-sendmail-envelope-from 'header
-                        "Use From: header")
-#+end_src
-
-#+begin_src elisp :tangle init.el
-(customize-set-variable message-kill-buffer-on-exit t
-                        "Kill a buffer once a message is sent")
-#+end_src
-
-**** sendmail.el
-
-Check out the =sendmail-send-it= function definition for a glimpse into how sendmail is being called. With =mail-specify-envelope-from= set, this function calls ~(mail-envelope-from)~ or defaults to =user-mail-address=. With =mail-envelope-from= is set to ='header=, however; the ~(mail-envelope-from)~ function always returns the "From" header from the e-mail.
-
-#+begin_src elisp :tangle init.el
-(customize-set-variable mail-specify-envelope-from t)
-(customize-set-variable mail-envelope-from 'header)
-#+end_src
+Since we are using sendmail (or something sendmail-compatible like msmtp), we will be customizing some sendmail.el and message.el variables to refect our setup details.
 
 **** Additional Background
 
+Piecing the ecosystem of Emacs function and variables together is a lot easier when there is a visual overview, so here goes.
+
 #+begin_src dot :file images/sendmail-func-callgraph.png :exports results
 digraph A {
+node [shape=box];
+feedmailsendit [label="feedmail-send-it"];
+mailclientsendit [label="mailclient-send-it"];
+smtpmailsendit [label="smtpmail-send-it"];
+
+subgraph cluster_message {
+  node [shape=box];
+  messagesendmailwithsendmail [label="message-send-mail-with-sendmail", style=filled, color=pink];
+  hmdefsendmailfn [label="message--default-send-mail-function"];
+  messagedefaultsendmailfunction [label="message-default-send-mail-function"];
+  messagemultismtpsendmail [label="message-multi-smtp-send-mail"];
+
+  messageusesendmailfunction [label="message-use-send-mail-function"];
+  messagesendmailfunction [label="message-send-mail-function"];
+
+  hmdefsendmailfn -> messagedefaultsendmailfunction [label="funcall"];
+  messagedefaultsendmailfunction -> feedmailsendit;
+  messagedefaultsendmailfunction -> sendmailqueryonce;
+  messagedefaultsendmailfunction -> messagesendmailwithsendmail;
+  messagedefaultsendmailfunction -> messageusesendmailfunction;
+  messagesendmailfunction -> messagesendmailwithsendmail;
+  messagemultismtpsendmail -> messagesendmailfunction;
+  label="message.el";
+  style=dotted;
+}
+
+subgraph cluster_sendmail {
   node [shape=box];
 
-  subgraph message {
-    msendwsendmail [label="message-send-mail-with-sendmail", style=filled, color=pink];
-    hmdefsendmailfn [label="message--default-send-mail-function"];
-    messagedefaultsendmailfunction [label="message-default-send-mail-function"];
-    messagemultismtpsendmail [label="message-multi-smtp-send-mail"];
+  sendmailsendit [label="sendmail-send-it", style=filled, color=pink];
+  feedmailsendit [label="feedmail-send-it"];
+  sendmailfunction [label="send-mail-function",shape=oval];
+  sendmailqueryonce [label="sendmail-query-once"];
+  sendmailprogram [label="sendmail-program",shape=oval,style=filled,color=yellow];
 
-    feedmailsendit [label="feedmail-send-it"];
-    sendmailqueryonce [label="sendmail-query-once"];
-    messageusesendmailfunction [label="message-use-send-mail-function"];
-    messagesendmailfunction [label="message-send-mail-function"];
-
-    hmdefsendmailfn -> messagedefaultsendmailfunction [label="funcall"];
-    messagedefaultsendmailfunction -> feedmailsendit;
-    messagedefaultsendmailfunction -> sendmailqueryonce;
-    messagedefaultsendmailfunction -> msendwsendmail;
-    messagedefaultsendmailfunction -> messageusesendmailfunction;
-    messagesendmailfunction -> msendwsendmail;
-    messagemultismtpsendmail -> messagesendmailfunction;
-    label="messsage.el";
-  }
-
-  subgraph sendmail {
-    style=filled;
-    color=lightgrey;
-    sendmailsendit [label="sendmail-send-it", style=filled, color=pink];
-    sendmailprogram [label="sendmail-program"];
-    sendmailsendit -> sendmailprogram;
-    msendwsendmail -> sendmailprogram;
-    label="sendmail.el";
-  }
+  sendmailfunction -> sendmailsendit;
+  sendmailfunction -> sendmailqueryonce;
+  sendmailfunction -> smtpmailsendit;
+  sendmailfunction -> feedmailsendit;
+  sendmailfunction -> mailclientsendit;
+  sendmailsendit -> sendmailprogram;
+  messagesendmailwithsendmail -> sendmailprogram;
+  label="sendmail.el";
+}
 }
 #+end_src
 
 #+ATTR_ORG: :width 800
-#+CAPTION: Exploration of of the callgraph in composing sendmail command strings
 #+ATTR_HTML: :width 100%
+#+CAPTION: Exploration of of the callgraph in composing sendmail command strings
 #+RESULTS:
 [[file:images/sendmail-func-callgraph.png]]
 
-You'll find that both =message-send-mail-with-sendmail= (from message.el) and =sendmail-send-it= (from sendmail.el) compose sendmail command strings. This is relevant because it could mean that the composition of the sendmail command could be different with differeing results depending on the logic called.
+#+NAME: mail-sendmail-and-message
+#+begin_details org
+#+HTML: <summary>Difference in how sendmail.el and message.el call the sendmail program.</summary>
+You'll find that both =message-send-mail-with-sendmail= (from message.el) and =sendmail-send-it= (from sendmail.el) compose sendmail command strings. This is relevant because it could mean that the composition of the sendmail command could be different with differing results depending on which code calls the sendmail program.
 
+Some arguments that may be set differently between message.el and sendmail.el are listed below:
 - =-f=
   - message.el: if not =message-sendmail-f-is-evil=, ~(message-sendmail-envelope-from)~
   - sendmail.el: =envelope-from=
@@ -2931,7 +2931,9 @@ You'll find that both =message-send-mail-with-sendmail= (from message.el) and =s
   - message.el: =message-sendmail-extra-arguments=
   - sendmail.el: nothing
 
-#+begin_src elisp
+Observe the snippets below for a excerpt of how sendmail.el and message.el compose the command string to call the sendmail program:
+
+#+begin_src elisp :exports code
 ;; sendmail
 (append (list (point-min) (point-max)
               sendmail-program
@@ -2958,7 +2960,7 @@ You'll find that both =message-send-mail-with-sendmail= (from message.el) and =s
         )
 #+end_src
 
-#+begin_src elisp
+#+begin_src elisp :exports code
 ;; message.el
 (append (list (point-min) (point-max)
               sendmail-program
@@ -2979,6 +2981,60 @@ You'll find that both =message-send-mail-with-sendmail= (from message.el) and =s
         ;; because we would find the original addresses.
         ;; For a resend, include the specific addresses.
         (if resend-to-addresses (list resend-to-addresses) '("-t")))
+#+end_src
+
+#+end_details
+
+**** sendmail.el
+
+Let's use =msmtp=, which is sendmail compatible, as the executable to be called. For a snappier experience one may also consider using =msmtpq= to locally queue messages in order to improve the UX.
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable sendmail-program (executable-find "msmtp")
+                        "Use msmtp as our sendmail compatible sender")
+#+end_src
+
+Consult the [[https://marlam.de/msmtp/][msmtp website]] for more information.
+
+***** Envelope From
+
+#+begin_center
+⚠️ This section may be moot as we will be using message.el facilities (identifiable by =message-=-prefixed function and variable names) for the sending of mail and message.el  does not seemt to rely on the sendmail.el-specific from-logic but reimplements its own. See the [[mail-sendmail-and-message][summary detailing some differences in how message.el and sendmail.el call the sendmail program]].
+#+end_center
+
+Check out the definition of function =sendmail-send-it= for a glimpse into how sendmail is being called. With variable =mail-specify-envelope-from= set to a non-=nil= value, this function calls ~(mail-envelope-from)~, which always returns the =From:= header of the e-mail when variable =mail-envelope-from= is set to ='header=, or defaults to =user-mail-address=.
+
+In our case, instead of setting /from/ throught the =-f= argument we can use the =-a account= CLI option to specify the context for sendmail. We still have to provide some logic to make this work but disabling sendmail from accidentally setting =-f envelope-from= when calling sendmail is a good starting point to avoid some embarassing mishaps.
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable mail-specify-envelope-from nil)
+(customize-set-variable mail-envelope-from nil)
+#+end_src
+
+#+begin_center
+💡 My msmtp configuration does not define a default account in order to make account management very explicit. I don't accidentally want emails leaving my machine from a wrong SMTP server because msmtp assumed a default account.
+#+end_center
+
+**** message.el
+
+The message.el package provides a more general interfaces for message sending, so we will configure message.el to use sendmail as out MTA of choice:
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable message-send-mail-function
+                        'message-send-mail-with-sendmail
+                        "Use sendmail as our MTA")
+#+end_src
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable message-sendmail-f-is-evil t
+                        "Avoid setting -f (--from) when calling sendmail")
+(customize-set-variable message-sendmail-envelope-from 'header
+                        "Use From: header")
+#+end_src
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable message-kill-buffer-on-exit t
+                        "Kill a buffer once a message is sent")
 #+end_src
 
 *** <<mu4e>> Mu4e
