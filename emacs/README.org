@@ -4244,6 +4244,36 @@ Populate a =lang.el= file which defines all of the major-modes and language-rela
 
 *** Spell Checking
 
+Use the built-in ispell for spell checking.
+
+This configuration is derived from the article [[https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html][Setting up spell checking with multiple dictionaries in Emacs (by Alain M. Lafon from 200ok.ch)]].
+
+**** Ported use-package configuration
+
+#+begin_src elisp :tangle lang.example.el
+;; https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html
+(use-package ispell
+  :straight (:type built-in)
+  :custom
+  (ispell-program-name "hunspell")
+  ;; Configure German, Swiss German, and two variants of English.
+  (ispell-dictionary "en_US,de_DE,nl")
+  ;; For saving words to the personal dictionary, don't infer it from
+  ;; the locale, otherwise it would save to ~/.hunspell_de_DE.
+  (ispell-personal-dictionary "~/.hunspell_personal")
+  :config
+  ;; ispell-set-spellchecker-params has to be called
+  ;; before ispell-hunspell-add-multi-dic will work
+  (ispell-set-spellchecker-params)
+  (ispell-hunspell-add-multi-dic ispell-dictionary)
+  ;; The personal dictionary file has to exist, otherwise hunspell will
+  ;; silently not use it.
+  (unless (file-exists-p ispell-personal-dictionary)
+    (write-region "" nil ispell-personal-dictionary nil 0)))
+#+end_src
+
+**** COMMENT Original with-eval-after-load configuration
+
 #+begin_src elisp :tangle lang.example.el
 ;; https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html
 (with-eval-after-load "ispell"
