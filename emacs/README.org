@@ -5080,6 +5080,18 @@ To add another layer of convenience or complexity, depending on how you want to 
 
 ** Misc
 
+*** EditorConfig
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/editorconfig/editorconfig-emacs#readme
+(use-package editorconfig
+  :straight (editorconfig :type git
+                          :host github
+                          :repo "editorconfig/editorconfig-emacs")
+  :config
+  (editorconfig-mode 1))
+#+end_src
+
 *** 🌈 Rainbow Delimiters
 
 #+begin_src elisp :tangle lang.example.el

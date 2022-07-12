@@ -258,6 +258,14 @@
                       :host github
                       :repo "jcollard/elm-mode"))
 
+;; https://github.com/editorconfig/editorconfig-emacs#readme
+(use-package editorconfig
+  :straight (editorconfig :type git
+                          :host github
+                          :repo "editorconfig/editorconfig-emacs")
+  :config
+  (editorconfig-mode 1))
+
 ;; https://github.com/Fanael/rainbow-delimiters
 (use-package rainbow-delimiters
   :straight (rainbow-delimiters :type git
