@@ -33,4 +33,8 @@
   home.file = {
     ".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
   };
+
+  home.packages = [
+    pkgs.nodePackages.typescript-language-server
+  ];
 }

@@ -897,8 +897,10 @@ difftastic = {
 
 ** Language Utilities
 
-#+begin_src :noweb yes
+*** Typescript Language Server
 
+#+begin_src nix :noweb-ref dev-packages
+pkgs.nodePackages.typescript-language-server
 #+end_src
 
 * E-mail
