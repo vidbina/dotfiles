@@ -680,12 +680,6 @@
          ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
          (dired-mode . turn-on-gnus-dired-mode))
   :config
-  (setq mu4e-contexts
-        `( ,(make-mu4e-context
-             :name "Sample"
-             :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
-             :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
-             :vars '(( user-mail-address . "foo@example.com")))))
   ;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
   (require 'gnus-dired)
   ;; make the `gnus-dired-mail-buffers' function also work on
@@ -700,15 +694,21 @@
                      (null message-sent-message-via))
             (push (buffer-name buffer) buffers))))
       (nreverse buffers)))
+  (setq mu4e-contexts
+        `( ,(make-mu4e-context
+             :name "Sample"
+             :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
+             :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
+             :vars '(( user-mail-address . "foo@example.com")))))
   :custom
   (mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
   (mu4e-compose-format-flowed t "Compose messages as format=flowed")
-  (mu4e-context-policy 'ask-if-none
-                       "Assume current context for ease-of-use, otherwise ask")
+  (gnus-dired-mail-mode 'mu4e-user-agent)
+  (mu4e-context-policy 'ask)
+  (mu4e-compose-context-policy 'ask)
   (mu4e-index-update-in-background t)
   (mu4e-index-cleanup t "Run full cleanup phase after indexing")
-  (mu4e-index-lazy-check nil "Don't use indexing shortcuts")
-  (gnus-dired-mail-mode 'mu4e-user-agent))
+  (mu4e-index-lazy-check nil "Don't use indexing shortcuts"))
 
 ;; https://git.notmuchmail.org/git/notmuch
 (use-package notmuch

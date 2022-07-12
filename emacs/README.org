@@ -3086,59 +3086,28 @@ The message.el package provides a more general interfaces for message sending, s
 
 For convenience, remember to prefix the update command by entering it as =C-u u= in a *mu4e-main* buffer or by entering =C-u C-c C-u= from the *mu4e-headers* buffer such that the update commands *run in the background*.
 
-**** Config
+**** Customizations
+
+We set mu4e as the MUA:
 
 #+begin_src elisp :noweb-ref mu4e-custom
 (mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
 #+end_src
 
+***** Compose
+
+We enable =format=flowed= to allow mail viewers to self-determine a suitable wrapping strategy. See a [[https://news.ycombinator.com/item?id=20514314][HN thread]] on [[https://useplaintext.email/][Use plaintext email]]. This choice isn't universally supported as you may find in the [[https://wiki.openstack.org/wiki/MailingListEtiquette][Mailing List Etiquette]] on OpenStack.
+
 #+begin_src elisp :noweb-ref mu4e-custom
 (mu4e-compose-format-flowed t "Compose messages as format=flowed")
 #+end_src
 
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-context-policy 'ask-if-none
-                     "Assume current context for ease-of-use, otherwise ask")
-#+end_src
+Also remember to bottom-post. This is something that I have to internalize myself.
 
-#+begin_src elisp :noweb-ref mu4e-config
-(setq mu4e-contexts
-      `( ,(make-mu4e-context
-           :name "Sample"
-           :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
-           :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
-           :vars '(( user-mail-address . "foo@example.com")))))
-#+end_src
+***** Seek confirmation on quiting mu4e
 
-#+begin_src elisp
-(customize-set-variable 'mu4e-confirm-quit nil "Stop asking to quit, it bugs me out")
-#+end_src
-
-***** Indexing
-
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-index-update-in-background t)
-#+end_src
-
-The [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing][mu4e manual discusses how to speed up indexing]] which is something that we deliberately turn off to maximize index integrity -- even if it will cost a bit more time.
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-index-cleanup t "Run full cleanup phase after indexing")
-#+end_src
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-index-lazy-check nil "Don't use indexing shortcuts")
-#+end_src
-
-See [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html][Retrieval and indexing with mu4e (mu4e manual)]] for more insight on how to configure mail retrieval and indexing.
-
-***** COMMENT Updating
-
-#+begin_src elisp :noweb-ref mu4e-config
-;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Example-setup
-(setq mu4e-get-mail-command "offlineimap"   ; or fetchmail, or ...
-      mu4e-update-interval nil)             ; update every 5 minutes
+#+begin_src elisp :noweb-ref my4e-custom
+('mu4e-confirm-quit nil "Stop asking to quit, it bugs me out")
 #+end_src
 
 ***** Attach files to mail through Dired
@@ -3183,6 +3152,58 @@ We set our preferred mail composition package:
 #+begin_src elisp :noweb-ref mu4e-custom
 (gnus-dired-mail-mode 'mu4e-user-agent)
 #+end_src
+**** Contexts
+
+In mu4e we can use contexts to manage the different "contexts" in which we write and read email.
+
+We configure mu4e to try to detect a context based using the match or :
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-context-policy 'ask)
+#+end_src
+
+During composing we do the same, just =ask-if-none=:
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-compose-context-policy 'ask)
+#+end_src
+
+Switching contexts during e-mail drafting can be achieved with the =C-c ;= binding. Just remember that.
+
+***** Example
+
+The [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts-example.html][example contexts in the mu4e documentation]] should be sufficiently detailed to provide you insight into how to write your own. We can write contexts into our configuration as follows:
+
+#+begin_src elisp :noweb-ref mu4e-config
+(setq mu4e-contexts
+      `( ,(make-mu4e-context
+           :name "Sample"
+           :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
+           :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
+           :vars '(( user-mail-address . "foo@example.com")))))
+#+end_src
+
+The better approach, however is to write contexts through a personal file that is not tracked in this public repository. 
+
+***** Indexing
+
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-update-in-background t)
+#+end_src
+
+The [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing][mu4e manual discusses how to speed up indexing]] which is something that we deliberately turn off to maximize index integrity -- even if it will cost a bit more time.
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-cleanup t "Run full cleanup phase after indexing")
+#+end_src
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-lazy-check nil "Don't use indexing shortcuts")
+#+end_src
+
+See [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html][Retrieval and indexing with mu4e (mu4e manual)]] for more insight on how to configure mail retrieval and indexing.
+
 
 **** Figure out indexing shortcut
 
