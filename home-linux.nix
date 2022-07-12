@@ -14,6 +14,8 @@
   ];
 
   home.packages = with pkgs; [
+    vokoscreen
+
     (mu.overrideAttrs (oldAttrs:
       let
         rev = "bbf55256e58aa62546e8bdade1d127d7e6a9b57e";
@@ -44,6 +46,11 @@
       night = 2500;
     };
     tray = true;
+  };
+
+  services.gpg-agent = {
+    enable = true;
+    enableSshSupport = true;
   };
 
   services.network-manager-applet.enable = true;

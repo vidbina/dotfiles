@@ -19,6 +19,10 @@ in
   # TODO: Remove, likely not necessary
   home.file.".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
 
+  #home.file.".profile".text = ''
+  #  PATH=${toString ./bin}:$HOME/.nix-profile/bin:$PATH
+  #  export PATH
+  #'';
 
   home.sessionPath = [
     (toString ./bin)
