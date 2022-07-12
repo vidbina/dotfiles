@@ -1,3 +1,4 @@
+# Tangled from README.org
 { config, pkgs, lib, options, ... }:
 
 {

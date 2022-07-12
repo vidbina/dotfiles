@@ -56,66 +56,469 @@ Typical use will be as follows:
 4. Optionally, if package update step was completed (step 2 above), commit the changes made to the niv sources files
 5. Profit 💰
 
-*** Personal Home-Manager Settings
+*** Shell
 
-We all have parts of our configs that are for our eyes only and the
-[[file:personal.nix]] file can be populated to contain sensitive and private
-parts of your configuration. This home-configuration will load a
-personal.nix file if found so the use of this file is optional (your
-configuration should work without it).
+For home-manager to work, we define a nix-shell that we creates a controlled environment for our Makefile to work.
 
-Observe the snippet below for an example of a valid personal.nix file.
+#+begin_src nix :noweb yes :tangle shell.nix
+# Tangled from README.org
+# From https://github.com/ryantm/home-manager-template
 
-#+begin_src nix
-{ config, pkgs, lib, options, ... }:
+let
 
-{
-  # Home Manager needs a bit of information about you and the
-  # paths it should manage.
-  home.username = "vidbina";
-  home.homeDirectory = "/home/vidbina";
+  sources = import ./nix/sources.nix;
 
-  # This value determines the Home Manager release that your
-  # configuration is compatible with. This helps avoid breakage
-  # when a new Home Manager release introduces backwards
-  # incompatible changes.
+  nixpkgs-src = sources."nixpkgs";
+  hm-src = sources."home-manager";
+  nur-src = sources."NUR";
 
-  # You can update Home Manager without changing this value. See
-  # the Home Manager release notes for a list of state version
-  # changes in each release.
-  home.stateVersion = "21.05";
+  pkgs = import nixpkgs-src { };
 
-  home.packages = [ ];
+in
+pkgs.mkShell rec {
+
+  name = "home-manager-shell";
+
+  buildInputs = with pkgs; [
+    <<shell-build-inputs>>
+  ];
+
+  <<shell-hook>>
 }
 #+end_src
 
-**** Firefox
+The build inputs for our shell are:
 
-#+begin_quote
-⚠️ In order to get the extensions in Firefox to work, you may have to first manually enable the extensions.
-#+end_quote
+#+begin_src nix :noweb-ref shell-build-inputs
+niv
+(import hm-src { inherit pkgs; }).home-manager
 
-***** Tridactyl
+cacert # to resolve CA cert issue
+hello
+git
+nix
+ncurses # to resolve tput issue
+which
+#+end_src
 
-Tridactyl is the extension introducing the vim bindings into Firefox. It will hijack the body of your new tabs which can bit a bit disruptive to your workflow as it will present a Tridactyl start page which is visually quite busy therefore running =:set newtab about:blank= to clear the body of the new tab can improve the UX and run =:set theme dark= to switch to a dark theme if new tabs are blasting you with white light.
+For the shell environment to be portable enough to run on both Linux and Darwin (macOS) systems, we define a /shell hook/ that will export a few environment variables into existence depending on the system.
 
-****** Escape Hatch
+#+begin_src bash :noweb-ref shell-hook-src
+export NIX_PATH="nixpkgs=${nixpkgs-src}:home-manager=${hm-src}:NUR=${nur-src}"
+export HOME_MANAGER_CONFIG=${system}
+#+end_src
 
-Remember that =<C-,>= (as described in the Tridactyl documentation which would be =C-,= in Emacs bindings notation or more simply but =Ctrl= + =,​=) is the Tridactyl /escape hatch/ that gets you into a part within the page view of the browser where you can use the vi-like bindings to navigate or do this.
+The above snippet is a bit of a cheat because we've formatted it as bash but some of the variable expansion work is being done by Nix and not Bash. 😅 We wrap the shell expressions into the following Nix statement to set =system= (see the cheat in the snippet above) and we basically pull in the sources through our niv sources file which is defined at the start of our [[file:shell.nix]] file.
 
-💡 This is convenient because loading some pages will leave the focus on the URL bar or the search bar and tabbing through may be a tedious way to get to the page view.
+#+begin_src nix :noweb yes :noweb-ref shell-hook
+shellHook = with pkgs; let
+  system = (
+    if stdenv.isLinux
+    then "./home-linux.nix"
+    else
+      (if stdenv.isDarwin
+      then "./home-darwin.nix"
+      else "./home.nix")
+  );
+in
+''
+  <<shell-hook-src>>
+'';
+#+end_src
 
-****** Ignore mode
+With all of this out of the way, running =make= should just drop us into a Nix shell with everything preconfigured and then run some incantation of =home-manager switch= in order to switch our home-manager-managed, pun intended, environment.
 
-Remember that =Shift= + =Insert= (or =Ctrl= + =Alt= + =Escape= but I'm refusing to learn that one because it is quite a dragon of a maneuver to efficiently pull of) will toggle to ignore mode in which all keypresses are passed-through to the web application.
+*** TODO Common Configuration
 
-💡 This is convenient for applications that have their own bindings that may conflict with Tridactyl.
+#+begin_src nix :noweb yes :tangle common.nix
+# Tangled from README.org
+{ config, lib, pkgs, ... }:
 
-****** Search
+# TODO: Config mutt
+let
+  inherit (pkgs) stdenv;
+  pathIfExists = (p: if (builtins.pathExists p) then [ p ] else [ ]);
+in
+{
+  imports = [
+    ./mail.nix
+    ./vim.nix
+    ./dev.nix
+  ]
+  ++ (pathIfExists ./personal.nix);
 
-Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle through search results.
+  home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
 
-💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
+  # TODO: Remove, likely not necessary
+  home.file.".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
+
+  #home.file.".profile".text = ''
+  #  PATH=${toString ./bin}:$HOME/.nix-profile/bin:$PATH
+  #  export PATH
+  #'';
+
+  home.sessionPath = [
+    (toString ./bin)
+  ];
+
+  manual = {
+    # Use `home-manager-help`
+    html.enable = true;
+
+    # Use `man home-configuration.nix`
+    manpages.enable = true;
+  };
+
+  nixpkgs.overlays = [
+    (self: super: { })
+  ];
+
+  programs.bat = {
+    enable = true;
+    config = {
+      theme = "base16";
+    };
+  };
+
+  # Let Home Manager install and manage itself.
+  programs.home-manager.enable = true;
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv = {
+      enable = true;
+    };
+  };
+
+  programs.tmux = {
+    enable = true;
+    extraConfig = builtins.readFile (./. + "/tmux.conf");
+  };
+
+  programs.zsh = {
+    enable = true;
+    enableAutosuggestions = true;
+    enableSyntaxHighlighting = true;
+    #dotDir = ".config/zsh";
+
+    initExtraBeforeCompInit = ''
+      export EDITOR="emacsclient -c -a emacs"
+      export VISUAL="emacsclient -c -a emacs"
+
+      setopt histignorespace # keeps lines preceded with SPACE out of history
+
+      zmodload -i zsh/complist
+      source ${./zsh/zstyle.zsh}
+
+      autoload -U promptinit && \
+      promptinit && \
+      prompt adam2 8bit yellow red blue
+
+      # enable bash completion
+      autoload -U +X bashcompinit && \
+      bashcompinit
+    '';
+    initExtra = ''
+      bindkey -v # use vim key bindings
+      source ${./zsh/keybindings.zsh}
+
+      source ${./zsh/functions.zsh}
+
+      source ${pkgs.fzf}/share/fzf/completion.zsh
+      source ${pkgs.fzf}/share/fzf/key-bindings.zsh
+    '';
+  };
+}
+#+end_src
+
+*** Linux
+
+#+begin_src nix :tangle home-linux.nix
+# Tangled from README.org
+{ lib, pkgs, ... }:
+
+{
+  imports = [
+    ./common.nix
+    ./doc.nix
+    ./browser.nix
+    ./x.nix
+
+    ./emacs
+
+    ./rofi
+  ];
+
+  home.packages = with pkgs; [
+    vokoscreen
+
+    (mu.overrideAttrs (oldAttrs:
+      let
+        rev = "bbf55256e58aa62546e8bdade1d127d7e6a9b57e";
+      in
+      {
+        version = "1.6.10-${rev}";
+        src = fetchFromGitHub {
+          owner = "djcb";
+          repo = "mu";
+          rev = "${rev}";
+          sha256 = "sha256-ozIITQbt7U4qDzHjbfDyIogIkMRpX1VsBr9igdpNqcI=";
+        };
+        emacs = my-emacs;
+      }))
+  ];
+
+  services.blueman-applet.enable = true;
+
+  services.gammastep = {
+    enable = true;
+    dawnTime = "5:00-6:00";
+    duskTime = "17:35-19:00";
+    latitude = 52.5;
+    longitude = 13.4;
+    temperature = {
+      # https://www.eizo.com/library/basics/color_temperature_on_an_LCD_monitor/
+      day = 6500;
+      night = 2500;
+    };
+    tray = true;
+  };
+
+  services.gpg-agent = {
+    enable = true;
+    enableSshSupport = true;
+  };
+
+  services.network-manager-applet.enable = true;
+
+  services.syncthing = {
+    enable = true;
+    tray = { enable = true; };
+  };
+
+  services.trayer = {
+    enable = true;
+    settings = {
+      align = "right";
+      alpha = 0;
+      edge = "top";
+      #height = 24;
+      monitor = "primary";
+      tint = "0x00000000";
+      transparent = true;
+      width = 150;
+      widthtype = "pixel";
+    };
+  };
+}
+#+end_src
+
+***** X
+
+#+begin_src nix :tangle x.nix
+# Tangled from README.org
+{ config, pkgs, lib, options, ... }:
+
+{
+  home.packages = with pkgs; [
+    brightnessctl
+    neofetch
+    peek
+    screenkey
+    xdotool
+    xsel-copy-url
+
+    (writeScriptBin "colors" ''
+      # https://askubuntu.com/questions/27314/script-to-display-all-terminal-colors
+
+      for x in {0..8}; do
+        for i in {30..37}; do
+          for a in {40..47}; do
+            echo -ne "\e[$x;$i;$a""m\\\e[$x;$i;$a""m\e[0;37;40m "
+          done
+          echo
+        done
+      done
+      echo ""
+    '')
+  ];
+
+  xdg.mimeApps.defaultApplications = {
+    "text/html" = [ "xsel-copy-url.desktop" ];
+    "x-scheme-handler/about" = [ "xsel-copy-url.desktop" ];
+    "x-scheme-handler/ftp" = [ "xsel-copy-url.desktop" ];
+    "x-scheme-handler/http" = [ "xsel-copy-url.desktop" ];
+    "x-scheme-handler/https" = [ "xsel-copy-url.desktop" ];
+    "x-scheme-handler/unknown" = [ "xsel-copy-url.desktop" ];
+  };
+
+  nixpkgs.overlays = [
+    (self: super: {
+      xsel-copy-url = pkgs.buildEnv (
+        let
+          script = pkgs.writeScriptBin "xsel-copy-url" ''
+            url=$1
+            echo "$url" | ${pkgs.xsel}/bin/xsel -ib
+            ${pkgs.libnotify}/bin/notify-send \
+              --category=url \
+              --urgency=low \
+              "🌍 Link Copied" "Paste to enter $url"
+          '';
+        in
+        {
+          name = "xsel-copy-url";
+          paths = [
+            script
+
+            (pkgs.makeDesktopItem {
+              name = "xsel-copy-url";
+              exec = "${script}/bin/xsel-copy-url %U";
+              comment = "Open link by copying it into the clipboard with xsel";
+              desktopName = "xsel-copy-url";
+              type = "Application";
+              categories = builtins.concatStringsSep ";" [
+                "Network"
+                "WebBrowser"
+              ] + ";";
+              mimeType = builtins.concatStringsSep ";" [
+                "text/html"
+                "x-scheme-handler/http"
+                "x-scheme-handler/https"
+                "x-scheme-handler/ftp"
+              ] + ";";
+            })
+          ];
+        }
+      );
+
+      vidbina-urxvt-themes =
+        let
+          readTheme = x:
+            let
+              text = builtins.readFile (./. + "/Xresources.d/themes/${x}");
+            in
+            pkgs.writeTextDir "share/${x}" text;
+        in
+        pkgs.symlinkJoin {
+          name = "vidbina-urxvt-themes";
+          paths = map readTheme [
+            "minichrome-dark.Xresources"
+            "minichrome-light.Xresources"
+            "vidbina-dark.Xresources"
+            "vidbina-light.Xresources"
+          ];
+        };
+    })
+  ];
+
+  xdg.mimeApps = {
+    enable = true;
+  };
+
+  xsession = {
+    enable = true;
+    pointerCursor = {
+      name = "Vanilla-DMZ";
+      package = pkgs.vanilla-dmz;
+      size = 64;
+    };
+    initExtra = ''
+      setxkbmap -option -model dell -layout us -variant intl -option lv3:caps_switch
+    '';
+    profileExtra = ''
+      hsetroot -solid '#ff9800'
+    '';
+  };
+
+  programs.urxvt = {
+    enable = true;
+    package = pkgs.rxvt-unicode;
+    iso14755 = false;
+    extraConfig = {
+      "geometry" = "128x32";
+      "perl-lib" = "${pkgs.rxvt-unicode}/lib/urxvt/perl";
+      "perl-ext-common" = builtins.concatStringsSep "," [
+        "default"
+        "font-size"
+        "url-select"
+        "color-themes"
+      ];
+      "url-select.autocopy" = true;
+      "url-select.launcher" = "${pkgs.xsel-copy-url}/bin/xsel-copy-url";
+      "url-select.underline" = true;
+
+      "color-themes.themedir" = "${pkgs.vidbina-urxvt-themes}/share";
+      "color-themes.state-file" = "${config.home.homeDirectory}/.urxvt-theme";
+      "color-themes.autosave" = 1;
+
+      # See `man urxvt` for guidance on the colors
+      "background" = "#000000";
+      "foreground" = "#ffffff";
+      "cursorColor" = "#00ff00";
+      "color0" = "#000000"; # black, Black
+      "color1" = "#ff0000"; # red, Red3
+      "color2" = "#55ff55"; # green, Green3
+      "color3" = "#ffd42a"; # yellow, Yellow3
+      "color4" = "#2a7fff"; # blue, Blue3
+      "color5" = "#dd55ff"; # magenta, Magenta3
+      "color6" = "#00aad4"; # cyan, Cyan3
+      "color7" = "#cccccc"; # white, AntiqueWhite
+      "color8" = "#333333"; # bright black, Grey25
+      "color9" = "#ff0066"; # bright red, Red
+      "color10" = "#00ff00"; # bright green, Green
+      "color11" = "#ff6600"; # bright yellow, Yellow
+      "color12" = "#00b3ff"; # bright blue, Blue
+      "color13" = "#ff2ad4"; # bright magenta, Magenta
+      "color14" = "#00ffcc"; # bright cyan, Cyan
+      "color15" = "#ffffff"; # bright white, White
+    };
+    fonts = [
+      "xft:DejaVu Sans Mono:pixelsize=28:antialias=true"
+      "xft:Fira Code:size=28:antialias=true"
+      "xft:Iosevka:size=28:antialias=true"
+    ];
+    keybindings = {
+      "C-minus" = "perl:font-size:decrease";
+      "C-plus" = "perl:font-size:increase";
+      "C-=" = "perl:font-size:reset";
+      "M-u" = "perl:url-select:select_next";
+      "M-C-n" = "perl:color-themes:next";
+      "M-C-p" = "perl:color-themes:prev";
+      "M-C-l" = "perl:color-themes:load-state";
+      "M-C-s" = "perl:color-themes:save-state";
+    };
+  };
+
+  programs.autorandr = {
+    enable = true;
+  };
+  # programs.xmobar = {
+  #   enable = true;
+  #   # extraConfig = 
+  # };
+
+  # TODO: https://gvolpe.com/blog/xmonad-polybar-nixos/
+  # try polybar sometime
+
+  # services.taffybar = {
+  #   enable = true;
+  # };
+}
+#+end_src
+
+*** Darwin
+
+#+begin_src nix :tangle home-darwin.nix
+# Tangled from README.org
+{ lib, pkgs, ... }:
+
+{
+  imports = [
+    ./common.nix
+    ./emacs/default-darwin.nix
+  ];
+}
+#+end_src
 
 ** The more tedious and manual way: without home-manager
 
@@ -339,14 +742,45 @@ ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 
 * Personal Details
 
+For developer tooling, we define our =userName= and =userEmail= which we will rely on in configuring git, for example.
+
 #+begin_src nix :noweb yes :noweb-ref nix-devtools-git
 userName = "David Asabina";
 userEmail = "vid@bina.me";
 #+end_src
 
-* Developer Tooling
+We all have parts of our configs that are for our eyes only and the
+[[file:personal.nix]] file can be populated to contain sensitive and private
+parts of your configuration. This home-configuration will load a
+personal.nix file if found so the use of this file is optional (your
+configuration should work without it).
 
-** Literate Config
+Observe the snippet below for an example of a valid personal.nix file.
+
+#+begin_src nix
+{ config, pkgs, lib, options, ... }:
+
+{
+  # Home Manager needs a bit of information about you and the
+  # paths it should manage.
+  home.username = "vidbina";
+  home.homeDirectory = "/home/vidbina";
+
+  # This value determines the Home Manager release that your
+  # configuration is compatible with. This helps avoid breakage
+  # when a new Home Manager release introduces backwards
+  # incompatible changes.
+
+  # You can update Home Manager without changing this value. See
+  # the Home Manager release notes for a list of state version
+  # changes in each release.
+  home.stateVersion = "21.05";
+
+  home.packages = [ ];
+}
+#+end_src
+
+* Developer Tooling
 
 We will be tangling this literate configuration into the needed dev.nix file.
 
@@ -359,6 +793,10 @@ For starters, we stub the general structure of the nix file and define the =<<ni
 
 {
   <<nix-devtools>>
+
+  home.packages = [
+    <<dev-packages>>
+  ];
 }
 #+end_src
 
@@ -457,27 +895,40 @@ difftastic = {
 };
 #+end_src
 
-* Email
+** Language Utilities
+
+#+begin_src :noweb yes
+
+#+end_src
+
+* E-mail
 
 I have multiple ways of handling e-mails. For starters, I process nearly all of my e-mails that require deep thought and the ability to verify extraneous sources from the comfort of a workstation (i.e.: my laptop and trusted 2nd brain). Mobile is only used for the quick things on the go and I don't need much fancy capabilities there since I want to see these messages again once I'm behind the workstation just to verify that I didn't miss anything during the daze of being on the go (which tends to be the case when I'm on mobile).
 
-I have used neomutt in combination with neovim and mu4e in Emac for nearly half a year, I've recently
+I have used neomutt in combination with Neovim and mu4e in Emacs for nearly half a year, I've recently started experimenting with notmuch inside of Emacs which is another tool that is built on top of mu indexer capabilities.
 
-#+begin_src nix :tangle mail.nix
+#+begin_src nix :noweb yes :tangle mail.nix
+# Tangled from README.org
 { config, pkgs, ... }:
 
 {
   home.packages = with pkgs; [
-    isync
-    mb2md
-    msmtp
-    neomutt
-    notmuch
-    notmuch-mutt
-    offlineimap
-    urlview
+    <<mail-packages>>
   ];
 }
+#+end_src
+
+The following packages were part of my config before and are just seperated to help me break this down into subordinate chapters.
+
+#+begin_src nix :noweb-ref mail-packages
+isync
+mb2md
+msmtp
+neomutt
+notmuch
+notmuch-mutt
+offlineimap
+urlview
 #+end_src
 
 ** msmtp
@@ -495,6 +946,70 @@ We need to setup some background services to manage email updating.
 For Neovim, remember that CoC completions basically work through use of the =C-n= and =C-p= binding to cycle through next and previous items in the completion listing.
 
 https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
+
+#+begin_src nix :tangle vim.nix
+# Tangled from  README.org
+{ config, pkgs, ... }:
+
+{
+  programs.neovim = {
+    enable = true;
+    # Warning: Just bailed on init.vim and opted for nix so, WIP!
+
+    #extraConfig = builtins.readFile (./. + "/nvim/init.vim");
+    plugins = with pkgs.vimPlugins; let
+      #sentinel-vim = pkgs.vimUtils.buildVimPlugin {
+      #  name = "sentinel-vim";
+      #  src = pkgs.fetchFromGitHub {
+      #    owner = "hashicorp";
+      #    repo = "sentinel.vim";
+      #    rev = "main";
+      #    sha256 = pkgs.lib.fakeSha256;
+      #  };
+      #};
+    in
+    [
+      #{
+      #  plugin = vim-plug;
+      #  optional = false;
+      #}
+
+      #'https://github.com/hrother/offlineimaprc.vim.git'
+      #'isRuslan/vim-es6'
+      #'jeffkreeftmeijer/vim-dim', { 'branch': 'main' }
+      #'sigmike/vim-taskjuggler'
+      #'vim-scripts/openvpn'
+      #ale
+      #vim-scala
+      coc-nvim
+      deoplete-notmuch
+      elm-vim
+      goyo-vim
+      neoformat
+      nerdtree
+      nvim-treesitter
+      #orgmode
+      plantuml-syntax
+      #sentinel-vim
+      tabular
+      tagbar
+      typescript-vim
+      vim-airline
+      vim-fugitive
+      vim-gitgutter
+      vim-graphql
+      vim-markdown
+      vim-nix
+      vim-prettier
+      vim-solidity
+      vim-terraform
+      wmgraphviz-vim
+    ];
+    vimdiffAlias = true;
+    withRuby = true;
+  };
+}
+#+end_src
 
 * TODO Bring in XMonad configuration
 
@@ -529,3 +1044,181 @@ autorandr --change
 Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup. As per [2022-05-05 Thu 12:08], the syncthing service in home-manager is only declarative to the extend of turning it on and providing extra CLI options to start the service with.
 
 Consult the [[https://docs.syncthing.net/intro/getting-started.html][Getting Started]] guide to learn how to set it up "imperatively" (i.e.: setting up peers and generating their IDs and copying the needed information over to the other syncthing peers to establish connections) through the portal.
+
+** TODO Set ignore file for Syncthing or move some sensitive stuff out of synced folders
+
+Especially for things link mail indices and Org-roam databases, I may need to do this.
+
+- https://docs.syncthing.net/users/ignoring.html
+- https://github.com/org-roam/org-roam/issues/977
+- https://github.com/org-roam/org-roam/issues/550
+
+* Browsers
+
+#+begin_src nix :noweb yes :tangle browser.nix
+# Tangled from README.org
+{ config, pkgs, lib, options, ... }:
+
+let
+  # TODO: Find a cleaner implementation, like an pkgs overlay at shell.nix?!?
+  nur = import <NUR> { inherit pkgs; };
+in
+{
+  home.packages = with pkgs; [
+  ];
+
+  <<browser-chromium>>
+
+  <<browser-firefox>>
+}
+#+end_src
+
+** Chromium
+
+#+begin_src nix :noweb-ref browser-chromium
+programs.chromium = {
+  enable = true;
+
+  extensions = [
+    {
+      # Metamask
+      # https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn
+      id = "nkbihfbeogaeaoehlefnkodbefgpgknn";
+    }
+    {
+      # Vimium
+      # https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb
+      id = "dbepggeogbaibhgnhhndojpepiihcmeb";
+    }
+    {
+      # Darkreader
+      # https://chrome.google.com/webstore/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh
+      id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";
+    }
+    {
+      # wasavi
+      # https://chrome.google.com/webstore/detail/wasavi/dgogifpkoilgiofhhhodbodcfgomelhe
+      # see https://github.com/philc/vimium/issues/2564
+      id = "dgogifpkoilgiofhhhodbodcfgomelhe";
+    }
+  ];
+};
+#+end_src
+
+** Firefox
+
+#+begin_quote
+⚠️ In order to get the extensions in Firefox to work, you may have to first manually enable the extensions.
+#+end_quote
+
+#+begin_src nix :noweb-ref browser-firefox
+programs.firefox = {
+  enable = true;
+
+  # NOTE: Extensions need firefox.profiles to be defined
+  extensions =
+    # https://nur.nix-community.org/repos/rycee/
+    with nur.repos.rycee.firefox-addons; [
+      multi-account-containers # needed by tridactyl
+      darkreader
+      tridactyl
+    ];
+};
+#+end_src
+
+*** Tridactyl
+
+Tridactyl is the extension introducing the vim bindings into Firefox. It will hijack the body of your new tabs which can bit a bit disruptive to your workflow as it will present a Tridactyl start page which is visually quite busy therefore running =:set newtab about:blank= to clear the body of the new tab can improve the UX and run =:set theme dark= to switch to a dark theme if new tabs are blasting you with white light.
+
+**** Escape Hatch
+
+Remember that =<C-,>= (as described in the Tridactyl documentation which would be =C-,= in Emacs bindings notation or more simply but =Ctrl= + =,​=) is the Tridactyl /escape hatch/ that gets you into a part within the page view of the browser where you can use the vi-like bindings to navigate or do this.
+
+💡 This is convenient because loading some pages will leave the focus on the URL bar or the search bar and tabbing through may be a tedious way to get to the page view.
+
+**** Ignore mode
+
+Remember that =Shift= + =Insert= (or =Ctrl= + =Alt= + =Escape= but I'm refusing to learn that one because it is quite a dragon of a maneuver to efficiently pull of) will toggle to ignore mode in which all keypresses are passed-through to the web application.
+
+💡 This is convenient for applications that have their own bindings that may conflict with Tridactyl.
+
+**** Search
+
+Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle through search results.
+
+💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
+
+* Docs
+
+#+begin_src nix :tangle doc.nix
+# Tangled from README.org
+{ config, pkgs, ... }:
+let
+  texlive-asabina = with pkgs; (texlive.combine {
+    inherit (texlive)
+      scheme-medium
+      luatex
+
+      atenddvi
+      IEEEtran
+      background
+      bashful
+      capt-of
+      collection-basic
+      collection-fontsrecommended
+      collection-langeuropean
+      collection-langgerman
+      collection-latexrecommended
+      datetime
+      draftwatermark
+      enumitem
+      eso-pic
+      etoolbox
+      everypage
+      fmtcount
+      lastpage
+      latexdiff
+      mdframed
+      needspace
+      numprint
+      paracol
+      pdfcrop
+      pgfgantt
+      soul
+      svg
+      tableof
+      titlepic
+      transparent
+      trimspaces
+      tocloft
+      ulem
+      wrapfig
+      xargs
+      xetex
+      xstring
+      xtab
+      ;
+  });
+in
+{
+  home.packages = with pkgs; [
+    aspell
+    aspellDicts.de
+    aspellDicts.en
+    aspellDicts.nl
+    biber
+    bibtex2html
+    evince
+    libreoffice
+    okular
+    pandoc
+    pdftk
+    qrencode
+    scim
+    texlive-asabina
+    visidata
+    xournal
+    zathura
+  ];
+}
+#+end_src
