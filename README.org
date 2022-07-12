@@ -1222,3 +1222,14 @@ in
   ];
 }
 #+end_src
+
+* Local Variables
+
+For convenience, we call =delete-trailing-whitespace= as outlined in an [[https://www.mail-archive.com/emacs-orgmode@gnu.org/msg112517.html][emacs-orgmode mailing thread]] to automatically clean up trailing whitespaces that may be artifact from tangling noweb refs that
+1. contain line-breaks and are being indented or
+2. have no noweb-ref writes
+
+;;; Local Variables:
+;;; eval: (add-hook 'org-babel-post-tangle-hook #'delete-trailing-whitespace)
+;;; eval: (add-hook 'org-babel-post-tangle-hook #'save-buffer :append)
+;;; End:
