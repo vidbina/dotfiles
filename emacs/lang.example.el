@@ -329,4 +329,5 @@
 (use-package eglot
   :straight (eglot :type git
                    :host github
-                   :repo "joaotavora/eglot"))
+                   :repo "joaotavora/eglot")
+  :bind (:map eglot-mode-map ("C-h j" . xref-find-definition)))
