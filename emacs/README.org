@@ -3187,9 +3187,10 @@ The better approach, however is to write contexts through a personal file that i
 
 ***** Indexing
 
+We're turning off indexing in order to handle this through a systemd service instead and unburden Emacs.
 
 #+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-index-update-in-background t)
+(mu4e-index-update-in-background nil)
 #+end_src
 
 The [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing][mu4e manual discusses how to speed up indexing]] which is something that we deliberately turn off to maximize index integrity -- even if it will cost a bit more time.

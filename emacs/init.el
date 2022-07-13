@@ -706,7 +706,7 @@
   (gnus-dired-mail-mode 'mu4e-user-agent)
   (mu4e-context-policy 'ask)
   (mu4e-compose-context-policy 'ask)
-  (mu4e-index-update-in-background t)
+  (mu4e-index-update-in-background nil)
   (mu4e-index-cleanup t "Run full cleanup phase after indexing")
   (mu4e-index-lazy-check nil "Don't use indexing shortcuts"))
 
