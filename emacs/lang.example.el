@@ -201,6 +201,21 @@
                    :host github
                    :repo "emacs-typescript/typescript.el"))
 
+;; https://github.com/ananthakumaran/tide
+(use-package tide
+  :straight
+  (tide :type git
+        :host github
+        :repo "ananthakumaran/tide")
+  :init
+  (evil-collection-tide-setup)
+  :after (typescript-mode)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save))
+  :custom
+  (tide-always-show-documentation nil "Don't show docs if only type info is available to minimize disruption"))
+
 ;; https://emacs-lsp.github.io/lsp-java/
 (use-package lsp-java
   :straight (lsp-java :type git
