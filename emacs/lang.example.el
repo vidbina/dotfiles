@@ -279,7 +279,9 @@
                           :host github
                           :repo "editorconfig/editorconfig-emacs")
   :config
-  (editorconfig-mode 1))
+  (editorconfig-mode 1)
+  :delight
+  (editorconfig-mode "🎛️"))
 
 ;; https://github.com/Fanael/rainbow-delimiters
 (use-package rainbow-delimiters

@@ -5122,7 +5122,9 @@ To add another layer of convenience or complexity, depending on how you want to 
                           :host github
                           :repo "editorconfig/editorconfig-emacs")
   :config
-  (editorconfig-mode 1))
+  (editorconfig-mode 1)
+  :delight
+  (editorconfig-mode "🎛️"))
 #+end_src
 
 *** 🌈 Rainbow Delimiters
