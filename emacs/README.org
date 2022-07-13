@@ -1810,6 +1810,14 @@ Since the amount of textual information in the Modeline can get overwhelming at 
 
 One can debug the configuration by examining the =minor-mode-alist= variable to verify if the delight/diminish configurations are correctly applied to the configuration variable.
 
+**** TODO Delight auto-revert mode
+
+Set =auto-revert-mode-text= since the delight setting isn't robust enough. Perhaps we should move this out into a dedicated =use-package= form for auto-revert-mode.
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable 'auto-revert-mode-text "♻️")
+#+end_src
+
 ** 🔤 Text
 
 *** Visual Fill Column

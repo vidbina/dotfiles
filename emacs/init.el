@@ -282,6 +282,8 @@
                       :host github
                       :repo "myrjola/diminish.el"))
 
+(customize-set-variable 'auto-revert-mode-text "♻️")
+
 ;; https://github.com/joostkremers/visual-fill-column
 (use-package visual-fill-column
   :straight (visual-fill-column :type git
