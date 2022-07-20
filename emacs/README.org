@@ -5628,14 +5628,7 @@ nixpkgs.overlays = [
       my-emacs = (pkgs.buildEnv {
         name = "my-emacs";
         paths = [
-          bundled-emacs
-          pkgs.clang
-          pkgs.cmake
-          pkgs.coreutils
-          pkgs.fd
-          pkgs.multimarkdown
-          jupyter-for-emacs
-          ripgrep-for-doom-emacs
+          <<nix-linux-overlay-emacs-paths>>
         ];
       });
     })
@@ -5669,7 +5662,20 @@ bundled-emacs = emacsWithPackages (epkgs: (
 ));
 #+end_src
 
-We build ripgrep for Doom Emacs. I haven't even used Doom Emacs for a long time but the setting is still here and perhaps I can rely on this again for a faster grepping experience.
+We define the paths for our custom emacs build seperately below:
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-emacs-paths
+bundled-emacs
+pkgs.clang
+pkgs.cmake
+pkgs.coreutils
+pkgs.fd
+pkgs.multimarkdown
+#+end_src
+
+***** ripgrep
+
+We build ripgrep for Doom Emacs. I haven't even used Doom Emacs for a long time but the setting is still here and perhaps I can rely on this again for a faster grepping experience:
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
 ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
@@ -5677,12 +5683,26 @@ ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
 });
 #+end_src
 
+We also add the custom ripgrep to our Emacs paths to factor it into the build:
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-emacs-paths
+ripgrep-for-doom-emacs
+#+end_src
+
+***** Jupyter
+
 Jupyter for Emacs is probably here to allow me to run Python code from my buffers.
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
 jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
   jupyter
 ]));
+#+end_src
+
+We also add the custom Jupyter package to our Emacs paths to factor it into the build:
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-emacs-paths
+jupyter-for-emacs
 #+end_src
 
 *** Packages
