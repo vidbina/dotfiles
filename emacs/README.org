@@ -5554,6 +5554,16 @@ We instruct home-manager to symlink the current directory into the [[file:~/.ema
 home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
 #+end_src
 
+*** <<nix-overlays-source>> Overlays
+
+The [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] project is used to build the bundles of Emacs that we want on our systems.
+
+#+begin_src nix :noweb-ref nix-let-bindings
+emacs-overlay-src = sources."emacs-overlay";
+#+end_src
+
+Refer to the definitions for the [[nix-overlays-linux][Linux]] and [[nix-overlays-darwin][Darwin (macOS)]] overlays to understand what we're bundling into our Emacs builds.
+
 *** Install Emacs
 
 Home-manager enables the installation of Emacs through the =programs= facility. For the different systems that we use, we will define custom packages through [[nix-overlays-source][overlays]].
@@ -5565,21 +5575,23 @@ programs.emacs = {
 };
 #+end_src
 
-*** <<nix-overlays-source>> Overlays
-
-The [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] project is used to build the bundles of Emacs that we want on our systems.
+**** Helpers
 
 #+begin_src nix :noweb-ref nix-let-bindings
-emacs-overlay-src = sources."emacs-overlay";
+baseCommand = windowName:
+  builtins.concatStringsSep " " [
+    "emacsclient -a emacs"
+    ''-F "((name . \\\"${windowName}\\\"))"''
+    "-c"
+  ];
 #+end_src
-
-Refer to the definitions for the [[nix-overlays-linux][Linux]] and [[nix-overlays-darwin][Darwin (macOS)]] overlays to understand what we're bundling into our Emacs builds.
 
 ** <<nix-config-linux>> 🐧 GNU/Linux
 
 On GNU/Linux, home-manager allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
 
 #+begin_src nix :noweb yes :tangle default.nix
+# Tangled from README.org
 { config, pkgs, lib, options, ... }:
 
 let
@@ -5604,41 +5616,16 @@ in
 
 Using [[https://github.com/nix-community/emacs-overlay][emacs-overlay]], we define an Emacs build that bundles packages that are difficult to install just with straight on account of non-elisp dependencies such as system dependencies that may require special privileges of a specialized build process.
 
-#+begin_src nix :noweb-ref nix-linux-overlays
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlays
 nixpkgs.overlays = [
   (import emacs-overlay-src)
 
-  (self: super: {
-    my-emacs =
-      let
-        emacs = (pkgs.emacsGit.override {
-          nativeComp = true;
-          withSQLite3 = true;
-          withGTK2 = false;
-          withGTK3 = false;
-        });
-        emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
-        bundled-emacs = emacsWithPackages (epkgs: (
-          with epkgs; [
-            notmuch
-            vterm
-            pdf-tools
-          ]
-        ) ++ (
-          with epkgs.melpaStablePackages; [
-          ]
-        ) ++ (
-          with epkgs.melpaPackages; [
-          ]
-        ));
-        ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-          withPCRE2 = true;
-        });
-        jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
-          jupyter
-        ]));
-      in
-      (pkgs.buildEnv {
+  (self: super:
+    let
+      <<nix-linux-overlay-defs>>
+    in
+    {
+      my-emacs = (pkgs.buildEnv {
         name = "my-emacs";
         paths = [
           bundled-emacs
@@ -5651,17 +5638,57 @@ nixpkgs.overlays = [
           ripgrep-for-doom-emacs
         ];
       });
-  })
+    })
 ];
+#+end_src
+
+**** emacs
+
+We bundle emacs through a bunch of helpers that set whatever flags we need set and also take case of factoring our wanted package repositories into the mix.
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
+emacs = (pkgs.emacsGit.override {
+  nativeComp = true;
+  withSQLite3 = true;
+  withGTK2 = false;
+  withGTK3 = false;
+});
+emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+bundled-emacs = emacsWithPackages (epkgs: (
+  with epkgs; [
+    notmuch
+    vterm
+    pdf-tools
+  ]
+) ++ (
+  with epkgs.melpaStablePackages; [
+  ]
+) ++ (
+  with epkgs.melpaPackages; [
+  ]
+));
+#+end_src
+
+We build ripgrep for Doom Emacs. I haven't even used Doom Emacs for a long time but the setting is still here and perhaps I can rely on this again for a faster grepping experience.
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
+ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+  withPCRE2 = true;
+});
+#+end_src
+
+Jupyter for Emacs is probably here to allow me to run Python code from my buffers.
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
+jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
+  jupyter
+]));
 #+end_src
 
 *** Packages
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-packages
-home.packages = with pkgs; let
-  <<nix-linux-packages-let-bindings>>
-in
-[
+home.packages = with pkgs; [
   cask
 
   <<nix-linux-packages-e>>
@@ -5672,17 +5699,6 @@ in
 
   <<nix-linux-packages-emacs-dired>>
 ];
-#+end_src
-
-**** Helpers
-
-#+begin_src nix :noweb-ref nix-linux-packages-let-bindings
-baseCommand = windowName:
-  builtins.concatStringsSep " " [
-    "emacsclient -a emacs"
-    ''-F "((name . \\\"${windowName}\\\"))"''
-    "-c"
-  ];
 #+end_src
 
 **** Shorthand to emacsclient
@@ -5824,6 +5840,7 @@ xdg.mimeApps.defaultApplications = {
 On Darwin, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd).
 
 #+begin_src nix :noweb yes :tangle default-darwin.nix
+# Tangled from README.org
 { config, pkgs, lib, options, ... }:
 
 let

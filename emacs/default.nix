@@ -1,21 +1,20 @@
+# Tangled from README.org
 { config, pkgs, lib, options, ... }:
 
 let
   sources = import ../nix/sources.nix;
   emacs-overlay-src = sources."emacs-overlay";
+  baseCommand = windowName:
+    builtins.concatStringsSep " " [
+      "emacsclient -a emacs"
+      ''-F "((name . \\\"${windowName}\\\"))"''
+      "-c"
+    ];
 in
 {
   home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
 
-  home.packages = with pkgs; let
-    baseCommand = windowName:
-      builtins.concatStringsSep " " [
-        "emacsclient -a emacs"
-        ''-F "((name . \\\"${windowName}\\\"))"''
-        "-c"
-      ];
-  in
-  [
+  home.packages = with pkgs; [
     cask
 
     (writeScriptBin "e" ''
@@ -111,37 +110,37 @@ in
   nixpkgs.overlays = [
     (import emacs-overlay-src)
 
-    (self: super: {
-      my-emacs =
-        let
-          emacs = (pkgs.emacsGit.override {
-            nativeComp = true;
-            withSQLite3 = true;
-            withGTK2 = false;
-            withGTK3 = false;
-          });
-          emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
-          bundled-emacs = emacsWithPackages (epkgs: (
-            with epkgs; [
-              notmuch
-              vterm
-              pdf-tools
-            ]
-          ) ++ (
-            with epkgs.melpaStablePackages; [
-            ]
-          ) ++ (
-            with epkgs.melpaPackages; [
-            ]
-          ));
-          ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-            withPCRE2 = true;
-          });
-          jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
-            jupyter
-          ]));
-        in
-        (pkgs.buildEnv {
+    (self: super:
+      let
+        emacs = (pkgs.emacsGit.override {
+          nativeComp = true;
+          withSQLite3 = true;
+          withGTK2 = false;
+          withGTK3 = false;
+        });
+        emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+        bundled-emacs = emacsWithPackages (epkgs: (
+          with epkgs; [
+            notmuch
+            vterm
+            pdf-tools
+          ]
+        ) ++ (
+          with epkgs.melpaStablePackages; [
+          ]
+        ) ++ (
+          with epkgs.melpaPackages; [
+          ]
+        ));
+        ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+          withPCRE2 = true;
+        });
+        jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
+          jupyter
+        ]));
+      in
+      {
+        my-emacs = (pkgs.buildEnv {
           name = "my-emacs";
           paths = [
             bundled-emacs
@@ -154,7 +153,7 @@ in
             ripgrep-for-doom-emacs
           ];
         });
-    })
+      })
   ];
 
   xdg.mimeApps.defaultApplications = {
