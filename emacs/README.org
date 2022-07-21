@@ -1697,6 +1697,136 @@ eldoc error: (error Lisp nesting exceeds ‘max-lisp-eval-depth’)
 
 Advising =(org-eldoc-documentation-function &rest ARGS)= to skip doc lookup when inside of a code block may be a potential fix here.
 
+** TODO Debug why org-id-get-create takes so long
+
+*** Profiler
+
+**** Sample [2022-07-20 Wed 20:46]
+
+I've had this for a while but a bunch of profiling attempts turned out unspectacular (as in, the issue did't appear when profiler) until now.
+
+***** Memory
+
+#+begin_src text
+      8,159,596  91% - command-execute
+      5,507,873  61%  - byte-code
+      5,507,873  61%   - read-extended-command
+      5,507,873  61%    - completing-read-default
+      5,507,873  61%     - apply
+      5,507,873  61%      - vertico--advice
+      5,429,013  60%       - #<subr completing-read-default>
+      3,836,933  42%        - vertico--exhibit
+      1,509,874  16%         - vertico--update-candidates
+        933,018  10%          - vertico--recompute-candidates
+        663,738   7%           - vertico--all-completions
+        663,738   7%            - completion-all-completions
+        663,738   7%             - apply
+        663,738   7%              - #<subr completion-all-completions>
+        663,738   7%               - completion--nth-completion
+        663,738   7%                - completion--some
+        663,738   7%                 + #<compiled -0xa6ec707464c0be4>
+          1,056   0%             vertico--metadata-get
+        566,368   6%            redisplay
+      1,339,889  14%         - vertico--arrange-candidates
+        766,289   8%          - vertico--affixate
+        765,233   8%           - #<compiled -0xae271d86ff3f9bf>
+        765,233   8%            - apply
+        760,017   8%             - marginalia--affixate
+        720,985   8%              - marginalia--cached
+        692,265   7%               - marginalia-annotate-command
+        502,946   5%                + marginalia--function-doc
+         35,312   0%                + marginalia--documentation
+         22,176   0%              + select-window
+          1,056   0%           + vertico--metadata-get
+        303,472   3%          - vertico--format-candidate
+        159,808   1%             vertico--display-string
+         77,640   0%            seq-subseq
+         55,216   0%          + #<compiled 0x1a85e55656e6ad8d>
+          4,224   0%            vertico--window-width
+          1,056   0%            vertico--metadata-get
+        917,558  10%         - vertico--display-candidates
+          9,362   0%          - vertico--resize-window
+          8,306   0%           - window-resize
+          6,352   0%            + window--resize-mini-window
+          1,056   0%             vertico--window-width
+         65,100   0%           vertico--display-count
+         38,580   0%        + timer-event-handler
+         30,536   0%        + redisplay_internal (C function)
+          4,728   0%        + command-execute
+          4,224   0%        + minibuffer-inactive-mode
+          3,168   0%        + minibuffer-mode
+          1,056   0%        + which-key--hide-popup
+      2,650,667  29%  - funcall-interactively
+      2,650,667  29%   - execute-extended-command
+      2,650,547  29%    - command-execute
+      2,650,515  29%     - funcall-interactively
+         46,753   0%      + org-id-get-create
+            994   0%      + profiler-start
+            120   0%    + run-at-time
+        777,555   8% - timer-event-handler
+        777,555   8%  - apply
+        761,987   8%   + #<compiled 0xd6718aec4408409>
+         15,520   0%   + #<subr F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_14>
+             48   0%   + blink-cursor-start
+            504   0% + redisplay_internal (C function)
+             48   0% + eldoc-schedule-timer
+              0   0%   ...
+#+end_src
+
+***** CPU
+
+#+begin_src text
+        2091  59% - timer-event-handler
+        2091  59%  - apply
+        2084  59%   - #<compiled 0xd6718aec4408409>
+        2062  58%    - execute-extended-command--shorter
+        2062  58%     - completion-try-completion
+        2062  58%      - completion--nth-completion
+        2062  58%       - completion--some
+        2062  58%        + #<compiled -0xd9b28e4ac16b362>
+          20   0%    + sit-for
+           5   0%     #<subr F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_12>
+           2   0%   + #<subr F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_14>
+        1304  37% - command-execute
+        1301  37%  - byte-code
+        1301  37%   - read-extended-command
+        1301  37%    - completing-read-default
+        1301  37%     - apply
+        1301  37%      - vertico--advice
+        1292  36%       - #<subr completing-read-default>
+        1204  34%        - vertico--exhibit
+        1165  33%         - vertico--update-candidates
+        1111  31%          - vertico--recompute-candidates
+        1082  30%           - vertico--all-completions
+        1082  30%            - completion-all-completions
+        1082  30%             - apply
+        1082  30%              - #<subr completion-all-completions>
+        1082  30%               - completion--nth-completion
+        1081  30%                - completion--some
+        1081  30%                 - #<compiled -0xa6ec707464c0be4>
+        1080  30%                  - orderless-all-completions
+        1078  30%                   - orderless-filter
+        1074  30%                    - #<subr F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_49>
+        1074  30%                     - complete-with-action
+         178   5%                      - all-completions
+          95   2%                       + #<compiled -0x1c173d7981ce569>
+           3   0%                    + orderless-pattern-compiler
+           1   0%                   + orderless-highlight-matches
+          19   0%           + vertico-sort-history-length-alpha
+          54   1%            redisplay
+          25   0%         + vertico--arrange-candidates
+          11   0%         + vertico--display-candidates
+           3   0%           vertico--display-count
+          20   0%        + timer-event-handler
+           2   0%        + redisplay_internal (C function)
+           2   0%        + minibuffer-inactive-mode
+           1   0%        + minibuffer-mode
+           1   0%        + window--resize-root-window-vertically
+           3   0%  + funcall-interactively
+         104   2% + ...
+           1   0% + redisplay_internal (C function)
+#+end_src
+
 * 👁️ Appearance
 
 This section will deal with some of the visual trappings of Emacs. My design goal is to arrive at a rather minimal, or rather clean, design while providing the needed information scope perhaps through toggles (i.e.: showing whitespace characters at command).
