@@ -705,12 +705,16 @@
   :custom
   (mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
   (mu4e-compose-format-flowed t "Compose messages as format=flowed")
+  (mu4e-sent-messages-behavior 'delete "Switch this behavior to 'sent within the appropriate contexts where directory mu4e-sent-folder is correctly set")
   (gnus-dired-mail-mode 'mu4e-user-agent)
   (mu4e-context-policy 'ask)
   (mu4e-compose-context-policy 'ask)
-  (mu4e-index-update-in-background nil)
+  (mu4e-index-update-in-background t "Index in background")
   (mu4e-index-cleanup t "Run full cleanup phase after indexing")
-  (mu4e-index-lazy-check nil "Don't use indexing shortcuts"))
+  (mu4e-index-lazy-check nil "Don't use indexing shortcuts")
+  (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
+  (mu4e-update-interval 300 "Auto index every 5 minutes")
+  )
 
 ;; https://git.notmuchmail.org/git/notmuch
 (use-package notmuch
