@@ -146,6 +146,7 @@
       "M-C-l" = "perl:color-themes:load-state";
       "M-C-s" = "perl:color-themes:save-state";
     };
+    scroll.bar.enable = false;
   };
 
   programs.autorandr = {
