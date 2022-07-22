@@ -2969,6 +2969,10 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 
 For mail, there are a couple of options within Emacs. First, one needs to understand that a mail user agent (MUA) is a tool used to compose and read messages and a mail transfer agent (MTA) is a tool to send messages.
 
+*** TODO Move into top-level section
+
+I navigte to this section often enough to warrant bumping this up.
+
 *** MUA (Mail User Agent)
 
 You will find the following MTA options in Emacs:
