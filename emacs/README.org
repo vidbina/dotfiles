@@ -1922,14 +1922,16 @@ Since the amount of textual information in the Modeline can get overwhelming at 
                      :host nil
                      :repo "https://git.savannah.nongnu.org/git/delight.git")
   :delight
+  (fundamental-mode "🗒️")
   (auto-revert-mode "♻️")
   (eldoc-mode "el📖")
   (edebug-mode "🐞")
-  (global-whitespace-mode)
+  (global-whitespace-mode "🏳️")
   (visual-line-mode "🌯")
   (mu4e-main-mode "📫")
   (mu4e-headers-mode "📬")
-  (mu4e-view-mode "📧"))
+  (mu4e-view-mode "📧")
+  (vterm-mode "👨🏿‍💻"))
 
 ;; https://github.com/myrjola/diminish.el
 (use-package diminish
@@ -5153,7 +5155,9 @@ Superset of JavaScript that folks really should be using instead of just vanilla
   :straight
   (typescript-mode :type git
                    :host github
-                   :repo "emacs-typescript/typescript.el"))
+                   :repo "emacs-typescript/typescript.el")
+  :delight
+  (typescript-mode "ts"))
 #+end_src
 
 ***** Tide
@@ -5167,6 +5171,8 @@ Superset of JavaScript that folks really should be using instead of just vanilla
         :repo "ananthakumaran/tide")
   :init
   (evil-collection-tide-setup)
+  :delight
+  (tide-mode "🌊")
   :after (typescript-mode)
   :hook ((typescript-mode . tide-setup)
          (typescript-mode . tide-hl-identifier-mode)
@@ -5422,6 +5428,8 @@ By using the [[https://github.com/purcell/envrc][envrc]] package, buffer-local v
                    :host github
                    :repo "purcell/envrc")
   :after inheritenv
+  :delight
+  (envrc-mode "📦")
   :hook (after-init . envrc-global-mode)
   :bind-keymap ("C-c e" . envrc-command-map))
 #+end_src

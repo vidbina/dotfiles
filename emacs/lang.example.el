@@ -199,7 +199,9 @@
   :straight
   (typescript-mode :type git
                    :host github
-                   :repo "emacs-typescript/typescript.el"))
+                   :repo "emacs-typescript/typescript.el")
+  :delight
+  (typescript-mode "ts"))
 
 ;; https://github.com/ananthakumaran/tide
 (use-package tide
@@ -209,6 +211,8 @@
         :repo "ananthakumaran/tide")
   :init
   (evil-collection-tide-setup)
+  :delight
+  (tide-mode "🌊")
   :after (typescript-mode)
   :hook ((typescript-mode . tide-setup)
          (typescript-mode . tide-hl-identifier-mode)
@@ -316,6 +320,8 @@
                    :host github
                    :repo "purcell/envrc")
   :after inheritenv
+  :delight
+  (envrc-mode "📦")
   :hook (after-init . envrc-global-mode)
   :bind-keymap ("C-c e" . envrc-command-map))
 

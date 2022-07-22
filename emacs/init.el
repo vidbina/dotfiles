@@ -267,14 +267,16 @@
                      :host nil
                      :repo "https://git.savannah.nongnu.org/git/delight.git")
   :delight
+  (fundamental-mode "🗒️")
   (auto-revert-mode "♻️")
   (eldoc-mode "el📖")
   (edebug-mode "🐞")
-  (global-whitespace-mode)
+  (global-whitespace-mode "🏳️")
   (visual-line-mode "🌯")
   (mu4e-main-mode "📫")
   (mu4e-headers-mode "📬")
-  (mu4e-view-mode "📧"))
+  (mu4e-view-mode "📧")
+  (vterm-mode "👨🏿‍💻"))
 
 ;; https://github.com/myrjola/diminish.el
 (use-package diminish
