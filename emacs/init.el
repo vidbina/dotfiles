@@ -710,11 +710,11 @@
   (mu4e-context-policy 'ask)
   (mu4e-compose-context-policy 'ask)
   (mu4e-index-update-in-background t "Index in background")
-  (mu4e-index-cleanup t "Run full cleanup phase after indexing")
-  (mu4e-index-lazy-check nil "Don't use indexing shortcuts")
+  (mu4e-mu-debug t "Run mu in debug mode")
+  (mu4e-index-cleanup nil)
+  (mu4e-index-lazy-check t)
   (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
-  (mu4e-update-interval 300 "Auto index every 5 minutes")
-  )
+  (mu4e-update-interval 300 "Auto index every 5 minutes"))
 
 ;; https://git.notmuchmail.org/git/notmuch
 (use-package notmuch

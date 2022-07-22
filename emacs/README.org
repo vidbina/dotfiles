@@ -3340,6 +3340,38 @@ I started the config by turning indexing off indexing in order to handle this th
 (mu4e-index-update-in-background t "Index in background")
 #+end_src
 
+****** Debug Mode
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-mu-debug t "Run mu in debug mode")
+#+end_src
+
+****** Strategies
+
+I define two indexing strategies below of which you are only to keep one uncommented at a time.
+
+******* Behavior: Lean Indexing
+
+The [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing][mu4e manual discusses how to speed up indexing]] which is something that we deliberately turn on because indexing takes a long time my machine and effectively locks me out of any mu4e use while ongoing.
+
+#+begin_comment
+💡 For the sake of index integrity, consider regularly running a full (clean) re-indexing of your maildirs.
+#+end_comment
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-cleanup nil)
+#+end_src
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-lazy-check t)
+#+end_src
+
+******** TODO Define heavy indexing job post hibernate
+
+Solve the "locked out of mu4e because I'm indexing" problem by defining a heavier indexing job before or after hibernate to just make sure a thorough re-indexing happens before every /session/. Perhaps, before hibernate is better because when returning from suspend, I can imagine that there are plenty of things that I quickly want to get done, while I would be forgiving if I tell the machine to hibernate but it still takes it sweet time to continue a indexing chore before properly suspending.
+
+******* COMMENT Behavior: Thorough Indexing
+
 The [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing][mu4e manual discusses how to speed up indexing]] which is something that we deliberately turn off to maximize index integrity -- even if it will cost a bit more time.
 
 #+begin_src elisp :noweb-ref mu4e-custom

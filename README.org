@@ -939,9 +939,9 @@ urlview
 
 Much of my work-related comms transpires over e-mail. In order to obtain [[https://tongfamily.com/2022/01/22/superhuman-hidden-commands-to-top-and-bottom-are-gg-and-g/][superhuman-level-like-or-better]] 🙊 convenience, I am using [[https://notmuchmail.org/][notmuch]] which has [[https://notmuchmail.org/frontends/][plenty of frontends]] available.
 
-** TODO Workers
+** DONE Workers
 
-We need to setup some background services to manage email updating.
+See my private dotfiles where I have defined a mbsync service to handle synchronization of mail. Indexing could be handled through as a =PostExec= hook in the mail retrieval service but this will cause problems with mu4e spinning up mu/server to reindex the maildir and obtaining the read/write lock on the Xapian store.
 
 * Neovim
 
