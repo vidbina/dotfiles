@@ -479,7 +479,11 @@
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit"))
+                   :repo "magit/magit")
+  :custom
+  ;; was previously #'magit-display-buffer-traditional
+  (magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1
+                                 "Open magit buffer in window at point"))
 
 ;; https://github.com/dgutov/diff-hl
 (use-package diff-hl
