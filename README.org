@@ -232,8 +232,11 @@ in
 #+end_src
 
 *** Linux
+:PROPERTIES:
+:header-args: :noweb-sep "\n\n"
+:END:
 
-#+begin_src nix :tangle home-linux.nix
+#+begin_src nix :noweb yes :tangle home-linux.nix
 # Tangled from README.org
 { lib, pkgs, ... }:
 
@@ -268,55 +271,11 @@ in
       }))
   ];
 
-  services.blueman-applet.enable = true;
-
-  services.gammastep = {
-    enable = true;
-    dawnTime = "5:00-6:00";
-    duskTime = "17:35-19:00";
-    latitude = 52.5;
-    longitude = 13.4;
-    temperature = {
-      # https://www.eizo.com/library/basics/color_temperature_on_an_LCD_monitor/
-      day = 6500;
-      night = 2500;
-    };
-    tray = true;
-  };
-
-  services.gpg-agent = {
-    enable = true;
-    enableSshSupport = true;
-  };
-
-  services.network-manager-applet.enable = true;
-
-  services.syncthing = {
-    enable = true;
-    tray = { enable = true; };
-  };
-
-  services.trayer = {
-    enable = true;
-    settings = {
-      align = "right";
-      alpha = 0;
-      edge = "top";
-      #height = 24;
-      monitor = "primary";
-      tint = "0x00000000";
-      transparent = true;
-      width = 150;
-      widthtype = "pixel";
-    };
-  };
+  <<home-linux-services>>
 }
 #+end_src
 
 ***** X
-:PROPERTIES:
-:header-args: :noweb-sep "\n\n"
-:END:
 
 #+begin_src nix :noweb yes :tangle x.nix
 # Tangled from README.org
@@ -504,6 +463,68 @@ vidbina-urxvt-themes =
 #+begin_src nix :noweb-ref x-programs
 programs.autorandr = {
   enable = true;
+};
+#+end_src
+
+***** Applets
+
+#+begin_src nix :noweb-ref home-linux-services
+services.blueman-applet.enable = true;
+services.network-manager-applet.enable = true;
+#+end_src
+
+***** Gammastep
+
+#+begin_src nix :noweb-ref home-linux-services
+services.gammastep = {
+  enable = true;
+  dawnTime = "5:00-6:00";
+  duskTime = "17:35-19:00";
+  latitude = 52.5;
+  longitude = 13.4;
+  temperature = {
+    # https://www.eizo.com/library/basics/color_temperature_on_an_LCD_monitor/
+    day = 6500;
+    night = 2500;
+  };
+  tray = true;
+};
+#+end_src
+
+***** GPG Agent
+
+#+begin_src nix :noweb-ref home-linux-services
+services.gpg-agent = {
+  enable = true;
+  enableSshSupport = true;
+};
+#+end_src
+
+***** Syncthing
+
+#+begin_src nix :noweb-ref home-linux-services
+services.syncthing = {
+  enable = true;
+  tray = { enable = true; };
+};
+#+end_src
+
+***** Trayer
+
+#+begin_src nix :noweb-ref home-linux-services
+services.trayer = {
+  enable = true;
+  settings = {
+    align = "right";
+    alpha = 0;
+    edge = "top";
+    #height = 24;
+    monitor = "primary";
+    tint = "0x00000000";
+    transparent = true;
+    width = 150;
+    widthtype = "pixel";
+  };
 };
 #+end_src
 

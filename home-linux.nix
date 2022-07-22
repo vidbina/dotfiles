@@ -33,6 +33,7 @@
   ];
 
   services.blueman-applet.enable = true;
+  services.network-manager-applet.enable = true;
 
   services.gammastep = {
     enable = true;
@@ -52,8 +53,6 @@
     enable = true;
     enableSshSupport = true;
   };
-
-  services.network-manager-applet.enable = true;
 
   services.syncthing = {
     enable = true;
