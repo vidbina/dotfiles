@@ -5793,7 +5793,11 @@ in
 {
   <<nix-home-emacsdir-source>>
 
-  <<nix-linux-packages>>
+  home.packages = with pkgs; [
+    cask
+
+    <<nix-linux-packages>>
+  ];
 
   <<nix-home-programs>>
 
@@ -5899,24 +5903,32 @@ jupyter-for-emacs
 #+end_src
 
 *** Packages
+:PROPERTIES:
+:header-args: :noweb-sep "\n\n"
+:END:
 
-#+begin_src nix :noweb yes :noweb-ref nix-linux-packages
-home.packages = with pkgs; [
-  cask
+**** mu override
 
-  <<nix-linux-packages-e>>
-
-  <<nix-linux-packages-emacs-org-protocol>>
-
-  <<nix-linux-packages-emacs-mu4e>>
-
-  <<nix-linux-packages-emacs-dired>>
-];
+#+begin_src nix :noweb-ref nix-linux-packages
+(mu.overrideAttrs (oldAttrs:
+  let
+    rev = "bbf55256e58aa62546e8bdade1d127d7e6a9b57e";
+  in
+  {
+    version = "1.6.10-${rev}";
+    src = fetchFromGitHub {
+      owner = "djcb";
+      repo = "mu";
+      rev = "${rev}";
+      sha256 = "sha256-ozIITQbt7U4qDzHjbfDyIogIkMRpX1VsBr9igdpNqcI=";
+    };
+    emacs = my-emacs;
+  }))
 #+end_src
 
 **** Shorthand to emacsclient
 
-#+begin_src nix :noweb-ref nix-linux-packages-e
+#+begin_src nix :noweb-ref nix-linux-packages
 (writeScriptBin "e" ''
   exec emacsclient -a emacs -c "$@"
 '')
@@ -5924,7 +5936,7 @@ home.packages = with pkgs; [
 
 **** Emacs Org-Protocol
 
-#+begin_src nix :noweb-ref nix-linux-packages-emacs-org-protocol
+#+begin_src nix :noweb-ref nix-linux-packages
 (makeDesktopItem {
   name = "emacs-org-protocol";
   exec = "${(baseCommand "emacs-org-protocol")} %u";
@@ -5946,7 +5958,7 @@ home.packages = with pkgs; [
 
 **** Emacs mu4e
 
-#+begin_src nix :noweb yes :noweb-ref nix-linux-packages-emacs-mu4e
+#+begin_src nix :noweb yes :noweb-ref nix-linux-packages
 <<nix-linux-packages-desktop-emacs-mu4e>>
 
 <<nix-linux-packages-wrapper-emacs-mu4e>>
@@ -5986,7 +5998,7 @@ home.packages = with pkgs; [
 
 **** Dired
 
-#+begin_src nix :noweb yes :noweb-ref nix-linux-packages-emacs-dired
+#+begin_src nix :noweb yes :noweb-ref nix-linux-packages
 <<nix-linux-packages-desktop-emacs-dired>>
 
 <<nix-linux-packages-wrapper-emacs-dired>>
