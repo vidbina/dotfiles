@@ -215,8 +215,7 @@
   (tide-mode "🌊")
   :after (typescript-mode)
   :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode)
-         (before-save . tide-format-before-save))
+         (typescript-mode . tide-hl-identifier-mode))
   :custom
   (tide-always-show-documentation nil "Don't show docs if only type info is available to minimize disruption"))
 
