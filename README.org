@@ -402,8 +402,6 @@ in
         pkgs.symlinkJoin {
           name = "vidbina-urxvt-themes";
           paths = map readTheme [
-            "minichrome-dark.Xresources"
-            "minichrome-light.Xresources"
             "vidbina-dark.Xresources"
             "vidbina-light.Xresources"
           ];
