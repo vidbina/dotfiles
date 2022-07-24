@@ -296,7 +296,7 @@ Through the =:hook= keyword, we can /hook/ operations for a particular package i
   <<org-config>>
   :custom
   <<org-custom>>)
-  #+end_src
+#+end_src
 
 ** Customizations
 
@@ -364,7 +364,7 @@ Tangling sometimes takes a fair amount of time that we can't always afford to wa
   "Call `org-babel-tangle' asynchronously"
   (interactive "P")
   <<org-babel-tangle-async-start>>)
-  #+end_src
+#+end_src
 
 The =org-babel-map= is defined in org-keys.el and maps =t= and =C-t= to =org-babel-tangle= of which we only need one alternative mapped to the async variant. Since I use lower keystroke variant =C-v C-c t= most, we'll map that one to our async variant.
 
