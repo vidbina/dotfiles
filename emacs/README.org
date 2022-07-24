@@ -5363,6 +5363,11 @@ To add another layer of convenience or complexity, depending on how you want to 
   (editorconfig-mode "🎛️"))
 #+end_src
 
+
+**** TODO Debug editorconfig conflict
+
+See https://github.com/editorconfig/editorconfig-emacs/issues/264 regarding =indent_size= being ignored editorconfig is being ignored.
+
 *** 🌈 Rainbow Delimiters
 
 #+begin_src elisp :tangle lang.example.el
