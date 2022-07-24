@@ -3757,9 +3757,12 @@ During recovery of perspectives, magit buffers typically show up empty. I should
 
 #+begin_src elisp :noweb-ref persp-mode-custom
 (persp-filter-save-buffers-functions
- (list #'(lambda (b) (string-prefix-p "*" (buffer-name b)))
-       #'(lambda (b) (not (null (string-match-p (rx (seq word-boundary "magit"
-                                                         (zero-or-more (seq "-" (one-or-more any))) ":")) (buffer-name b))))))
+ (list (lambda (b) (string-prefix-p "*" (buffer-name b)))
+       (lambda (b) (not (null (string-match-p (rx (seq word-boundary "magit"
+                                                       (zero-or-more (seq "-" (one-or-more any))) ":")) (buffer-name b)))))
+       (lambda (b) (string-match-p
+                    (regexp-opt '("mu4e-compose-mode"))
+                    (symbol-name (buffer-local-value 'major-mode b)))))
  "Filter out special and magit buffers from saving")
 #+end_src
 
