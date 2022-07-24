@@ -128,6 +128,14 @@ in
 
 With all of this out of the way, running =make= should just drop us into a Nix shell with everything preconfigured and then run some incantation of =home-manager switch= in order to switch our home-manager-managed, pun intended, environment.
 
+**** REPL
+
+Enter a REPL by entering the nix-shell first (to set up the env var =NIX_PATH=) and then run the following statement to obtain a reference to the home-manager configuration:
+
+#+begin_src nix
+hm = import <home-manager/modules> { inherit pkgs; configuration = ./home-linux.nix; }
+#+end_src
+
 *** TODO Common Configuration
 
 #+begin_src nix :noweb yes :tangle common.nix
