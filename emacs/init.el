@@ -776,7 +776,6 @@
   (persp-mode t)
   :custom
   (persp-auto-resume-time 0 "Avoid autoloading perspective")
-  (persp-nil-name "unpersp-ed" "Just to be clearer")
   (persp-filter-save-buffers-functions
    (list (lambda (b) (string-prefix-p "*" (buffer-name b)))
          (lambda (b) (not (null (string-match-p (rx (seq word-boundary "magit"

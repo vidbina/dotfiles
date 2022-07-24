@@ -3718,16 +3718,6 @@ Autoloading of perspectives is sometimes quite disruptive, since the binding is 
 (persp-auto-resume-time 0 "Avoid autoloading perspective")
 #+end_src
 
-For the sake of clarity, a goofy name is selected for the nil perspective to make sure that it is abundantly clear that we find ourselves in an empty perspective and that we haven't silently ended up in a weird case of nilness.
-
-#+begin_src elisp :noweb-ref persp-mode-custom
-(persp-nil-name "unpersp-ed" "Just to be clearer")
-#+end_src
-
-#+begin_center
-This is mostly BS because "none" is clearly not nil-like but I'm just trynna keep things fun.
-#+end_center
-
 ***** PROTOTYPE Expand persp-auto-save filters to filter out magit buffers
 :LOGBOOK:
 - State "PROTOTYPE"  from "WIP"        [2022-07-04 Mon 21:01] \\
