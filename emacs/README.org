@@ -4765,8 +4765,29 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
   :straight (nix-mode :type git
                       :host github
                       :repo "NixOS/nix-mode")
-  :init
-  (setq nix-nixfmt-bin "nixpkgs-fmt"))
+
+  :custom
+  (nix-nixfmt-bin "nixpkgs-fmt"))
+#+end_src
+
+**** COMMENT LSP: Use rnix-lsp
+
+https://github.com/nix-community/rnix-lsp
+
+#+begin_src elisp :tangle lang.example.el
+(add-to-list 'eglot-server-programs '(nix-mode . ("rnix-lsp")))
+#+end_src
+
+**** TODO COMMENT Test nixpkgs-fmt
+
+For formatting, we install Steve Purcell's nixpkgs-fmt.el:
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/purcell/emacs-nixpkgs-fmt
+(use-package nixpkgs-fmt
+  :straight (nixpkgs-fmt :type git
+                         :host github
+                         :repo "purcell/emacs-nixpkgs-fmt"))
 #+end_src
 
 **** WIP Org-babel support for nix shells

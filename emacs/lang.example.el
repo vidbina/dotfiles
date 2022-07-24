@@ -125,8 +125,9 @@
   :straight (nix-mode :type git
                       :host github
                       :repo "NixOS/nix-mode")
-  :init
-  (setq nix-nixfmt-bin "nixpkgs-fmt"))
+
+  :custom
+  (nix-nixfmt-bin "nixpkgs-fmt"))
 
 (defcustom nix-develop-default-prompt-regexp "^>\s+"
   "Custom prompt for nix-develop"
