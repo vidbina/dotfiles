@@ -2089,6 +2089,47 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
         modus-themes-scale-headings t))
 #+end_src
 
+** COMMENT NANO
+
+The [[https://github.com/rougier/nano-emacs][nano theme by Rougier]] provides a very "clean" Emacs experience. Let's use parts of it for a better DX.
+
+#+begin_src elisp :tangle init.el
+(use-package nano-emacs
+  :straight (nano-emacs :type git
+                        :host github
+                        :repo "rougier/nano-emacs")
+  :after (:all modus-themes svg-tag-mode mu4e-dashboard mu4e-thread-folding)
+  :init
+  (require 'nano-base-colors)
+  (require 'nano-faces)
+  (require 'nano-mu4e))
+#+end_src
+
+*** mu4e-dashboard
+
+#+begin_src elisp :tangle init.el
+(use-package mu4e-dashboard
+  :straight (mu4e-dashboard :type git
+                            :host github
+                            :repo "rougier/mu4e-dashboard"))
+#+end_src
+
+#+begin_src elisp :tangle init.el
+(use-package mu4e-thread-folding
+  :straight (mu4e-thread-folding :type git
+                                 :host github
+                                 :repo "rougier/mu4e-thread-folding"))
+#+end_src
+
+*** svg-tag-mode
+
+#+begin_src elisp :tangle init.el
+(use-package svg-tag-mode
+  :straight (svg-tag-mode :type git
+                          :host github
+                          :repo "rougier/svg-tag-mode"))
+#+end_src
+
 ** Dired-k
 
 The standard Emacs directory editor named dired doesn't ship with convenient highlighting or coloring of the listed files. The dired-k package adds some flair to the dired ouput.
