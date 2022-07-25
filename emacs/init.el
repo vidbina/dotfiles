@@ -656,6 +656,43 @@
   :config
   (which-key-mode))
 
+(use-package pdf-tools
+  :straight (:type built-in)
+  :config
+  (require 'pdf-occur)
+  (pdf-tools-install nil t nil nil)
+  (setq-default pdf-view-display-size 'fit-width))
+
+;; https://github.com/bbatsov/projectile/
+(use-package projectile
+  :straight (projectile :type git
+                        :host github
+                        :repo "bbatsov/projectile")
+  :custom
+  (projectile-mode-line-prefix "🗄️")
+  :hook (after-init . projectile-mode)
+  :bind (:map projectile-mode-map
+              ("C-x p" . projectile-command-map)))
+
+;; https://github.com/Bad-ptr/persp-mode.el
+(use-package persp-mode
+  :straight (persp-mode :type git
+                        :host github
+                        :repo "Bad-ptr/persp-mode.el")
+  :diminish persp-mode
+  :config
+  (persp-mode t)
+  :custom
+  (persp-auto-resume-time 0 "Avoid autoloading perspective")
+  (persp-filter-save-buffers-functions
+   (list (lambda (b) (string-prefix-p "*" (buffer-name b)))
+         (lambda (b) (not (null (string-match-p (rx (seq word-boundary "magit"
+                                                         (zero-or-more (seq "-" (one-or-more any))) ":")) (buffer-name b)))))
+         (lambda (b) (string-match-p
+                      (regexp-opt '("mu4e-compose-mode"))
+                      (symbol-name (buffer-local-value 'major-mode b)))))
+   "Filter out special and magit buffers from saving"))
+
 (with-eval-after-load 'sendmail
   (customize-set-variable 'smtpmail-debug-info t
                           "Enable debugging")
@@ -714,43 +751,6 @@
   (mu4e-index-lazy-check t)
   (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
   (mu4e-update-interval 300 "Auto index every 5 minutes"))
-
-(use-package pdf-tools
-  :straight (:type built-in)
-  :config
-  (require 'pdf-occur)
-  (pdf-tools-install nil t nil nil)
-  (setq-default pdf-view-display-size 'fit-width))
-
-;; https://github.com/bbatsov/projectile/
-(use-package projectile
-  :straight (projectile :type git
-                        :host github
-                        :repo "bbatsov/projectile")
-  :custom
-  (projectile-mode-line-prefix "🗄️")
-  :hook (after-init . projectile-mode)
-  :bind (:map projectile-mode-map
-              ("C-x p" . projectile-command-map)))
-
-;; https://github.com/Bad-ptr/persp-mode.el
-(use-package persp-mode
-  :straight (persp-mode :type git
-                        :host github
-                        :repo "Bad-ptr/persp-mode.el")
-  :diminish persp-mode
-  :config
-  (persp-mode t)
-  :custom
-  (persp-auto-resume-time 0 "Avoid autoloading perspective")
-  (persp-filter-save-buffers-functions
-   (list (lambda (b) (string-prefix-p "*" (buffer-name b)))
-         (lambda (b) (not (null (string-match-p (rx (seq word-boundary "magit"
-                                                         (zero-or-more (seq "-" (one-or-more any))) ":")) (buffer-name b)))))
-         (lambda (b) (string-match-p
-                      (regexp-opt '("mu4e-compose-mode"))
-                      (symbol-name (buffer-local-value 'major-mode b)))))
-   "Filter out special and magit buffers from saving"))
 
 (message "💥 Debug on error is %s" debug-on-error)
 
