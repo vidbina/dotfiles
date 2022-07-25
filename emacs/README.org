@@ -2553,21 +2553,17 @@ Emacs is single-threaded and this makes sense considering that many packages nav
                    :host github
                    :repo "jwiegley/emacs-async")
   :config
-  (async-bytecomp-package-mode 1)
   <<async-config>>
   :custom
   <<async-custom>>)
 #+end_src
 
-*** Async SMTP mailing
-
 #+begin_src elisp :noweb-ref async-config
-(require 'smtpmail-async)
+(async-bytecomp-package-mode 1)
 #+end_src
 
 #+begin_src elisp :noweb-ref async-custom
-(send-mail-function 'async-smtpmail-send-it)
-(message-send-mail-function 'async-smtpmail-send-it)
+(async-variables-noprops-function #'async--purecopy)
 #+end_src
 
 ** PROTOTYPE iedit
@@ -3266,6 +3262,21 @@ The message.el package provides a more general interfaces for message sending, s
                         "Kill a buffer once a message is sent")
 #+end_src
 
+*** COMMENT Asynchronous mail sending with Sendmail
+
+#+begin_src elisp :noweb-ref mu4e-after
+smtpmail-async
+#+end_src
+
+#+begin_src elisp :noweb-ref async-config
+(require 'smtpmail-async)
+#+end_src
+
+#+begin_src elisp :noweb-ref async-custom
+(send-mail-function 'async-smtpmail-send-it)
+(message-send-mail-function 'async-smtpmail-send-it)
+#+end_src
+
 *** <<mu4e>> Mu4e
 
 [[https://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]] is Maildir-friendly mail client that uses mu as a backend.
@@ -3287,6 +3298,14 @@ The message.el package provides a more general interfaces for message sending, s
 #+end_src
 
 For convenience, remember to prefix the update command by entering it as =C-u u= in a *mu4e-main* buffer or by entering =C-u C-c C-u= from the *mu4e-headers* buffer such that the update commands *run in the background*.
+
+**** Hack: Populate =:after=
+
+The expression ~(:all)~ is invalid and thus we need to figure out a way to produce a valid config when nothing is tangled to =<<mu4e-after>>= which we populate into the =:all= form. I'm dirtily doing this by configuring this package to load after Org as Org will be there anyways.
+
+#+begin_src elisp :noweb-ref mu4e-after
+org
+#+end_src
 
 **** Customizations
 
@@ -3467,10 +3486,7 @@ I have configured mbsync to retrieve mail in my personal configuration
       mu4e-update-interval nil)             ; update every 5 minutes
 #+end_src
 
-**** Sendmail Asynchronously
 
-#+begin_src elisp :noweb-ref mu4e-after
-smtpmail-async
 #+end_src
 
 **** COMMENT Sendmail with Queueing

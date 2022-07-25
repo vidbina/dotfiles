@@ -407,10 +407,8 @@
                    :repo "jwiegley/emacs-async")
   :config
   (async-bytecomp-package-mode 1)
-  (require 'smtpmail-async)
   :custom
-  (send-mail-function 'async-smtpmail-send-it)
-  (message-send-mail-function 'async-smtpmail-send-it))
+  (async-variables-noprops-function #'async--purecopy))
 
 ;; https://github.com/victorhge/iedit
 (use-package iedit
@@ -675,7 +673,7 @@
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
   :after (:all
-          smtpmail-async)
+          org)
   :straight (:type built-in)
   :demand t
   :bind (("C-c M 4" . mu4e))
