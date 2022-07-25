@@ -674,6 +674,8 @@
 
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
+  :after (:all
+          smtpmail-async)
   :straight (:type built-in)
   :demand t
   :bind (("C-c M 4" . mu4e))

@@ -3273,6 +3273,8 @@ The message.el package provides a more general interfaces for message sending, s
 #+begin_src elisp :noweb yes :tangle init.el
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
+  :after (:all
+          <<mu4e-after>>)
   :straight (:type built-in)
   :demand t
   :bind (("C-c M 4" . mu4e))
@@ -3465,15 +3467,66 @@ I have configured mbsync to retrieve mail in my personal configuration
       mu4e-update-interval nil)             ; update every 5 minutes
 #+end_src
 
-**** Figure out indexing shortcut
+**** Sendmail Asynchronously
 
-#+begin_src elisp
-(mu4e-context-switch nil nil)
-(mu4e-update-index)
-(mu4e-update-mail-and-index 'background)
+#+begin_src elisp :noweb-ref mu4e-after
+smtpmail-async
 #+end_src
 
-#+RESULTS:
+**** COMMENT Sendmail with Queueing
+
+Based on Botha's [[https://vxlabs.com/2019/07/03/send-queued-mails-in-background-with-mu4e/][Sending queued mails in the background with mu4e]] article, we will load =smtpmail-async=, configure SMTP behavior and and advise the sender function to get things done async.
+
+#+begin_src elisp :noweb-ref mu4e-after
+smtpmail-async
+#+end_src
+
+We customize some SMTP variables as needed:
+
+https://www.djcbsoftware.nl/code/mu/mu4e/Queuing-mail.html
+
+#+begin_src elisp :noweb-ref mu4e-custom
+;;(send-mail-function 'async-smtpmail-send-queued-mail)
+;;(message-send-mail-function 'async-smtpmail-send-queued-mail)
+(smtpmail-queue-mail t)
+(smtpmail-queue-dir "~/.msmtp.queue")
+#+end_src
+
+***** COMMENT Advise to function =smtp-send-queued-mail=
+
+We define some advisers to get the job done (I'm super sleepy right now, so bear with me for the poor prose):
+
+#+begin_src elisp :tangle init.el
+(defun async-smtpmail-send-queued-mail (sync-func &rest args)
+  (message "Starting asynchronous smtpmail-send-queued-mail")
+  (async-start
+   `(lambda ()
+      (require 'smtpmail)
+      ;; see smtpmail-async.el - we inject the same variables
+      ,(async-inject-variables
+        "\\`\\(smtpmail\\|async-smtpmail\\|\\(user-\\)?mail\\)-\\|auth-sources\\|epg\\|nsm"
+        nil
+        "\\`\\(mail-header-format-function\\|smtpmail-address-buffer\\|mail-mode-abbrev-table\\)")
+      ;; if we don't use the above inject we can pass in specific variables like this:
+      ;; (setq smtpmail-queue-dir ,smtpmail-queue-dir)
+      ;; (setq smtpmail-smtp-server ,smtpmail-smtp-server)
+      (,sync-func))
+   (lambda (&optional _unused)
+     (message "Done sending queued mail in the background."))))
+
+;; https://emacs.stackexchange.com/a/14827/8743 has more, err, advice.
+(advice-add #'smtpmail-send-queued-mail :around #'async-smtpmail-send-queued-mail)
+#+end_src
+
+***** TODO Debug: not sending
+
+#+begin_src text
+Wrote /home/vidbina/mail/asabina-gmbh/Drafts/cur/1658705468.5cae8ee4619f75e9.vidbina-dell-xps-9360:2,DS
+[mu4e] Saved (19 lines)
+Sending...
+Sending via mail...
+message-multi-smtp-send-mail: Wrong number of arguments: ((bootstrap-version t) (sync-func &rest args) (message "Starting asynchronous smtpmail-send-queued-mail") (async-start (list 'lambda nil '(require 'smtpmail) (async-inject-variables "\\`\\(smtpmail\\|async-smtpmail\\|\\(user-\\)?mail\\)-\\|auth-sources\\|epg\\|nsm" nil "\\`\\(mail-header-format-function\\|smtpmail-address-buffer\\|mail-mode-abbrev-table\\)") (list sync-func)) #'(lambda (&optional _unused) (message "Done sending queued mail in the background.")))), 0Invalid face attribute :inherit mu4e-contact-face
+#+end_src
 
 *** PROTOTYPE <<notmuch>> Notmuch
 :LOGBOOK:
