@@ -738,11 +738,14 @@
   (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
   (mu4e-update-interval 300 "Auto index every 5 minutes"))
 
-(with-eval-after-load 'sendmail
-  (customize-set-variable 'smtpmail-debug-info t
-                          "Enable debugging")
-  (customize-set-variable 'mail-specify-envelope-from nil)
-  (customize-set-variable 'mail-envelope-from nil))
+(use-package sendmail
+  :straight (:type built-in)
+  :custom
+  (send-mail-function 'smtpmail-send-it "Default to block")
+  (message-send-mail-function 'smtpmail-send-it "Default to block")
+  (smtpmail-debug-info t "Enable debugging")
+  (mail-specify-envelope-from nil "Don't try to be smart, use user-mail-address")
+  (mail-envelope-from nil "Don't try to be smart, use user-mail-address"))
 
 (with-eval-after-load 'message
   (customize-set-variable 'message-sendmail-f-is-evil t

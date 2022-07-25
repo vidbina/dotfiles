@@ -3882,8 +3882,17 @@ Observe the snippets below for a excerpt of how sendmail.el and message.el compo
 I have a few sendmail settings that I want loaded, but we bumped into errors here about =sendmail-program= being undefined that suggests that sendmail isn't fully autoloaded at this point in the code and instead of moveing everything to a later point, we will use =with-eval-after-load= instead to trigger our customizations after package loading.
 
 #+begin_src elisp :noweb yes :tangle init.el
-(with-eval-after-load 'sendmail
+(use-package sendmail
+  :straight (:type built-in)
+  :custom
   <<sendmail-custom>>)
+#+end_src
+
+**** Synchronous mail sending with Sendmail
+
+#+begin_src elisp :noweb-ref sendmail-custom
+(send-mail-function 'smtpmail-send-it "Default to block")
+(message-send-mail-function 'smtpmail-send-it "Default to block")
 #+end_src
 
 **** COMMENT Asynchronous mail sending with Sendmail
@@ -3906,8 +3915,7 @@ smtpmail-async
 For visibility of our SMTP traffic, we enable debugging of SMTP output to a buffer named =*trace of SMTP session to <SOMEWHERE>*=.
 
 #+begin_src elisp :noweb-ref sendmail-custom
-(customize-set-variable 'smtpmail-debug-info t
-                        "Enable debugging")
+(smtpmail-debug-info t "Enable debugging")
 #+end_src
 
 **** COMMENT Set msmtp as sendmail-compatible program
@@ -3915,8 +3923,8 @@ For visibility of our SMTP traffic, we enable debugging of SMTP output to a buff
 Let's use =msmtp=, which is sendmail compatible, as the executable to be called. For a snappier experience one may also consider using =msmtpq= to locally queue messages in order to improve the UX.
 
 #+begin_src elisp :noweb-ref sendmail-custom
-(customize-set-variable 'sendmail-program (executable-find "msmtpq")
-                        "Use msmtp as our sendmail compatible sender")
+(sendmail-program (executable-find "msmtpq")
+                  "Use msmtp as our sendmail compatible sender")
 #+end_src
 
 Consult the [[https://marlam.de/msmtp/][msmtp website]] for more information.
@@ -3932,8 +3940,8 @@ Check out the definition of function =sendmail-send-it= for a glimpse into how s
 In our case, instead of setting /from/ throught the =-f= argument we can use the =-a account= CLI option to specify the context for sendmail. We still have to provide some logic to make this work but disabling sendmail from accidentally setting =-f envelope-from= when calling sendmail is a good starting point to avoid some embarassing mishaps.
 
 #+begin_src elisp :noweb-ref sendmail-custom
-(customize-set-variable 'mail-specify-envelope-from nil)
-(customize-set-variable 'mail-envelope-from nil)
+(mail-specify-envelope-from nil "Don't try to be smart, use user-mail-address")
+(mail-envelope-from nil "Don't try to be smart, use user-mail-address")
 #+end_src
 
 #+begin_center
