@@ -3416,12 +3416,11 @@ Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.ht
 
 For convenience, remember to prefix the update command by entering it as =C-u u= in a *mu4e-main* buffer or by entering =C-u C-c C-u= from the *mu4e-headers* buffer such that the update commands *run in the background*.
 
-**** TODO Hack: Populate =:after=
-
-The expression ~(:all)~ is invalid and thus we need to figure out a way to produce a valid config when nothing is tangled to =<<mu4e-after>>= which we populate into the =:all= form. I'm dirtily doing this by configuring this package to load after Org as Org will be there anyways.
+We will load mu4e after the [[message.el]] and [[sendmail.el]] packages are loaded.
 
 #+begin_src elisp :noweb-ref mu4e-after
-org
+message
+sendmail
 #+end_src
 
 **** TODO Customizations
@@ -3877,7 +3876,7 @@ Observe the snippets below for a excerpt of how sendmail.el and message.el compo
 
 #+end_details
 
-*** sendmail.el
+*** <<sendmail.el>> sendmail.el
 
 I have a few sendmail settings that I want loaded, but we bumped into errors here about =sendmail-program= being undefined that suggests that sendmail isn't fully autoloaded at this point in the code and instead of moveing everything to a later point, we will use =with-eval-after-load= instead to trigger our customizations after package loading.
 
@@ -3948,7 +3947,7 @@ In our case, instead of setting /from/ throught the =-f= argument we can use the
 💡 My msmtp configuration does not define a default account in order to make account management very explicit. I don't accidentally want emails leaving my machine from a wrong SMTP server because msmtp assumed a default account.
 #+end_center
 
-*** message.el
+*** <<message.el>> message.el
 
 #+begin_src elisp :noweb yes :tangle init.el
 (use-package message
