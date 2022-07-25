@@ -3888,7 +3888,7 @@ I have a few sendmail settings that I want loaded, but we bumped into errors her
   <<sendmail-custom>>)
 #+end_src
 
-**** Synchronous mail sending with Sendmail
+We default by setting the mail functions to their blocking variety:
 
 #+begin_src elisp :noweb-ref sendmail-custom
 (send-mail-function 'smtpmail-send-it "Default to block")
@@ -3951,8 +3951,16 @@ In our case, instead of setting /from/ throught the =-f= argument we can use the
 *** message.el
 
 #+begin_src elisp :noweb yes :tangle init.el
-(with-eval-after-load 'message
+(use-package message
+  :straight (:type built-in)
+  :custom
   <<message-custom>>)
+#+end_src
+
+We set the mail directory:
+
+#+begin_src elisp :noweb-ref message-custom
+(message-directory "~/mail/")
 #+end_src
 
 **** COMMENT Set MTA
@@ -3960,25 +3968,20 @@ In our case, instead of setting /from/ throught the =-f= argument we can use the
 The message.el package provides a more general interfaces for message sending, so we will configure message.el to use sendmail as out MTA of choice:
 
 #+begin_src elisp :noweb-ref message-custom
-(customize-set-variable 'message-send-mail-function
-                        'message-send-mail-with-sendmail
-                        "Use sendmail as our MTA")
+(message-send-mail-function 'message-send-mail-with-sendmail "Use sendmail as our MTA")
 #+end_src
 
 **** Envelope From
 
 #+begin_src elisp :noweb-ref message-custom
-(customize-set-variable 'message-sendmail-f-is-evil t
-                        "Avoid setting -f (--from) when calling sendmail")
-(customize-set-variable 'message-sendmail-envelope-from 'header
-                        "Use From: header")
+(message-sendmail-f-is-evil t "Avoid setting -f (--from) when calling sendmail")
+(message-sendmail-envelope-from 'header "Use From: header")
 #+end_src
 
 **** Misc
 
 #+begin_src elisp :noweb-ref message-custom
-(customize-set-variable 'message-kill-buffer-on-exit t
-                        "Kill a buffer once a message is sent")
+(message-kill-buffer-on-exit t "Kill a buffer once a message is sent")
 #+end_src
 
 * 🏁 Finale

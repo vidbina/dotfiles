@@ -747,13 +747,13 @@
   (mail-specify-envelope-from nil "Don't try to be smart, use user-mail-address")
   (mail-envelope-from nil "Don't try to be smart, use user-mail-address"))
 
-(with-eval-after-load 'message
-  (customize-set-variable 'message-sendmail-f-is-evil t
-                          "Avoid setting -f (--from) when calling sendmail")
-  (customize-set-variable 'message-sendmail-envelope-from 'header
-                          "Use From: header")
-  (customize-set-variable 'message-kill-buffer-on-exit t
-                          "Kill a buffer once a message is sent"))
+(use-package message
+  :straight (:type built-in)
+  :custom
+  (message-directory "~/mail/")
+  (message-sendmail-f-is-evil t "Avoid setting -f (--from) when calling sendmail")
+  (message-sendmail-envelope-from 'header "Use From: header")
+  (message-kill-buffer-on-exit t "Kill a buffer once a message is sent"))
 
 (message "💥 Debug on error is %s" debug-on-error)
 
