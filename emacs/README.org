@@ -3383,10 +3383,6 @@ Sometimes the auto-save file has the following content:
 
 For mail, there are a couple of options within Emacs. First, one needs to understand that a mail user agent (MUA) is a tool used to compose and read messages and a mail transfer agent (MTA) is a tool to send messages.
 
-** DONE Move into top-level section
-
-I navigte to this section often enough to warrant bumping this up.
-
 ** MUA (Mail User Agent)
 
 You will find the following MTA options in Emacs:
@@ -3550,6 +3546,21 @@ I have a few sendmail settings that I want loaded, but we bumped into errors her
   <<sendmail-custom>>)
 #+end_src
 
+**** COMMENT Asynchronous mail sending with Sendmail
+
+#+begin_src elisp :noweb-ref async-config
+(require 'smtpmail-async)
+#+end_src
+
+#+begin_src elisp :noweb-ref async-custom
+(send-mail-function 'async-smtpmail-send-it)
+(message-send-mail-function 'async-smtpmail-send-it)
+#+end_src
+
+#+begin_src elisp :noweb-ref mu4e-after
+smtpmail-async
+#+end_src
+
 **** Enable debugging mode
 
 For visibility of our SMTP traffic, we enable debugging of SMTP output to a buffer named =*trace of SMTP session to <SOMEWHERE>*=.
@@ -3620,21 +3631,6 @@ The message.el package provides a more general interfaces for message sending, s
 #+begin_src elisp :noweb-ref message-custom
 (customize-set-variable 'message-kill-buffer-on-exit t
                         "Kill a buffer once a message is sent")
-#+end_src
-
-** COMMENT Asynchronous mail sending with Sendmail
-
-#+begin_src elisp :noweb-ref mu4e-after
-smtpmail-async
-#+end_src
-
-#+begin_src elisp :noweb-ref async-config
-(require 'smtpmail-async)
-#+end_src
-
-#+begin_src elisp :noweb-ref async-custom
-(send-mail-function 'async-smtpmail-send-it)
-(message-send-mail-function 'async-smtpmail-send-it)
 #+end_src
 
 ** <<mu4e>> Mu4e
