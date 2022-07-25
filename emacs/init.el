@@ -246,9 +246,6 @@
 ;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
 (setq whitespace-style '(empty face lines-tail tabs trailing))
 
-;; http://ergoemacs.org/emacs/whitespace-mode.html
-(global-whitespace-mode nil)
-
 ;; https://github.com/Malabarba/smart-mode-line
 (use-package smart-mode-line
   :after
@@ -268,7 +265,7 @@
   (auto-revert-mode "♻️")
   (eldoc-mode "el📖")
   (edebug-mode "🐞")
-  (global-whitespace-mode "🏳️")
+  (whitespace-mode "🏳️")
   (visual-line-mode "🌯")
   (mu4e-main-mode "📫")
   (mu4e-headers-mode "📬")

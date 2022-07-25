@@ -1879,9 +1879,6 @@ Visualize white spaces (tabs, spaces, trailing whitespace). The global whitespac
 ;; https://www.emacswiki.org/emacs/WhiteSpace
 ;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
 (setq whitespace-style '(empty face lines-tail tabs trailing))
-
-;; http://ergoemacs.org/emacs/whitespace-mode.html
-(global-whitespace-mode nil)
 #+end_src
 
 ** 🎛️ Modeline
@@ -1926,7 +1923,7 @@ Since the amount of textual information in the Modeline can get overwhelming at 
   (auto-revert-mode "♻️")
   (eldoc-mode "el📖")
   (edebug-mode "🐞")
-  (global-whitespace-mode "🏳️")
+  (whitespace-mode "🏳️")
   (visual-line-mode "🌯")
   (mu4e-main-mode "📫")
   (mu4e-headers-mode "📬")
@@ -4391,7 +4388,7 @@ Writing to the kill ring is done on a buffer-basis. Sometimes one just want to y
 (global-set-key (kbd "C-c v d") 'vidbina/theme-switch-to-dark)
 (global-set-key (kbd "C-c v TAB") 'vidbina/wrap)
 (global-set-key (kbd "C-c v \\") 'visual-fill-column-mode)
-(global-set-key (kbd "C-c v SPC") 'global-whitespace-mode)
+(global-set-key (kbd "C-c v SPC") 'whitespace-mode)
 (global-set-key (kbd "C-c v c") 'completion-at-point)
 (global-set-key (kbd "C-c v O") 'vidbina/orui-node-zoom-padding-set)
 (global-set-key (kbd "C-c v _") 'vidbina/tail-buffer)
