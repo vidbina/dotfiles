@@ -3394,6 +3394,346 @@ You will find the following MTA options in Emacs:
 
 Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.html][Mail Composition Methods (Emacs Manual)]] for more information on how to compose mail in Emacs.
 
+*** TODO <<mu4e>> Mu4e
+
+[[https://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]] is Maildir-friendly mail client that uses mu as a backend.
+
+#+begin_src elisp :noweb yes :tangle init.el
+;; https://www.djcbsoftware.nl/code/mu/mu4e.html
+(use-package mu4e
+  :after (:all
+          <<mu4e-after>>)
+  :straight (:type built-in)
+  :demand t
+  :bind (("C-c M 4" . mu4e))
+  :hook (
+         <<mu4e-hooks>>)
+  :config
+  <<mu4e-config>>
+  :custom
+  <<mu4e-custom>>)
+#+end_src
+
+For convenience, remember to prefix the update command by entering it as =C-u u= in a *mu4e-main* buffer or by entering =C-u C-c C-u= from the *mu4e-headers* buffer such that the update commands *run in the background*.
+
+**** TODO Hack: Populate =:after=
+
+The expression ~(:all)~ is invalid and thus we need to figure out a way to produce a valid config when nothing is tangled to =<<mu4e-after>>= which we populate into the =:all= form. I'm dirtily doing this by configuring this package to load after Org as Org will be there anyways.
+
+#+begin_src elisp :noweb-ref mu4e-after
+org
+#+end_src
+
+**** TODO Customizations
+
+We set mu4e as the MUA:
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
+#+end_src
+
+***** TODO Compose
+
+We enable =format=flowed= to allow mail viewers to self-determine a suitable wrapping strategy. See a [[https://news.ycombinator.com/item?id=20514314][HN thread]] on [[https://useplaintext.email/][Use plaintext email]]. This choice isn't universally supported as you may find in the [[https://wiki.openstack.org/wiki/MailingListEtiquette][Mailing List Etiquette]] on OpenStack.
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-compose-format-flowed t "Compose messages as format=flowed")
+#+end_src
+
+Also remember to bottom-post. This is something that I have to internalize myself.
+
+***** TODO Send Behavior
+
+The pre-context mu4e setup, by default expects a sent folder. By changing the sent messages behavior, we can avoid and then set the behavior again when we context switch.
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-sent-messages-behavior 'delete "Switch this behavior to 'sent within the appropriate contexts where directory mu4e-sent-folder is correctly set")
+#+end_src
+
+***** TODO Confirmation on quiting mu4e
+
+#+begin_src elisp :noweb-ref my4e-custom
+('mu4e-confirm-quit nil "Stop asking to quit, it bugs me out")
+#+end_src
+
+***** TODO Attaching files through Dired
+
+As outlined in the [[https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html][mu4e appendix]], we enable the =dired-mode-hook= (see [[https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html][Dired]]) that enables us to use =C-c RET C-a= to attach files to new or existing mu4e emails.
+
+#+begin_src elisp :noweb-ref mu4e-hooks
+;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
+(dired-mode . turn-on-gnus-dired-mode)
+#+end_src
+
+Require =gnus-dired=:
+
+#+begin_src elisp :noweb-ref mu4e-config
+;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
+(require 'gnus-dired)
+#+end_src
+
+The original =gnus-dired='s =gnus-dired-mail-buffers= returns
+1. all message buffers in case =gnus-dired-mail-mode= is either =message-user-agent= or =gnus-user-agent= (unlikely to be the case for me since I'm using mu4e or notmuch) or
+2. a filtered list of buffers that have =mail-mode= as their major mode.
+
+We override it to return a list of buffers that derive =message-mode=.
+
+#+begin_src elisp :noweb-ref mu4e-config
+;; make the `gnus-dired-mail-buffers' function also work on
+;; message-mode derived modes, such as mu4e-compose-mode
+(defun gnus-dired-mail-buffers ()
+  "Return a list of active message buffers."
+  (let (buffers)
+    (save-current-buffer
+      (dolist (buffer (buffer-list t))
+        (set-buffer buffer)
+        (when (and (derived-mode-p 'message-mode)
+                   (null message-sent-message-via))
+          (push (buffer-name buffer) buffers))))
+    (nreverse buffers)))
+#+end_src
+
+We set our preferred mail composition package:
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(gnus-dired-mail-mode 'mu4e-user-agent)
+#+end_src
+
+**** TODO Contexts
+
+In mu4e we can use contexts to manage the different "contexts" in which we write and read email.
+
+We configure mu4e to try to detect a context based using the match or :
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-context-policy 'ask)
+#+end_src
+
+During composing we do the same, just =ask-if-none=:
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-compose-context-policy 'ask)
+#+end_src
+
+Switching contexts during e-mail drafting can be achieved with the =C-c ;= binding. Just remember that.
+
+***** TODO Example
+
+The [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts-example.html][example contexts in the mu4e documentation]] should be sufficiently detailed to provide you insight into how to write your own. We can write contexts into our configuration as follows:
+
+#+begin_src elisp :noweb-ref mu4e-config
+(setq mu4e-contexts
+      `( ,(make-mu4e-context
+           :name "Sample"
+           :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
+           :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
+           :vars '(( user-mail-address . "foo@example.com")))))
+#+end_src
+
+The better approach, however is to write contexts through a personal file that is not tracked in this public repository. 
+
+***** TODO Indexing
+
+I started the config by turning indexing off indexing in order to handle this through a systemd service instead and unburden Emacs but mu4e doesn't play well with not managing indexing itself so we're going to let mu4e handle its index.
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-update-in-background t "Index in background")
+#+end_src
+
+****** TODO Debug Mode
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-mu-debug t "Run mu in debug mode")
+#+end_src
+
+****** TODO Strategies
+
+I define two indexing strategies below of which you are only to keep one uncommented at a time.
+
+******* TODO Behavior: Lean Indexing
+
+The [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing][mu4e manual discusses how to speed up indexing]] which is something that we deliberately turn on because indexing takes a long time my machine and effectively locks me out of any mu4e use while ongoing.
+
+#+begin_comment
+💡 For the sake of index integrity, consider regularly running a full (clean) re-indexing of your maildirs.
+#+end_comment
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-cleanup nil)
+#+end_src
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-lazy-check t)
+#+end_src
+
+******** WIP Define heavy indexing job post hibernate
+
+Solve the "locked out of mu4e because I'm indexing" problem by defining a heavier indexing job before or after hibernate to just make sure a thorough re-indexing happens before every /session/. Perhaps, before hibernate is better because when returning from suspend, I can imagine that there are plenty of things that I quickly want to get done, while I would be forgiving if I tell the machine to hibernate but it still takes it sweet time to continue a indexing chore before properly suspending.
+
+******* TODO COMMENT Behavior: Thorough Indexing
+
+The [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing][mu4e manual discusses how to speed up indexing]] which is something that we deliberately turn off to maximize index integrity -- even if it will cost a bit more time.
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-cleanup t "Run full cleanup phase after indexing")
+#+end_src
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-index-lazy-check nil "Don't use indexing shortcuts")
+#+end_src
+
+See [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html][Retrieval and indexing with mu4e (mu4e manual)]] for more insight on how to configure mail retrieval and indexing.
+
+***** TODO Updating
+
+****** TODO Retrieve outside of mu4e
+
+I have configured mbsync to retrieve mail in my personal configuration
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
+(mu4e-update-interval 300 "Auto index every 5 minutes")
+#+end_src
+
+****** TODO COMMENT Retrieve in mu4e
+
+#+begin_src elisp :noweb-ref mu4e-config
+;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Example-setup
+(setq mu4e-get-mail-command "offlineimap"   ; or fetchmail, or ...
+      mu4e-update-interval nil)             ; update every 5 minutes
+#+end_src
+
+**** TODO COMMENT Sendmail with Queueing
+
+Based on Botha's [[https://vxlabs.com/2019/07/03/send-queued-mails-in-background-with-mu4e/][Sending queued mails in the background with mu4e]] article, we will load =smtpmail-async=, configure SMTP behavior and and advise the sender function to get things done async.
+
+#+begin_src elisp :noweb-ref mu4e-after
+smtpmail-async
+#+end_src
+
+We customize some SMTP variables as needed:
+
+https://www.djcbsoftware.nl/code/mu/mu4e/Queuing-mail.html
+
+#+begin_src elisp :noweb-ref mu4e-custom
+;;(send-mail-function 'async-smtpmail-send-queued-mail)
+;;(message-send-mail-function 'async-smtpmail-send-queued-mail)
+(smtpmail-queue-mail t)
+(smtpmail-queue-dir "~/.msmtp.queue")
+#+end_src
+
+***** TODO COMMENT Advise to function =smtp-send-queued-mail=
+
+We define some advisers to get the job done (I'm super sleepy right now, so bear with me for the poor prose):
+
+#+begin_src elisp :tangle init.el
+(defun async-smtpmail-send-queued-mail (sync-func &rest args)
+  (message "Starting asynchronous smtpmail-send-queued-mail")
+  (async-start
+   `(lambda ()
+      (require 'smtpmail)
+      ;; see smtpmail-async.el - we inject the same variables
+      ,(async-inject-variables
+        "\\`\\(smtpmail\\|async-smtpmail\\|\\(user-\\)?mail\\)-\\|auth-sources\\|epg\\|nsm"
+        nil
+        "\\`\\(mail-header-format-function\\|smtpmail-address-buffer\\|mail-mode-abbrev-table\\)")
+      ;; if we don't use the above inject we can pass in specific variables like this:
+      ;; (setq smtpmail-queue-dir ,smtpmail-queue-dir)
+      ;; (setq smtpmail-smtp-server ,smtpmail-smtp-server)
+      (,sync-func))
+   (lambda (&optional _unused)
+     (message "Done sending queued mail in the background."))))
+
+;; https://emacs.stackexchange.com/a/14827/8743 has more, err, advice.
+(advice-add #'smtpmail-send-queued-mail :around #'async-smtpmail-send-queued-mail)
+#+end_src
+
+***** WIP Debug: not sending
+
+#+begin_src text
+Wrote /home/vidbina/mail/asabina-gmbh/Drafts/cur/1658705468.5cae8ee4619f75e9.vidbina-dell-xps-9360:2,DS
+[mu4e] Saved (19 lines)
+Sending...
+Sending via mail...
+message-multi-smtp-send-mail: Wrong number of arguments: ((bootstrap-version t) (sync-func &rest args) (message "Starting asynchronous smtpmail-send-queued-mail") (async-start (list 'lambda nil '(require 'smtpmail) (async-inject-variables "\\`\\(smtpmail\\|async-smtpmail\\|\\(user-\\)?mail\\)-\\|auth-sources\\|epg\\|nsm" nil "\\`\\(mail-header-format-function\\|smtpmail-address-buffer\\|mail-mode-abbrev-table\\)") (list sync-func)) #'(lambda (&optional _unused) (message "Done sending queued mail in the background.")))), 0Invalid face attribute :inherit mu4e-contact-face
+#+end_src
+
+*** READY COMMENT <<notmuch>> Notmuch
+:LOGBOOK:
+- State "PROTOTYPE"  from "TODO"       [2022-06-23 Thu 21:51] \\
+  with linking in place the setup is more or less prototype-worthy
+:END:
+
+- Leo Gaskin's [[https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch][notmuch config]]
+- Mu4e, Gnus and Notmuch comparison thread on [[https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/][reddit]]
+- Jethro Kuan's (author of Org-roam) [[https://github.com/jethrokuan/.emacs.d/blob/master/init.el][notmuch config]]
+
+#+begin_src elisp :tangle init.el
+;; https://git.notmuchmail.org/git/notmuch
+(use-package notmuch
+  :straight (:type built-in)
+  :if (executable-find "notmuch")
+  :commands (notmuch
+             notmuch-tree
+             notmuch-search
+             notmuch-hello)
+  :bind (("C-c M n" . notmuch)
+         :map notmuch-search-mode-map
+         ("SPC" . vidbina/notmuch-toggle-inbox))
+  :init
+  (evil-collection-notmuch-setup)
+  :hook (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
+  :custom
+  (notmuch-always-prompt-for-sender t)
+  (notmuch-archive-tags '("-inbox" "-unread"))
+  (notmuch-crypto-process-mime t)
+  (notmuch-hello-sections '(notmuch-hello-insert-saved-searches))
+  (notmuch-labeler-hide-known-labels t)
+  (notmuch-message-headers '("Subject" "To" "Cc" "Bcc"))
+  (notmuch-search-oldest-first nil)
+  :config
+  (notmuch-address-harvest)
+  (require 'ol-notmuch))
+  #+end_src
+
+Notmuch has the following modes:
+- *hello* which presents the starting page
+- *search* which presents search results to a query
+- *tree* which presents a thread and the message hierarchy
+- *show* which presents the email
+
+For insight into the evil bindings for notmuch, go have a look at the definition of ~evil-collection-notmuch-setup~ but for convenience, here are some bindings that you will likely rely on quite a bit:
+- =cc= or =C= to compose mail with ~notmuch-mua-new-mail~ (like mu4e)
+- =cR= reply
+- =cf= forward
+- === flag
+- =+= add tag
+- =-= remove tag
+- =*= tag all
+- =s= search
+  - stash search in *search mode*
+  - show stash in *show mode*
+- =q= bury of kill buffer
+- =g?= help or version information at notmuch-hello view
+- =p= ~notmuch-show-save-attachments~ (like mu4e)
+- =gd= goto address at point
+
+**** PROTOTYPE Face for "deleted" tag
+
+We can customize the face messages that we want to mark as deleted. The relevant section of my custom.el section at [2022-06-30 Thu 13:52] is displayed below for convenience:
+
+#+begin_src elisp
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :height 203))))
+ '(notmuch-tag-deleted ((t (:foreground "#a60000" :inverse-video t :strike-through "#a60000")))))
+#+end_src
+
+The =notmuch-tag-deleted= bit is customization of interest and it should be managed through the customization facility in Emacs
+
 ** MTA (Mail Transport Agent)
 
 We configure *sendmail* to serve as our MTA (Mail Transport Agent) of choice to handle the sending of email. For sending (shipping) mail in Emacs, we have the following options:
@@ -3401,6 +3741,8 @@ We configure *sendmail* to serve as our MTA (Mail Transport Agent) of choice to 
 - feedmail, which does some "massaging" (think transformations) on outgoing messages
 - smtpmail, which directly delivers mail to SMTP mail server from an Emacs buffer
 - mailclient, which triggers the system's mail client to continue editing of the message before shipping it off
+
+*** Background
 
 Some of the functions that are relevant:
 - *sendmail-send-it*
@@ -3410,8 +3752,6 @@ Some of the functions that are relevant:
 - +*message-smtpmail-send-it*+ calls =smtpmail-send-it= after evaluating =message-send-mail-hook= but is obsolete and *message-use-send-mail-function* is recommended instead which does almost the same (running =message-send-mail-hook= and then firing =send-mail-function=)
 
 Since we are using sendmail (or something sendmail-compatible like msmtp), we will be customizing some sendmail.el and message.el variables to refect our setup details.
-
-*** Additional Background
 
 Piecing the ecosystem of Emacs function and variables together is a lot easier when there is a visual overview, so here goes.
 
@@ -3632,346 +3972,6 @@ The message.el package provides a more general interfaces for message sending, s
 (customize-set-variable 'message-kill-buffer-on-exit t
                         "Kill a buffer once a message is sent")
 #+end_src
-
-** <<mu4e>> Mu4e
-
-[[https://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]] is Maildir-friendly mail client that uses mu as a backend.
-
-#+begin_src elisp :noweb yes :tangle init.el
-;; https://www.djcbsoftware.nl/code/mu/mu4e.html
-(use-package mu4e
-  :after (:all
-          <<mu4e-after>>)
-  :straight (:type built-in)
-  :demand t
-  :bind (("C-c M 4" . mu4e))
-  :hook (
-         <<mu4e-hooks>>)
-  :config
-  <<mu4e-config>>
-  :custom
-  <<mu4e-custom>>)
-#+end_src
-
-For convenience, remember to prefix the update command by entering it as =C-u u= in a *mu4e-main* buffer or by entering =C-u C-c C-u= from the *mu4e-headers* buffer such that the update commands *run in the background*.
-
-*** Hack: Populate =:after=
-
-The expression ~(:all)~ is invalid and thus we need to figure out a way to produce a valid config when nothing is tangled to =<<mu4e-after>>= which we populate into the =:all= form. I'm dirtily doing this by configuring this package to load after Org as Org will be there anyways.
-
-#+begin_src elisp :noweb-ref mu4e-after
-org
-#+end_src
-
-*** Customizations
-
-We set mu4e as the MUA:
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
-#+end_src
-
-**** Compose
-
-We enable =format=flowed= to allow mail viewers to self-determine a suitable wrapping strategy. See a [[https://news.ycombinator.com/item?id=20514314][HN thread]] on [[https://useplaintext.email/][Use plaintext email]]. This choice isn't universally supported as you may find in the [[https://wiki.openstack.org/wiki/MailingListEtiquette][Mailing List Etiquette]] on OpenStack.
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-compose-format-flowed t "Compose messages as format=flowed")
-#+end_src
-
-Also remember to bottom-post. This is something that I have to internalize myself.
-
-**** Send Behavior
-
-The pre-context mu4e setup, by default expects a sent folder. By changing the sent messages behavior, we can avoid and then set the behavior again when we context switch.
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-sent-messages-behavior 'delete "Switch this behavior to 'sent within the appropriate contexts where directory mu4e-sent-folder is correctly set")
-#+end_src
-
-**** Confirmation on quiting mu4e
-
-#+begin_src elisp :noweb-ref my4e-custom
-('mu4e-confirm-quit nil "Stop asking to quit, it bugs me out")
-#+end_src
-
-**** Attaching files through Dired
-
-As outlined in the [[https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html][mu4e appendix]], we enable the =dired-mode-hook= (see [[https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html][Dired]]) that enables us to use =C-c RET C-a= to attach files to new or existing mu4e emails.
-
-#+begin_src elisp :noweb-ref mu4e-hooks
-;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
-(dired-mode . turn-on-gnus-dired-mode)
-#+end_src
-
-Require =gnus-dired=:
-
-#+begin_src elisp :noweb-ref mu4e-config
-;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
-(require 'gnus-dired)
-#+end_src
-
-The original =gnus-dired='s =gnus-dired-mail-buffers= returns
-1. all message buffers in case =gnus-dired-mail-mode= is either =message-user-agent= or =gnus-user-agent= (unlikely to be the case for me since I'm using mu4e or notmuch) or
-2. a filtered list of buffers that have =mail-mode= as their major mode.
-
-We override it to return a list of buffers that derive =message-mode=.
-
-#+begin_src elisp :noweb-ref mu4e-config
-;; make the `gnus-dired-mail-buffers' function also work on
-;; message-mode derived modes, such as mu4e-compose-mode
-(defun gnus-dired-mail-buffers ()
-  "Return a list of active message buffers."
-  (let (buffers)
-    (save-current-buffer
-      (dolist (buffer (buffer-list t))
-        (set-buffer buffer)
-        (when (and (derived-mode-p 'message-mode)
-                   (null message-sent-message-via))
-          (push (buffer-name buffer) buffers))))
-    (nreverse buffers)))
-#+end_src
-
-We set our preferred mail composition package:
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(gnus-dired-mail-mode 'mu4e-user-agent)
-#+end_src
-
-*** Contexts
-
-In mu4e we can use contexts to manage the different "contexts" in which we write and read email.
-
-We configure mu4e to try to detect a context based using the match or :
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-context-policy 'ask)
-#+end_src
-
-During composing we do the same, just =ask-if-none=:
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-compose-context-policy 'ask)
-#+end_src
-
-Switching contexts during e-mail drafting can be achieved with the =C-c ;= binding. Just remember that.
-
-**** Example
-
-The [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts-example.html][example contexts in the mu4e documentation]] should be sufficiently detailed to provide you insight into how to write your own. We can write contexts into our configuration as follows:
-
-#+begin_src elisp :noweb-ref mu4e-config
-(setq mu4e-contexts
-      `( ,(make-mu4e-context
-           :name "Sample"
-           :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
-           :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
-           :vars '(( user-mail-address . "foo@example.com")))))
-#+end_src
-
-The better approach, however is to write contexts through a personal file that is not tracked in this public repository. 
-
-**** Indexing
-
-I started the config by turning indexing off indexing in order to handle this through a systemd service instead and unburden Emacs but mu4e doesn't play well with not managing indexing itself so we're going to let mu4e handle its index.
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-index-update-in-background t "Index in background")
-#+end_src
-
-***** Debug Mode
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-mu-debug t "Run mu in debug mode")
-#+end_src
-
-***** Strategies
-
-I define two indexing strategies below of which you are only to keep one uncommented at a time.
-
-****** Behavior: Lean Indexing
-
-The [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing][mu4e manual discusses how to speed up indexing]] which is something that we deliberately turn on because indexing takes a long time my machine and effectively locks me out of any mu4e use while ongoing.
-
-#+begin_comment
-💡 For the sake of index integrity, consider regularly running a full (clean) re-indexing of your maildirs.
-#+end_comment
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-index-cleanup nil)
-#+end_src
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-index-lazy-check t)
-#+end_src
-
-******* TODO Define heavy indexing job post hibernate
-
-Solve the "locked out of mu4e because I'm indexing" problem by defining a heavier indexing job before or after hibernate to just make sure a thorough re-indexing happens before every /session/. Perhaps, before hibernate is better because when returning from suspend, I can imagine that there are plenty of things that I quickly want to get done, while I would be forgiving if I tell the machine to hibernate but it still takes it sweet time to continue a indexing chore before properly suspending.
-
-****** COMMENT Behavior: Thorough Indexing
-
-The [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing][mu4e manual discusses how to speed up indexing]] which is something that we deliberately turn off to maximize index integrity -- even if it will cost a bit more time.
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-index-cleanup t "Run full cleanup phase after indexing")
-#+end_src
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-index-lazy-check nil "Don't use indexing shortcuts")
-#+end_src
-
-See [[https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html][Retrieval and indexing with mu4e (mu4e manual)]] for more insight on how to configure mail retrieval and indexing.
-
-**** Updating
-
-***** Retrieve outside of mu4e
-
-I have configured mbsync to retrieve mail in my personal configuration
-
-#+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
-(mu4e-update-interval 300 "Auto index every 5 minutes")
-#+end_src
-
-***** COMMENT Retrieve in mu4e
-
-#+begin_src elisp :noweb-ref mu4e-config
-;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Example-setup
-(setq mu4e-get-mail-command "offlineimap"   ; or fetchmail, or ...
-      mu4e-update-interval nil)             ; update every 5 minutes
-#+end_src
-
-*** COMMENT Sendmail with Queueing
-
-Based on Botha's [[https://vxlabs.com/2019/07/03/send-queued-mails-in-background-with-mu4e/][Sending queued mails in the background with mu4e]] article, we will load =smtpmail-async=, configure SMTP behavior and and advise the sender function to get things done async.
-
-#+begin_src elisp :noweb-ref mu4e-after
-smtpmail-async
-#+end_src
-
-We customize some SMTP variables as needed:
-
-https://www.djcbsoftware.nl/code/mu/mu4e/Queuing-mail.html
-
-#+begin_src elisp :noweb-ref mu4e-custom
-;;(send-mail-function 'async-smtpmail-send-queued-mail)
-;;(message-send-mail-function 'async-smtpmail-send-queued-mail)
-(smtpmail-queue-mail t)
-(smtpmail-queue-dir "~/.msmtp.queue")
-#+end_src
-
-**** COMMENT Advise to function =smtp-send-queued-mail=
-
-We define some advisers to get the job done (I'm super sleepy right now, so bear with me for the poor prose):
-
-#+begin_src elisp :tangle init.el
-(defun async-smtpmail-send-queued-mail (sync-func &rest args)
-  (message "Starting asynchronous smtpmail-send-queued-mail")
-  (async-start
-   `(lambda ()
-      (require 'smtpmail)
-      ;; see smtpmail-async.el - we inject the same variables
-      ,(async-inject-variables
-        "\\`\\(smtpmail\\|async-smtpmail\\|\\(user-\\)?mail\\)-\\|auth-sources\\|epg\\|nsm"
-        nil
-        "\\`\\(mail-header-format-function\\|smtpmail-address-buffer\\|mail-mode-abbrev-table\\)")
-      ;; if we don't use the above inject we can pass in specific variables like this:
-      ;; (setq smtpmail-queue-dir ,smtpmail-queue-dir)
-      ;; (setq smtpmail-smtp-server ,smtpmail-smtp-server)
-      (,sync-func))
-   (lambda (&optional _unused)
-     (message "Done sending queued mail in the background."))))
-
-;; https://emacs.stackexchange.com/a/14827/8743 has more, err, advice.
-(advice-add #'smtpmail-send-queued-mail :around #'async-smtpmail-send-queued-mail)
-#+end_src
-
-**** TODO Debug: not sending
-
-#+begin_src text
-Wrote /home/vidbina/mail/asabina-gmbh/Drafts/cur/1658705468.5cae8ee4619f75e9.vidbina-dell-xps-9360:2,DS
-[mu4e] Saved (19 lines)
-Sending...
-Sending via mail...
-message-multi-smtp-send-mail: Wrong number of arguments: ((bootstrap-version t) (sync-func &rest args) (message "Starting asynchronous smtpmail-send-queued-mail") (async-start (list 'lambda nil '(require 'smtpmail) (async-inject-variables "\\`\\(smtpmail\\|async-smtpmail\\|\\(user-\\)?mail\\)-\\|auth-sources\\|epg\\|nsm" nil "\\`\\(mail-header-format-function\\|smtpmail-address-buffer\\|mail-mode-abbrev-table\\)") (list sync-func)) #'(lambda (&optional _unused) (message "Done sending queued mail in the background.")))), 0Invalid face attribute :inherit mu4e-contact-face
-#+end_src
-
-** COMMENT PROTOTYPE <<notmuch>> Notmuch
-:LOGBOOK:
-- State "PROTOTYPE"  from "TODO"       [2022-06-23 Thu 21:51] \\
-  with linking in place the setup is more or less prototype-worthy
-:END:
-
-- Leo Gaskin's [[https://github.com/leotaku/literate-emacs/blob/master/init.org#notmuch][notmuch config]]
-- Mu4e, Gnus and Notmuch comparison thread on [[https://www.reddit.com/r/emacs/comments/ebite6/mu4e_vs_gnus_vs_notmuch_for_emacs_email/][reddit]]
-- Jethro Kuan's (author of Org-roam) [[https://github.com/jethrokuan/.emacs.d/blob/master/init.el][notmuch config]]
-
-#+begin_src elisp :tangle init.el
-;; https://git.notmuchmail.org/git/notmuch
-(use-package notmuch
-  :straight (:type built-in)
-  :if (executable-find "notmuch")
-  :commands (notmuch
-             notmuch-tree
-             notmuch-search
-             notmuch-hello)
-  :bind (("C-c M n" . notmuch)
-         :map notmuch-search-mode-map
-         ("SPC" . vidbina/notmuch-toggle-inbox))
-  :init
-  (evil-collection-notmuch-setup)
-  :hook (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
-  :custom
-  (notmuch-always-prompt-for-sender t)
-  (notmuch-archive-tags '("-inbox" "-unread"))
-  (notmuch-crypto-process-mime t)
-  (notmuch-hello-sections '(notmuch-hello-insert-saved-searches))
-  (notmuch-labeler-hide-known-labels t)
-  (notmuch-message-headers '("Subject" "To" "Cc" "Bcc"))
-  (notmuch-search-oldest-first nil)
-  :config
-  (notmuch-address-harvest)
-  (require 'ol-notmuch))
-  #+end_src
-
-Notmuch has the following modes:
-- *hello* which presents the starting page
-- *search* which presents search results to a query
-- *tree* which presents a thread and the message hierarchy
-- *show* which presents the email
-
-For insight into the evil bindings for notmuch, go have a look at the definition of ~evil-collection-notmuch-setup~ but for convenience, here are some bindings that you will likely rely on quite a bit:
-- =cc= or =C= to compose mail with ~notmuch-mua-new-mail~ (like mu4e)
-- =cR= reply
-- =cf= forward
-- === flag
-- =+= add tag
-- =-= remove tag
-- =*= tag all
-- =s= search
-  - stash search in *search mode*
-  - show stash in *show mode*
-- =q= bury of kill buffer
-- =g?= help or version information at notmuch-hello view
-- =p= ~notmuch-show-save-attachments~ (like mu4e)
-- =gd= goto address at point
-
-*** WIP Face for "deleted" tag
-
-We can customize the face messages that we want to mark as deleted. The relevant section of my custom.el section at [2022-06-30 Thu 13:52] is displayed below for convenience:
-
-#+begin_src elisp
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :height 203))))
- '(notmuch-tag-deleted ((t (:foreground "#a60000" :inverse-video t :strike-through "#a60000")))))
-#+end_src
-
-The =notmuch-tag-deleted= bit is customization of interest and it should be managed through the customization facility in Emacs
 
 * 🏁 Finale
 

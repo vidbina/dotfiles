@@ -693,20 +693,6 @@
                       (symbol-name (buffer-local-value 'major-mode b)))))
    "Filter out special and magit buffers from saving"))
 
-(with-eval-after-load 'sendmail
-  (customize-set-variable 'smtpmail-debug-info t
-                          "Enable debugging")
-  (customize-set-variable 'mail-specify-envelope-from nil)
-  (customize-set-variable 'mail-envelope-from nil))
-
-(with-eval-after-load 'message
-  (customize-set-variable 'message-sendmail-f-is-evil t
-                          "Avoid setting -f (--from) when calling sendmail")
-  (customize-set-variable 'message-sendmail-envelope-from 'header
-                          "Use From: header")
-  (customize-set-variable 'message-kill-buffer-on-exit t
-                          "Kill a buffer once a message is sent"))
-
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
   :after (:all
@@ -751,6 +737,20 @@
   (mu4e-index-lazy-check t)
   (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
   (mu4e-update-interval 300 "Auto index every 5 minutes"))
+
+(with-eval-after-load 'sendmail
+  (customize-set-variable 'smtpmail-debug-info t
+                          "Enable debugging")
+  (customize-set-variable 'mail-specify-envelope-from nil)
+  (customize-set-variable 'mail-envelope-from nil))
+
+(with-eval-after-load 'message
+  (customize-set-variable 'message-sendmail-f-is-evil t
+                          "Avoid setting -f (--from) when calling sendmail")
+  (customize-set-variable 'message-sendmail-envelope-from 'header
+                          "Use From: header")
+  (customize-set-variable 'message-kill-buffer-on-exit t
+                          "Kill a buffer once a message is sent"))
 
 (message "💥 Debug on error is %s" debug-on-error)
 
