@@ -1849,7 +1849,7 @@ In order to minimize visual noise, let's disable the graphical scroll bars, tool
 (show-paren-mode 1)
 #+end_src
 
-** 🧱 Column Indicator
+** COMMENT Column Indicator
 
 Display a border at the position to indicate where the right margin is drawn. This should provide authors a sense of where lines should be broken to keep the text relatively readable.
 
@@ -1859,7 +1859,7 @@ Display a border at the position to indicate where the right margin is drawn. Th
 #+end_src
 
 #+begin_quote
-💡 Even if we have extremely wide displays, reading is a lot easier if the text is width-constrained so do yourself a favor and don't write lines that are painfully long to read.
+💡 Even if we have extremely wide displays, reading is a lot easier if the text is width-constrained so do yourself a favor and use something like [[visual-fill-column]] mode.
 #+end_quote
 
 ** 🏷️ Show Line Numbers
@@ -1952,7 +1952,7 @@ Set =auto-revert-mode-text= since the delight setting isn't robust enough. Perha
 
 ** 🔤 Text
 
-*** Visual Fill Column
+*** <<visual-fill-column>> Visual Fill Column
 
 For the sake of readability, it helps to wrap text at a fixed column instead of filling up whatever screen real estate that is available to a buffer. The [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]] package by Joost Kremers accomplishes just this and can be toggled by running ~(visual-fill-column-mode)~.
 
