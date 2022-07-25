@@ -3486,9 +3486,6 @@ I have configured mbsync to retrieve mail in my personal configuration
       mu4e-update-interval nil)             ; update every 5 minutes
 #+end_src
 
-
-#+end_src
-
 **** COMMENT Sendmail with Queueing
 
 Based on Botha's [[https://vxlabs.com/2019/07/03/send-queued-mails-in-background-with-mu4e/][Sending queued mails in the background with mu4e]] article, we will load =smtpmail-async=, configure SMTP behavior and and advise the sender function to get things done async.
