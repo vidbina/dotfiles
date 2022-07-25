@@ -3189,7 +3189,7 @@ For visibility of our SMTP traffic, we enable debugging of SMTP output to a buff
                         "Enable debugging")
 #+end_src
 
-***** Set msmtp as sendmail-compatible program
+***** COMMENT Set msmtp as sendmail-compatible program
 
 Let's use =msmtp=, which is sendmail compatible, as the executable to be called. For a snappier experience one may also consider using =msmtpq= to locally queue messages in order to improve the UX.
 
@@ -3226,7 +3226,7 @@ In our case, instead of setting /from/ throught the =-f= argument we can use the
   <<message-custom>>)
 #+end_src
 
-***** Set MTA
+***** COMMENT Set MTA
 
 The message.el package provides a more general interfaces for message sending, so we will configure message.el to use sendmail as out MTA of choice:
 
