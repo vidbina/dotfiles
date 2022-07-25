@@ -1972,7 +1972,7 @@ For convenience, I have defined the following global binding to facilitate my la
 (global-set-key (kbd "C-c v \\") 'visual-fill-column-mode)
 #+end_src
 
-*** Adaptive Wrap
+*** <<adaptive-wrap>> Adaptive Wrap
 
 By using [[https://elpa.gnu.org/packages/adaptive-wrap.html][adaptive wrap]] mode, wrapping behaviour can be adapted to respect indentation present at the start of a line. This should simply the readability of long lines in e-mail quotes or in nested code.
 
@@ -3884,6 +3884,18 @@ To debug
 (f-file-p "~/.emacs.d/persp-confs/2022.06.05")
 (persp-load-state-from-file "~/.emacs.d/persp-confs/2022.06.05")
       #+end_src
+
+**** TODO Understand why persp-auto-save file is empty [2022-07-25 Mon 08:55]
+
+Sometimes the auto-save file has the following content:
+
+#+begin_src elisp
+;; -*- mode: emacs-lisp; eval: (progn (pp-buffer) (indent-buffer)) -*-
+((def-persp nil nil
+            (def-wconf nil)
+            (def-params nil)
+            t nil nil))
+#+end_src
 
 * 🏁 Finale
 
