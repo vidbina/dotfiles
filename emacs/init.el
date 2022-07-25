@@ -717,32 +717,6 @@
   (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
   (mu4e-update-interval 300 "Auto index every 5 minutes"))
 
-;; https://git.notmuchmail.org/git/notmuch
-(use-package notmuch
-  :straight (:type built-in)
-  :if (executable-find "notmuch")
-  :commands (notmuch
-             notmuch-tree
-             notmuch-search
-             notmuch-hello)
-  :bind (("C-c M n" . notmuch)
-         :map notmuch-search-mode-map
-         ("SPC" . vidbina/notmuch-toggle-inbox))
-  :init
-  (evil-collection-notmuch-setup)
-  :hook (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
-  :custom
-  (notmuch-always-prompt-for-sender t)
-  (notmuch-archive-tags '("-inbox" "-unread"))
-  (notmuch-crypto-process-mime t)
-  (notmuch-hello-sections '(notmuch-hello-insert-saved-searches))
-  (notmuch-labeler-hide-known-labels t)
-  (notmuch-message-headers '("Subject" "To" "Cc" "Bcc"))
-  (notmuch-search-oldest-first nil)
-  :config
-  (notmuch-address-harvest)
-  (require 'ol-notmuch))
-
 (use-package pdf-tools
   :straight (:type built-in)
   :config
