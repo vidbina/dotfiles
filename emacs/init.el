@@ -406,7 +406,11 @@
                    :host github
                    :repo "jwiegley/emacs-async")
   :config
-  (async-bytecomp-package-mode 1))
+  (async-bytecomp-package-mode 1)
+  (require 'smtpmail-async)
+  :custom
+  (send-mail-function 'async-smtpmail-send-it)
+  (message-send-mail-function 'async-smtpmail-send-it))
 
 ;; https://github.com/victorhge/iedit
 (use-package iedit

@@ -2546,14 +2546,28 @@ Emacs is single-threaded and this makes sense considering that many packages nav
 
 [[https://github.com/jwiegley/emacs-async][Emacs async]] allows for some async code execution which can come in handy for logic that may otherwise have blocked the Emacs main thread for too long.
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/jwiegley/emacs-async
 (use-package async
   :straight (async :type git
                    :host github
                    :repo "jwiegley/emacs-async")
   :config
-  (async-bytecomp-package-mode 1))
+  (async-bytecomp-package-mode 1)
+  <<async-config>>
+  :custom
+  <<async-custom>>)
+#+end_src
+
+*** Async SMTP mailing
+
+#+begin_src elisp :noweb-ref async-config
+(require 'smtpmail-async)
+#+end_src
+
+#+begin_src elisp :noweb-ref async-custom
+(send-mail-function 'async-smtpmail-send-it)
+(message-send-mail-function 'async-smtpmail-send-it)
 #+end_src
 
 ** PROTOTYPE iedit
