@@ -1885,7 +1885,7 @@ Visualize white spaces (tabs, spaces, trailing whitespace). The global whitespac
 
 The modeline is the bar typically at the bottom of a buffer which provides useful information about the system.
 
-*** WIP <<smart-mode-line>> Smart-mode-line
+*** COMMENT <<smart-mode-line>> Smart-mode-line
 
 When switching between different screen configurations, it helps to have the mode-line adapt to the available screen real estate and optimize for readability. This is particularly annoying when I switch to a split-frame layout in which the perspective indicator is out of view.
 

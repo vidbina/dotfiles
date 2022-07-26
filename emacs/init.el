@@ -246,15 +246,6 @@
 ;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
 (setq whitespace-style '(empty face lines-tail tabs trailing))
 
-;; https://github.com/Malabarba/smart-mode-line
-(use-package smart-mode-line
-  :after
-  (:all delight diminish)
-  :straight
-  (smart-mode-line :type git
-                   :host github
-                   :repo "Malabarba/smart-mode-line"))
-
 ;; https://git.savannah.nongnu.org/git/delight.git
 (use-package delight
   :straight (delight :type git
