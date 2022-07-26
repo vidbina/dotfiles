@@ -3394,9 +3394,9 @@ You will find the following MTA options in Emacs:
 
 Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.html][Mail Composition Methods (Emacs Manual)]] for more information on how to compose mail in Emacs.
 
-*** TODO <<mu4e>> Mu4e
+*** WIP <<mu4e>> Mu4e
 
-[[https://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]] is Maildir-friendly mail client that uses mu as a backend.
+[[https://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]] is a Maildir-friendly mail client that uses mu as a backend.
 
 #+begin_src elisp :noweb yes :tangle init.el
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
@@ -3891,7 +3891,13 @@ We default by setting the mail functions to their blocking variety:
 
 #+begin_src elisp :noweb-ref sendmail-custom
 (send-mail-function 'smtpmail-send-it "Default to block")
-(message-send-mail-function 'smtpmail-send-it "Default to block")
+#+end_src
+
+**** COMMENT Use msmtp
+
+#+begin_src elisp :noweb-ref sendmail-custom
+(sendmail-program (executable-find "msmtp")
+                  "Use msmtp as our sendmail compatible sender")
 #+end_src
 
 **** COMMENT Asynchronous mail sending with Sendmail
@@ -3917,7 +3923,7 @@ For visibility of our SMTP traffic, we enable debugging of SMTP output to a buff
 (smtpmail-debug-info t "Enable debugging")
 #+end_src
 
-**** COMMENT Set msmtp as sendmail-compatible program
+**** COMMENT Set msmtpq as sendmail-compatible program
 
 Let's use =msmtp=, which is sendmail compatible, as the executable to be called. For a snappier experience one may also consider using =msmtpq= to locally queue messages in order to improve the UX.
 
@@ -3962,7 +3968,7 @@ We set the mail directory:
 (message-directory "~/mail/")
 #+end_src
 
-**** COMMENT Set MTA
+**** Set MTA
 
 The message.el package provides a more general interfaces for message sending, so we will configure message.el to use sendmail as out MTA of choice:
 

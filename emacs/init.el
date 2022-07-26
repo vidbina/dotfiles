@@ -734,7 +734,6 @@
   :straight (:type built-in)
   :custom
   (send-mail-function 'smtpmail-send-it "Default to block")
-  (message-send-mail-function 'smtpmail-send-it "Default to block")
   (smtpmail-debug-info t "Enable debugging")
   (mail-specify-envelope-from nil "Don't try to be smart, use user-mail-address")
   (mail-envelope-from nil "Don't try to be smart, use user-mail-address"))
@@ -743,6 +742,7 @@
   :straight (:type built-in)
   :custom
   (message-directory "~/mail/")
+  (message-send-mail-function 'message-send-mail-with-sendmail "Use sendmail as our MTA")
   (message-sendmail-f-is-evil t "Avoid setting -f (--from) when calling sendmail")
   (message-sendmail-envelope-from 'header "Use From: header")
   (message-kill-buffer-on-exit t "Kill a buffer once a message is sent"))
