@@ -388,50 +388,89 @@ xsel-copy-url = pkgs.buildEnv (
 );
 #+end_src
 
-****** urxvt
+****** URxvt
 
-#+begin_src nix :noweb-ref x-programs
+#+begin_src nix :noweb yes :noweb-ref x-programs
 programs.urxvt = {
   enable = true;
   package = pkgs.rxvt-unicode;
-  iso14755 = false;
-  extraConfig = {
-    "geometry" = "128x32";
-    "perl-lib" = "${pkgs.rxvt-unicode}/lib/urxvt/perl";
-    "perl-ext-common" = builtins.concatStringsSep "," [
-      "default"
-      "font-size"
-      "url-select"
-      "color-themes"
-    ];
-    "url-select.autocopy" = true;
-    "url-select.launcher" = "${pkgs.xsel-copy-url}/bin/xsel-copy-url";
-    "url-select.underline" = true;
+  <<urxvt-config>>
 
-    "color-themes.themedir" = "${pkgs.vidbina-urxvt-themes}/share";
-    "color-themes.state-file" = "${config.home.homeDirectory}/.urxvt-theme";
-    "color-themes.autosave" = 1;
+  extraConfig = {
+    <<urxvt-extra>>
   };
   fonts = [
-    "xft:DejaVu Sans Mono:pixelsize=28:antialias=true"
-    "xft:Fira Code:size=28:antialias=true"
-    "xft:Iosevka:size=28:antialias=true"
+    <<urxvt-fonts>>
   ];
   keybindings = {
-    "C-minus" = "perl:font-size:decrease";
-    "C-plus" = "perl:font-size:increase";
-    "C-=" = "perl:font-size:reset";
-    "M-u" = "perl:url-select:select_next";
-    "M-C-n" = "perl:color-themes:next";
-    "M-C-p" = "perl:color-themes:prev";
-    "M-C-l" = "perl:color-themes:load-state";
-    "M-C-s" = "perl:color-themes:save-state";
+    <<urxvt-keybindings>>
   };
-  scroll.bar.enable = false;
+  scroll = {
+    <<urxvt-scroll>>
+  };
 };
 #+end_src
 
-******* themes
+******* Fonts
+
+#+begin_src nix :noweb-ref urxvt-fonts
+"xft:DejaVu Sans Mono:pixelsize=28:antialias=true"
+"xft:Fira Code:size=28:antialias=true"
+"xft:Iosevka:size=28:antialias=true"
+#+end_src
+
+******* ISO14755
+
+#+begin_src nix :noweb-ref urxvt-config
+iso14755 = false;
+#+end_src
+
+******* COMMENT Remove border
+
+#+begin_src nix :noweb-ref urxvt-config
+externalBorder = "0px";
+#+end_src
+
+******* Keybindings
+
+#+begin_src nix :noweb-ref urxvt-keybindings
+"C-minus" = "perl:font-size:decrease";
+"C-plus" = "perl:font-size:increase";
+"C-=" = "perl:font-size:reset";
+"M-u" = "perl:url-select:select_next";
+"M-C-n" = "perl:color-themes:next";
+"M-C-p" = "perl:color-themes:prev";
+"M-C-l" = "perl:color-themes:load-state";
+"M-C-s" = "perl:color-themes:save-state";
+#+end_src
+
+******* Scrollbars
+
+#+begin_src nix :noweb-ref urxvt-scroll
+bar.enable = false;
+#+end_src
+
+******* Misc
+
+#+begin_src nix :noweb-ref urxvt-extra
+"geometry" = "128x32";
+"perl-lib" = "${pkgs.rxvt-unicode}/lib/urxvt/perl";
+"perl-ext-common" = builtins.concatStringsSep "," [
+  "default"
+  "font-size"
+  "url-select"
+  "color-themes"
+];
+"url-select.autocopy" = true;
+"url-select.launcher" = "${pkgs.xsel-copy-url}/bin/xsel-copy-url";
+"url-select.underline" = true;
+
+"color-themes.themedir" = "${pkgs.vidbina-urxvt-themes}/share";
+"color-themes.state-file" = "${config.home.homeDirectory}/.urxvt-theme";
+"color-themes.autosave" = 1;
+#+end_src
+
+******* Themes
 
 #+begin_src nix :noweb-ref x-overlays
 vidbina-urxvt-themes =

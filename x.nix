@@ -114,6 +114,7 @@
     enable = true;
     package = pkgs.rxvt-unicode;
     iso14755 = false;
+
     extraConfig = {
       "geometry" = "128x32";
       "perl-lib" = "${pkgs.rxvt-unicode}/lib/urxvt/perl";
@@ -146,7 +147,9 @@
       "M-C-l" = "perl:color-themes:load-state";
       "M-C-s" = "perl:color-themes:save-state";
     };
-    scroll.bar.enable = false;
+    scroll = {
+      bar.enable = false;
+    };
   };
 
   programs.autorandr = {
