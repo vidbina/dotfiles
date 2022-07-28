@@ -4332,7 +4332,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 
 (defun vidbina/mail-sig-file (path)
   "Retrieves a signature text by path"
-  (format "\n\n-- \n%s" (with-temp-buffer
+  (format "%s" (with-temp-buffer
                           (insert-file-contents path)
                           (buffer-string))))
 
@@ -4343,7 +4343,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
     (pcase (or from-field "")
       ((pred (vidbina/mail-sig-match "@example.com"))
        (vidbina/mail-sig-file "/home/example/my-example.sig"))
-      (_ (format "\n\n-- \nBe kind! 🤗")))))
+      (_ (format "Be kind! 🤗")))))
 
 (setq message-signature #'vidbina/mail-sig)
 #+end_src
