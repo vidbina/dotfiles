@@ -2,6 +2,7 @@
 :CUSTOM_ID: vidbinas-dotfiles
 :END:
 #+TITLE: [[https://github.com/vidbina][vidbina]]'s dotfiles
+#+STARTUP: overview
 
 These dotfiles make my life slightly more convenient. Not promising they'll do the same for yours though. 😉
 
