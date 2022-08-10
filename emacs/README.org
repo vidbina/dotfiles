@@ -961,8 +961,10 @@ A good solution for maintaining a Zettelkasten-inspired note-taking system is [[
 #+begin_src elisp :noweb-ref org-roam-init
 (let ((directory (file-truename "~/org/roam/")))
   (make-directory directory t)
-  (setq org-roam-directory directory))
-(setq org-roam-file-extensions '("org" "md"))
+  (setq org-roam-directory directory
+        ;; Define a directory that does not change along with the Org-Roam folder
+        vidbina-org-roam-root-directory directory)
+  (setq org-roam-file-extensions '("org" "md"))
 #+end_src
 
 *** Database
@@ -998,8 +1000,7 @@ The async handler is defined in the following block which allows us to quickly d
 
 #+begin_src elisp :noweb-ref vidbina/org-roam-db-async-sync
 (let* ((label "🕷️ Async Org-Roam sync")
-       (my-org-roam-vars '("org-roam-directory"
-                           "org-roam-db-location"
+       (my-org-roam-vars '("org-roam-db-location"
                            "org-roam-file-extensions"
                            "org-roam-v2-ack"))
        (my-setq-form (async-inject-variables (regexp-opt my-org-roam-vars))))
@@ -1008,6 +1009,7 @@ The async handler is defined in the following block which allows us to quickly d
                   (setq exec-path ',exec-path
                         load-path ',load-path)
                   ,my-setq-form
+                  (setq org-roam-directory ,vidbina-org-roam-root-directory)
                   (package-initialize)
                   (require 'org-roam)
                   (message "%s dir %s for file extensions %s"

@@ -158,8 +158,10 @@
   (setq org-roam-v2-ack t)
   (let ((directory (file-truename "~/org/roam/")))
     (make-directory directory t)
-    (setq org-roam-directory directory))
-  (setq org-roam-file-extensions '("org" "md"))
+    (setq org-roam-directory directory
+          ;; Define a directory that does not change along with the Org-Roam folder
+          vidbina-org-roam-root-directory directory)
+    (setq org-roam-file-extensions '("org" "md"))
   (setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
 
   :config
