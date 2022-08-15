@@ -600,6 +600,11 @@ This is a listing of the symlinks that I could track in my home directory right 
 #+end_example
 
 *** TODO direnv
+
+#+begin_src bash
+ln -s ${PATH_TO_DOTFILES}/direnv ${HOME}/.direnv
+#+end_src
+
 *** .xsession
 :PROPERTIES:
 :CUSTOM_ID: xsession
@@ -998,6 +1003,14 @@ Much of my work-related comms transpires over e-mail. In order to obtain [[https
 
 See my private dotfiles where I have defined a mbsync service to handle synchronization of mail. Indexing could be handled through as a =PostExec= hook in the mail retrieval service but this will cause problems with mu4e spinning up mu/server to reindex the maildir and obtaining the read/write lock on the Xapian store.
 
+** COMMENT Issues
+
+#+begin_src text
+sendmail: authentication failed (method PLAIN)
+sendmail: server message: 454 4.7.0 Temporary authentication failure: 
+sendmail: could not send mail (account work-asabina-gmbh from /home/vidbina/.config/msmtp/config)
+#+end_src
+
 * Neovim
 
 For Neovim, remember that CoC completions basically work through use of the =C-n= and =C-p= binding to cycle through next and previous items in the completion listing.
@@ -1161,6 +1174,11 @@ programs.chromium = {
   ];
 };
 #+end_src
+
+*** Wasavi
+
+vi-editor for input controls
+- enter with =C-RET=, exit with =:q= (typical vi exit command)
 
 ** Firefox
 
