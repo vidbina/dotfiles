@@ -44,6 +44,7 @@
   (defun org-babel-tangle-async (&optional arg target-file lang-re)
     "Call `org-babel-tangle' asynchronously"
     (interactive "P")
+    (message "🧬 Async Org-Babel start tangling %s" buffer-file-name)
     (run-hooks 'org-babel-pre-tangle-hook)
     (async-start `(lambda ()
                     (if (and (stringp ,buffer-file-name)
@@ -60,7 +61,7 @@
                           (goto-char ,(point))
                           (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
                           buffer-file-name)
-                      (error "Not visiting a file")))
+                      (error "🧬 Async Org-Babel is not visiting a file")))
                  `(lambda (result)
                     (message "🧬 Async Org-Babel tangled %s" result))))
   ;; https://orgmode.org/manual/Structure-Templates.html
@@ -160,8 +161,8 @@
     (make-directory directory t)
     (setq org-roam-directory directory
           ;; Define a directory that does not change along with the Org-Roam folder
-          vidbina-org-roam-root-directory directory)
-    (setq org-roam-file-extensions '("org" "md"))
+          vidbina-org-roam-root-directory directory))
+  (setq org-roam-file-extensions '("org" "md"))
   (setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
 
   :config

@@ -363,6 +363,7 @@ Tangling sometimes takes a fair amount of time that we can't always afford to wa
 (defun org-babel-tangle-async (&optional arg target-file lang-re)
   "Call `org-babel-tangle' asynchronously"
   (interactive "P")
+  (message "🧬 Async Org-Babel start tangling %s" buffer-file-name)
   <<org-babel-tangle-async-start>>)
 #+end_src
 
@@ -400,7 +401,7 @@ It's unclear if the use of =find-file= is a really bad idea. I've considered tha
                       (goto-char ,(point))
                       (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
                       buffer-file-name)
-                  (error "Not visiting a file")))
+                  (error "🧬 Async Org-Babel is not visiting a file")))
              `(lambda (result)
                 (message "🧬 Async Org-Babel tangled %s" result)))
 #+end_src
@@ -958,13 +959,32 @@ A good solution for maintaining a Zettelkasten-inspired note-taking system is [[
 
 *** Org-Roam Directory
 
+Set the Org-Roam directory through variable =org-roam-directory= and keep in mind that this directory changes to the active directoy when switching between different Org-Roam directories.
+
+#+begin_quote
+💡 Multiple Org-Roam directories may be necessary to separate notes on a project or topic-specific basis.
+#+end_quote
+
+A possible workaround to trigger the tangling from the root directory thata contains all note directories and letting Org-Roam recursively walk through the file tree to visit all those directories.
+
 #+begin_src elisp :noweb-ref org-roam-init
 (let ((directory (file-truename "~/org/roam/")))
   (make-directory directory t)
   (setq org-roam-directory directory
         ;; Define a directory that does not change along with the Org-Roam folder
-        vidbina-org-roam-root-directory directory)
-  (setq org-roam-file-extensions '("org" "md"))
+        vidbina-org-roam-root-directory directory))
+#+end_src
+
+#+begin_quote
+⚠️ This approach requires one to structure all Org-Roam directories within a single root directory
+#+end_quote
+
+*** Use Markdown
+
+Some of my notes, or some of my notes with others are unfortunately still in Markdown and I want to factor them into my Org-Roam setup.
+
+#+begin_src elisp :noweb-ref org-roam-init
+(setq org-roam-file-extensions '("org" "md"))
 #+end_src
 
 *** Database
