@@ -3685,6 +3685,13 @@ Sending via mail...
 message-multi-smtp-send-mail: Wrong number of arguments: ((bootstrap-version t) (sync-func &rest args) (message "Starting asynchronous smtpmail-send-queued-mail") (async-start (list 'lambda nil '(require 'smtpmail) (async-inject-variables "\\`\\(smtpmail\\|async-smtpmail\\|\\(user-\\)?mail\\)-\\|auth-sources\\|epg\\|nsm" nil "\\`\\(mail-header-format-function\\|smtpmail-address-buffer\\|mail-mode-abbrev-table\\)") (list sync-func)) #'(lambda (&optional _unused) (message "Done sending queued mail in the background.")))), 0Invalid face attribute :inherit mu4e-contact-face
 #+end_src
 
+***** WIP Debug: sendmail: TLS handshake failed
+
+#+begin_src text
+sendmail: TLS handshake failed: An unexpected TLS packet was received.
+sendmail: could not send mail (account personal from /home/vidbina/.config/msmtp/config)
+#+end_src
+
 *** READY COMMENT <<notmuch>> Notmuch
 :LOGBOOK:
 - State "PROTOTYPE"  from "TODO"       [2022-06-23 Thu 21:51] \\
