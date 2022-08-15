@@ -724,6 +724,7 @@
   (mu4e-compose-format-flowed t "Compose messages as format=flowed")
   (mu4e-sent-messages-behavior 'delete "Switch this behavior to 'sent within the appropriate contexts where directory mu4e-sent-folder is correctly set")
   (gnus-dired-mail-mode 'mu4e-user-agent)
+  (mu4e-use-fancy-chars t "Use fancy unicode characters for mu4e marks")
   (mu4e-context-policy 'ask)
   (mu4e-compose-context-policy 'ask)
   (mu4e-index-update-in-background t "Index in background")

@@ -3520,6 +3520,12 @@ We set our preferred mail composition package:
 (gnus-dired-mail-mode 'mu4e-user-agent)
 #+end_src
 
+***** TODO Use fancy characters
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-use-fancy-chars t "Use fancy unicode characters for mu4e marks")
+#+end_src
+
 **** TODO Contexts
 
 In mu4e we can use contexts to manage the different "contexts" in which we write and read email.
