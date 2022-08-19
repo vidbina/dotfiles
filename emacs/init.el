@@ -475,7 +475,8 @@
   :custom
   ;; was previously #'magit-display-buffer-traditional
   (magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1
-                                 "Open magit buffer in window at point"))
+                                 "Open magit buffer in window at point")
+  (magit-diff-refine-hunk t "Show fine differences (word-granularity) for current hunk only"))
 
 ;; https://github.com/dgutov/diff-hl
 (use-package diff-hl
