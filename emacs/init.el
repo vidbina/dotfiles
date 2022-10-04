@@ -655,6 +655,11 @@
   :config
   (which-key-mode))
 
+(use-package vterm
+  :straight (:type built-in)
+  :hook
+  (vterm-mode . (lambda () (display-line-numbers-mode 0))))
+
 (use-package pdf-tools
   :straight (:type built-in)
   :config

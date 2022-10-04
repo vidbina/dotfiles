@@ -3062,11 +3062,13 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 
 ** TODO 🕳️ Terminals and Shells 🐚
 
-*** COMMENT vterm
+*** vterm
 
 #+begin_src elisp :tangle init.el
 (use-package vterm
-  :straight (:type built-in))
+  :straight (:type built-in)
+  :hook
+  (vterm-mode . (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
 *** COMMENT multi-vterm
