@@ -5573,6 +5573,19 @@ See https://github.com/editorconfig/editorconfig-emacs/issues/264 regarding =ind
   )
 #+end_src
 
+*** <<highlight-indent-guides>> Highlight Indent Guides
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/DarthFennec/highlight-indent-guides
+(use-package highlight-indent-guides
+  :straight (highlight-indent-guides :type git
+                                     :host github
+                                     :repo "DarthFennec/highlight-indent-guides")
+  :hook ((prog-mode . highlight-indent-guides-mode))
+  :custom
+  (highlight-indent-guides-method 'column))
+#+end_src
+
 *** <<paredit>> Paredit
 
 In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][paredit]] can be used to assist in keeping forms balanced (i.e.: ensuring that a form always has as many opening as closing parenthesis).

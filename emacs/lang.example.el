@@ -299,6 +299,15 @@
   ;; ((prog-mode) . rainbow-delimiters-mode)
   )
 
+;; https://github.com/DarthFennec/highlight-indent-guides
+(use-package highlight-indent-guides
+  :straight (highlight-indent-guides :type git
+                                     :host github
+                                     :repo "DarthFennec/highlight-indent-guides")
+  :hook ((prog-mode . highlight-indent-guides-mode))
+  :custom
+  (highlight-indent-guides-method 'column))
+
 ;; https://github.com/emacsmirror/paredit
 (use-package paredit
   :straight (paredit :type git
