@@ -80,7 +80,7 @@
  ("org-ref" . "4eba13248bf427fb0adc6c25f5fa77d2c71c0b97")
  ("org-roam" . "abe63b436035049923ae96639b9b856697047779")
  ("org-roam-bibtex" . "cf811abf273ad28d32caad3a93318f92da034556")
- ("org-roam-ui" . "9ed0c5705a302a91fab2b8bcc777a12dcf9b3682")
+ ("org-roam-ui" . "6bf6a5eecc1fa7ddbb1fcda85e08fe9c393f9298")
  ("org-super-agenda" . "3108bc3f725818f0e868520d2c243abe9acbef4e")
  ("ov" . "c5b9aa4e1b00d702eb2caedd61c69a22a5fa1fab")
  ("ox-clip" . "05a14d56bbffe569d86f20b49ae31ed2ac7d1101")
