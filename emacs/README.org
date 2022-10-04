@@ -266,6 +266,18 @@ For convenience, we define some hook to notify us in the *Messages* buffer when 
 
 Through the =:hook= keyword, we can /hook/ operations for a particular package into to the previously listed Emacs lifecycle hooks without leaving the expression for that specific package -- thus keeping all relevant configurations neatly localized.
 
+*** TODO Explain: Introspection
+
+For troubleshootings sake it is helpful to know how to use function =straight-dependents=
+
+#+begin_src elisp
+;; test
+(straight-dependents)
+(straight-dependents 'org-roam)
+(straight-dependencies)
+(straight-dependencies 'org-roam)
+#+end_src
+
 * 📓 Org
 
 [[https://orgmode.org/worg/org-contrib/org-protocol.html][Org]] is probably the killer app of Emacs and is actually just a clearly standardized markup format. Three ways in which Org discerns itself from Markdown are in that it:
@@ -2604,10 +2616,10 @@ Enable the iedit-mode through the =C-;= binding to highlight symbol under point 
 
 ** <<evil>> Evil
 
-In order to save your hand some pain, it may be helpful to use vi-like bindings that keep your hands around the home row more often and minimizes the need for your hands to pull acrobatic maneuvers 🎪 that could incur some strain. I use the [[https://github.com/emacs-evil/evil][extensible vi layer, inconveniently or mischievously abbreviated to Evil]], to help me to vi-bindings while in Emacs.
+In order to save my hands some pain, it is helpful to use vi-like bindings that keep your hands around the home row more often and minimizes the need for your hands to pull acrobatic maneuvers 🎪 that could incur some strain -- those Emacs /key-chords/. I use the [[https://github.com/emacs-evil/evil][extensible vi layer, inconveniently but mischievously abbreviated to Evil]], to help me to vi-bindings while in Emacs.
 
 #+begin_quote
-I used Emacs extensively in college and developed a case of the /Emacs pinky/ at the time. That's about the time I switched back to vi/vim and around the end of 2021, I decided to give Emacs another try in combination with Evil-mode which provides me the best of both worlds. 🤯
+I used classical Emacs with the typical bindings extensively in college[fn:college:around the end of the early 2000s as I started college in 2007] and developed a pretty rough case of the /Emacs pinky/ issue at the time. That's about the time I switched back to *vi? (vi, gvim, vim) and around the end of 2021, I decided to give Emacs another try in combination with Evil-mode which provides me the best of both worlds. 🤯
 #+end_quote
 
 Consult the [[https://github.com/noctuid/evil-guide][guide]] for more information on evil. Note that the vi commands started with colon such a =:e=, =:s= and =:g= are mapped through evil-ex (see [[https://gist.github.com/agzam/acd3b5e311f8f7e87e21b550856f65e1][agzam's write up]] on these evil-ex commands for reference).
@@ -2649,6 +2661,8 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
 #+begin_center
 🚨 *Remember the =C-z= binding to exit the 'emacs state and return to 'normal state.* You may accidentally change =evil-state= (evil states are the equivalent to modes in vim vernacular) to =emacs= which will leave you with really annoying results when attempting to quickly navigate/edit your buffers. I've been cursing often enough thinking that my config was broken 🤬 when I had just accidentally pressed =C-z= and ended up in Emacs state. 🤦🏿‍♂️
 #+end_center
+
+People have somewhat strong opinions about keybindings. Grab yourself some popcorn 🍿 and enjoy some choice words on [[https://www.reddit.com/r/emacs/comments/tyg9v5/why_not_use_evil_in_2022/][Reddit]] or on a number of YouTube videos that are pretty easy to find.
 
 *** <<evil-vimish-fold>> Folding in a "vimish" fashion
 
@@ -5377,6 +5391,17 @@ Superset of JavaScript that folks really should be using instead of just vanilla
 - =g k= find prev error or reference
 - =K= to show docs
 
+***** TODO COMMENT Look into tsx-mode.el
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/orzechowskid/tsx-mode.el
+(use-package tsx-mode
+  :straight
+  (tsx-mode :type git
+            :host github
+            :repo "orzechowskid/tsx-mode.el"))
+#+end_src
+
 *** Java
 
 #+begin_src elisp :tangle lang.example.el
@@ -6144,6 +6169,8 @@ jupyter-for-emacs
 
 **** Emacs Org-Protocol
 
+https://orgmode.org/worg/org-contrib/org-protocol.html
+
 #+begin_src nix :noweb-ref nix-linux-packages
 (makeDesktopItem {
   name = "emacs-org-protocol";
@@ -6162,6 +6189,26 @@ jupyter-for-emacs
   ] + ";";
   terminal = false;
 })
+#+end_src
+
+***** Bookmarks
+
+#+begin_src javascript
+javascript:location.href = 'org-protocol://sub-protocol://' + encodeURIComponent(location.href) + '/' + encodeURIComponent(document.title) + '/' + encodeURIComponent(window.getSelection())
+#+end_src
+
+https://www.reddit.com/r/firefox/comments/k64ha0/fix_allow_this_site_to_open_the_protocol_link/
+
+****** Store link
+
+#+begin_src javascript
+javascript:location.href='org-protocol://store-link://'+encodeURIComponent(location.href)
+#+end_src
+
+****** Capture
+
+#+begin_src javascript
+javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(location.href) + '/' + encodeURIComponent(document.title) + '/' + encodeURIComponent(window.getSelection())
 #+end_src
 
 **** Emacs mu4e
