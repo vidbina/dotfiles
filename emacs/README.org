@@ -2771,6 +2771,20 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
 
 ** Completion
 
+Function ~completing-read-default~ is triggered to resolve completions. Observe the following example that fires up whichever completion framework is actively configured:
+
+#+begin_src elisp
+(completing-read-default "Pick one 🤷🏿‍♂️: "
+                         (list "Blue 🔵 pill 💊"
+                               "Red 🔴 pill 💊"))
+#+end_src
+
+The help page for the abovementioned function will indicate which completion framework is active.
+
+#+begin_center
+💡 TIP: You will be able to tell in the help pages which /advice/ is associated to the function thus allowing you to determine which functions are actually triggered.
+#+end_center
+
 *** <<orderless>> Orderless
 
 The [[https://github.com/oantolin/orderless][orderless]] package provides more generous completion resolution by permitting us to:
@@ -2835,7 +2849,7 @@ Furthermore, we want to configure the ivy regex builder to play ball with orderl
 
 *** Consult
 
-[[https://github.com/minad/consult][Consult]] allows quick-selection from a completion buffer and is compatible with completion systems based around the standard Emacs =completing-read= API.
+[[https://github.com/minad/consult][Consult]] provides enchancements to completion systems based around the standard Emacs =completing-read= API.
 
 #+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/minad/consult
@@ -2857,6 +2871,14 @@ Furthermore, we want to configure the ivy regex builder to play ball with orderl
                      #'consult-completion-in-region
                    #'completion--in-region)
                  args))))
+#+end_src
+
+See the following example for Consult's multiple selection:
+
+#+begin_src elisp
+(consult-completing-read-multiple "Pick one 🤷🏿‍♂️: "
+                                  (list "Blue 🔵 pill 💊"
+                                        "Red 🔴 pill 💊"))
 #+end_src
 
 **** TODO Bindings
