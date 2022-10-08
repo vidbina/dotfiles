@@ -304,7 +304,6 @@
   :straight (highlight-indent-guides :type git
                                      :host github
                                      :repo "DarthFennec/highlight-indent-guides")
-  :hook ((prog-mode . highlight-indent-guides-mode))
   :custom
   (highlight-indent-guides-method 'column))
 
