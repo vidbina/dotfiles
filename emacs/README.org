@@ -2063,6 +2063,18 @@ I don't quite use Emacs in standalone mode anymore, unless I'm debugging my conf
 
 Note that =default-text-scale--update-for-new-frame= is called in =after-make-frame-functions=, so perhaps this is already sufficient to ensure that all frames have the same scaling for text.
 
+*** Olivetti
+
+For focus, [[https://github.com/rnkn/olivetti.git][Olivetti mode]] can be a great help, so let's just install it for the odd cases where we need it.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/rnkn/olivetti.git
+(use-package olivetti
+  :straight (olivetti :type git
+                      :host github
+                      :repo "rnkn/olivetti"))
+#+end_src
+
 ** 🎨 Rainbow Mode
 
 [[https://github.com/emacsmirror/rainbow-mode][Rainbow mode]] allows the coloring or color codes within buffers such as #ff0000 and #0f0.

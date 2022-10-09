@@ -296,6 +296,12 @@
                                 :repo "purcell/default-text-scale")
   :hook ((after-init . default-text-scale-mode)))
 
+;; https://github.com/rnkn/olivetti.git
+(use-package olivetti
+  :straight (olivetti :type git
+                      :host github
+                      :repo "rnkn/olivetti"))
+
 ;; https://gitlab.com/protesilaos/modus-themes
 (use-package modus-themes
   :straight (modus-themes :type git
