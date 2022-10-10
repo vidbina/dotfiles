@@ -255,6 +255,7 @@ in
     ./doc.nix
     ./browser.nix
     ./x.nix
+    ./multimedia.nix
 
     ./emacs
 
@@ -1122,6 +1123,23 @@ Especially for things link mail indices and Org-roam databases, I may need to do
 - https://docs.syncthing.net/users/ignoring.html
 - https://github.com/org-roam/org-roam/issues/977
 - https://github.com/org-roam/org-roam/issues/550
+
+* Streaming
+
+** OBS
+
+https://obsproject.com/wiki/install-instructions
+
+#+begin_src nix :noweb yes :tangle multimedia.nix
+# Tangled from README.org
+{ config, pkgs, lib, options, ... }:
+
+{
+  home.packages = with pkgs; [
+    obs-studio
+  ];
+}
+#+end_src
 
 * Browsers
 

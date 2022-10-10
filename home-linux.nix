@@ -7,6 +7,7 @@
     ./doc.nix
     ./browser.nix
     ./x.nix
+    ./multimedia.nix
 
     ./emacs
 
