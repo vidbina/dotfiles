@@ -291,6 +291,10 @@ PROMPT="$PROMPT $(vterm_prompt_end)" # for vterm (emacs)
 
 ***** COMMENT Completions
 
+****** TODO Read up on completions for ideas
+
+Read https://scriptingosx.com/2019/07/moving-to-zsh-part-5-completions/
+
 ****** Bash completions
 
 #+begin_src sh :noweb-ref zsh-init-extra
