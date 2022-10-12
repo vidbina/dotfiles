@@ -64,35 +64,53 @@ in
 
   programs.zsh = {
     enable = true;
-    enableAutosuggestions = true;
+    enableAutosuggestions = false;
     enableSyntaxHighlighting = true;
-    #dotDir = ".config/zsh";
+
+    defaultKeymap = "viins";
 
     initExtraBeforeCompInit = ''
-      export EDITOR="emacsclient -c -a emacs"
-      export VISUAL="emacsclient -c -a emacs"
-
       setopt histignorespace # keeps lines preceded with SPACE out of history
 
-      zmodload -i zsh/complist
-      source ${./zsh/zstyle.zsh}
+      setopt INTERACTIVE_COMMENTS  # allow inline comments like this one
+      export EDITOR="emacsclient -c -a emacs"
+      export VISUAL="emacsclient -c -a emacs"
+      # https://github.com/akermu/emacs-libvterm#directory-tracking-and-prompt-tracking
+      vterm_printf(){
+          if [ -n "$TMUX" ] && ([ "''${TERM%%-*}" = "tmux" ] || [ "''${TERM%%-*}" = "screen" ] ); then
+              # Tell tmux to pass the escape sequences through
+              printf "\ePtmux;\e\e]%s\007\e\\" "$1"
+          elif [ "''${TERM%%-*}" = "screen" ]; then
+              # GNU screen (screen, screen-256color, screen-256color-bce)
+              printf "\eP\e]%s\007\e\\" "$1"
+          else
+              printf "\e]%s\e\\" "$1"
+          fi
+      }
 
-      autoload -U promptinit && \
-      promptinit && \
-      prompt adam2 8bit yellow red blue
+      vterm_prompt_end() {
+          vterm_printf "51;A";
+      }
 
-      # enable bash completion
-      autoload -U +X bashcompinit && \
-      bashcompinit
+      if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+          alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
+      fi
+
+      vterm_prompt_end() {
+          vterm_printf "51;A$(whoami)@$(hostname):$(pwd)";
+      }
+
+      setopt PROMPT_SUBST
+      PROMPT="↪ %(?.%F{green}√.%F{red}%?)%f" # error state
+      PROMPT="$PROMPT → %F{yellow}%~%f" # pwd
+      PROMPT="$PROMPT @ %F{magenta}%D{%Y.%m.%d} %B%F{blue}%T%f%b" # date/time
+      PROMPT="$PROMPT"$'\n'
+      PROMPT="$PROMPT%F{green}>%f" # prompt
+      PROMPT="$PROMPT $(vterm_prompt_end)" # for vterm (emacs)
     '';
+
     initExtra = ''
-      bindkey -v # use vim key bindings
-      source ${./zsh/keybindings.zsh}
 
-      source ${./zsh/functions.zsh}
-
-      source ${pkgs.fzf}/share/fzf/completion.zsh
-      source ${pkgs.fzf}/share/fzf/key-bindings.zsh
     '';
   };
 }
