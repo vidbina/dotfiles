@@ -57,6 +57,10 @@ Typical use will be as follows:
 4. Optionally, if package update step was completed (step 2 above), commit the changes made to the niv sources files
 5. Profit 💰
 
+#+begin_quote
+💡 Note that home-manager generated configuration files will be written somewhere to ~~/.config~, e.g.: ~~/.config/git/config~ for git.
+#+end_quote
+
 *** Shell
 
 For home-manager to work, we define a nix-shell that we creates a controlled environment for our Makefile to work.
