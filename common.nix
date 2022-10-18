@@ -73,8 +73,6 @@ in
       setopt histignorespace # keeps lines preceded with SPACE out of history
 
       setopt INTERACTIVE_COMMENTS  # allow inline comments like this one
-      export EDITOR="emacsclient -c -a emacs"
-      export VISUAL="emacsclient -c -a emacs"
       # https://github.com/akermu/emacs-libvterm#directory-tracking-and-prompt-tracking
       vterm_printf(){
           if [ -n "$TMUX" ] && ([ "''${TERM%%-*}" = "tmux" ] || [ "''${TERM%%-*}" = "screen" ] ); then
@@ -87,26 +85,23 @@ in
               printf "\e]%s\e\\" "$1"
           fi
       }
-
-      vterm_prompt_end() {
-          vterm_printf "51;A";
-      }
-
       if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
           alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
       fi
-
       vterm_prompt_end() {
           vterm_printf "51;A$(whoami)@$(hostname):$(pwd)";
       }
-
       setopt PROMPT_SUBST
-      PROMPT="↪ %(?.%F{green}√.%F{red}%?)%f" # error state
-      PROMPT="$PROMPT → %F{yellow}%~%f" # pwd
-      PROMPT="$PROMPT @ %F{magenta}%D{%Y.%m.%d} %B%F{blue}%T%f%b" # date/time
-      PROMPT="$PROMPT"$'\n'
-      PROMPT="$PROMPT%F{green}>%f" # prompt
-      PROMPT="$PROMPT $(vterm_prompt_end)" # for vterm (emacs)
+      PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
+      vterm_cmd() {
+          local vterm_elisp
+          vterm_elisp=""
+          while [ $# -gt 0 ]; do
+              vterm_elisp="$vterm_elisp""$(printf '"%s" ' "$(printf "%s" "$1" | sed -e 's|\\|\\\\|g' -e 's|"|\\"|g')")"
+              shift
+          done
+          vterm_printf "51;E$vterm_elisp"
+      }
     '';
 
     initExtra = ''
