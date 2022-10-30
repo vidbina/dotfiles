@@ -1285,11 +1285,7 @@ Especially for things link mail indices and Org-roam databases, I may need to do
 - https://github.com/org-roam/org-roam/issues/977
 - https://github.com/org-roam/org-roam/issues/550
 
-* Streaming
-
-** OBS
-
-https://obsproject.com/wiki/install-instructions
+* Multimedia
 
 #+begin_src nix :noweb yes :tangle multimedia.nix
 # Tangled from README.org
@@ -1297,9 +1293,55 @@ https://obsproject.com/wiki/install-instructions
 
 {
   home.packages = with pkgs; [
-    obs-studio
+    <<multimedia-packages>>
   ];
 }
+#+end_src
+
+** COMMENT OBS
+
+https://obsproject.com/wiki/install-instructions
+
+#+begin_src nix :noweb-ref multimedia-packages
+# For error: ARB_GLX_create_context not supported!
+# see the following resources:
+# - https://github.com/nix-community/home-manager/issues/1424
+obs-studio
+#+end_src
+
+*** TODO Figure out OpenGL configuration
+
+We had this binding nixgl into the multimedia.nix block but we are temporariliy ripping this out.
+
+#+begin_src nix
+let
+  # TODO: Find a cleaner implementation, like an pkgs overlay at shell.nix?!?
+  # Borrowed from Browser config
+  #nixgl = import <NIXGL> { inherit pkgs; };
+in
+#+end_src
+
+This bit we were trying to use to trick OBS into finding OpenGL-related paths. Didn't work so I'm shelving it temporarily. Using StreamYard meanwhile.
+
+#+begin_src nix :noweb-ref multimedia-packages
+# - https://github.com/guibou/nixGL
+#nixgl {}
+#+end_src
+
+** GTK+ UVC Viewer (GUVCView)
+
+https://guvcview.sourceforge.net/
+
+#+begin_src nix :noweb-ref multimedia-packages
+guvcview
+#+end_src
+
+** V4l utils
+
+https://linuxtv.org/projects.php
+
+#+begin_src nix :noweb-ref multimedia-packages
+v4l-utils
 #+end_src
 
 * Browsers
