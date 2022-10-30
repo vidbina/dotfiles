@@ -32,7 +32,7 @@
         org-hide-leading-stars nil
         org-odd-levels-only nil)
   :hook
-  (org-mode . (lambda () (display-line-numbers-mode 0)))
+
   :bind (:map org-babel-map ("t" . org-babel-tangle-async))
   :config
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
@@ -669,9 +669,7 @@
   (which-key-mode))
 
 (use-package vterm
-  :straight (:type built-in)
-  :hook
-  (vterm-mode . (lambda () (display-line-numbers-mode 0))))
+  :straight (:type built-in))
 
 (use-package pdf-tools
   :straight (:type built-in)

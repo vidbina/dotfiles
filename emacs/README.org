@@ -571,12 +571,6 @@ In order to configure custom styling, we should define the string variable =org-
   )
 #+end_src
 
-** Hide Line numbers when in org-mode
-
-#+begin_src elisp :noweb-ref org-hook
-(org-mode . (lambda () (display-line-numbers-mode 0)))
-#+end_src
-
 ** Tips
 
 *** Peeking through Org buffers
@@ -3107,9 +3101,7 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 
 #+begin_src elisp :tangle init.el
 (use-package vterm
-  :straight (:type built-in)
-  :hook
-  (vterm-mode . (lambda () (display-line-numbers-mode 0))))
+  :straight (:type built-in))
 #+end_src
 
 *** COMMENT multi-vterm
