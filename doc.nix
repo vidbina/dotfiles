@@ -49,22 +49,22 @@ let
 in
 {
   home.packages = with pkgs; [
+    biber
+    bibtex2html
+    texlive-asabina
+    pdftk
+    pandoc
+    evince
+    okular
+    xournal
+    zathura
     aspell
     aspellDicts.de
     aspellDicts.en
     aspellDicts.nl
-    biber
-    bibtex2html
-    evince
-    libreoffice
-    okular
-    pandoc
-    pdftk
-    qrencode
     scim
-    texlive-asabina
     visidata
-    xournal
-    zathura
+    qrencode
+    libreoffice
   ];
 }

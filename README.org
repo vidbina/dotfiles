@@ -1446,77 +1446,203 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 
 * Docs
 
-#+begin_src nix :tangle doc.nix
+#+begin_src nix :tangle doc.nix :noweb yes
 # Tangled from README.org
 { config, pkgs, ... }:
 let
-  texlive-asabina = with pkgs; (texlive.combine {
-    inherit (texlive)
-      scheme-medium
-      luatex
-
-      atenddvi
-      IEEEtran
-      background
-      bashful
-      capt-of
-      collection-basic
-      collection-fontsrecommended
-      collection-langeuropean
-      collection-langgerman
-      collection-latexrecommended
-      datetime
-      draftwatermark
-      enumitem
-      eso-pic
-      etoolbox
-      everypage
-      fmtcount
-      lastpage
-      latexdiff
-      mdframed
-      needspace
-      numprint
-      paracol
-      pdfcrop
-      pgfgantt
-      soul
-      svg
-      tableof
-      titlepic
-      transparent
-      trimspaces
-      tocloft
-      ulem
-      wrapfig
-      xargs
-      xetex
-      xstring
-      xtab
-      ;
-  });
+  <<doc-let-bindings>>
 in
 {
   home.packages = with pkgs; [
-    aspell
-    aspellDicts.de
-    aspellDicts.en
-    aspellDicts.nl
-    biber
-    bibtex2html
-    evince
-    libreoffice
-    okular
-    pandoc
-    pdftk
-    qrencode
-    scim
-    texlive-asabina
-    visidata
-    xournal
-    zathura
+    <<doc-packages>>
   ];
 }
+#+end_src
+
+** $LaTeX$
+
+#+begin_src nix :noweb yes :noweb-ref doc-let-bindings
+texlive-asabina = with pkgs; (texlive.combine {
+  inherit (texlive)
+    scheme-medium
+    luatex
+
+    atenddvi
+    IEEEtran
+    background
+    bashful
+    capt-of
+    collection-basic
+    collection-fontsrecommended
+    collection-langeuropean
+    collection-langgerman
+    collection-latexrecommended
+    datetime
+    draftwatermark
+    enumitem
+    eso-pic
+    etoolbox
+    everypage
+    fmtcount
+    lastpage
+    latexdiff
+    mdframed
+    needspace
+    numprint
+    paracol
+    pdfcrop
+    pgfgantt
+    soul
+    svg
+    tableof
+    titlepic
+    transparent
+    trimspaces
+    tocloft
+    ulem
+    wrapfig
+    xargs
+    xetex
+    xstring
+    xtab
+    ;
+});
+#+end_src
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+biber
+bibtex2html
+texlive-asabina
+#+end_src
+
+** PDF
+
+*** Utilities
+
+**** pdftk
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+pdftk
+#+end_src
+
+**** pandoc
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+pandoc
+#+end_src
+
+*** Readers
+**** Evince
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+evince
+#+end_src
+
+**** Okular
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+okular
+#+end_src
+
+**** Xournal
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+xournal
+#+end_src
+
+**** Zathura
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+zathura
+#+end_src
+
+** Dictionaries
+
+*** Aspell
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+aspell
+aspellDicts.de
+aspellDicts.en
+aspellDicts.nl
+#+end_src
+
+*** COMMENT Hunspell
+
+#+begin_src nix :noweb yes :noweb-ref doc-let-bindings
+hunspell-personal = with prev;
+  (hunspellWithDicts with hunspellDicts; [
+      de_DE
+      en_US-large
+      (stdenv.mkDerivation rec {
+        pname = "hunspell-dict-nl-opentaal";
+        version = "2.20.19";
+        src = fetchFromGitHub {
+          owner = "OpenTaal";
+          repo = "opentaal-hunspell";
+          rev = "${version}";
+          sha256 = "sha256-/rYufNGkXWH7UQDa8ZI55JtP9LM+0j7Pad8zm2tFqko=";
+        };
+        meta = {
+          description = "Dutch dictionary for spelling checker Hunspell and Nuspell";
+          homepage = "https://github.com/OpenTaal/opentaal-hunspell";
+          license = {
+            fullName = "Revised BSD License and/or CC BY 3.0";
+            url = "https://github.com/OpenTaal/opentaal-hunspell/blob/${version}/LICENSE.txt";
+          };
+          maintainers = with maintainers; [ ];
+          platforms = lib.platforms.all;
+        };
+
+        dictFileName = "nl";
+        installPhase = ''
+          # hunspell dicts
+          install -dm755 "$out/share/hunspell"
+          install -m644 ${dictFileName}.dic "$out/share/hunspell/"
+          install -m644 ${dictFileName}.aff "$out/share/hunspell/"
+
+          # myspell dicts symlinks
+          install -dm755 "$out/share/myspell/dicts"
+          ln -sv "$out/share/hunspell/${dictFileName}.dic" "$out/share/myspell/dicts/"
+          ln -sv "$out/share/hunspell/${dictFileName}.aff" "$out/share/myspell/dicts/"
+          runHook postInstall
+        '';
+      })
+    ]).overrideAttrs (old: {
+    buildCommand = ''
+      ${old.buildCommand}
+      cp -r ${hunspell.man}/share $out/share
+    '';
+  });
+#+end_src
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+hunspell
+#+end_src
+
+** Spreadsheets
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+scim
+visidata
+#+end_src
+
+** COMMENT Completions
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+
+#+end_src
+
+** Misc
+*** QR
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+qrencode
+#+end_src
+
+*** Office
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+libreoffice
 #+end_src
 
 * Local Variables
