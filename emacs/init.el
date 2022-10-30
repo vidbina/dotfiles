@@ -123,6 +123,15 @@
   :bind
   ("C-c y" . ox-clip-formatted-copy))
 
+;; https://github.com/misohena/phscroll
+(use-package phscroll
+  :straight (phscroll :type git
+                      :host github
+                      :repo "misohena/phscroll")
+  :after (org)
+  :custom
+  (org-startup-truncated nil))
+
 ;; https://github.com/hniksic/emacs-htmlize
 (use-package htmlize
   :straight (htmlize :type git
