@@ -59,6 +59,18 @@
         "url": "https://github.com/LnL7/nix-darwin/archive/17fbc68a6110edbff67e55f7450230a697ecb17e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "nixGL": {
+        "branch": "main",
+        "description": "A wrapper tool for nix OpenGL application",
+        "homepage": null,
+        "owner": "guibou",
+        "repo": "nixGL",
+        "rev": "7165ffbccbd2cf4379b6cd6d2edd1620a427e5ae",
+        "sha256": "1wc85xqnq2wb008y9acb29jbfkc242m9697g2b8j6q3yqmfhrks1",
+        "type": "tarball",
+        "url": "https://github.com/guibou/nixGL/archive/7165ffbccbd2cf4379b6cd6d2edd1620a427e5ae.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "nixpkgs": {
         "branch": "master",
         "description": "Nix Packages collection",

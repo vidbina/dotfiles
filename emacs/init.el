@@ -31,6 +31,9 @@
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
         org-odd-levels-only nil)
+  :hook
+
+  :bind (:map org-babel-map ("t" . org-babel-tangle-async))
   :config
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
   (global-set-key (kbd "C-c c") 'org-capture)
@@ -38,25 +41,47 @@
   ;; https://www.reddit.com/r/emacs/comments/ldiryk/weird_tab_behavior_in_org_mode_source_blocks
   (setq org-src-preserve-indentation t
         org-hide-block-startup t)
-
+  (defun org-babel-tangle-async (&optional arg target-file lang-re)
+    "Call `org-babel-tangle' asynchronously"
+    (interactive "P")
+    (message "🧬 Async Org-Babel start tangling %s" buffer-file-name)
+    (run-hooks 'org-babel-pre-tangle-hook)
+    (async-start `(lambda ()
+                    (if (and (stringp ,buffer-file-name)
+                             (file-exists-p ,buffer-file-name))
+                        (progn
+                          (setq exec-path ',exec-path
+                                load-path ',load-path
+                                enable-local-eval t
+                                auto-save-default nil
+                                org-babel-pre-tangle-hook '())
+                          (package-initialize)
+                          (find-file ,(buffer-file-name))
+                          (read-only-mode t)
+                          (goto-char ,(point))
+                          (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
+                          buffer-file-name)
+                      (error "🧬 Async Org-Babel is not visiting a file")))
+                 `(lambda (result)
+                    (message "🧬 Async Org-Babel tangled %s" result))))
   ;; https://orgmode.org/manual/Structure-Templates.html
   (require 'org-tempo)
   ;; https://www.reddit.com/r/emacs/comments/c1b70i/best_way_to_include_source_code_blocks_in_a_latex/
   (add-to-list 'org-latex-packages-alist '("" "listings" nil))
-  ;(setq org-latex-packages-alist nil)
-  ;(setq org-latex-listings t)
-  ;(setq org-latex-listings-options '(("breaklines" "true")))
+  ;;(setq org-latex-packages-alist nil)
+  ;;(setq org-latex-listings t)
+  ;;(setq org-latex-listings-options '(("breaklines" "true")))
   (setq org-latex-listings t)
   (setq org-latex-listings-options
         '(("basicstyle" "\\ttfamily")
           ("breakatwhitespace" "false")
           ("breakautoindent" "true")
           ("breaklines" "true")
-          ;("columns" "[c]fullflexible")
+          ;;("columns" "[c]fullflexible")
           ("commentstyle" "")
           ("emptylines" "*")
           ("extendedchars" "false")
-          ;("fancyvrb" "true")
+          ;;("fancyvrb" "true")
           ("firstnumber" "auto")
           ("flexiblecolumns" "false")
           ("frame" "single")
@@ -81,7 +106,12 @@
           ("texcl" "false")
           ("upquote" "false")))
   :custom
-  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation"))
+  (org-tags-column 0 "Avoid wrapping issues by minimizing tag indentation")
+  (org-catch-invisible-edits 'error "Disable invisible edits")
+  (org-src-window-setup 'current-window "Show edit buffer in calling window")
+  (org-refile-targets '((nil . (:maxlevel . 3))) "Allow refiling to 3rd level headings")
+  (org-todo-keywords '((sequence "TODO(t)" "WIP(w)" "|" "DONE(d)" "CANCELED(@c)")) "Allow fast-selection for my standard TODO states")
+  (org-html-head (format "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />" (expand-file-name "ox-html.css" user-emacs-directory)) "Point to our custom stylesheet"))
 
 ;; https://github.com/jkitchin/ox-clip
 ;; https://zzamboni.org/post/my-emacs-configuration-with-commentary/
@@ -89,17 +119,25 @@
   :straight (ox-clip :type git
                      :host github
                      :repo "jkitchin/ox-clip")
-  :after (org htmlize)
+  :after (org)
   :bind
   ("C-c y" . ox-clip-formatted-copy))
 
+;; https://github.com/misohena/phscroll
+(use-package phscroll
+  :straight (phscroll :type git
+                      :host github
+                      :repo "misohena/phscroll")
+  :after (org)
+  :custom
+  (org-startup-truncated nil))
+
+;; https://github.com/hniksic/emacs-htmlize
 (use-package htmlize
   :straight (htmlize :type git
                      :host github
                      :branch "fix-face-size-unspecified-head"
-                     :repo "vidbina/emacs-htmlize"
-                     :local-repo "~/src/vidbina/emacs-htmlize")
-  :after org
+                     :repo "vidbina/emacs-htmlize")
   :init
   ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
   (setq org-html-htmlize-output-type 'inline-css)
@@ -128,17 +166,22 @@
   :after org
   :init
   (setq org-roam-v2-ack t)
-  (make-directory (file-truename "~/org/roam/") t)
-  :custom
-  (org-roam-file-extensions '("org" "md"))
-  (org-roam-directory (file-truename "~/org/roam/"))
-  (org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
+  (let ((directory (file-truename "~/org/roam/")))
+    (make-directory directory t)
+    (setq org-roam-directory directory
+          ;; Define a directory that does not change along with the Org-Roam folder
+          vidbina-org-roam-root-directory directory))
+  (setq org-roam-file-extensions '("org" "md"))
+  (setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
+
   :config
   (message "📔 org-roam is loaded")
-  (org-roam-db-autosync-mode 1)
+  (org-roam-db-autosync-disable)
+
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-node-insert)))
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n u" . vidbina/org-roam-db-async-forced-sync)))
 
 ;; https://github.com/org-roam/org-roam-ui
 (use-package org-roam-ui
@@ -179,7 +222,9 @@
   :straight (org-roam-bibtex :type git
                              :host github
                              :repo "org-roam/org-roam-bibtex")
-  :after org-roam)
+  :after org-roam
+  ;; NOTE: Using org-ref requires additional configuration
+  )
 
 ;; https://github.com/alphapapa/org-ql
 (use-package org-ql
@@ -187,11 +232,12 @@
                     :host github
                     :repo "alphapapa/org-ql"))
 
-;; https://github.com/astahlman/ob-async
+;; https://github.com/vidbina/ob-async
 (use-package ob-async
   :straight (ob-async :type git
                       :host github
-                      :repo "astahlman/ob-async"))
+                      :branch "main"
+                      :repo "vidbina/ob-async"))
 
 ;; https://www.emacswiki.org/emacs/ScrollBar
 (scroll-bar-mode -1)
@@ -205,38 +251,45 @@
 ;; https://www.emacswiki.org/emacs/ShowParenMode
 (show-paren-mode 1)
 
-;; https://www.emacswiki.org/emacs/FillColumnIndicator
-(global-display-fill-column-indicator-mode 1)
-
 ;; https://www.emacswiki.org/emacs/LineNumbers
-(global-display-line-numbers-mode 1)
+(use-package display-line-numbers
+  :straight (:type built-in)
+
+  :config
+  (display-line-numbers-mode 0)
+
+  :hook
+  (prog-mode . (lambda () (display-line-numbers-mode 1)))
+  (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0))))
 
 ;; https://www.emacswiki.org/emacs/WhiteSpace
 ;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
 (setq whitespace-style '(empty face lines-tail tabs trailing))
 
-;; http://ergoemacs.org/emacs/whitespace-mode.html
-(global-whitespace-mode nil)
-
+;; https://git.savannah.nongnu.org/git/delight.git
 (use-package delight
   :straight (delight :type git
                      :host nil
                      :repo "https://git.savannah.nongnu.org/git/delight.git")
   :delight
+  (fundamental-mode "🗒️")
   (auto-revert-mode "♻️")
-  (eldoc-mode " el📖")
+  (eldoc-mode "el📖")
   (edebug-mode "🐞")
-  (global-whitespace-mode)
-  (visual-line-mode " 🌯")
+  (whitespace-mode "🏳️")
+  (visual-line-mode "🌯")
   (mu4e-main-mode "📫")
   (mu4e-headers-mode "📬")
-  (mu4e-view-mode "📧"))
+  (mu4e-view-mode "📧")
+  (vterm-mode "👨🏿‍💻"))
 
+;; https://github.com/myrjola/diminish.el
 (use-package diminish
   :straight (diminish :type git
                       :host github
-                      :repo "myrjola/diminish.el")
-  :disabled)
+                      :repo "myrjola/diminish.el"))
+
+(customize-set-variable 'auto-revert-mode-text "♻️")
 
 ;; https://github.com/joostkremers/visual-fill-column
 (use-package visual-fill-column
@@ -259,6 +312,12 @@
                                 :host github
                                 :repo "purcell/default-text-scale")
   :hook ((after-init . default-text-scale-mode)))
+
+;; https://github.com/rnkn/olivetti.git
+(use-package olivetti
+  :straight (olivetti :type git
+                      :host github
+                      :repo "rnkn/olivetti"))
 
 ;; https://gitlab.com/protesilaos/modus-themes
 (use-package modus-themes
@@ -316,9 +375,11 @@
                          :host github
                          :repo "emacsorphanage/zoom-window")
   :init
+  (message "Configuring ‘zoom-window’")
   (with-eval-after-load 'persp-mode
-    (message "Configuring zoom-window to work with persp-mode")
-    (setq zoom-window-use-persp t)))
+    (message "Configuring ‘zoom-window’ to work with ‘persp-mode’")
+    (customize-set-variable 'zoom-window-use-persp t
+                            "Use zoom-window with persp-mode")))
 
 ;; https://github.com/abo-abo/ace-window
 ;; https://jao.io/blog/2020-05-12-ace-window.html
@@ -362,7 +423,15 @@
                    :host github
                    :repo "jwiegley/emacs-async")
   :config
-  (async-bytecomp-package-mode 1))
+  (async-bytecomp-package-mode 1)
+  :custom
+  (async-variables-noprops-function #'async--purecopy))
+
+;; https://github.com/victorhge/iedit
+(use-package iedit
+  :straight (iedit :type git
+                   :host github
+                   :repo "victorhge/iedit"))
 
 ;; https://github.com/emacs-evil/evil
 ;; https://github.com/noctuid/evil-guide
@@ -391,23 +460,59 @@
                              :host github
                              :repo "emacs-evil/evil-collection")
   :after evil
+  :ensure t
   :config
   (evil-collection-init)
+  (advice-add 'evil-collection-mu4e-setup
+              :before (lambda ()
+                        (message "😈 Setup up evil-collection for mu4e 📧")))
   :delight
   (evil-collection-unimpaired-mode))
+
+;; https://github.com/alexmurray/evil-vimish-fold
+(use-package evil-vimish-fold
+  :straight (evil-vimish-fold :type git
+                              :host github
+                              :repo "alexmurray/evil-vimish-fold")
+  :diminish evil-vimish-fold-mode
+  :after
+  (:all vimish-fold)
+  :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
+
+;; https://github.com/matsievskiysv/vimish-fold
+(use-package vimish-fold
+  :straight (vimish-fold :type git
+                         :host github
+                         :repo "matsievskiysv/vimish-fold")
+  :after evil)
+
+;; https://github.com/bastibe/annotate.el
+(use-package annotate
+  :straight (annotate :type git
+                      :host github
+                      :repo "bastibe/annotate.el")
+  :custom
+  (annotate-file-buffer-local nil "Use central annotations file"))
 
 ;; https://github.com/magit/magit.git
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit"))
+                   :repo "magit/magit")
+  :custom
+  ;; was previously #'magit-display-buffer-traditional
+  (magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1
+                                 "Open magit buffer in window at point")
+  (magit-diff-refine-hunk t "Show fine differences (word-granularity) for current hunk only"))
 
 ;; https://github.com/dgutov/diff-hl
 (use-package diff-hl
   :straight (diff-hl :type git
                      :host github
                      :repo "dgutov/diff-hl")
-  :hook (after-init . global-diff-hl-mode))
+  :hook (after-init . global-diff-hl-mode)
+  :custom
+  (diff-hl-margin-mode t "Use margin mode to clear up the fringe"))
 
 ;; https://github.com/jrblevin/deft
 (use-package deft
@@ -433,7 +538,7 @@
   :straight (orderless :type git
                        :host github
                        :repo "oantolin/orderless")
-
+  ;; NOTE: Load Orderless after Swiper when using the Ivy integration
   :custom
   (completion-styles '(orderless)))
 
@@ -460,34 +565,35 @@
                      :host github
                      :repo "minad/consult")
   :bind
-  (;; C-c bindings (mode-specific-map)
+  (;; bindings from https://github.com/minad/consult#use-package-example
+   ;; C-c bindings (mode-specific-map)
    ("C-c h" . consult-history)
    ("C-c m" . consult-mode-command)
    ("C-c k" . consult-kmacro)
    ;; C-x bindings (ctl-x-map)
-   ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-   ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-   ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-   ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-   ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-   ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+   ("C-x M-:" . consult-complex-command)     ; orig. repeat-complex-command
+   ("C-x b"   . consult-buffer)              ; orig. switch-to-buffer
+   ("C-x 4 b" . consult-buffer-other-window) ; orig. switch-to-buffer-other-window
+   ("C-x 5 b" . consult-buffer-other-frame)  ; orig. switch-to-buffer-other-frame
+   ("C-x r b" . consult-bookmark)            ; orig. bookmark-jump
+   ("C-x p b" . consult-project-buffer)      ; orig. project-switch-to-buffer
    ;; Custom M-# bindings for fast register access
-   ("M-#" . consult-register-load)
-   ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+   ("M-#"   . consult-register-load)
+   ("M-'"   . consult-register-store)        ; orig. abbrev-prefix-mark (unrelated)
    ("C-M-#" . consult-register)
    ;; Other custom bindings
-   ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-   ("<help> a" . consult-apropos)            ;; orig. apropos-command
+   ("M-y"      . consult-yank-pop)           ; orig. yank-pop
+   ("<help> a" . consult-apropos)            ; orig. apropos-command
    ;; M-g bindings (goto-map)
-   ("M-g e" . consult-compile-error)
-   ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-   ("M-g g" . consult-goto-line)             ;; orig. goto-line
-   ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-   ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-   ("M-g m" . consult-mark)
-   ("M-g k" . consult-global-mark)
-   ("M-g i" . consult-imenu)
-   ("M-g I" . consult-imenu-multi)
+   ("M-g e"   . consult-compile-error)
+   ("M-g f"   . consult-flymake)             ; Alternative: consult-flycheck
+   ("M-g g"   . consult-goto-line)           ; orig. goto-line
+   ("M-g M-g" . consult-goto-line)           ; orig. goto-line
+   ("M-g o"   . consult-outline)             ; Alternative: consult-org-heading
+   ("M-g m"   . consult-mark)
+   ("M-g k"   . consult-global-mark)
+   ("M-g i"   . consult-imenu)
+   ("M-g I"   . consult-imenu-multi)
    ;; M-s bindings (search-map)
    ("M-s d" . consult-find)
    ("M-s D" . consult-locate)
@@ -502,14 +608,15 @@
    ;; Isearch integration
    ("M-s e" . consult-isearch-history)
    :map isearch-mode-map
-   ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-   ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-   ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-   ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+   ("M-e"   . consult-isearch-history)       ; orig. isearch-edit-string
+   ("M-s e" . consult-isearch-history)       ; orig. isearch-edit-string
+   ("M-s l" . consult-line)                  ; needed by consult-line to detect isearch
+   ("M-s L" . consult-line-multi)            ; needed by consult-line to detect isearch
    ;; Minibuffer history
    :map minibuffer-local-map
-   ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-   ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+   ("M-s" . consult-history)                 ; orig. next-matching-history-element
+   ("M-r" . consult-history)                 ; orig. previous-matching-history-element
+   )
 
   :config
   ;; Use `consult-completion-in-region' if Vertico is enabled.
@@ -571,84 +678,8 @@
   :config
   (which-key-mode))
 
-;; https://www.djcbsoftware.nl/code/mu/mu4e.html
-(use-package mu4e
-  :straight (:type built-in)
-  :demand t
-  :bind (("C-c M 4" . mu4e))
-  :hook (
-         ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
-         (dired-mode . turn-on-gnus-dired-mode))
-  :config
-  (setq mail-user-agent 'mu4e-user-agent
-        mu4e-compose-format-flowed t
-        mu4e-contexts `( ,(make-mu4e-context
-                           :name "Sample"
-                           :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
-                           :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
-                           :vars '(( user-mail-address . "foo@example.com"))))
-        mu4e-context-policy 'always-ask
-        mu4e-index-update-in-background t
-        mu4e-view-show-addresses t)
-
-  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Speeding-up-indexing
-  (setq mu4e-index-cleanup nil      ; don't do a full cleanup check
-        mu4e-index-lazy-check t)    ; don't consider up-to-date dirs
-
-  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Retrieval-and-indexing.html#Example-setup
-  (setq mu4e-get-mail-command "offlineimap"   ; or fetchmail, or ...
-        mu4e-update-interval 300)             ; update every 5 minutes
-
-  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
-  (require 'gnus-dired)
-
-  ;; make the `gnus-dired-mail-buffers' function also work on
-  ;; message-mode derived modes, such as mu4e-compose-mode
-  (defun gnus-dired-mail-buffers ()
-    "Return a list of active message buffers."
-    (let (buffers)
-      (save-current-buffer
-        (dolist (buffer (buffer-list t))
-          (set-buffer buffer)
-          (when (and (derived-mode-p 'message-mode)
-                     (null message-sent-message-via))
-            (push (buffer-name buffer) buffers))))
-      (nreverse buffers)))
-
-  (setq gnus-dired-mail-mode 'mu4e-user-agent))
-
-;; https://git.notmuchmail.org/git/notmuch
-(use-package notmuch
-  :straight (:type built-in)
-  :if (executable-find "notmuch")
-  :commands (notmuch
-             notmuch-tree
-             notmuch-search
-             notmuch-hello)
-  :bind (("C-c M n" . notmuch)
-         :map notmuch-search-mode-map
-         ("SPC" . vidbina/notmuch-toggle-inbox))
-  :init
-  (evil-collection-notmuch-setup)
-  :hook (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
-  :custom
-  (mail-envelope-from 'header)
-  (mail-specify-envelope-from t)
-  (message-kill-buffer-on-exit t)
-  (message-send-mail-function 'message-send-mail-with-sendmail)
-  (message-sendmail-envelope-from 'header)
-  (message-sendmail-f-is-evil nil)
-  (message-signature #'my/mail-sig)
-  (notmuch-always-prompt-for-sender t)
-  (notmuch-archive-tags '("-inbox" "-unread"))
-  (notmuch-crypto-process-mime t)
-  (notmuch-hello-sections '(notmuch-hello-insert-saved-searches))
-  (notmuch-labeler-hide-known-labels t)
-  (notmuch-message-headers '("Subject" "To" "Cc" "Bcc"))
-  (notmuch-search-oldest-first nil)
-  (sendmail-program (executable-find "msmtp"))
-  :config
-  (notmuch-address-harvest))
+(use-package vterm
+  :straight (:type built-in))
 
 (use-package pdf-tools
   :straight (:type built-in)
@@ -673,8 +704,83 @@
   :straight (persp-mode :type git
                         :host github
                         :repo "Bad-ptr/persp-mode.el")
+  :diminish persp-mode
   :config
-  (persp-mode t))
+  (persp-mode t)
+  :custom
+  (persp-auto-resume-time 0 "Avoid autoloading perspective")
+  (persp-filter-save-buffers-functions
+   (list (lambda (b) (string-prefix-p "*" (buffer-name b)))
+         (lambda (b) (not (null (string-match-p (rx (seq word-boundary "magit"
+                                                         (zero-or-more (seq "-" (one-or-more any))) ":")) (buffer-name b)))))
+         (lambda (b) (string-match-p
+                      (regexp-opt '("mu4e-compose-mode"))
+                      (symbol-name (buffer-local-value 'major-mode b)))))
+   "Filter out special and magit buffers from saving"))
+
+;; https://www.djcbsoftware.nl/code/mu/mu4e.html
+(use-package mu4e
+  :after (:all
+          message
+          sendmail)
+  :straight (:type built-in)
+  :demand t
+  :bind (("C-c M 4" . mu4e))
+  :hook (
+         ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
+         (dired-mode . turn-on-gnus-dired-mode))
+  :config
+  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
+  (require 'gnus-dired)
+  ;; make the `gnus-dired-mail-buffers' function also work on
+  ;; message-mode derived modes, such as mu4e-compose-mode
+  (defun gnus-dired-mail-buffers ()
+    "Return a list of active message buffers."
+    (let (buffers)
+      (save-current-buffer
+        (dolist (buffer (buffer-list t))
+          (set-buffer buffer)
+          (when (and (derived-mode-p 'message-mode)
+                     (null message-sent-message-via))
+            (push (buffer-name buffer) buffers))))
+      (nreverse buffers)))
+  (setq mu4e-contexts
+        `( ,(make-mu4e-context
+             :name "Sample"
+             :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
+             :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
+             :vars '(( user-mail-address . "foo@example.com")))))
+  :custom
+  (mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
+  (mu4e-compose-format-flowed t "Compose messages as format=flowed")
+  (mu4e-sent-messages-behavior 'delete "Switch this behavior to 'sent within the appropriate contexts where directory mu4e-sent-folder is correctly set")
+  (gnus-dired-mail-mode 'mu4e-user-agent)
+  (mu4e-use-fancy-chars t "Use fancy unicode characters for mu4e marks")
+  (mu4e-context-policy 'ask)
+  (mu4e-compose-context-policy 'ask)
+  (mu4e-index-update-in-background t "Index in background")
+  (mu4e-mu-debug t "Run mu in debug mode")
+  (mu4e-index-cleanup nil)
+  (mu4e-index-lazy-check t)
+  (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
+  (mu4e-update-interval 300 "Auto index every 5 minutes"))
+
+(use-package sendmail
+  :straight (:type built-in)
+  :custom
+  (send-mail-function 'smtpmail-send-it "Default to block")
+  (smtpmail-debug-info t "Enable debugging")
+  (mail-specify-envelope-from nil "Don't try to be smart, use user-mail-address")
+  (mail-envelope-from nil "Don't try to be smart, use user-mail-address"))
+
+(use-package message
+  :straight (:type built-in)
+  :custom
+  (message-directory "~/mail/")
+  (message-send-mail-function 'message-send-mail-with-sendmail "Use sendmail as our MTA")
+  (message-sendmail-f-is-evil t "Avoid setting -f (--from) when calling sendmail")
+  (message-sendmail-envelope-from 'header "Use From: header")
+  (message-kill-buffer-on-exit t "Kill a buffer once a message is sent"))
 
 (message "💥 Debug on error is %s" debug-on-error)
 

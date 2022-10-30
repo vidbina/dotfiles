@@ -8,6 +8,7 @@ Since I'm actively using the Modus Themes from Prot I want to map the theme colo
 #+begin_src elisp
 (let* ((base-theme modus-themes-vivendi-colors)
        (colors '((background . bg-main)
+                 (borderColor . bg-main)
                  (foreground . fg-main)
                  (color0 . bg-main)
                  (color1 . red)
@@ -44,6 +45,7 @@ Since I'm actively using the Modus Themes from Prot I want to map the theme colo
 #+begin_src elisp
 (let* ((base-theme modus-themes-operandi-colors)
        (colors '((background . bg-main)
+                 (borderColor . bg-main)
                  (foreground . fg-main)
                  (color0 . bg-main)
                  (color1 . red)

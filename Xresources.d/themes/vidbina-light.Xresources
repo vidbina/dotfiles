@@ -2,6 +2,7 @@
 
 ! This file is tangled from README.org
 *background: #ffffff
+*borderColor: #ffffff
 *foreground: #000000
 *color0: #ffffff
 *color1: #a60000

@@ -1,21 +1,37 @@
+# Tangled from README.org
 { config, pkgs, lib, options, ... }:
 
 let
   sources = import ../nix/sources.nix;
   emacs-overlay-src = sources."emacs-overlay";
+  baseCommand = windowName:
+    builtins.concatStringsSep " " [
+      "emacsclient -a emacs"
+      ''-F "((name . \\\"${windowName}\\\"))"''
+      "-c"
+    ];
 in
 {
   home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
 
-  home.packages = with pkgs; let
-    baseCommand = windowName:
-      builtins.concatStringsSep " " [
-        "emacsclient -a emacs"
-        ''-F "((name . \\\"${windowName}\\\"))"''
-        "-c"
-      ];
-  in
-  [
+  home.packages = with pkgs; [
+    cask
+
+    (mu.overrideAttrs (oldAttrs:
+      let
+        rev = "bbf55256e58aa62546e8bdade1d127d7e6a9b57e";
+      in
+      {
+        version = "1.6.10-${rev}";
+        src = fetchFromGitHub {
+          owner = "djcb";
+          repo = "mu";
+          rev = "${rev}";
+          sha256 = "sha256-ozIITQbt7U4qDzHjbfDyIogIkMRpX1VsBr9igdpNqcI=";
+        };
+        emacs = my-emacs;
+      }))
+
     (writeScriptBin "e" ''
       exec emacsclient -a emacs -c "$@"
     '')
@@ -109,37 +125,37 @@ in
   nixpkgs.overlays = [
     (import emacs-overlay-src)
 
-    (self: super: {
-      my-emacs =
-        let
-          emacs = (pkgs.emacsGit.override {
-            nativeComp = true;
-            withSQLite3 = true;
-            withGTK2 = false;
-            withGTK3 = false;
-          });
-          emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
-          bundled-emacs = emacsWithPackages (epkgs: (
-            with epkgs; [
-              notmuch
-              vterm
-              pdf-tools
-            ]
-          ) ++ (
-            with epkgs.melpaStablePackages; [
-            ]
-          ) ++ (
-            with epkgs.melpaPackages; [
-            ]
-          ));
-          ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-            withPCRE2 = true;
-          });
-          jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
-            jupyter
-          ]));
-        in
-        (pkgs.buildEnv {
+    (self: super:
+      let
+        emacs = (pkgs.emacsGit.override {
+          nativeComp = true;
+          withSQLite3 = true;
+          withGTK2 = false;
+          withGTK3 = false;
+        });
+        emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+        bundled-emacs = emacsWithPackages (epkgs: (
+          with epkgs; [
+            notmuch
+            vterm
+            pdf-tools
+          ]
+        ) ++ (
+          with epkgs.melpaStablePackages; [
+          ]
+        ) ++ (
+          with epkgs.melpaPackages; [
+          ]
+        ));
+        ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+          withPCRE2 = true;
+        });
+        jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
+          jupyter
+        ]));
+      in
+      {
+        my-emacs = (pkgs.buildEnv {
           name = "my-emacs";
           paths = [
             bundled-emacs
@@ -148,11 +164,11 @@ in
             pkgs.coreutils
             pkgs.fd
             pkgs.multimarkdown
-            jupyter-for-emacs
             ripgrep-for-doom-emacs
+            jupyter-for-emacs
           ];
         });
-    })
+      })
   ];
 
   xdg.mimeApps.defaultApplications = {

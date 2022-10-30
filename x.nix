@@ -1,10 +1,13 @@
+# Tangled from README.org
 { config, pkgs, lib, options, ... }:
 
 {
   home.packages = with pkgs; [
+    brightnessctl
     neofetch
     peek
     screenkey
+    xdotool
     xsel-copy-url
 
     (writeScriptBin "colors" ''
@@ -81,8 +84,6 @@
         pkgs.symlinkJoin {
           name = "vidbina-urxvt-themes";
           paths = map readTheme [
-            "minichrome-dark.Xresources"
-            "minichrome-light.Xresources"
             "vidbina-dark.Xresources"
             "vidbina-light.Xresources"
           ];
@@ -113,6 +114,7 @@
     enable = true;
     package = pkgs.rxvt-unicode;
     iso14755 = false;
+
     extraConfig = {
       "geometry" = "128x32";
       "perl-lib" = "${pkgs.rxvt-unicode}/lib/urxvt/perl";
@@ -129,27 +131,6 @@
       "color-themes.themedir" = "${pkgs.vidbina-urxvt-themes}/share";
       "color-themes.state-file" = "${config.home.homeDirectory}/.urxvt-theme";
       "color-themes.autosave" = 1;
-
-      # See `man urxvt` for guidance on the colors
-      "background" = "#000000";
-      "foreground" = "#ffffff";
-      "cursorColor" = "#00ff00";
-      "color0" = "#000000"; # black, Black
-      "color1" = "#ff0000"; # red, Red3
-      "color2" = "#55ff55"; # green, Green3
-      "color3" = "#ffd42a"; # yellow, Yellow3
-      "color4" = "#2a7fff"; # blue, Blue3
-      "color5" = "#dd55ff"; # magenta, Magenta3
-      "color6" = "#00aad4"; # cyan, Cyan3
-      "color7" = "#cccccc"; # white, AntiqueWhite
-      "color8" = "#333333"; # bright black, Grey25
-      "color9" = "#ff0066"; # bright red, Red
-      "color10" = "#00ff00"; # bright green, Green
-      "color11" = "#ff6600"; # bright yellow, Yellow
-      "color12" = "#00b3ff"; # bright blue, Blue
-      "color13" = "#ff2ad4"; # bright magenta, Magenta
-      "color14" = "#00ffcc"; # bright cyan, Cyan
-      "color15" = "#ffffff"; # bright white, White
     };
     fonts = [
       "xft:DejaVu Sans Mono:pixelsize=28:antialias=true"
@@ -166,9 +147,23 @@
       "M-C-l" = "perl:color-themes:load-state";
       "M-C-s" = "perl:color-themes:save-state";
     };
+    scroll = {
+      bar.enable = false;
+    };
   };
 
   programs.autorandr = {
     enable = true;
   };
+  # programs.xmobar = {
+  #   enable = true;
+  #   # extraConfig =
+  # };
+
+  # TODO: https://gvolpe.com/blog/xmonad-polybar-nixos/
+  # try polybar sometime
+
+  # services.taffybar = {
+  #   enable = true;
+  # };
 }

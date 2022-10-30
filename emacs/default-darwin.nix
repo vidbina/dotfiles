@@ -1,8 +1,15 @@
+# Tangled from README.org
 { config, pkgs, lib, options, ... }:
 
 let
   sources = import ../nix/sources.nix;
   emacs-overlay-src = sources."emacs-overlay";
+  baseCommand = windowName:
+    builtins.concatStringsSep " " [
+      "emacsclient -a emacs"
+      ''-F "((name . \\\"${windowName}\\\"))"''
+      "-c"
+    ];
 in
 {
   home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;

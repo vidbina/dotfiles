@@ -1,3 +1,4 @@
+# Tangled from  README.org
 { config, pkgs, ... }:
 
 {
@@ -31,12 +32,13 @@
       #ale
       #vim-scala
       coc-nvim
+      deoplete-notmuch
       elm-vim
       goyo-vim
       neoformat
       nerdtree
       nvim-treesitter
-      orgmode
+      #orgmode
       plantuml-syntax
       #sentinel-vim
       tabular

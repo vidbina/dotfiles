@@ -1,3 +1,4 @@
+# Tangled from README.org
 { lib, pkgs, ... }:
 
 {
@@ -6,6 +7,7 @@
     ./doc.nix
     ./browser.nix
     ./x.nix
+    ./multimedia.nix
 
     ./emacs
 
@@ -13,23 +15,11 @@
   ];
 
   home.packages = with pkgs; [
-    (mu.overrideAttrs (oldAttrs:
-      let
-        rev = "bbf55256e58aa62546e8bdade1d127d7e6a9b57e";
-      in
-      {
-        version = "1.6.10-${rev}";
-        src = fetchFromGitHub {
-          owner = "djcb";
-          repo = "mu";
-          rev = "${rev}";
-          sha256 = "sha256-ozIITQbt7U4qDzHjbfDyIogIkMRpX1VsBr9igdpNqcI=";
-        };
-        emacs = my-emacs;
-      }))
+    vokoscreen
   ];
 
   services.blueman-applet.enable = true;
+  services.network-manager-applet.enable = true;
 
   services.gammastep = {
     enable = true;
@@ -45,7 +35,10 @@
     tray = true;
   };
 
-  services.network-manager-applet.enable = true;
+  services.gpg-agent = {
+    enable = true;
+    enableSshSupport = true;
+  };
 
   services.syncthing = {
     enable = true;

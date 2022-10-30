@@ -5,18 +5,24 @@
                           :repo "emacsmirror/rainbow-mode"))
 
 ;; https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html
-(with-eval-after-load "ispell"
-  (setq ispell-program-name "hunspell")
+(use-package ispell
+  :straight (:type built-in)
+  :custom
+  (ispell-program-name "hunspell")
   ;; Configure German, Swiss German, and two variants of English.
-  (setq ispell-dictionary "en_US,de_DE,nl")
+  (ispell-dictionary "en_US,de_DE,nl")
+  ;; For saving words to the personal dictionary, don't infer it from
+  ;; the locale, otherwise it would save to ~/.hunspell_de_DE.
+  (ispell-personal-dictionary "~/.hunspell_personal")
+  (ispell-personal-dictionary "~/.hunspell_personal")
+  :config
+  ;; https://www.emacswiki.org/emacs/FlySpell#h5o-14
+  (add-to-list 'ispell-skip-region-alist '("^#+BEGIN_SRC" . "^#+END_SRC"))
+
   ;; ispell-set-spellchecker-params has to be called
   ;; before ispell-hunspell-add-multi-dic will work
   (ispell-set-spellchecker-params)
   (ispell-hunspell-add-multi-dic ispell-dictionary)
-  ;; For saving words to the personal dictionary, don't infer it from
-  ;; the locale, otherwise it would save to ~/.hunspell_de_DE.
-  (setq ispell-personal-dictionary "~/.hunspell_personal")
-
   ;; The personal dictionary file has to exist, otherwise hunspell will
   ;; silently not use it.
   (unless (file-exists-p ispell-personal-dictionary)
@@ -123,8 +129,58 @@
   :straight (nix-mode :type git
                       :host github
                       :repo "NixOS/nix-mode")
-  :init
-  (setq nix-nixfmt-bin "nixpkgs-fmt"))
+
+  :custom
+  (nix-nixfmt-bin "nixpkgs-fmt"))
+
+(defcustom nix-develop-default-prompt-regexp "^>\s+"
+  "Custom prompt for nix-develop"
+  :type 'string
+  :group 'nix-develop)
+
+(defvar nix-develop-mode-map
+  (let ((map (make-sparse-keymap)))
+    map))
+
+(defvar nix-develop-mode-syntax-table
+  (make-syntax-table shell-mode-syntax-table))
+
+(define-derived-mode nix-develop-mode comint-mode "Nix Develop"
+  "Major mode for `nix-develop'"
+  (setq comint-prompt-regexp nix-develop-default-prompt-regexp))
+
+(defun org-babel-execute:nix-develop (body params)
+  "Execute a block of nix develop commands with Babel."
+  (save-window-excursion
+    (let* ((shell-buffer (org-babel-sh-initiate-session "*nix-develop*"))
+           (prompt-regexp nix-develop-default-prompt-regexp))
+      (org-babel-comint-with-output
+          (shell-buffer org-babel-sh-eoe-output t body)
+        (dolist (line (append (list "nix develop")
+                              (split-string (org-trim body) "\n")
+                              (list org-babel-sh-eoe-indicator)))
+          (insert line)
+          (comint-send-input nil t)
+          (while (save-excursion
+                   (goto-char comint-last-input-end)
+                   (not (re-search-forward
+                         prompt-regexp nil t)))
+            (accept-process-output
+             (get-buffer-process (current-buffer)))))))))
+
+(provide 'nix-develop-mode)
+
+;; https://github.com/fxbois/web-mode
+(use-package web-mode
+  :straight (web-mode :type git
+                      :host github
+                      :repo "fxbois/web-mode"))
+
+;; https://github.com/fxbois/web-mode
+(use-package web-mode
+  :straight (web-mode :type git
+                      :host github
+                      :repo "fxbois/web-mode"))
 
 ;; https://github.com/dominikh/go-mode.el
 (use-package go-mode
@@ -143,6 +199,31 @@
   (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
   (define-key js-mode-map (kbd "C-c b") 'js-send-buffer))
 
+;; https://github.com/emacs-typescript/typescript.el
+(use-package typescript-mode
+  :straight
+  (typescript-mode :type git
+                   :host github
+                   :repo "emacs-typescript/typescript.el")
+  :delight
+  (typescript-mode "ts"))
+
+;; https://github.com/ananthakumaran/tide
+(use-package tide
+  :straight
+  (tide :type git
+        :host github
+        :repo "ananthakumaran/tide")
+  :init
+  (evil-collection-tide-setup)
+  :delight
+  (tide-mode "🌊")
+  :after (typescript-mode)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode))
+  :custom
+  (tide-always-show-documentation nil "Don't show docs if only type info is available to minimize disruption"))
+
 ;; https://emacs-lsp.github.io/lsp-java/
 (use-package lsp-java
   :straight (lsp-java :type git
@@ -156,6 +237,15 @@
                           :repo "clojure-emacs/clojure-mode")
   :config
   (require 'ob-clojure))
+
+;; https://github.com/clojure-emacs/cider
+(use-package cider
+  :straight (cider :type git
+                   :host github
+                   :repo "clojure-emacs/cider")
+  :config
+  (setq org-babel-clojure-backend 'cider
+        cider-lein-parameters "with-profile -user repl :headless :host localhost"))
 
 ;; https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode
 (use-package kotlin-mode
@@ -191,6 +281,16 @@
                       :host github
                       :repo "jcollard/elm-mode"))
 
+;; https://github.com/editorconfig/editorconfig-emacs#readme
+(use-package editorconfig
+  :straight (editorconfig :type git
+                          :host github
+                          :repo "editorconfig/editorconfig-emacs")
+  :config
+  (editorconfig-mode 1)
+  :delight
+  (editorconfig-mode "🎛️"))
+
 ;; https://github.com/Fanael/rainbow-delimiters
 (use-package rainbow-delimiters
   :straight (rainbow-delimiters :type git
@@ -203,11 +303,22 @@
   ;; ((prog-mode) . rainbow-delimiters-mode)
   )
 
+;; https://github.com/DarthFennec/highlight-indent-guides
+(use-package highlight-indent-guides
+  :straight (highlight-indent-guides :type git
+                                     :host github
+                                     :repo "DarthFennec/highlight-indent-guides")
+  :custom
+  (highlight-indent-guides-method 'column))
+
 ;; https://github.com/emacsmirror/paredit
 (use-package paredit
   :straight (paredit :type git
                      :host github
-                     :repo "emacsmirror/paredit"))
+                     :repo "emacsmirror/paredit")
+  :delight
+  (paredit-mode "🛝")
+  :bind (("C-c v (" . paredit-mode)))
 
 ;; https://github.com/purcell/inheritenv
 (use-package inheritenv
@@ -220,11 +331,23 @@
   :straight (envrc :type git
                    :host github
                    :repo "purcell/envrc")
+  :after inheritenv
+  :delight
+  (envrc-mode "📦")
   :hook (after-init . envrc-global-mode)
   :bind-keymap ("C-c e" . envrc-command-map))
+
+;; https://github.com/purcell/exec-path-from-shell
+(use-package exec-path-from-shell
+  :straight (exec-path-from-shell :type git
+                                  :host github
+                                  :repo "purcell/exec-path-from-shell")
+  :config (when (daemonp)
+            (exec-path-from-shell-initialize)))
 
 ;; https://github.com/joaotavora/eglot
 (use-package eglot
   :straight (eglot :type git
                    :host github
-                   :repo "joaotavora/eglot"))
+                   :repo "joaotavora/eglot")
+  :bind (:map eglot-mode-map ("C-h j" . xref-find-definition)))

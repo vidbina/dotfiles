@@ -1,3 +1,4 @@
+# Tangled from README.org
 { config, pkgs, ... }:
 
 {
@@ -11,6 +12,4 @@
     offlineimap
     urlview
   ];
-
-  # TODO: Setup get-mail worker
 }
