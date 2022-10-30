@@ -1903,7 +1903,8 @@ Let's hide line numbers and For the sake of ease of navigation and spatial orien
   (display-line-numbers-mode 0)
 
   :hook
-  ((prog-mode text-mode) . (lambda () (display-line-numbers-mode 1))))
+  (prog-mode . (lambda () (display-line-numbers-mode 1)))
+  (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
 ** 🏳️ Whitespace
@@ -3770,7 +3771,6 @@ sendmail: could not send mail (account personal from /home/vidbina/.config/msmtp
          ("SPC" . vidbina/notmuch-toggle-inbox))
   :init
   (evil-collection-notmuch-setup)
-  :hook (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
   :custom
   (notmuch-always-prompt-for-sender t)
   (notmuch-archive-tags '("-inbox" "-unread"))

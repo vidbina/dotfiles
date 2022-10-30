@@ -250,7 +250,8 @@
   (display-line-numbers-mode 0)
 
   :hook
-  ((prog-mode text-mode) . (lambda () (display-line-numbers-mode 1))))
+  (prog-mode . (lambda () (display-line-numbers-mode 1)))
+  (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0))))
 
 ;; https://www.emacswiki.org/emacs/WhiteSpace
 ;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
