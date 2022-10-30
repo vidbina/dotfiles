@@ -372,7 +372,7 @@ vterm_cmd() {
 
 Read https://scriptingosx.com/2019/07/moving-to-zsh-part-5-completions/
 
-****** Bash completions
+****** COMMENT Bash completions
 
 #+begin_src sh :noweb-ref zsh-init-extra
 # enable bash completion
@@ -380,7 +380,7 @@ autoload -U +X bashcompinit && \
 bashcompinit
 #+end_src
 
-****** Color
+****** COMMENT Color
 
 The [[https://zsh.sourceforge.io/Doc/Release/Zsh-Modules.html#The-zsh_002fcomplist-Module][complist]] module allows completion lists to be color-coded.
 
@@ -389,7 +389,7 @@ zmodload -i zsh/complist
 #source ${./zsh/zstyle.zsh}
 #+end_src
 
-****** Fzf completions
+****** COMMENT Fzf completions
 
 #+begin_src sh :noweb-ref zsh-init-extra
 source ${pkgs.fzf}/share/fzf/completion.zsh
