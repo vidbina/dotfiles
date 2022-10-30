@@ -243,7 +243,14 @@
 (show-paren-mode 1)
 
 ;; https://www.emacswiki.org/emacs/LineNumbers
-(global-display-line-numbers-mode 1)
+(use-package display-line-numbers
+  :straight (:type built-in)
+
+  :config
+  (display-line-numbers-mode 0)
+
+  :hook
+  ((prog-mode text-mode) . (lambda () (display-line-numbers-mode 1))))
 
 ;; https://www.emacswiki.org/emacs/WhiteSpace
 ;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
