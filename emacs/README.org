@@ -652,7 +652,7 @@ Debugger entered--Lisp error: (error "Marker does not point anywhere")
 <s
 #+end_src
 
-** Org LaTeX Listing Source Wrapping
+** Org $LaTeX$ Listing Source Wrapping
 
 By default listings in LaTeX exports don't line-wrap which is really useless when you have blocks with long lines and are hoping for readable output in a printable form-factor -- not to say that you actually print it but hey... your e-reader may want that printable form-factor?!? 🤷🏿‍♂️
 
@@ -2682,6 +2682,8 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
 
 People have somewhat strong opinions about keybindings. Grab yourself some popcorn 🍿 and enjoy some choice words on [[https://www.reddit.com/r/emacs/comments/tyg9v5/why_not_use_evil_in_2022/][Reddit]] or on a number of YouTube videos that are pretty easy to find.
 
+Read [[https://blog.aaronbieber.com/2016/01/23/living-in-evil.html#forcing-emacs-state-][Living in Evil (Aaron Bieber)]] for some insight into some evil struggles that you may run into.
+
 *** <<evil-vimish-fold>> Folding in a "vimish" fashion
 
 The [[https://github.com/alexmurray/evil-vimish-fold][evil-vimish-fold]] package does exactly what the name implies and integrates evil and [[vimish-fold]] such that we can fold regions through the [[https://vim.fandom.com/wiki/Folding][vim-like bindings]] with classics such as =z f= to fold, =z o= to open and =z d= to delete.
@@ -3104,6 +3106,15 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 (use-package vterm
   :straight (:type built-in))
 #+end_src
+
+*** TODO Debug =evil-collection-vterm-delete=
+
+In vterm:
+1. Enter a word after the prompt
+2. selecting that word
+3. Enter =dw= evil binding (to delete word)
+
+Result: triggers a case change.
 
 *** COMMENT multi-vterm
 
