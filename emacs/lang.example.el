@@ -14,7 +14,11 @@
   ;; For saving words to the personal dictionary, don't infer it from
   ;; the locale, otherwise it would save to ~/.hunspell_de_DE.
   (ispell-personal-dictionary "~/.hunspell_personal")
+  (ispell-personal-dictionary "~/.hunspell_personal")
   :config
+  ;; https://www.emacswiki.org/emacs/FlySpell#h5o-14
+  (add-to-list 'ispell-skip-region-alist '("^#+BEGIN_SRC" . "^#+END_SRC"))
+
   ;; ispell-set-spellchecker-params has to be called
   ;; before ispell-hunspell-add-multi-dic will work
   (ispell-set-spellchecker-params)
