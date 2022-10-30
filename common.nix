@@ -89,9 +89,14 @@ in
           alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
       fi
       vterm_prompt_end() {
-          vterm_printf "51;A$(whoami)@$(hostname):$(pwd)";
+          vterm_printf "51;A";
       }
       setopt PROMPT_SUBST
+      PROMPT="↪ %(?.%F{green}√.%F{red}%?)%f" # error state
+      PROMPT="$PROMPT → %F{yellow}%~%f" # pwd
+      PROMPT="$PROMPT @ %F{magenta}%D{%Y.%m.%d} %B%F{blue}%T%f%b" # date/time
+      PROMPT="$PROMPT"$'\n'
+      PROMPT="$PROMPT%F{green}>%f " # prompt
       PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
       vterm_cmd() {
           local vterm_elisp
