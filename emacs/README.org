@@ -295,8 +295,6 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
         org-odd-levels-only nil)
-  :hook
-  <<org-hook>>
   <<org-bind>>
   :config
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates

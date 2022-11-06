@@ -31,8 +31,6 @@
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
         org-odd-levels-only nil)
-  :hook
-
   :bind (:map org-babel-map ("t" . org-babel-tangle-async))
   :config
   ;; https://orgmode.org/manual/Capture-templates.html#Capture-templates
