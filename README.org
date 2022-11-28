@@ -670,20 +670,37 @@ services.network-manager-applet.enable = true;
 
 ***** Gammastep
 
-#+begin_src nix :noweb-ref home-linux-services
+#+begin_src nix :noweb yes :noweb-ref home-linux-services
 services.gammastep = {
   enable = true;
-  dawnTime = "5:00-6:00";
-  duskTime = "17:35-19:00";
-  latitude = 52.5;
-  longitude = 13.4;
+  <<home-linux-services-gammastep>>
+
   temperature = {
     # https://www.eizo.com/library/basics/color_temperature_on_an_LCD_monitor/
     day = 6500;
     night = 2500;
   };
+
   tray = true;
 };
+#+end_src
+
+****** COMMENT Berlin
+
+#+begin_src nix :noweb-ref home-linux-services-gammastep
+dawnTime = "5:00-6:00";
+duskTime = "17:35-19:00";
+latitude = 52.5;
+longitude = 13.4;
+#+end_src
+
+****** Bangkok
+
+#+begin_src nix :noweb-ref home-linux-services-gammastep
+dawnTime = "5:00-6:00";
+duskTime = "17:35-19:00";
+latitude = 13.7;
+longitude = 100.5;
 #+end_src
 
 ***** GPG Agent
