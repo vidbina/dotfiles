@@ -2721,7 +2721,6 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
                              :host github
                              :repo "emacs-evil/evil-collection")
   :after evil
-  :ensure t
   :config
   (evil-collection-init)
   (advice-add 'evil-collection-mu4e-setup
@@ -5679,7 +5678,6 @@ To add another layer of convenience or complexity, depending on how you want to 
   :delight
   (editorconfig-mode "🎛️"))
 #+end_src
-
 
 **** TODO Debug editorconfig conflict
 
