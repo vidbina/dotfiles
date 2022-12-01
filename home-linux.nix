@@ -14,8 +14,11 @@
     ./rofi
   ];
 
+  fonts.fontconfig.enable = true;
+
   home.packages = with pkgs; [
     vokoscreen
+    montserrat
   ];
 
   services.blueman-applet.enable = true;

@@ -423,8 +423,11 @@ runtime: panic before malloc heap initialized
     ./rofi
   ];
 
+  fonts.fontconfig.enable = true;
+
   home.packages = with pkgs; [
     vokoscreen
+    montserrat
   ];
 
   <<home-linux-services>>
