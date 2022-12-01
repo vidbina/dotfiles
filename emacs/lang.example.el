@@ -1,3 +1,5 @@
+;; Tangled from dotfiles/emacs/README.org
+
 ;; https://github.com/emacsmirror/rainbow-mode
 (use-package rainbow-mode
   :straight (rainbow-mode :type git

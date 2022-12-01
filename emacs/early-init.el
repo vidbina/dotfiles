@@ -1,3 +1,5 @@
+;; Tangled from dotfiles/emacs/README.org
+
 (message "🥱 Loading early-init.el")
 
 (setq package-enable-at-startup nil)

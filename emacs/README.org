@@ -96,6 +96,42 @@ digraph G {
 
 For convenience's sake, let's start stubbing some of the files that we will be tangling from this literate configuration.
 
+
+** Tangle providence notice
+
+#+begin_src elisp :noweb-ref tangle-providence
+;; Tangled from dotfiles/emacs/README.org
+
+#+end_src
+
+*** early-init.el
+
+#+begin_src elisp :tangle early-init.el :noweb yes
+<<tangle-providence>>
+#+end_src
+
+*** init.el
+
+#+begin_src elisp :tangle init.el :noweb yes
+<<tangle-providence>>
+#+end_src
+
+*** lang.el
+
+⚠️ We only populate into an example file.
+
+#+begin_src elisp :tangle lang.example.el :noweb yes
+<<tangle-providence>>
+#+end_src
+
+*** personal.el
+
+⚠️ We only populate into an example file.
+
+#+begin_src elisp :tangle personal-example.el :noweb yes
+<<tangle-providence>>
+#+end_src
+
 ** early-init.el
 
 The [[file:early-init.el]] will be loaded before our "real configuration" is evaluated. Some configuration settings may have to be set at this stage but this should be used sparingly as it may be an indication of poor configuration when one has to resort too often to configuring at this stage.
