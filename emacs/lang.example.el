@@ -60,6 +60,12 @@
                            :host github
                            :repo "Sterlingg/json-snatcher"))
 
+;; https://github.com/tminor/jsonnet-mode
+(use-package jsonnet-mode
+  :straight (jsonnet-mode :type git
+                          :host github
+                          :repo "tminor/jsonnet-mode"))
+
 ;; https://github.com/yoshiki/yaml-mode
 (use-package yaml-mode
   :straight (yaml-mode :type git

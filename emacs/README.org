@@ -4887,6 +4887,16 @@ Some of the relevant keybindings are:
                            :repo "Sterlingg/json-snatcher"))
 #+end_src
 
+**** Jsonnet
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/tminor/jsonnet-mode
+(use-package jsonnet-mode
+  :straight (jsonnet-mode :type git
+                          :host github
+                          :repo "tminor/jsonnet-mode"))
+#+end_src
+
 *** YAML
 
 #+begin_src elisp :tangle lang.example.el
