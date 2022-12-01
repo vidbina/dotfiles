@@ -5609,6 +5609,16 @@ To add another layer of convenience or complexity, depending on how you want to 
                       :repo "jcollard/elm-mode"))
 #+end_src
 
+*** Rust
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/rust-lang/rust-mode
+(use-package rust-mode
+  :straight (rust-mode :type git
+                       :host github
+                       :repo "rust-lang/rust-mode"))
+#+end_src
+
 ** Misc
 
 *** EditorConfig

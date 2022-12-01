@@ -281,6 +281,12 @@
                       :host github
                       :repo "jcollard/elm-mode"))
 
+;; https://github.com/rust-lang/rust-mode
+(use-package rust-mode
+  :straight (rust-mode :type git
+                       :host github
+                       :repo "rust-lang/rust-mode"))
+
 ;; https://github.com/editorconfig/editorconfig-emacs#readme
 (use-package editorconfig
   :straight (editorconfig :type git
