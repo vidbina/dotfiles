@@ -36,5 +36,6 @@
 
   home.packages = [
     pkgs.nodePackages.typescript-language-server
+    pkgs.tree-sitter
   ];
 }

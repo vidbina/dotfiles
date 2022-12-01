@@ -1142,6 +1142,12 @@ difftastic = {
 pkgs.nodePackages.typescript-language-server
 #+end_src
 
+*** Tree-sitter
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.tree-sitter
+#+end_src
+
 * E-mail
 
 I have multiple ways of handling e-mails. For starters, I process nearly all of my e-mails that require deep thought and the ability to verify extraneous sources from the comfort of a workstation (i.e.: my laptop and trusted 2nd brain). Mobile is only used for the quick things on the go and I don't need much fancy capabilities there since I want to see these messages again once I'm behind the workstation just to verify that I didn't miss anything during the daze of being on the go (which tends to be the case when I'm on mobile).
