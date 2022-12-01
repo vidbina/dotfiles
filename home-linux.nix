@@ -30,11 +30,13 @@
     duskTime = "17:35-19:00";
     latitude = 13.7;
     longitude = 100.5;
+
     temperature = {
       # https://www.eizo.com/library/basics/color_temperature_on_an_LCD_monitor/
       day = 6500;
       night = 2500;
     };
+
     tray = true;
   };
 
