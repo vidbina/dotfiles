@@ -126,9 +126,8 @@
   :straight (phscroll :type git
                       :host github
                       :repo "misohena/phscroll")
-  :after (org)
-  :custom
-  (org-startup-truncated nil))
+  :init
+  (setq org-startup-truncated nil))
 
 ;; https://github.com/hniksic/emacs-htmlize
 (use-package htmlize

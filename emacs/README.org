@@ -726,9 +726,8 @@ The [[https://github.com/misohena/phscroll][phscroll]] package allows to exclude
   :straight (phscroll :type git
                       :host github
                       :repo "misohena/phscroll")
-  :after (org)
-  :custom
-  (org-startup-truncated nil))
+  :init
+  (setq org-startup-truncated nil))
 #+end_src
 
 Some of the bindings to remember when in phscroll-mode are:
