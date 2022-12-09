@@ -2189,7 +2189,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
         modus-themes-scale-headings t))
 #+end_src
 
-** NΛNO: NANO Theme by Rougier
+** COMMENT NΛNO: NANO Theme by Rougier
 
 The [[https://github.com/rougier/nano-emacs][NΛNO theme by Rougier]] provides a very "clean" Emacs experience. Let's use parts of it for a better DX.
 
