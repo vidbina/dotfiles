@@ -2794,9 +2794,15 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
                    :host github
                    :repo "magit/magit")
   :custom
-  ;; was previously #'magit-display-buffer-traditional
-  (magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1
-                                 "Open magit buffer in window at point")
+  (magit-display-buffer-function
+   (lambda (buffer)
+     ;; based on magit-display-buffer-same-window-except-diff-v1
+     (display-buffer
+      buffer (if (with-current-buffer buffer
+                   (derived-mode-p 'magit-diff-mode 'magit-process-mode))
+                 '(display-buffer-below-selected)
+               '(display-buffer-same-window))))
+   "Open in same window or (when secondary) split at bottom")
   (magit-diff-refine-hunk t "Show fine differences (word-granularity) for current hunk only"))
 #+end_src
 
