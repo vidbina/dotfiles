@@ -35,7 +35,7 @@
  ("emacs-which-key" . "5fb30301cb3b4fca5a0e1ce8ec1ef59290b79199")
  ("emacsmirror-mirror" . "ebaa7a97ab71b1af4236e730e54845b380eb1792")
  ("emacsql" . "9dca5996168c4963eb67e61c7f17fdcb8228e314")
- ("envrc" . "8a9a142cf9d35e62a70d9d100a946f78fe0b066a")
+ ("envrc" . "417285c4e259abab8ae43e2d72b0e1110563efbc")
  ("epl" . "78ab7a85c08222cd15582a298a364774e3282ce6")
  ("evil" . "44080eb3070642cc4f79e483a78712930dbf2797")
  ("evil-collection" . "1b9d5c5d939b6eae13b6e545e53faee958af460a")
