@@ -3646,10 +3646,18 @@ We set our preferred mail composition package:
 (gnus-dired-mail-mode 'mu4e-user-agent)
 #+end_src
 
-***** TODO Use fancy characters
+***** Use fancy characters
+
+Disabled until we have some font-issues resolved.
 
 #+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-use-fancy-chars t "Use fancy unicode characters for mu4e marks")
+(mu4e-use-fancy-chars nil "Use fancy unicode characters for mu4e marks")
+#+end_src
+
+***** Headers
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-headers-fields '((:flags . 6) (:human-date . 12) (:from . 20) (:subject)))
 #+end_src
 
 **** TODO Contexts
