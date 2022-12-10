@@ -6257,13 +6257,13 @@ nixpkgs.overlays = [
 We bundle emacs through a bunch of helpers that set whatever flags we need set and also take case of factoring our wanted package repositories into the mix.
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
-#emacs = (pkgs.emacsGit.override {
-#  nativeComp = true;
-#  withSQLite3 = true;
-#  withGTK2 = false;
-#  withGTK3 = false;
-#});
-bundled-emacs = pkgs.emacs.pkgs.withPackages (epkgs: (
+emacs = (pkgs.emacsGit.override {
+  nativeComp = true;
+  withSQLite3 = true;
+  withGTK2 = false;
+  withGTK3 = false;
+});
+bundled-emacs = emacs.pkgs.withPackages (epkgs: (
   with epkgs; [
     notmuch
     vterm

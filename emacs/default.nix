@@ -127,13 +127,13 @@ in
 
     (self: super:
       let
-        #emacs = (pkgs.emacsGit.override {
-        #  nativeComp = true;
-        #  withSQLite3 = true;
-        #  withGTK2 = false;
-        #  withGTK3 = false;
-        #});
-        bundled-emacs = pkgs.emacs.pkgs.withPackages (epkgs: (
+        emacs = (pkgs.emacsGit.override {
+          nativeComp = true;
+          withSQLite3 = true;
+          withGTK2 = false;
+          withGTK3 = false;
+        });
+        bundled-emacs = emacs.pkgs.withPackages (epkgs: (
           with epkgs; [
             notmuch
             vterm
