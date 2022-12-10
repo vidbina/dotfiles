@@ -174,14 +174,6 @@ in
     (toString ./bin)
   ];
 
-  manual = {
-    # Use `home-manager-help`
-    html.enable = true;
-
-    # Use `man home-configuration.nix`
-    manpages.enable = true;
-  };
-
   nixpkgs.overlays = [
     (self: super: { })
   ];
@@ -210,6 +202,18 @@ in
 
   <<common-programs>>
 }
+#+end_src
+
+**** Manual
+
+#+begin_src nix :noweb-ref common-programs
+manual = {
+  # Use `home-manager-help`
+  html.enable = false;
+
+  # Use `man home-configuration.nix`
+  manpages.enable = false;
+};
 #+end_src
 
 **** Zsh

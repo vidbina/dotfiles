@@ -28,14 +28,6 @@ in
     (toString ./bin)
   ];
 
-  manual = {
-    # Use `home-manager-help`
-    html.enable = true;
-
-    # Use `man home-configuration.nix`
-    manpages.enable = true;
-  };
-
   nixpkgs.overlays = [
     (self: super: { })
   ];
@@ -62,6 +54,13 @@ in
     extraConfig = builtins.readFile (./. + "/tmux.conf");
   };
 
+  manual = {
+    # Use `home-manager-help`
+    html.enable = false;
+
+    # Use `man home-configuration.nix`
+    manpages.enable = false;
+  };
   programs.zsh = {
     enable = true;
     enableAutosuggestions = false;
