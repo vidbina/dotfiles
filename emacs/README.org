@@ -6306,7 +6306,7 @@ We also add the custom ripgrep to our Emacs paths to factor it into the build:
 ripgrep-for-doom-emacs
 #+end_src
 
-***** Jupyter
+***** COMMENT Jupyter
 
 Jupyter for Emacs is probably here to allow me to run Python code from my buffers.
 

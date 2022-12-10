@@ -150,9 +150,6 @@ in
         ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
           withPCRE2 = true;
         });
-        jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
-          jupyter
-        ]));
       in
       {
         my-emacs = (pkgs.buildEnv {
@@ -165,7 +162,6 @@ in
             pkgs.fd
             pkgs.multimarkdown
             ripgrep-for-doom-emacs
-            jupyter-for-emacs
           ];
         });
       })
