@@ -41,16 +41,16 @@ in
       exec = "${(baseCommand "emacs-org-protocol")} %u";
       comment = "Org Protocol";
       desktopName = "org-protocol";
-      categories = builtins.concatStringsSep ";" [
+      categories = [
         "Utility"
         "Database"
         "TextTools"
         "TextEditor"
         "Office"
-      ] + ";";
-      mimeTypes = builtins.concatStringsSep ";" [
+      ];
+      mimeTypes = [
         "x-scheme-handler/org-protocol"
-      ] + ";";
+      ];
       terminal = false;
     })
 
@@ -62,15 +62,15 @@ in
       comment = "Emacs mu4e";
       desktopName = "emacs-mu4e";
       type = "Application";
-      categories = builtins.concatStringsSep ";" [
+      categories = [
         "Network"
         "Email"
-      ] + ";";
-      mimeTypes = builtins.concatStringsSep ";" [
+      ];
+      mimeTypes = [
         # Email
         "x-scheme-handler/mailto"
         "message/rfc822"
-      ] + ";";
+      ];
       terminal = false;
     })
 
@@ -88,15 +88,15 @@ in
       exec = "emacs-dired %f";
       comment = "Emacs Dired";
       desktopName = "emacs-dired";
-      categories = builtins.concatStringsSep ";" [
+      categories = [
         "Utility"
         "FileManager"
         "FileTools"
-      ] + ";";
-      mimeTypes = builtins.concatStringsSep ";" [
+      ];
+      mimeTypes = [
         "inode/directory"
         "inode/symlink"
-      ] + ";";
+      ];
       terminal = false;
     })
 

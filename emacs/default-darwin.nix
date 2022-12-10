@@ -66,7 +66,7 @@ in
               comment = "Org Protocol";
               desktopName = "org-protocol";
               type = "Application";
-              mimeTypes = "x-scheme-handler/org-protocol";
+              mimeTypes = [ "x-scheme-handler/org-protocol" ];
             })
 
             # for Emacs
@@ -81,7 +81,7 @@ in
               comment = "Emacs mu4e";
               desktopName = "emacs-mu4e";
               type = "Application";
-              mimeTypes = builtins.concatStringsSep ";" [
+              mimeTypes = [
                 # Email
                 "x-scheme-handler/mailto"
                 "message/rfc822"
