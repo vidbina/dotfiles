@@ -127,24 +127,17 @@ in
 
     (self: super:
       let
-        emacs = (pkgs.emacsGit.override {
-          nativeComp = true;
-          withSQLite3 = true;
-          withGTK2 = false;
-          withGTK3 = false;
-        });
-        emacsWithPackages = (pkgs.emacsPackagesFor emacs).emacsWithPackages;
-        bundled-emacs = emacsWithPackages (epkgs: (
+        #emacs = (pkgs.emacsGit.override {
+        #  nativeComp = true;
+        #  withSQLite3 = true;
+        #  withGTK2 = false;
+        #  withGTK3 = false;
+        #});
+        bundled-emacs = pkgs.emacs.pkgs.withPackages (epkgs: (
           with epkgs; [
             notmuch
             vterm
             pdf-tools
-          ]
-        ) ++ (
-          with epkgs.melpaStablePackages; [
-          ]
-        ) ++ (
-          with epkgs.melpaPackages; [
           ]
         ));
         ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
