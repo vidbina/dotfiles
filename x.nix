@@ -62,7 +62,7 @@
                 "Network"
                 "WebBrowser"
               ] + ";";
-              mimeType = builtins.concatStringsSep ";" [
+              mimeTypes = builtins.concatStringsSep ";" [
                 "text/html"
                 "x-scheme-handler/http"
                 "x-scheme-handler/https"

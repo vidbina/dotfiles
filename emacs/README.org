@@ -6367,7 +6367,7 @@ https://orgmode.org/worg/org-contrib/org-protocol.html
     "TextEditor"
     "Office"
   ] + ";";
-  mimeType = builtins.concatStringsSep ";" [
+  mimeTypes = builtins.concatStringsSep ";" [
     "x-scheme-handler/org-protocol"
   ] + ";";
   terminal = false;
@@ -6415,7 +6415,7 @@ javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(loca
     "Network"
     "Email"
   ] + ";";
-  mimeType = builtins.concatStringsSep ";" [
+  mimeTypes = builtins.concatStringsSep ";" [
     # Email
     "x-scheme-handler/mailto"
     "message/rfc822"
@@ -6454,7 +6454,7 @@ javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(loca
     "FileManager"
     "FileTools"
   ] + ";";
-  mimeType = builtins.concatStringsSep ";" [
+  mimeTypes = builtins.concatStringsSep ";" [
     "inode/directory"
     "inode/symlink"
   ] + ";";
@@ -6578,7 +6578,7 @@ nixpkgs.overlays = [
             comment = "Org Protocol";
             desktopName = "org-protocol";
             type = "Application";
-            mimeType = "x-scheme-handler/org-protocol";
+            mimeTypes = "x-scheme-handler/org-protocol";
           })
 
           # for Emacs
@@ -6593,7 +6593,7 @@ nixpkgs.overlays = [
             comment = "Emacs mu4e";
             desktopName = "emacs-mu4e";
             type = "Application";
-            mimeType = builtins.concatStringsSep ";" [
+            mimeTypes = builtins.concatStringsSep ";" [
               # Email
               "x-scheme-handler/mailto"
               "message/rfc822"

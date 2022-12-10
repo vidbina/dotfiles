@@ -48,7 +48,7 @@ in
         "TextEditor"
         "Office"
       ] + ";";
-      mimeType = builtins.concatStringsSep ";" [
+      mimeTypes = builtins.concatStringsSep ";" [
         "x-scheme-handler/org-protocol"
       ] + ";";
       terminal = false;
@@ -66,7 +66,7 @@ in
         "Network"
         "Email"
       ] + ";";
-      mimeType = builtins.concatStringsSep ";" [
+      mimeTypes = builtins.concatStringsSep ";" [
         # Email
         "x-scheme-handler/mailto"
         "message/rfc822"
@@ -93,7 +93,7 @@ in
         "FileManager"
         "FileTools"
       ] + ";";
-      mimeType = builtins.concatStringsSep ";" [
+      mimeTypes = builtins.concatStringsSep ";" [
         "inode/directory"
         "inode/symlink"
       ] + ";";
