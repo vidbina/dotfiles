@@ -62,7 +62,7 @@ in
     aspellDicts.de
     aspellDicts.en
     aspellDicts.nl
-    scim
+    sc-im
     visidata
     qrencode
     libreoffice
