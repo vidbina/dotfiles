@@ -7,7 +7,6 @@ let
       luatex
 
       atenddvi
-      IEEEtran
       background
       bashful
       capt-of

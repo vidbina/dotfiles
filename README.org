@@ -1590,7 +1590,6 @@ texlive-asabina = with pkgs; (texlive.combine {
     luatex
 
     atenddvi
-    IEEEtran
     background
     bashful
     capt-of
