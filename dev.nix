@@ -35,7 +35,28 @@
   };
 
   home.packages = [
+    pkgs.xxd
+    pkgs.hexyl
+    pkgs.ghidra-bin
+    pkgs.kakoune
+    pkgs.shellcheck
+    pkgs.shfmt
+    pkgs.asciinema
+    pkgs.exercism
+    pkgs.html-tidy
+    pkgs.wuzz # cURL-like TUI HTTP request inspection tool
+    pkgs.httpie
+    pkgs.httplab
+    pkgs.gdb
+    pkgs.checkmake
+    #pkgs.cmakeCurses
+    pkgs.gnumake
+    pkgs.glibc
+    pkgs.rnix-lsp
     pkgs.nodePackages.typescript-language-server
     pkgs.tree-sitter
+    pkgs.jq
+    pkgs.yq
+    pkgs.sqlite-interactive
   ];
 }

@@ -1137,9 +1137,91 @@ difftastic = {
 };
 #+end_src
 
-** Language Utilities
+** Utils
 
-*** Typescript Language Server
+*** Hex editors/viewers
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.xxd
+pkgs.hexyl
+#+end_src
+
+*** Reverse engineering
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.ghidra-bin
+#+end_src
+
+*** Editors
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.kakoune
+#+end_src
+
+*** Shell
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.shellcheck
+pkgs.shfmt
+#+end_src
+
+***** Asciinema
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.asciinema
+#+end_src
+
+*** Study
+**** Exercism
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.exercism
+#+end_src
+
+*** HTML, Web
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.html-tidy
+#+end_src
+
+**** Inspector
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.wuzz # cURL-like TUI HTTP request inspection tool
+#+end_src
+
+**** Web Servers
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.httpie
+pkgs.httplab
+#+end_src
+
+*** GCC
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.gdb
+pkgs.checkmake
+#pkgs.cmakeCurses
+pkgs.gnumake
+pkgs.glibc
+#+end_src
+
+*** COMMENT Haskell
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.ghc
+pkgs.ghcid
+#+end_src
+
+*** LSP
+**** Nix
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.rnix-lsp
+#+end_src
+
+**** Typescript Language Server
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.nodePackages.typescript-language-server
@@ -1149,6 +1231,20 @@ pkgs.nodePackages.typescript-language-server
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.tree-sitter
+#+end_src
+
+*** Query
+**** jq, yq
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.jq
+pkgs.yq
+#+end_src
+
+*** DB
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.sqlite-interactive
 #+end_src
 
 * E-mail
