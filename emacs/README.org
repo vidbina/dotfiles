@@ -2205,6 +2205,10 @@ The [[https://github.com/rougier/nano-emacs][NΛNO theme by Rougier]] provides a
   (require 'nano-mu4e))
 #+end_src
 
+*** TODO Debug why this doesn't work nicely yet :xmas:
+
+Probably a good holiday hacking effort.
+
 *** mu4e-dashboard
 
 #+begin_src elisp :tangle init.el
@@ -3579,7 +3583,7 @@ We set mu4e as the MUA:
 (mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
 #+end_src
 
-***** TODO Compose
+***** Compose
 
 We enable =format=flowed= to allow mail viewers to self-determine a suitable wrapping strategy. See a [[https://news.ycombinator.com/item?id=20514314][HN thread]] on [[https://useplaintext.email/][Use plaintext email]]. This choice isn't universally supported as you may find in the [[https://wiki.openstack.org/wiki/MailingListEtiquette][Mailing List Etiquette]] on OpenStack.
 
@@ -3597,7 +3601,7 @@ The pre-context mu4e setup, by default expects a sent folder. By changing the se
 (mu4e-sent-messages-behavior 'delete "Switch this behavior to 'sent within the appropriate contexts where directory mu4e-sent-folder is correctly set")
 #+end_src
 
-***** TODO Confirmation on quiting mu4e
+***** Confirmation on quiting mu4e
 
 #+begin_src elisp :noweb-ref my4e-custom
 ('mu4e-confirm-quit nil "Stop asking to quit, it bugs me out")
