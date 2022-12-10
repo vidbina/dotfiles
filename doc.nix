@@ -7,7 +7,6 @@ let
       luatex
 
       atenddvi
-      IEEEtran
       background
       bashful
       capt-of
@@ -62,7 +61,7 @@ in
     aspellDicts.de
     aspellDicts.en
     aspellDicts.nl
-    scim
+    sc-im
     visidata
     qrencode
     libreoffice

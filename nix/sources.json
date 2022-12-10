@@ -17,10 +17,10 @@
         "homepage": "",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "88771630b5551f3199715817de3993c85d1c7d8f",
-        "sha256": "0s9sgyrj48mdj4rics9ahzf99jwbdsnvr0w04s6q5var97f4f7jy",
+        "rev": "67b8eb822dbb8e51d45f6b0663b4442b1601ffda",
+        "sha256": "1in1hrcacailvqx89jrc5ppa3wkql4asp9k4ih763gjdy8fbvj87",
         "type": "tarball",
-        "url": "https://github.com/nix-community/emacs-overlay/archive/88771630b5551f3199715817de3993c85d1c7d8f.tar.gz",
+        "url": "https://github.com/nix-community/emacs-overlay/archive/67b8eb822dbb8e51d45f6b0663b4442b1601ffda.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "home-manager": {
@@ -72,15 +72,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
-        "branch": "master",
+        "branch": "nixos-22.11",
         "description": "Nix Packages collection",
         "homepage": "",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "fa5e153653a1b48e4a21a14b341e2e01835ba8b5",
-        "sha256": "1yvqxrw0ila4y6mryhpf32c8ydljfmfbvijxra2dawvhcfbbm2rw",
+        "rev": "7a6a010c3a1d00f8470a5ca888f2f927f1860a19",
+        "sha256": "0va6sx9l57qwqzbc5ihr4klvp25gqpcggxqc3gzami7dmbki2qz2",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/fa5e153653a1b48e4a21a14b341e2e01835ba8b5.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/7a6a010c3a1d00f8470a5ca888f2f927f1860a19.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

@@ -58,16 +58,16 @@
               comment = "Open link by copying it into the clipboard with xsel";
               desktopName = "xsel-copy-url";
               type = "Application";
-              categories = builtins.concatStringsSep ";" [
+              categories = [
                 "Network"
                 "WebBrowser"
-              ] + ";";
-              mimeType = builtins.concatStringsSep ";" [
+              ];
+              mimeTypes = [
                 "text/html"
                 "x-scheme-handler/http"
                 "x-scheme-handler/https"
                 "x-scheme-handler/ftp"
-              ] + ";";
+              ];
             })
           ];
         }

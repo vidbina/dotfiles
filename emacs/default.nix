@@ -19,15 +19,15 @@ in
 
     (mu.overrideAttrs (oldAttrs:
       let
-        rev = "bbf55256e58aa62546e8bdade1d127d7e6a9b57e";
+        rev = "1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9";
       in
       {
-        version = "1.6.10-${rev}";
+        version = "1.8.13-${rev}";
         src = fetchFromGitHub {
+          inherit rev;
           owner = "djcb";
           repo = "mu";
-          rev = "${rev}";
-          sha256 = "sha256-ozIITQbt7U4qDzHjbfDyIogIkMRpX1VsBr9igdpNqcI=";
+          sha256 = "sha256-uXrJOBF3X8UF1ktTfAoYgzc0QBLvyzzGQVJVfs8tjng=";
         };
         emacs = my-emacs;
       }))
@@ -41,16 +41,16 @@ in
       exec = "${(baseCommand "emacs-org-protocol")} %u";
       comment = "Org Protocol";
       desktopName = "org-protocol";
-      categories = builtins.concatStringsSep ";" [
+      categories = [
         "Utility"
         "Database"
         "TextTools"
         "TextEditor"
         "Office"
-      ] + ";";
-      mimeType = builtins.concatStringsSep ";" [
+      ];
+      mimeTypes = [
         "x-scheme-handler/org-protocol"
-      ] + ";";
+      ];
       terminal = false;
     })
 
@@ -62,15 +62,15 @@ in
       comment = "Emacs mu4e";
       desktopName = "emacs-mu4e";
       type = "Application";
-      categories = builtins.concatStringsSep ";" [
+      categories = [
         "Network"
         "Email"
-      ] + ";";
-      mimeType = builtins.concatStringsSep ";" [
+      ];
+      mimeTypes = [
         # Email
         "x-scheme-handler/mailto"
         "message/rfc822"
-      ] + ";";
+      ];
       terminal = false;
     })
 
@@ -88,15 +88,15 @@ in
       exec = "emacs-dired %f";
       comment = "Emacs Dired";
       desktopName = "emacs-dired";
-      categories = builtins.concatStringsSep ";" [
+      categories = [
         "Utility"
         "FileManager"
         "FileTools"
-      ] + ";";
-      mimeType = builtins.concatStringsSep ";" [
+      ];
+      mimeTypes = [
         "inode/directory"
         "inode/symlink"
-      ] + ";";
+      ];
       terminal = false;
     })
 
@@ -133,26 +133,16 @@ in
           withGTK2 = false;
           withGTK3 = false;
         });
-        emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
-        bundled-emacs = emacsWithPackages (epkgs: (
+        bundled-emacs = emacs.pkgs.withPackages (epkgs: (
           with epkgs; [
             notmuch
             vterm
             pdf-tools
           ]
-        ) ++ (
-          with epkgs.melpaStablePackages; [
-          ]
-        ) ++ (
-          with epkgs.melpaPackages; [
-          ]
         ));
         ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
           withPCRE2 = true;
         });
-        jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
-          jupyter
-        ]));
       in
       {
         my-emacs = (pkgs.buildEnv {
@@ -165,7 +155,6 @@ in
             pkgs.fd
             pkgs.multimarkdown
             ripgrep-for-doom-emacs
-            jupyter-for-emacs
           ];
         });
       })
