@@ -133,7 +133,7 @@ in
           withGTK2 = false;
           withGTK3 = false;
         });
-        emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+        emacsWithPackages = (pkgs.emacsPackagesFor emacs).emacsWithPackages;
         bundled-emacs = emacsWithPackages (epkgs: (
           with epkgs; [
             notmuch
