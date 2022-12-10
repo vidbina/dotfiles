@@ -1184,7 +1184,7 @@ pkgs.exercism
 pkgs.html-tidy
 #+end_src
 
-**** Inspector
+**** COMMENT Inspector
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.wuzz # cURL-like TUI HTTP request inspection tool

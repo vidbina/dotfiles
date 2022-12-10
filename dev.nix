@@ -44,7 +44,6 @@
     pkgs.asciinema
     pkgs.exercism
     pkgs.html-tidy
-    pkgs.wuzz # cURL-like TUI HTTP request inspection tool
     pkgs.httpie
     pkgs.httplab
     pkgs.gdb
