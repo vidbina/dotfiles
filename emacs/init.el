@@ -368,6 +368,9 @@
                     (cons #'display-buffer-in-side-window
                           `((slot . 10) ,@sidebar))))))
 
+(customize-set-variable 'display-warning-minimum-level :error
+                        "Pop up buffer for error-level or more severe warnings")
+
 ;; https://github.com/emacsorphanage/zoom-window
 (use-package zoom-window
   :straight (zoom-window :type git

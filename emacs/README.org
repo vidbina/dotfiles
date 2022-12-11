@@ -2277,6 +2277,15 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
                           `((slot . 10) ,@sidebar))))))
 #+end_src
 
+**** Error reporting
+
+Just did some updates and am getting a lot of warnings for docstrings being wider than 80 chars and more of that jazz. This is a massive distraction (for me) and does not warrant a buffer popping up to make me aware of the issues so we're opting to just allow the buffer to emerge for actual errors instead and thus reducing the noisiness.
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable 'display-warning-minimum-level :error
+                        "Pop up buffer for error-level or more severe warnings")
+#+end_src
+
 *** 🔍 <<zoom-window>> Zoom-window: Zoom to a single window
 
 In order to single out a particular window in order to return to the preceding layout shortly thereafter again, one may use the [[https://github.com/emacsorphanage/zoom-window][zoom-window]] package. It's a great way to clear some screen real estate and obtain some focus.
