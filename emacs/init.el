@@ -366,10 +366,7 @@
                          :repo "emacsorphanage/zoom-window")
   :init
   (message "Configuring ‘zoom-window’")
-  (with-eval-after-load 'persp-mode
-    (message "Configuring ‘zoom-window’ to work with ‘persp-mode’")
-    (customize-set-variable 'zoom-window-use-persp t
-                            "Use zoom-window with persp-mode")))
+  )
 
 ;; https://github.com/abo-abo/ace-window
 ;; https://jao.io/blog/2020-05-12-ace-window.html
@@ -694,24 +691,22 @@
   :bind (:map projectile-mode-map
               ("C-x p" . projectile-command-map)))
 
-;; https://github.com/Bad-ptr/persp-mode.el
-(use-package persp-mode
-  :straight (persp-mode :type git
-                        :host github
-                        :repo "Bad-ptr/persp-mode.el")
-  :diminish persp-mode
-  :config
-  (persp-mode t)
+;; https://github.com/nex3/perspective-el
+(use-package perspective
+  :straight (perspective :type git
+                         :host github
+                         :repo "nex3/perspective-el")
+  :bind (("C-x C-b" . persp-ivy-switch-buffer)
+         ("C-x k" . persp-kill-buffer*))
   :custom
-  (persp-auto-resume-time 0 "Avoid autoloading perspective")
-  (persp-filter-save-buffers-functions
-   (list (lambda (b) (string-prefix-p "*" (buffer-name b)))
-         (lambda (b) (not (null (string-match-p (rx (seq word-boundary "magit"
-                                                         (zero-or-more (seq "-" (one-or-more any))) ":")) (buffer-name b)))))
-         (lambda (b) (string-match-p
-                      (regexp-opt '("mu4e-compose-mode"))
-                      (symbol-name (buffer-local-value 'major-mode b)))))
-   "Filter out special and magit buffers from saving"))
+  (persp-mode-prefix-key (kbd "C-c p") "same as persp-mode")
+  (persp-modestring-short t)
+  (persp-state-default-file "~/.emacs.d/perspective")
+  :config
+  (message "Configuring ‘perspective’")
+
+  :init
+  (persp-mode))
 
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e

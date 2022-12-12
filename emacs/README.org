@@ -3296,11 +3296,11 @@ The following snippet is a rough example of a Projectile lifecycle command that 
 
 For some reason, changing the .dir-locals.el file requires a reset of the corresponding map which, in the case above, happens to be the =projectile-test-cmd-map=. This hashmap can be reset by navigating to the source where is is defined and reevaluating the defining sexpr.
 
-*** COMMENT <<perspective>> Perspective
+*** <<perspective>> Perspective
 
 The [[https://github.com/nex3/perspective-el][Perspective]] package provides some conveniences to manage different workspaces. I use perspectives to keep buffers and layouts isolated between different contexts e.g.: sometimes projects, sometimes features, sometimes tasks (e.g.: wedding planning notes and emails, 1-on-1 work-related notes and details, notes and buffers on a particular research topic, etc.).
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/nex3/perspective-el
 (use-package perspective
   :straight (perspective :type git
@@ -3308,15 +3308,18 @@ The [[https://github.com/nex3/perspective-el][Perspective]] package provides som
                          :repo "nex3/perspective-el")
   :bind (("C-x C-b" . persp-ivy-switch-buffer)
          ("C-x k" . persp-kill-buffer*))
+  :custom
+  (persp-mode-prefix-key (kbd "C-c p") "same as persp-mode")
+  (persp-modestring-short t)
+  (persp-state-default-file "~/.emacs.d/perspective")
   :config
   (message "Configuring ‘perspective’")
   <<perspective-config>>
   :init
-  (setq persp-state-default-file "~/.emacs.d/perspective"
-        persp-modestring-short t))
+  (persp-mode))
 #+end_src
 
-*** persp-mode
+*** COMMENT persp-mode
 
 Unlike Perspective, [[https://github.com/Bad-ptr/persp-mode.el][persp-mode]] allows us to manage /perspectives/ across frames (i.e.: different desktop windows for Emacs). In my usage of Emacs, this was becoming more of a requirement since I often end up opening Emacs frames where I want the convenience of selecting either of the /perspectives/ that have been curated before. The [[https://github.com/nex3/perspective-el#similar-packages][Perspective documentation]] provides a helpful writeup of the alternative solutions available for perspective-management in Emacs which includes persp-mode.
 
@@ -3413,6 +3416,12 @@ The following call effectively returns the first filter from the list of filter 
 : (fn B)"])
 
 The output above looks a bit warbled up because the original value was compiled but after setting is anew, the lambdas are more clearly distinguishable.
+
+**** persp-mode Lighter
+
+#+begin_src :noweb-ref persp-lighter
+persp-lighter
+#+end_src
 
 **** Integrate with zoom-window
 
@@ -4723,7 +4732,7 @@ Writing to the kill ring is done on a buffer-basis. Sometimes one just want to y
 
 For additional context, one can display /mode line/ or /header line/ elements along the bottom and top of a window respectively.
 
-#+begin_src elisp :tangle personal-example.el
+#+begin_src elisp :noweb yes :tangle personal-example.el
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html
 ;; http://emacs-fu.blogspot.com/2011/08/customizing-mode-line.html
 (setq-default mode-line-format
@@ -4734,7 +4743,7 @@ For additional context, one can display /mode line/ or /header line/ elements al
                     ;; %+ read-only but modified
                     mode-line-modified
 
-                    persp-lighter
+                    <<persp-lighter>>
 
                     mode-line-frame-identification
                     mode-line-buffer-identification
