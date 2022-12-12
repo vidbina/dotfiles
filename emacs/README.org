@@ -96,7 +96,6 @@ digraph G {
 
 For convenience's sake, let's start stubbing some of the files that we will be tangling from this literate configuration.
 
-
 ** Tangle providence notice
 
 #+begin_src elisp :noweb-ref tangle-providence
@@ -6341,7 +6340,30 @@ mu
 
 The overriden package may no longer be necessary at this point. Tried to build previously with this "plain" mu and that worked so I think we're ready to move along and park the overriden stuff.
 
-***** mu: overriden package
+***** COMMENT mu: overriden package
+
+Commenting this out because of collision issues in nix:
+
+#+begin_src text
+these 5 derivations will be built:
+  /nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv
+  /nix/store/idhr83djdm2aw18limb945sx4bl6iwaw-activation-script.drv
+  /nix/store/pvls44m9w4c54gw9m99ddxmpckiggl4n-hm_fontconfigconf.d10hmfonts.conf.drv
+  /nix/store/z2ab1bnwny925kmjrnkx24dlsm7sn9fg-home-manager-files.drv
+  /nix/store/1p4mmm2wp83zl243q4ygqbhdyzyhhh3k-home-manager-generation.drv
+building '/nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv'...
+error: collision between `/nix/store/nipkc69mampc75hqf2bscrak6pbs90vr-mu-1.8.11/share/emacs/site-lisp/mu4e/mu4e-search.elc' and `/nix/store/ssi8wd226dka2a4wv9yfw0hrnmpw1948-mu-1.8.13-1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9/share/emacs/site-lisp/mu4e/mu4e-search.elc'
+error: builder for '/nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv' failed with exit code 25;
+       last 1 log lines:
+       > error: collision between `/nix/store/nipkc69mampc75hqf2bscrak6pbs90vr-mu-1.8.11/share/emacs/site-lisp/mu4e/mu4e-search.elc' and `/nix/store/ssi8wd226dka2a4wv9yfw0hrnmpw1948-mu-1.8.13-1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9/share/emacs/site-lisp/mu4e/mu4e-search.elc'
+       For full logs, run 'nix log /nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv'.
+error: 1 dependencies of derivation '/nix/store/1p4mmm2wp83zl243q4ygqbhdyzyhhh3k-home-manager-generation.drv' failed to build
+make[1]: *** [Makefile:15: nix-switch] Error 1
+make[1]: Leaving directory '/home/vidbina/src/vidbina/dotfiles'
+make: *** [Makefile:9: all] Error 2
+#+end_src
+
+I believe that I installed this a long time ago because I needed to pin the version of mu but with the current updates on both the nixos-configuration and the dotfiles managed through home-manager, this may no longer be necessary.
 
 #+begin_src nix :noweb-ref nix-linux-packages
 (mu.overrideAttrs (oldAttrs:

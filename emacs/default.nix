@@ -17,21 +17,6 @@ in
   home.packages = with pkgs; [
     cask
 
-    (mu.overrideAttrs (oldAttrs:
-      let
-        rev = "1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9";
-      in
-      {
-        version = "1.8.13-${rev}";
-        src = fetchFromGitHub {
-          inherit rev;
-          owner = "djcb";
-          repo = "mu";
-          sha256 = "sha256-uXrJOBF3X8UF1ktTfAoYgzc0QBLvyzzGQVJVfs8tjng=";
-        };
-        emacs = my-emacs;
-      }))
-
     (writeScriptBin "e" ''
       exec emacsclient -a emacs -c "$@"
     '')
