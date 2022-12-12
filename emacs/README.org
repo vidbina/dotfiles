@@ -6340,7 +6340,7 @@ mu
 
 The overriden package may no longer be necessary at this point. Tried to build previously with this "plain" mu and that worked so I think we're ready to move along and park the overriden stuff.
 
-***** COMMENT mu: overriden package
+***** mu: overriden package
 
 Commenting this out because of collision issues in nix:
 
@@ -6368,15 +6368,15 @@ I believe that I installed this a long time ago because I needed to pin the vers
 #+begin_src nix :noweb-ref nix-linux-packages
 (mu.overrideAttrs (oldAttrs:
   let
-    rev = "1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9";
+    rev = "4924daef6cdafec26cbbfe82de8cf52736d745f8";
   in
   {
-    version = "1.8.13-${rev}";
+    version = "1.8.11-${rev}";
     src = fetchFromGitHub {
       inherit rev;
       owner = "djcb";
       repo = "mu";
-      sha256 = "sha256-uXrJOBF3X8UF1ktTfAoYgzc0QBLvyzzGQVJVfs8tjng=";
+      sha256 = "sha256-IEfwAAUqEGtN4vww0pfW7iuIY/U3eqzC+MJsqtossCw=";
     };
     emacs = my-emacs;
   }))
