@@ -1253,7 +1253,7 @@ pkgs.yq
 pkgs.sqlite-interactive
 #+end_src
 
-* E-mail
+* COMMENT E-mail
 
 We configure file:mail.nix as our mail-related config file.
 

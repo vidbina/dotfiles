@@ -9,7 +9,6 @@ in
 {
   imports = [
     ./dev.nix
-    ./mail.nix
     ./vim.nix
   ]
   ++ (pathIfExists ./personal.nix);
