@@ -131,18 +131,6 @@
   :init
   (setq org-startup-truncated nil))
 
-;; https://github.com/hniksic/emacs-htmlize
-(use-package htmlize
-  :straight (htmlize :type git
-                     :host github
-                     :branch "fix-face-size-unspecified-head"
-                     :repo "vidbina/emacs-htmlize")
-  :init
-  ;; https://www.reddit.com/r/orgmode/comments/5uj17n/invalid_face_error_when_publishing_org_to_html/
-  (setq org-html-htmlize-output-type 'inline-css)
-  :custom
-  (htmlize-ignore-face-size t))
-
 (use-package ol-bibtex
   :straight (:type built-in)
   :after org

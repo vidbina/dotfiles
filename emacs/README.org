@@ -772,7 +772,7 @@ Some of the bindings to remember when in phscroll-mode are:
 - =C-S-l= :: recenter left-right
   - twice to scroll to *left edge*
 
-** WIP htmlize
+** COMMENT htmlize
 
 Running ~(straight-dependants "htmlize")~ yields =("ox-clip" ("org-ref" "org-roam-bibtex"))= so we define htmlize to control the version of htmlize that is installed since the implict configuration resulted to an outdated version of htmlize on my system.
 
