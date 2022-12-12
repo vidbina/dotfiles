@@ -154,9 +154,7 @@ let
 in
 {
   imports = [
-    ./mail.nix
-    ./vim.nix
-    ./dev.nix
+    <<common-imports>>
   ]
   ++ (pathIfExists ./personal.nix);
 
@@ -1030,6 +1028,10 @@ Observe the snippet below for an example of a valid personal.nix file.
 
 We will be tangling this literate configuration into the needed dev.nix file.
 
+#+begin_src nix :noweb-ref common-imports
+./dev.nix
+#+end_src
+
 For starters, we stub the general structure of the nix file and define the =<<nix-devtools>>= reference for us to direct our tool-specific configs into.
 
 #+begin_src nix :noweb yes :tangle dev.nix
@@ -1253,6 +1255,12 @@ pkgs.sqlite-interactive
 
 * E-mail
 
+We configure file:mail.nix as our mail-related config file.
+
+#+begin_src nix :noweb-ref common-imports
+./mail.nix
+#+end_src
+
 I have multiple ways of handling e-mails. For starters, I process nearly all of my e-mails that require deep thought and the ability to verify extraneous sources from the comfort of a workstation (i.e.: my laptop and trusted 2nd brain). Mobile is only used for the quick things on the go and I don't need much fancy capabilities there since I want to see these messages again once I'm behind the workstation just to verify that I didn't miss anything during the daze of being on the go (which tends to be the case when I'm on mobile).
 
 I have used neomutt in combination with Neovim and mu4e in Emacs for nearly half a year, I've recently started experimenting with notmuch inside of Emacs which is another tool that is built on top of mu indexer capabilities.
@@ -1268,24 +1276,36 @@ I have used neomutt in combination with Neovim and mu4e in Emacs for nearly half
 }
 #+end_src
 
-The following packages were part of my config before and are just seperated to help me break this down into subordinate chapters.
+** Packages
+
+The following packages were part of my config before and are just seperated to help me break this down into subordinate chapters:
 
 #+begin_src nix :noweb-ref mail-packages
 isync
 mb2md
-msmtp
 neomutt
-notmuch
-notmuch-mutt
 offlineimap
 urlview
 #+end_src
 
+*** TODO Split out packages into subordinate chapters
+
+This is only necessary if I don't end up moving this part of my config entirely into home-manager instead.
+
 ** msmtp
+
+#+begin_src nix :noweb-ref mail-packages
+msmtp
+#+end_src
 
 ** Notmuch
 
 Much of my work-related comms transpires over e-mail. In order to obtain [[https://tongfamily.com/2022/01/22/superhuman-hidden-commands-to-top-and-bottom-are-gg-and-g/][superhuman-level-like-or-better]] 🙊 convenience, I am using [[https://notmuchmail.org/][notmuch]] which has [[https://notmuchmail.org/frontends/][plenty of frontends]] available.
+
+#+begin_src nix :noweb-ref mail-packages
+notmuch
+notmuch-mutt
+#+end_src
 
 ** DONE Workers
 
@@ -1302,6 +1322,10 @@ sendmail: could not send mail (account work-asabina-gmbh from /home/vidbina/.con
 * Neovim
 
 For Neovim, remember that CoC completions basically work through use of the =C-n= and =C-p= binding to cycle through next and previous items in the completion listing.
+
+#+begin_src nix :noweb-ref common-imports
+./vim.nix
+#+end_src
 
 https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
 
