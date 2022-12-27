@@ -5539,13 +5539,14 @@ Superset of JavaScript that folks really should be using instead of just vanilla
 
 ***** Tide
 
-#+begin_src elisp :tangle lang.example.el
+#+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/ananthakumaran/tide
 (use-package tide
   :straight
   (tide :type git
         :host github
         :repo "ananthakumaran/tide")
+  <<tide-tsx-config>>
   :init
   (evil-collection-tide-setup)
   :delight
@@ -5561,6 +5562,40 @@ Superset of JavaScript that folks really should be using instead of just vanilla
 - =g j= find next error or reference
 - =g k= find prev error or reference
 - =K= to show docs
+
+****** Config
+
+#+begin_src elisp :noweb-ref tide-tsx-config
+:config
+#+end_src
+
+******* TSX
+
+#+begin_src elisp :noweb-ref tide-tsx-config
+;; https://github.com/ananthakumaran/tide#tsx
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+(add-hook 'web-mode-hook
+          (lambda ()
+            (when (string-equal "tsx" (file-name-extension buffer-file-name))
+              (setup-tide-mode))))
+;; enable typescript-tslint checker
+(flycheck-add-mode 'typescript-tslint 'web-mode)
+#+end_src
+
+******* JSX
+
+#+begin_src elisp :noweb-ref tide-tsx-config
+;; https://github.com/ananthakumaran/tide#jsx
+(add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+(add-hook 'web-mode-hook
+          (lambda ()
+            (when (string-equal "jsx" (file-name-extension buffer-file-name))
+              (setup-tide-mode))))
+;; configure jsx-tide checker to run after your default jsx checker
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+(flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
+#+end_src
 
 ***** TODO COMMENT Look into tsx-mode.el
 
