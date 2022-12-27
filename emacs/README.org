@@ -4952,9 +4952,7 @@ Some of the relevant keybindings are:
 (use-package json-reformat
   :straight (json-reformat :type git
                            :host github
-                           :repo "gongo/json-reformat")
-  :custom
-  (json-reformat:indent-width 2 "Keep a short indentation span to simplify reading of deep structures"))
+                           :repo "gongo/json-reformat"))
 #+end_src
 
 **** JSON Snatcher: Extract Element Paths within a JSON Structure
@@ -5519,7 +5517,9 @@ Since JavaScript is everywhere, let's make sure we can at least read it with eas
                               (add-hook 'comint-output-filter-functions 'js-comint-process-output)))
   :config
   (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
-  (define-key js-mode-map (kbd "C-c b") 'js-send-buffer))
+  (define-key js-mode-map (kbd "C-c b") 'js-send-buffer)
+  :custom
+  (js-indent-level 2))
 #+end_src
 
 **** TypeScript
