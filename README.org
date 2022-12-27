@@ -1253,52 +1253,6 @@ pkgs.yq
 pkgs.sqlite-interactive
 #+end_src
 
-**** COMMENT Supabase
-
-Lazy way to pull in 3ff39f984faa5f528f7ac5e548110d4e20327aa1 which is on NixOS/nixpkgs =master=.
-
-Commented out because I'm pulling it directly from the nixpkgs rev listed above in the dev shells where I need this.
-
-#+begin_src nix :noweb-ref dev-packages
-(pkgs.buildGoModule rec {
-  pname = "supabase-cli";
-  version = "1.27.0";
-
-  src = pkgs.fetchFromGitHub {
-    owner = "supabase";
-    repo = "cli";
-    rev = "v${version}";
-    sha256 = "sha256-gAfgqOeJ1cQ5Igxcut0FXkzhK38Q/mUTXfFaZE0dNCs=";
-  };
-
-  vendorSha256 = "sha256-RO9dZP236Kt8SSpZFF7KRksrjgwiEkPxE5DIMUK69Kw=";
-
-  ldflags = [ "-s" "-w" "-X" "github.com/supabase/cli/cmd.version=${version}" ];
-
-  doCheck = false; # tests are trying to connect to localhost
-
-  nativeBuildInputs = [ pkgs.installShellFiles ];
-
-  postInstall = ''
-    rm $out/bin/{codegen,docgen,listdep}
-    mv $out/bin/{cli,supabase}
-
-    installShellCompletion --cmd supabase \
-      --bash <($out/bin/supabase completion bash) \
-      --fish <($out/bin/supabase completion fish) \
-      --zsh <($out/bin/supabase completion zsh)
-  '';
-
-  meta = with lib; {
-    description = "A CLI for interacting with supabase";
-    homepage = "https://github.com/supabase/cli";
-    license = licenses.mit;
-    maintainers = with maintainers; [ gerschtli ];
-    mainProgram = "supabase";
-  };
-})
-#+end_src
-
 * COMMENT E-mail
 
 We configure file:mail.nix as our mail-related config file.
