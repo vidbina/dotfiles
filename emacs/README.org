@@ -5563,7 +5563,11 @@ Superset of JavaScript that folks really should be using instead of just vanilla
 - =g k= find prev error or reference
 - =K= to show docs
 
-****** Config
+****** COMMENT Config
+
+#+begin_comment
+⚠️ Commenting out this block because web-mode fucks up tide-mode to the points that I can't really use tide-mode. I'm better off enabling tide-mode when I need it.
+#+end_comment
 
 #+begin_src elisp :noweb-ref tide-tsx-config
 :config
