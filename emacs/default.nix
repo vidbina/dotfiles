@@ -19,15 +19,15 @@ in
 
     (mu.overrideAttrs (oldAttrs:
       let
-        rev = "1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9";
+        rev = "4924daef6cdafec26cbbfe82de8cf52736d745f8";
       in
       {
-        version = "1.8.13-${rev}";
+        version = "1.8.11-${rev}";
         src = fetchFromGitHub {
           inherit rev;
           owner = "djcb";
           repo = "mu";
-          sha256 = "sha256-uXrJOBF3X8UF1ktTfAoYgzc0QBLvyzzGQVJVfs8tjng=";
+          sha256 = "sha256-IEfwAAUqEGtN4vww0pfW7iuIY/U3eqzC+MJsqtossCw=";
         };
         emacs = my-emacs;
       }))

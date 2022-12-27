@@ -5,11 +5,11 @@
   home.packages = with pkgs; [
     isync
     mb2md
-    msmtp
     neomutt
-    notmuch
-    notmuch-mutt
     offlineimap
     urlview
+    msmtp
+    notmuch
+    notmuch-mutt
   ];
 }

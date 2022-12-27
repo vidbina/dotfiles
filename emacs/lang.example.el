@@ -52,9 +52,7 @@
 (use-package json-reformat
   :straight (json-reformat :type git
                            :host github
-                           :repo "gongo/json-reformat")
-  :custom
-  (json-reformat:indent-width 2 "Keep a short indentation span to simplify reading of deep structures"))
+                           :repo "gongo/json-reformat"))
 
 ;; https://github.com/Sterlingg/json-snatcher
 (use-package json-snatcher
@@ -205,7 +203,9 @@
                               (add-hook 'comint-output-filter-functions 'js-comint-process-output)))
   :config
   (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
-  (define-key js-mode-map (kbd "C-c b") 'js-send-buffer))
+  (define-key js-mode-map (kbd "C-c b") 'js-send-buffer)
+  :custom
+  (js-indent-level 2))
 
 ;; https://github.com/emacs-typescript/typescript.el
 (use-package typescript-mode
@@ -222,6 +222,25 @@
   (tide :type git
         :host github
         :repo "ananthakumaran/tide")
+  :config
+  ;; https://github.com/ananthakumaran/tide#tsx
+  (require 'web-mode)
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+  (add-hook 'web-mode-hook
+            (lambda ()
+              (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                (setup-tide-mode))))
+  ;; enable typescript-tslint checker
+  (flycheck-add-mode 'typescript-tslint 'web-mode)
+  ;; https://github.com/ananthakumaran/tide#jsx
+  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+  (add-hook 'web-mode-hook
+            (lambda ()
+              (when (string-equal "jsx" (file-name-extension buffer-file-name))
+                (setup-tide-mode))))
+  ;; configure jsx-tide checker to run after your default jsx checker
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
   :init
   (evil-collection-tide-setup)
   :delight

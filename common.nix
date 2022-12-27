@@ -8,9 +8,8 @@ let
 in
 {
   imports = [
-    ./mail.nix
-    ./vim.nix
     ./dev.nix
+    ./vim.nix
   ]
   ++ (pathIfExists ./personal.nix);
 

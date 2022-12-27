@@ -96,7 +96,6 @@ digraph G {
 
 For convenience's sake, let's start stubbing some of the files that we will be tangling from this literate configuration.
 
-
 ** Tangle providence notice
 
 #+begin_src elisp :noweb-ref tangle-providence
@@ -773,7 +772,7 @@ Some of the bindings to remember when in phscroll-mode are:
 - =C-S-l= :: recenter left-right
   - twice to scroll to *left edge*
 
-** WIP htmlize
+** COMMENT htmlize
 
 Running ~(straight-dependants "htmlize")~ yields =("ox-clip" ("org-ref" "org-roam-bibtex"))= so we define htmlize to control the version of htmlize that is installed since the implict configuration resulted to an outdated version of htmlize on my system.
 
@@ -2277,6 +2276,15 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
                           `((slot . 10) ,@sidebar))))))
 #+end_src
 
+**** Error reporting
+
+Just did some updates and am getting a lot of warnings for docstrings being wider than 80 chars and more of that jazz. This is a massive distraction (for me) and does not warrant a buffer popping up to make me aware of the issues so we're opting to just allow the buffer to emerge for actual errors instead and thus reducing the noisiness.
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable 'display-warning-minimum-level :error
+                        "Pop up buffer for error-level or more severe warnings")
+#+end_src
+
 *** 🔍 <<zoom-window>> Zoom-window: Zoom to a single window
 
 In order to single out a particular window in order to return to the preceding layout shortly thereafter again, one may use the [[https://github.com/emacsorphanage/zoom-window][zoom-window]] package. It's a great way to clear some screen real estate and obtain some focus.
@@ -2789,7 +2797,7 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
 
 ** Version Control
 
-*** TODO Magit: Git Porcelain
+*** Magit: Git Porcelain
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/magit/magit.git
@@ -2810,7 +2818,7 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
   (magit-diff-refine-hunk t "Show fine differences (word-granularity) for current hunk only"))
 #+end_src
 
-*** TODO Diff-hl: Diff highlighting in the left gutter of a buffer
+*** Diff-hl: Diff highlighting in the left gutter of a buffer
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/dgutov/diff-hl
@@ -3288,27 +3296,30 @@ The following snippet is a rough example of a Projectile lifecycle command that 
 
 For some reason, changing the .dir-locals.el file requires a reset of the corresponding map which, in the case above, happens to be the =projectile-test-cmd-map=. This hashmap can be reset by navigating to the source where is is defined and reevaluating the defining sexpr.
 
-*** COMMENT <<perspective>> Perspective
+*** <<perspective>> Perspective
 
 The [[https://github.com/nex3/perspective-el][Perspective]] package provides some conveniences to manage different workspaces. I use perspectives to keep buffers and layouts isolated between different contexts e.g.: sometimes projects, sometimes features, sometimes tasks (e.g.: wedding planning notes and emails, 1-on-1 work-related notes and details, notes and buffers on a particular research topic, etc.).
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/nex3/perspective-el
 (use-package perspective
   :straight (perspective :type git
                          :host github
                          :repo "nex3/perspective-el")
-  :bind (("C-x C-b" . persp-ivy-switch-buffer)
-         ("C-x k" . persp-kill-buffer*))
+  :bind (("C-x k" . persp-kill-buffer*)
+         ("C-x b" . persp-switch-to-buffer))
+  :custom
+  (persp-mode-prefix-key (kbd "C-c p") "same as persp-mode")
+  (persp-modestring-short t)
+  (persp-state-default-file "~/.emacs.d/perspective")
   :config
   (message "Configuring ‘perspective’")
   <<perspective-config>>
   :init
-  (setq persp-state-default-file "~/.emacs.d/perspective"
-        persp-modestring-short t))
+  (persp-mode))
 #+end_src
 
-*** persp-mode
+*** COMMENT persp-mode
 
 Unlike Perspective, [[https://github.com/Bad-ptr/persp-mode.el][persp-mode]] allows us to manage /perspectives/ across frames (i.e.: different desktop windows for Emacs). In my usage of Emacs, this was becoming more of a requirement since I often end up opening Emacs frames where I want the convenience of selecting either of the /perspectives/ that have been curated before. The [[https://github.com/nex3/perspective-el#similar-packages][Perspective documentation]] provides a helpful writeup of the alternative solutions available for perspective-management in Emacs which includes persp-mode.
 
@@ -3405,6 +3416,12 @@ The following call effectively returns the first filter from the list of filter 
 : (fn B)"])
 
 The output above looks a bit warbled up because the original value was compiled but after setting is anew, the lambdas are more clearly distinguishable.
+
+**** persp-mode Lighter
+
+#+begin_src :noweb-ref persp-lighter
+persp-lighter
+#+end_src
 
 **** Integrate with zoom-window
 
@@ -4655,6 +4672,19 @@ Writing to the kill ring is done on a buffer-basis. Sometimes one just want to y
 (put 'vidbina/depropertize 'byte-optimizer 'byte-compile-inline-expand)
 #+end_src
 
+**** WIP Copy VC branch for later use
+
+Sometimes, I just need the current branch name to paste into an email or somewhere else. The =M-w= binding, mapped to ~(magit-copy-buffer-revision)~, typically only provides a rev which isn't always sufficiently informative and only works within a select few major (magit) modes.
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/magit-branch ()
+  "Copy, kill (in Emacs lingo) or yank (in vim lingo) the current branch name"
+  (interactive)
+  (let ((target (magit-get-current-branch)))
+    (vidbina/kill target)
+    (message target)))
+#+end_src
+
 ** TODO Misc
 
 *** Global Keybindings
@@ -4715,7 +4745,7 @@ Writing to the kill ring is done on a buffer-basis. Sometimes one just want to y
 
 For additional context, one can display /mode line/ or /header line/ elements along the bottom and top of a window respectively.
 
-#+begin_src elisp :tangle personal-example.el
+#+begin_src elisp :noweb yes :tangle personal-example.el
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html
 ;; http://emacs-fu.blogspot.com/2011/08/customizing-mode-line.html
 (setq-default mode-line-format
@@ -4726,7 +4756,7 @@ For additional context, one can display /mode line/ or /header line/ elements al
                     ;; %+ read-only but modified
                     mode-line-modified
 
-                    persp-lighter
+                    <<persp-lighter>>
 
                     mode-line-frame-identification
                     mode-line-buffer-identification
@@ -4922,9 +4952,7 @@ Some of the relevant keybindings are:
 (use-package json-reformat
   :straight (json-reformat :type git
                            :host github
-                           :repo "gongo/json-reformat")
-  :custom
-  (json-reformat:indent-width 2 "Keep a short indentation span to simplify reading of deep structures"))
+                           :repo "gongo/json-reformat"))
 #+end_src
 
 **** JSON Snatcher: Extract Element Paths within a JSON Structure
@@ -5489,7 +5517,9 @@ Since JavaScript is everywhere, let's make sure we can at least read it with eas
                               (add-hook 'comint-output-filter-functions 'js-comint-process-output)))
   :config
   (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
-  (define-key js-mode-map (kbd "C-c b") 'js-send-buffer))
+  (define-key js-mode-map (kbd "C-c b") 'js-send-buffer)
+  :custom
+  (js-indent-level 2))
 #+end_src
 
 **** TypeScript
@@ -5509,13 +5539,14 @@ Superset of JavaScript that folks really should be using instead of just vanilla
 
 ***** Tide
 
-#+begin_src elisp :tangle lang.example.el
+#+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/ananthakumaran/tide
 (use-package tide
   :straight
   (tide :type git
         :host github
         :repo "ananthakumaran/tide")
+  <<tide-tsx-config>>
   :init
   (evil-collection-tide-setup)
   :delight
@@ -5531,6 +5562,40 @@ Superset of JavaScript that folks really should be using instead of just vanilla
 - =g j= find next error or reference
 - =g k= find prev error or reference
 - =K= to show docs
+
+****** Config
+
+#+begin_src elisp :noweb-ref tide-tsx-config
+:config
+#+end_src
+
+******* TSX
+
+#+begin_src elisp :noweb-ref tide-tsx-config
+;; https://github.com/ananthakumaran/tide#tsx
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+(add-hook 'web-mode-hook
+          (lambda ()
+            (when (string-equal "tsx" (file-name-extension buffer-file-name))
+              (setup-tide-mode))))
+;; enable typescript-tslint checker
+(flycheck-add-mode 'typescript-tslint 'web-mode)
+#+end_src
+
+******* JSX
+
+#+begin_src elisp :noweb-ref tide-tsx-config
+;; https://github.com/ananthakumaran/tide#jsx
+(add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+(add-hook 'web-mode-hook
+          (lambda ()
+            (when (string-equal "jsx" (file-name-extension buffer-file-name))
+              (setup-tide-mode))))
+;; configure jsx-tide checker to run after your default jsx checker
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+(flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
+#+end_src
 
 ***** TODO COMMENT Look into tsx-mode.el
 
@@ -6334,18 +6399,41 @@ The overriden package may no longer be necessary at this point. Tried to build p
 
 ***** mu: overriden package
 
+Commenting this out because of collision issues in nix:
+
+#+begin_src text
+these 5 derivations will be built:
+  /nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv
+  /nix/store/idhr83djdm2aw18limb945sx4bl6iwaw-activation-script.drv
+  /nix/store/pvls44m9w4c54gw9m99ddxmpckiggl4n-hm_fontconfigconf.d10hmfonts.conf.drv
+  /nix/store/z2ab1bnwny925kmjrnkx24dlsm7sn9fg-home-manager-files.drv
+  /nix/store/1p4mmm2wp83zl243q4ygqbhdyzyhhh3k-home-manager-generation.drv
+building '/nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv'...
+error: collision between `/nix/store/nipkc69mampc75hqf2bscrak6pbs90vr-mu-1.8.11/share/emacs/site-lisp/mu4e/mu4e-search.elc' and `/nix/store/ssi8wd226dka2a4wv9yfw0hrnmpw1948-mu-1.8.13-1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9/share/emacs/site-lisp/mu4e/mu4e-search.elc'
+error: builder for '/nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv' failed with exit code 25;
+       last 1 log lines:
+       > error: collision between `/nix/store/nipkc69mampc75hqf2bscrak6pbs90vr-mu-1.8.11/share/emacs/site-lisp/mu4e/mu4e-search.elc' and `/nix/store/ssi8wd226dka2a4wv9yfw0hrnmpw1948-mu-1.8.13-1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9/share/emacs/site-lisp/mu4e/mu4e-search.elc'
+       For full logs, run 'nix log /nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv'.
+error: 1 dependencies of derivation '/nix/store/1p4mmm2wp83zl243q4ygqbhdyzyhhh3k-home-manager-generation.drv' failed to build
+make[1]: *** [Makefile:15: nix-switch] Error 1
+make[1]: Leaving directory '/home/vidbina/src/vidbina/dotfiles'
+make: *** [Makefile:9: all] Error 2
+#+end_src
+
+I believe that I installed this a long time ago because I needed to pin the version of mu but with the current updates on both the nixos-configuration and the dotfiles managed through home-manager, this may no longer be necessary.
+
 #+begin_src nix :noweb-ref nix-linux-packages
 (mu.overrideAttrs (oldAttrs:
   let
-    rev = "1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9";
+    rev = "4924daef6cdafec26cbbfe82de8cf52736d745f8";
   in
   {
-    version = "1.8.13-${rev}";
+    version = "1.8.11-${rev}";
     src = fetchFromGitHub {
       inherit rev;
       owner = "djcb";
       repo = "mu";
-      sha256 = "sha256-uXrJOBF3X8UF1ktTfAoYgzc0QBLvyzzGQVJVfs8tjng=";
+      sha256 = "sha256-IEfwAAUqEGtN4vww0pfW7iuIY/U3eqzC+MJsqtossCw=";
     };
     emacs = my-emacs;
   }))
