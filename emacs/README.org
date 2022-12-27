@@ -4672,6 +4672,19 @@ Writing to the kill ring is done on a buffer-basis. Sometimes one just want to y
 (put 'vidbina/depropertize 'byte-optimizer 'byte-compile-inline-expand)
 #+end_src
 
+**** WIP Copy VC branch for later use
+
+Sometimes, I just need the current branch name to paste into an email or somewhere else. The =M-w= binding, mapped to ~(magit-copy-buffer-revision)~, typically only provides a rev which isn't always sufficiently informative and only works within a select few major (magit) modes.
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/magit-branch ()
+  "Copy, kill (in Emacs lingo) or yank (in vim lingo) the current branch name"
+  (interactive)
+  (let ((target (magit-get-current-branch)))
+    (vidbina/kill target)
+    (message target)))
+#+end_src
+
 ** TODO Misc
 
 *** Global Keybindings
