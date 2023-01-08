@@ -227,7 +227,7 @@
   (evil-collection-tide-setup)
   :delight
   (tide-mode "🌊")
-  :after (typescript-mode)
+  :after (typescript-mode evil-collection)
   :hook ((typescript-mode . tide-setup)
          (typescript-mode . tide-hl-identifier-mode))
   :custom
