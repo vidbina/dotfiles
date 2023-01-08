@@ -382,8 +382,12 @@
 ;; https://github.com/junjizhi/aide.el
 (use-package aide
   :straight (aide :type git
-                   :host github
-                   :repo "junjizhi/aide.el"))
+                  :host github
+                  :repo "vidbina/aide.el"
+                  :branch "vidbina/retrieve-secret-through-function")
+  :custom
+  (aide-openai-api-key-getter (lambda ()
+                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2022.02.18"))))
 
 ;; https://github.com/joaotavora/eglot
 (use-package eglot
