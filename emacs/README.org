@@ -3548,6 +3548,28 @@ Sometimes the auto-save file has the following content:
             t nil nil))
 #+end_src
 
+** Password Store
+
+I use [[https://www.passwordstore.org/][pass]] to manage passwords on my system.
+
+The following configuration, demonstrates how to set up the =auth-source= package to use the password-store backend. You can confirm the backend by verifying that the =auth-sources= customizable variable is set to ~(password-store)~.
+
+#+begin_src elisp
+(use-package auth-source
+  :straight (:type built-in)
+
+  :config
+  (auth-source-pass-enable))
+#+end_src
+
+The following is an example of how we access a password in a password store keystore.
+
+#+begin_src elisp
+(auth-source-pass-get 'secret "domain.tld/handle/password-YYYYMMDD")
+#+end_src
+
+Use the ideas in this section to configure your private Emacs config to setup all of the secrets, passwords and other tokens that you want to load from your password store.
+
 * <<mail>> 📧 Mail
 
 For mail, there are a couple of options within Emacs. First, one needs to understand that a mail user agent (MUA) is a tool used to compose and read messages and a mail transfer agent (MTA) is a tool to send messages.
