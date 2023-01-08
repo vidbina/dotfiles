@@ -5752,6 +5752,8 @@ To add another layer of convenience or complexity, depending on how you want to 
 
 ** Misc
 
+Misc bells and whistles from formatting aids to LLM-enabled magic.
+
 *** EditorConfig
 
 #+begin_src elisp :tangle lang.example.el
@@ -6044,6 +6046,16 @@ hello
 
 ,#+RESULTS:
 : Hello, world!
+#+end_src
+
+*** AIDE
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/junjizhi/aide.el
+(use-package aide
+  :straight (aide :type git
+                   :host github
+                   :repo "junjizhi/aide.el"))
 #+end_src
 
 ** LSP

@@ -379,6 +379,12 @@
   :config (when (daemonp)
             (exec-path-from-shell-initialize)))
 
+;; https://github.com/junjizhi/aide.el
+(use-package aide
+  :straight (aide :type git
+                   :host github
+                   :repo "junjizhi/aide.el"))
+
 ;; https://github.com/joaotavora/eglot
 (use-package eglot
   :straight (eglot :type git
