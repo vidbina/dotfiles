@@ -5810,7 +5810,11 @@ See https://github.com/editorconfig/editorconfig-emacs/issues/264 regarding =ind
   )
 #+end_src
 
-*** WIP tree-sitter
+*** COMMENT tree-sitter
+
+#+begin_quote
+⚠️ Commented in order to test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]].
+#+end_quote
 
 Based on the [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/][TypeScript development with Emacs, tree-sitter and LSP in 2022]] article by vxlabs.
 
@@ -5825,7 +5829,9 @@ Based on the [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-t
   (global-tree-sitter-mode)
   ;; you can easily see the difference tree-sitter-hl-mode makes for python, ts or tsx
   ;; by switching on and off
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+  :delight
+  (tree-sitter-mode "🌲"))
 
 ;; https://github.com/emacs-tree-sitter/tree-sitter-langs
 (use-package tree-sitter-langs
