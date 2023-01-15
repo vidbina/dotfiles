@@ -367,6 +367,7 @@
                   :repo "vidbina/aide.el"
                   :branch "vidbina/retrieve-secret-through-function")
   :custom
+  (aide-completions-model "text-davinci-003")
   (aide-openai-api-key-getter (lambda ()
                                 (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2022.02.18"))))
 
