@@ -1646,9 +1646,9 @@ texlive-asabina = with pkgs; (texlive.combine {
     svg
     tableof
     titlepic
+    tocloft
     transparent
     trimspaces
-    tocloft
     ulem
     wrapfig
     xargs

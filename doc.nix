@@ -35,9 +35,9 @@ let
       svg
       tableof
       titlepic
+      tocloft
       transparent
       trimspaces
-      tocloft
       ulem
       wrapfig
       xargs
