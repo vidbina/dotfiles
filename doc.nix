@@ -22,6 +22,7 @@ let
       etoolbox
       everypage
       fmtcount
+      koma-script
       lastpage
       latexdiff
       mdframed

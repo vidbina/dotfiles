@@ -1633,6 +1633,7 @@ texlive-asabina = with pkgs; (texlive.combine {
     etoolbox
     everypage
     fmtcount
+    koma-script
     lastpage
     latexdiff
     mdframed
