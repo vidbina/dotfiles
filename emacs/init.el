@@ -452,6 +452,9 @@
   (advice-add 'evil-collection-mu4e-setup
               :before (lambda ()
                         (message "😈 Setup up evil-collection for mu4e 📧")))
+  (advice-add 'evil-collection-vterm-setup
+              :before (lambda ()
+                        (message "😈 Setup up evil-collection for vterm 📠")))
   :delight
   (evil-collection-unimpaired-mode))
 
