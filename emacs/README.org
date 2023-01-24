@@ -2742,7 +2742,7 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
               :before (lambda ()
                         (message "😈 Setup up evil-collection for vterm 📠")))
   :delight
-  (evil-collection-unimpaired-mode))
+  (evil-collection-unimpaired-mode "🚀"))
 #+end_src
 
 #+begin_center

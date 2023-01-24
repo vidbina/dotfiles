@@ -456,7 +456,7 @@
               :before (lambda ()
                         (message "😈 Setup up evil-collection for vterm 📠")))
   :delight
-  (evil-collection-unimpaired-mode))
+  (evil-collection-unimpaired-mode "🚀"))
 
 ;; https://github.com/alexmurray/evil-vimish-fold
 (use-package evil-vimish-fold
