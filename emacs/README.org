@@ -4794,7 +4794,9 @@ For additional context, one can display /mode line/ or /header line/ elements al
                     ;; <O> operator-pending state
                     ;; <M> motion state
                     ;; <E> emacs state
-                    evil-mode-line-tag
+                    (propertize evil-mode-line-tag
+                     'face 'italic
+                     'mouse-face 'bold-italic)
 
                     mode-line-modes
                     (propertize "(%c,%l)%p ")
@@ -4806,6 +4808,16 @@ You can force update the mode line in the =setq= doesn't quite get the job done:
 
 #+begin_src elisp :results none
 (force-mode-line-update)
+#+end_src
+
+I stubbed a helper to try to coerce a modeline update since I noticed on [2023-01-24 Tue 20:49] (while enroute to CDMX 🇲🇽) that the mode-line was not updating for the evil mode lighter.
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/refresh-mode-line ()
+  (interactive)
+  (message "Updating mode-line %s" evil-mode-line-tag)
+  (force-mode-line-update)
+  (evil-refresh-mode-line))
 #+end_src
 
 ** Security
