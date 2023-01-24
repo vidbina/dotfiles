@@ -2746,7 +2746,7 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
 #+end_src
 
 #+begin_center
-🚨 *Remember the =C-z= binding to exit the 'emacs state and return to 'normal state.* You may accidentally change =evil-state= (evil states are the equivalent to modes in vim vernacular) to =emacs= which will leave you with really annoying results when attempting to quickly navigate/edit your buffers. I've been cursing often enough thinking that my config was broken 🤬 when I had just accidentally pressed =C-z= and ended up in Emacs state. 🤦🏿‍♂️
+🚨 *Remember the =C-z= binding to exit the 'emacs state and return to 'normal state.* You may accidentally change =evil-state= ([[info:evil.info#Modes and states][evil states]] are the equivalent to modes in vim vernacular) to =emacs= which will leave you with really annoying results when attempting to quickly navigate/edit your buffers. I've been cursing often enough thinking that my config was broken 🤬 when I had just accidentally pressed =C-z= and ended up in Emacs state. 🤦🏿‍♂️
 #+end_center
 
 People have somewhat strong opinions about keybindings. Grab yourself some popcorn 🍿 and enjoy some choice words on [[https://www.reddit.com/r/emacs/comments/tyg9v5/why_not_use_evil_in_2022/][Reddit]] or on a number of YouTube videos that are pretty easy to find.
