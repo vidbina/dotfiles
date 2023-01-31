@@ -3706,6 +3706,22 @@ Disabled until we have some font-issues resolved.
 (mu4e-headers-fields '((:flags . 6) (:human-date . 12) (:from . 20) (:subject)))
 #+end_src
 
+**** PROTOTYPE Disable saving of drafts
+:LOGBOOK:
+- State "PROTOTYPE"  from "TODO"       [2023-01-31 Tue 07:16] \\
+  Introducing this to minimize the draft files noise
+:END:
+
+Based on https://emacs.stackexchange.com/a/56334/37975
+
+#+begin_src elisp :noweb-ref mu4e-config
+(add-hook 'mu4e-compose-mode-hook #'(lambda () (auto-save-mode -1)))
+#+end_src
+
+#+begin_src elisp :noweb-ref mu4e-custom
+(mu4e-sent-messages-behavior 'delete)
+#+end_src
+
 **** TODO Contexts
 
 In mu4e we can use contexts to manage the different "contexts" in which we write and read email.

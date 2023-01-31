@@ -737,6 +737,7 @@
                      (null message-sent-message-via))
             (push (buffer-name buffer) buffers))))
       (nreverse buffers)))
+  (add-hook 'mu4e-compose-mode-hook #'(lambda () (auto-save-mode -1)))
   (setq mu4e-contexts
         `( ,(make-mu4e-context
              :name "Sample"
@@ -750,6 +751,7 @@
   (gnus-dired-mail-mode 'mu4e-user-agent)
   (mu4e-use-fancy-chars nil "Use fancy unicode characters for mu4e marks")
   (mu4e-headers-fields '((:flags . 6) (:human-date . 12) (:from . 20) (:subject)))
+  (mu4e-sent-messages-behavior 'delete)
   (mu4e-context-policy 'ask)
   (mu4e-compose-context-policy 'ask)
   (mu4e-index-update-in-background t "Index in background")
