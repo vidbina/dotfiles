@@ -1506,6 +1506,7 @@ let
 in
 {
   home.packages = with pkgs; [
+    <<browser-packages>>
   ];
 
   <<browser-chromium>>
@@ -1514,42 +1515,61 @@ in
 }
 #+end_src
 
+** Chrome
+
+#+begin_src nix :noweb-ref browser-packages
+google-chrome-dev
+#+end_src
+
 ** Chromium
 
-#+begin_src nix :noweb-ref browser-chromium
+#+begin_src nix :noweb yes :noweb-ref browser-chromium
 programs.chromium = {
   enable = true;
 
   extensions = [
-    {
-      # Metamask
-      # https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn
-      id = "nkbihfbeogaeaoehlefnkodbefgpgknn";
-    }
-    {
-      # Vimium
-      # https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb
-      id = "dbepggeogbaibhgnhhndojpepiihcmeb";
-    }
-    {
-      # Darkreader
-      # https://chrome.google.com/webstore/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh
-      id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";
-    }
-    {
-      # wasavi
-      # https://chrome.google.com/webstore/detail/wasavi/dgogifpkoilgiofhhhodbodcfgomelhe
-      # see https://github.com/philc/vimium/issues/2564
-      id = "dgogifpkoilgiofhhhodbodcfgomelhe";
-    }
+    <<browser-chromium-extensions>>
   ];
 };
 #+end_src
 
-*** Wasavi
+*** Extensions
+
+**** COMMENT Metamask
+
+#+begin_src nix :noweb-ref browser-chromium-extensions
+  {
+    # Metamask
+    # https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn
+    id = "nkbihfbeogaeaoehlefnkodbefgpgknn";
+  }
+#+end_src
+
+**** Vimium
+
+vi-like navigation of the browser
+
+#+begin_src nix :noweb-ref browser-chromium-extensions
+{
+  # Vimium
+  # https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb
+  id = "dbepggeogbaibhgnhhndojpepiihcmeb";
+}
+#+end_src
+
+**** Wasavi
 
 vi-editor for input controls
 - enter with =C-RET=, exit with =:q= (typical vi exit command)
+
+#+begin_src nix :noweb-ref browser-chromium-extensions
+{
+  # wasavi
+  # https://chrome.google.com/webstore/detail/wasavi/dgogifpkoilgiofhhhodbodcfgomelhe
+  # see https://github.com/philc/vimium/issues/2564
+  id = "dgogifpkoilgiofhhhodbodcfgomelhe";
+}
+#+end_src
 
 ** Firefox
 
@@ -1557,7 +1577,7 @@ vi-editor for input controls
 ⚠️ In order to get the extensions in Firefox to work, you may have to first manually enable the extensions.
 #+end_quote
 
-#+begin_src nix :noweb-ref browser-firefox
+#+begin_src nix :noweb yes :noweb-ref browser-firefox
 programs.firefox = {
   enable = true;
 
@@ -1565,34 +1585,54 @@ programs.firefox = {
   extensions =
     # https://nur.nix-community.org/repos/rycee/
     with nur.repos.rycee.firefox-addons; [
-      multi-account-containers # needed by tridactyl
-      darkreader
-      tridactyl
+      <<browser-firefox-extensions>>
     ];
 };
 #+end_src
 
-*** Tridactyl
+*** Extensions
+
+**** Tridactyl
 
 Tridactyl is the extension introducing the vim bindings into Firefox. It will hijack the body of your new tabs which can bit a bit disruptive to your workflow as it will present a Tridactyl start page which is visually quite busy therefore running =:set newtab about:blank= to clear the body of the new tab can improve the UX and run =:set theme dark= to switch to a dark theme if new tabs are blasting you with white light.
 
-**** Escape Hatch
+#+begin_src nix :noweb-ref browser-firefox-extensions
+multi-account-containers # needed by tridactyl
+tridactyl
+#+end_src
+
+***** Escape Hatch
 
 Remember that =<C-,>= (as described in the Tridactyl documentation which would be =C-,= in Emacs bindings notation or more simply but =Ctrl= + =,​=) is the Tridactyl /escape hatch/ that gets you into a part within the page view of the browser where you can use the vi-like bindings to navigate or do this.
 
 💡 This is convenient because loading some pages will leave the focus on the URL bar or the search bar and tabbing through may be a tedious way to get to the page view.
 
-**** Ignore mode
+***** Ignore mode
 
 Remember that =Shift= + =Insert= (or =Ctrl= + =Alt= + =Escape= but I'm refusing to learn that one because it is quite a dragon of a maneuver to efficiently pull of) will toggle to ignore mode in which all keypresses are passed-through to the web application.
 
 💡 This is convenient for applications that have their own bindings that may conflict with Tridactyl.
 
-**** Search
+***** Search
 
 Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle through search results.
 
 💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
+
+** Shared Extensions
+*** Darkreader
+
+#+begin_src nix :noweb-ref browser-chromium-extensions
+{
+  # Darkreader
+  # https://chrome.google.com/webstore/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh
+  id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";
+}
+#+end_src
+
+#+begin_src nix :noweb-ref browser-firefox-extensions
+darkreader
+#+end_src
 
 * Docs
 

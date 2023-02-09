@@ -7,6 +7,7 @@ let
 in
 {
   home.packages = with pkgs; [
+
   ];
 
   programs.chromium = {
@@ -14,25 +15,20 @@ in
 
     extensions = [
       {
-        # Metamask
-        # https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn
-        id = "nkbihfbeogaeaoehlefnkodbefgpgknn";
-      }
-      {
         # Vimium
         # https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb
         id = "dbepggeogbaibhgnhhndojpepiihcmeb";
-      }
-      {
-        # Darkreader
-        # https://chrome.google.com/webstore/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh
-        id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";
       }
       {
         # wasavi
         # https://chrome.google.com/webstore/detail/wasavi/dgogifpkoilgiofhhhodbodcfgomelhe
         # see https://github.com/philc/vimium/issues/2564
         id = "dgogifpkoilgiofhhhodbodcfgomelhe";
+      }
+      {
+        # Darkreader
+        # https://chrome.google.com/webstore/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh
+        id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";
       }
     ];
   };
@@ -45,8 +41,8 @@ in
       # https://nur.nix-community.org/repos/rycee/
       with nur.repos.rycee.firefox-addons; [
         multi-account-containers # needed by tridactyl
-        darkreader
         tridactyl
+        darkreader
       ];
   };
 }
