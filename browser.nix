@@ -7,7 +7,7 @@ let
 in
 {
   home.packages = with pkgs; [
-
+    google-chrome-dev
   ];
 
   programs.chromium = {

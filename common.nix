@@ -27,9 +27,15 @@ in
     (toString ./bin)
   ];
 
-  nixpkgs.overlays = [
-    (self: super: { })
-  ];
+  nixpkgs = {
+    overlays = [
+      (self: super: { })
+    ];
+
+    config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) (with pkgs; [
+      "google-chrome-dev"
+    ]);
+  };
 
   programs.bat = {
     enable = true;
