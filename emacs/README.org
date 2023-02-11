@@ -1577,7 +1577,6 @@ It's a good idea to exclude any variables that contain overlays.")
 We define the execute handler:
 
 #+begin_src elisp :tangle init.el
-;;;###autoload
 (defun ob-async-org-babel-execute-src-block (&optional orig-fun arg info params)
   "Like org-babel-execute-src-block, but run asynchronously.
 
@@ -3179,7 +3178,33 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 
 #+begin_src elisp :tangle init.el
 (use-package vterm
-  :straight (:type built-in))
+  :straight (:type built-in)
+  :after evil
+  :init (evil-collection-vterm-setup))
+#+end_src
+
+**** TODO delete word in vterm prompt changes case
+
+Just type ab, navigate to beginning of word and enter =dw= to see what happens.
+
+**** TODO =M-S-e= triggers eval prompt
+
+Produces an =execute: _= prompt where I suppose we get to enter vterm-related shell commands for execution. What is the deal here.
+
+**** How to enable ffap =find-file-at-point= within vterm
+
+Using =find-file-at-point= inside of vterm does not work atm even though ffap does seem dired-aware.
+
+In dired it does seem to work in a manner that suggests that ffap is either dired-aware or dired overrides ffap.
+
+Somehow the ffap function didn't seem to be overriden in dired, so it seems that the functionality is ffap-native. Looked at =dired-find-file= to get an idea of a possible way to approach this.
+
+Reading [[info:find#Top][find#Top]] for more info.
+
+#+begin_src elisp
+(defun vterm-find-file ()
+  (interactive)
+  ())
 #+end_src
 
 *** TODO Debug =evil-collection-vterm-delete=
@@ -3617,7 +3642,7 @@ message
 sendmail
 #+end_src
 
-**** TODO Customizations
+**** Customizations
 
 We set mu4e as the MUA:
 

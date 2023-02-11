@@ -674,7 +674,9 @@
   (which-key-mode))
 
 (use-package vterm
-  :straight (:type built-in))
+  :straight (:type built-in)
+  :after evil
+  :init (evil-collection-vterm-setup))
 
 (use-package pdf-tools
   :straight (:type built-in)
