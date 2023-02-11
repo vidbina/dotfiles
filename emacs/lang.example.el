@@ -214,7 +214,9 @@
                    :host github
                    :repo "emacs-typescript/typescript.el")
   :delight
-  (typescript-mode "ts"))
+  (typescript-mode "ts")
+  :custom
+  (typescript-indent-level 2))
 
 ;; https://github.com/ananthakumaran/tide
 (use-package tide

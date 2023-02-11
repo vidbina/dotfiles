@@ -5616,7 +5616,9 @@ Superset of JavaScript that folks really should be using instead of just vanilla
                    :host github
                    :repo "emacs-typescript/typescript.el")
   :delight
-  (typescript-mode "ts"))
+  (typescript-mode "ts")
+  :custom
+  (typescript-indent-level 2))
 #+end_src
 
 ***** Tide
