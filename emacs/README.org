@@ -4848,8 +4848,10 @@ For additional context, one can display /mode line/ or /header line/ elements al
 You can force update the mode line in the =setq= doesn't quite get the job done:
 
 #+begin_src elisp :results none
-(force-mode-line-update)
+(force-mode-line-update t)
 #+end_src
+
+**** TODO Debug why evil-mode-line-tag in the mode-line is not updating
 
 I stubbed a helper to try to coerce a modeline update since I noticed on [2023-01-24 Tue 20:49] (while enroute to CDMX 🇲🇽) that the mode-line was not updating for the evil mode lighter.
 
@@ -4857,9 +4859,11 @@ I stubbed a helper to try to coerce a modeline update since I noticed on [2023-0
 (defun vidbina/refresh-mode-line ()
   (interactive)
   (message "Updating mode-line %s" evil-mode-line-tag)
-  (force-mode-line-update)
+  (force-mode-line-update t)
   (evil-refresh-mode-line))
 #+end_src
+
+In Org and Elisp buffers the mode line is not updating but in the =*Messages*= buffer, I have observed
 
 ** Security
 
