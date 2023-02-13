@@ -24,6 +24,8 @@
     '')
 
     xsel-copy-url
+
+    slock
   ];
 
   xdg.mimeApps.defaultApplications = {
@@ -158,4 +160,9 @@
   };
 
   services = {
+    screen-locker = {
+      enable = true;
+      lockCmd = "${pkgs.slock}/bin/slock";
+    };
+  };
 }

@@ -496,6 +496,7 @@ runtime: panic before malloc heap initialized
   <<x-programs>>
 
   services = {
+    <<x-services>>
   };
 }
 #+end_src
@@ -674,6 +675,39 @@ vidbina-urxvt-themes =
 #+begin_src nix :noweb-ref x-programs
 programs.autorandr = {
   enable = true;
+};
+#+end_src
+
+****** slock
+
+The [[https://tools.suckless.org/slock/][slock]] package is a simple X screen locker by the suckless.org team.
+
+#+begin_src nix :noweb-ref x-packages
+slock
+#+end_src
+
+******* Autolock
+
+#+begin_src nix :noweb-ref x-services
+screen-locker = {
+  enable = true;
+  lockCmd = "${pkgs.slock}/bin/slock";
+};
+#+end_src
+
+******* COMMENT Lock before suspension
+
+#+begin_src nix :noweb-ref x-programs
+systemd.services.lock-before-suspend = {
+  # https://www.jvt.me/posts/2019/12/03/lock-before-suspend-systemd/
+  description = "Lock X before suspend";
+  wantedBy = [ "suspend.target" "suspend-then-hibernate.target" ];
+  before = [ "sleep.target" ];
+  serviceConfig = {
+    User = config.my-config.handle;
+    Environment = "DISPLAY=:0";
+    ExecStart = ''${pkgs.slock}/bin/slock -b none'';
+  };
 };
 #+end_src
 
