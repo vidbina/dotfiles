@@ -695,22 +695,6 @@ screen-locker = {
 };
 #+end_src
 
-******* COMMENT Lock before suspension
-
-#+begin_src nix :noweb-ref x-programs
-systemd.services.lock-before-suspend = {
-  # https://www.jvt.me/posts/2019/12/03/lock-before-suspend-systemd/
-  description = "Lock X before suspend";
-  wantedBy = [ "suspend.target" "suspend-then-hibernate.target" ];
-  before = [ "sleep.target" ];
-  serviceConfig = {
-    User = config.my-config.handle;
-    Environment = "DISPLAY=:0";
-    ExecStart = ''${pkgs.slock}/bin/slock -b none'';
-  };
-};
-#+end_src
-
 ***** Applets
 
 #+begin_src nix :noweb-ref home-linux-services
