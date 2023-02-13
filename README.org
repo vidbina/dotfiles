@@ -494,17 +494,9 @@ runtime: panic before malloc heap initialized
   };
 
   <<x-programs>>
-  # programs.xmobar = {
-  #   enable = true;
-  #   # extraConfig = 
-  # };
 
-  # TODO: https://gvolpe.com/blog/xmonad-polybar-nixos/
-  # try polybar sometime
-
-  # services.taffybar = {
-  #   enable = true;
-  # };
+  services = {
+  };
 }
 #+end_src
 
@@ -1416,9 +1408,28 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
 
 For now, I symlink ~/.xmonad to ~/src/vidbina/xmonad-config and run =xmonad --recompile= to produce the Xmonad binary.
 
-* TODO Bring in xmobar configuration
+* Bars
+** COMMENT TODO Bring in xmobar configuration
 
 For now, I symlinked ~/.config/xmobar to ~/src/vidbina/xmobar-configuration.
+
+#+begin_src nix :noweb-ref x-progams
+programs.xmobar = {
+  enable = true;
+  # extraConfig = 
+};
+#+end_src
+
+** COMMENT polybar
+
+#+begin_src nix
+# TODO: https://gvolpe.com/blog/xmonad-polybar-nixos/
+# try polybar sometime
+
+services.taffybar = {
+  enable = true;
+};
+#+end_src
 
 * autorandr: Screen configuration
 

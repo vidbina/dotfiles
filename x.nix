@@ -156,15 +156,6 @@
   programs.autorandr = {
     enable = true;
   };
-  # programs.xmobar = {
-  #   enable = true;
-  #   # extraConfig =
-  # };
 
-  # TODO: https://gvolpe.com/blog/xmonad-polybar-nixos/
-  # try polybar sometime
-
-  # services.taffybar = {
-  #   enable = true;
-  # };
+  services = {
 }
