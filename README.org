@@ -682,9 +682,9 @@ programs.autorandr = {
 
 The [[https://tools.suckless.org/slock/][slock]] package is a simple X screen locker by the suckless.org team.
 
-#+begin_src nix :noweb-ref x-packages
-slock
-#+end_src
+Installing slock through systemPackages causes the =unable to disable the OOM killer. Make sure to suid or sgid slock=, see https://nixos.wiki/wiki/Slock.
+
+We therefore install slock in the nixos-configuration.
 
 ******* Autolock
 

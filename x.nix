@@ -24,8 +24,6 @@
     '')
 
     xsel-copy-url
-
-    slock
   ];
 
   xdg.mimeApps.defaultApplications = {
