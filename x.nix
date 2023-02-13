@@ -8,7 +8,6 @@
     peek
     screenkey
     xdotool
-    xsel-copy-url
 
     (writeScriptBin "colors" ''
       # https://askubuntu.com/questions/27314/script-to-display-all-terminal-colors
@@ -23,6 +22,8 @@
       done
       echo ""
     '')
+
+    xsel-copy-url
   ];
 
   xdg.mimeApps.defaultApplications = {

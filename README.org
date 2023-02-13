@@ -455,21 +455,8 @@ runtime: panic before malloc heap initialized
     peek
     screenkey
     xdotool
-    xsel-copy-url
 
-    (writeScriptBin "colors" ''
-      # https://askubuntu.com/questions/27314/script-to-display-all-terminal-colors
-
-      for x in {0..8}; do
-        for i in {30..37}; do
-          for a in {40..47}; do
-            echo -ne "\e[$x;$i;$a""m\\\e[$x;$i;$a""m\e[0;37;40m "
-          done
-          echo
-        done
-      done
-      echo ""
-    '')
+    <<x-packages>>
   ];
 
   xdg.mimeApps.defaultApplications = {
@@ -521,7 +508,27 @@ runtime: panic before malloc heap initialized
 }
 #+end_src
 
+****** colors
+
+#+begin_src nix :noweb-ref x-packages
+(writeScriptBin "colors" ''
+  # https://askubuntu.com/questions/27314/script-to-display-all-terminal-colors
+
+  for x in {0..8}; do
+    for i in {30..37}; do
+      for a in {40..47}; do
+        echo -ne "\e[$x;$i;$a""m\\\e[$x;$i;$a""m\e[0;37;40m "
+      done
+      echo
+    done
+  done
+  echo ""
+'')
+#+end_src
+
 ****** xsel-copy-url
+
+We define an overlay in which we build an env that contains a script and the desktop item that our mimehandler can resolve to for the appropriate mimetypes.
 
 #+begin_src nix :noweb-ref x-overlays
 xsel-copy-url = pkgs.buildEnv (
@@ -560,6 +567,12 @@ xsel-copy-url = pkgs.buildEnv (
     ];
   }
 );
+#+end_src
+
+We add our previously added =xsel-copy-url= "package" to our configuration:
+
+#+begin_src nix :noweb-ref x-packages
+xsel-copy-url
 #+end_src
 
 ****** URxvt
