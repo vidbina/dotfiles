@@ -160,7 +160,7 @@
   services = {
     screen-locker = {
       enable = true;
-      lockCmd = "${pkgs.slock}/bin/slock";
+      lockCmd = "/run/wrappers/bin/slock";
     };
   };
 }

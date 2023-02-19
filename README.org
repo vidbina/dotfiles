@@ -691,7 +691,7 @@ We therefore install slock in the nixos-configuration.
 #+begin_src nix :noweb-ref x-services
 screen-locker = {
   enable = true;
-  lockCmd = "${pkgs.slock}/bin/slock";
+  lockCmd = "/run/wrappers/bin/slock";
 };
 #+end_src
 
