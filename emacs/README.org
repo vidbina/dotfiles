@@ -6188,6 +6188,18 @@ PROMPT is the prompt string we send to the API."
 (aide-openai-complete (funcall aide-openai-api-key-getter) "Define an agenda for a meeting")
 #+end_src
 
+*** COMMENT WIP gpt-elisp
+
+Just trying out [[https://github.com/beguene/emacs-gpt][emacs-gpt]] for the lols.
+
+#+begin_src elisp :tangle lang.example.el
+(use-package gpt-elisp
+  :straight (gpt-elisp :local-repo "~/src/beguene/emacs-gpt")
+  :custom
+  (gpt-elisp-edit-api-key-getter (lambda ()
+                                   (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2022.02.18"))))
+#+end_src
+
 ** LSP
 
 *** TODO Eglot
