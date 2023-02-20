@@ -61,6 +61,20 @@ Typical use will be as follows:
 💡 Note that home-manager generated configuration files will be written somewhere to ~~/.config~, e.g.: ~~/.config/git/config~ for git.
 #+end_quote
 
+*** Core packages
+
+We use niv to manage our dependencies and manage this throught the =pkgs-bleeding= which we set up in let blocks of shell.nix and common.nix:
+
+#+begin_src nix :noweb-ref common-packages-let
+nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
+pkgs-bleeding = import nixpkgs-bleeding-src { };
+#+end_src
+
+#+begin_src nix :noweb-ref common-packages
+pkgs-bleeding.niv
+pkgs-bleeding.nixVersions.nix_2_13
+#+end_src
+
 *** Shell
 
 For home-manager to work, we define a nix-shell that we creates a controlled environment for our Makefile to work.
@@ -176,6 +190,13 @@ in
   home.sessionPath = [
     (toString ./bin)
   ];
+
+  nix = {
+    package = pkgs-bleeding.nixVersions.nix_2_13;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+  };
 
   nixpkgs = {
     overlays = [

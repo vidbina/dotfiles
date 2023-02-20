@@ -36,6 +36,13 @@ in
     (toString ./bin)
   ];
 
+  nix = {
+    package = pkgs-bleeding.nixVersions.nix_2_13;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+  };
+
   nixpkgs = {
     overlays = [
       (self: super: { })
