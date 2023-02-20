@@ -70,18 +70,18 @@ For home-manager to work, we define a nix-shell that we creates a controlled env
 # From https://github.com/ryantm/home-manager-template
 
 let
-
   sources = import ./nix/sources.nix;
 
   nixpkgs-src = sources."nixpkgs";
+  pkgs = import nixpkgs-src { };
+
   hm-src = sources."home-manager";
   nur-src = sources."NUR";
 
-  pkgs = import nixpkgs-src { };
+  <<common-packages-let>>
 
 in
 pkgs.mkShell rec {
-
   name = "home-manager-shell";
 
   buildInputs = with pkgs; [
@@ -94,14 +94,12 @@ pkgs.mkShell rec {
 
 The build inputs for our shell are:
 
-#+begin_src nix :noweb-ref shell-build-inputs
-niv
+#+begin_src nix :noweb yes :noweb-ref shell-build-inputs
+<<common-packages>>
 (import hm-src { inherit pkgs; }).home-manager
-
 cacert # to resolve CA cert issue
 hello
 git
-nix
 ncurses # to resolve tput issue
 which
 #+end_src
@@ -151,12 +149,19 @@ hm = import <home-manager/modules> { inherit pkgs; configuration = ./home-linux.
 let
   inherit (pkgs) stdenv;
   pathIfExists = (p: if (builtins.pathExists p) then [ p ] else [ ]);
+
+  sources = import ./nix/sources.nix;
+  <<common-packages-let>>
 in
 {
   imports = [
     <<common-imports>>
   ]
   ++ (pathIfExists ./personal.nix);
+
+  home.packages = [
+    <<common-packages>>
+  ];
 
   home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
 
@@ -436,6 +441,7 @@ runtime: panic before malloc heap initialized
   home.packages = with pkgs; [
     vokoscreen
     montserrat
+    <<home-linux-packages>>
   ];
 
   <<home-linux-services>>

@@ -5,6 +5,10 @@
 let
   inherit (pkgs) stdenv;
   pathIfExists = (p: if (builtins.pathExists p) then [ p ] else [ ]);
+
+  sources = import ./nix/sources.nix;
+  nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
+  pkgs-bleeding = import nixpkgs-bleeding-src { };
 in
 {
   imports = [
@@ -12,6 +16,11 @@ in
     ./vim.nix
   ]
   ++ (pathIfExists ./personal.nix);
+
+  home.packages = [
+    pkgs-bleeding.niv
+    pkgs-bleeding.nixVersions.nix_2_13
+  ];
 
   home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
 
