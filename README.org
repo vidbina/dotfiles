@@ -497,7 +497,7 @@ runtime: panic before malloc heap initialized
 
   nixpkgs.overlays = [
     (self: super: {
-      <<x-overlays>>
+      <<linux-overlays>>
     })
   ];
 
@@ -550,7 +550,7 @@ runtime: panic before malloc heap initialized
 
 We define an overlay in which we build an env that contains a script and the desktop item that our mimehandler can resolve to for the appropriate mimetypes.
 
-#+begin_src nix :noweb-ref x-overlays
+#+begin_src nix :noweb-ref linux-overlays
 xsel-copy-url = pkgs.buildEnv (
   let
     script = pkgs.writeScriptBin "xsel-copy-url" ''
@@ -679,7 +679,7 @@ bar.enable = false;
 
 ******* Themes
 
-#+begin_src nix :noweb-ref x-overlays
+#+begin_src nix :noweb-ref linux-overlays
 vidbina-urxvt-themes =
   let
     readTheme = x:
