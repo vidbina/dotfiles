@@ -2251,7 +2251,7 @@ See https://discourse.nixos.org/t/failed-vaapi-init/23317/3
 
 #+begin_src nix :noweb-ref linux-overlays
 chromium = super.chromium.override {
-  commandLineArgs = "--enable-features=VaapiVideoEncoder,VaapiVideoDecoder --use-gl=desktop";
+  commandLineArgs = "--enable-features=VaapiVideoEncoder,VaapiVideoDecoder --use-gl=desktop --ignore-gpu-blocklist --enable-accelerated-video-decode";
 };
 #+end_src
 
