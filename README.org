@@ -175,6 +175,7 @@ in
 
   home.packages = [
     <<common-packages>>
+    <<desktop-packages>>
   ];
 
   home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
@@ -2362,6 +2363,19 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 
 #+begin_src nix :noweb-ref browser-firefox-extensions
 darkreader
+#+end_src
+
+* Chat
+** Slack
+
+Using Slack from the browser is a shitty experience because one has to keep so many tabs open for the different workspaces. I'm finally budging and installing the official client.
+
+#+begin_src nix :noweb-ref desktop-packages
+pkgs.slack
+#+end_src
+
+#+begin_src nix :noweb-ref nixpkgs-unfree
+"slack"
 #+end_src
 
 * Docs

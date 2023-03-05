@@ -20,6 +20,7 @@ in
   home.packages = [
     pkgs-bleeding.niv
     pkgs-bleeding.nixVersions.nix_2_13
+    pkgs.slack
   ];
 
   home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
@@ -50,6 +51,7 @@ in
 
     config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) (with pkgs; [
       "google-chrome-dev"
+      "slack"
     ]);
   };
 
