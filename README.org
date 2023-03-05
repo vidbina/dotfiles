@@ -2245,6 +2245,14 @@ programs.chromium = {
 
 See https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/common/chrome_switches.cc and https://source.chromium.org/search?q=file:switches.cc&amp;ss=chromium%2Fchromium%2Fsrc for some switches that we can use according to the =commandLineArgs= option in [[https://github.com/nix-community/home-manager/blob/master/modules/programs/chromium.nix][programs/chromium.nix]].
 
+*** Debugging
+
+https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
+
+chrome://version
+chrome://flags
+chrome://gpu
+
 *** Chromium Overlay
 
 See https://discourse.nixos.org/t/failed-vaapi-init/23317/3
