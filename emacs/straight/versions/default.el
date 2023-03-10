@@ -22,7 +22,7 @@
  ("dired-k" . "0ddf0adb3a642c2f0694d8c1c12f263f2bf27375")
  ("dockerfile-mode" . "5db94549ce8b000ae35adf511c820ad228178052")
  ("editorconfig-emacs" . "1f6f16c24fd0030322d59c2853067a6dccc9e736")
- ("eglot" . "9665359bb6bfb6a96b0c3b307d4abea9fcbff7a5")
+ ("eglot" . "e501275e06952889056268dabe08ccd0dbaf23e5")
  ("el-get" . "bf3dba444dcd240b8cb358a0850c8c5a92606134")
  ("eldoc" . "036b9478ca77b29733fa4405c89dae28d0894818")
  ("elisp-tree-sitter" . "3cfab8a0e945db9b3df84437f27945746a43cc71")
