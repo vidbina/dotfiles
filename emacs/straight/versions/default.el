@@ -1,6 +1,6 @@
 (("ace-window" . "c7cb315c14e36fded5ac4096e158497ae974bec9")
  ("adaptive-wrap" . "0d5b4a07de76d87dd64333a566a8a0a845f2b9f0")
- ("aide.el" . "3786e39502baa3140a22c130db464abc075f07ee")
+ ("aide.el" . "d253f4b74377bd45cd92571631bbb43b33dee2f4")
  ("annalist.el" . "134fa3f0fb91a636a1c005c483516d4b64905a6d")
  ("annotate.el" . "7f48fad362b15546da7b015b533609a2452497b0")
  ("avy" . "e92cb37457b43336b765630dbfbea8ba4be601fa")
