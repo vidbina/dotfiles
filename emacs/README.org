@@ -6278,7 +6278,20 @@ https://joaotavora.github.io/eglot
   :straight (eglot :type git
                    :host github
                    :repo "joaotavora/eglot")
-  :bind (:map eglot-mode-map ("C-h j" . xref-find-definition)))
+  :custom
+  (eglot-autoshutdown t)
+  :bind (("C-c j" . eglot)
+         :map eglot-mode-map
+         ("C-c j f d" . eglot-find-declaration)
+         ("C-c j f i" . eglot-find-implementation)
+         ("C-c j f t" . eglot-find-typeDefinition)
+         ("C-c j j j" . eglot)
+         ("C-c j j r" . eglot-reconnect)
+         ("C-c j h s" . eglot-signature-eldoc-function)
+         ("C-c j h h" . eglot-hover-eldoc-function)
+         ("C-c j \\" . eglot-format)
+         ("C-c j k" . eglot-shutdown)
+         ("C-c j j k" . eglot-rename)))
 #+end_src
 
 *** COMMENT Emacs LSP
