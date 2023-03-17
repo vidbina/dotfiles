@@ -5069,7 +5069,13 @@ Some of the relevant keybindings are:
                        :repo "yoshiki/yaml-mode"))
 #+end_src
 
-**** WIP LSP-support
+**** YAML Formatter
+
+#+begin_src nix :noweb-ref nix-linux-packages
+yamllint
+#+end_src
+
+**** WIP YAML LSP-support
 
 We install the [[https://github.com/redhat-developer/yaml-language-server][YAML language server]] to offer LSP support for YAML files.
 
