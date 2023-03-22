@@ -5589,6 +5589,16 @@ but I am trying to figure out how to spawn a nix shell interpreter in a Flake-ba
                       :repo "fxbois/web-mode"))
 #+end_src
 
+*** WIP API Blueprint
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/w-vi/apib-mode
+(use-package apib-mode
+  :straight (apib-mode :type git
+                       :host github
+                       :repo "w-vi/apib-mode"))
+#+end_src
+
 ** General Purpose Programming Languages
 
 *** Python
