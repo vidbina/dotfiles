@@ -6248,7 +6248,7 @@ In order to use OpenAI's GPT models directly inside of Emacs, we are using the A
 
 A newer version of the =aide-openai-complete= that uses a more general path but specified the model in the JSON payload is:
 
-#+begin_src elisp
+#+begin_src elisp :tangle lang.example.el
 (defun vidbina/aide-openai-chat-complete (instruction target)
   "Return the prompt answer from OpenAI API.
 API-KEY is the OpenAI API key.
@@ -6288,7 +6288,9 @@ PROMPT is the prompt string we send to the API."
     result))
 #+end_src
 
-#+begin_src elisp
+Here is a pair programming helper that uses aide under the hood:
+
+#+begin_src elisp :tangle lang.example.el
 (defun vidbina/gpt-pair-prog (start end)
   (interactive "r")
   (if (region-active-p)
@@ -6297,8 +6299,7 @@ PROMPT is the prompt string we send to the API."
                     (region (buffer-substring-no-properties start end))
                     ;;(result (aide--openai-complete-string region))
                     (result-new (vidbina/aide-openai-chat-complete instruction region)))
-               (vidbina/kill result-new)
-               ))
+               (vidbina/kill result-new)))
     (message "No region is selected.")))
 #+end_src
 #+begin_src elisp
