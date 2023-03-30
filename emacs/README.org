@@ -6326,6 +6326,43 @@ Just trying out [[https://github.com/beguene/emacs-gpt][emacs-gpt]] for the lols
                                    (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2022.02.18"))))
 #+end_src
 
+*** Flymake
+
+#+begin_src elisp :noweb yes :tangle lang.example.el
+(with-eval-after-load 'flymake
+  ;; Set flymake bindings
+  (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
+  (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)
+  <<flymake-helpers>>)
+#+end_src
+
+For the ease of use, we provide a helper to enter the line of interest when we enter the consult-flymake completion interface:
+
+#+begin_src elisp :noweb-ref flymake-helpers
+(defun vidbina/jump-to-active-line-in-consult-flymake ()
+  "Jump to the current line in consult-flymake"
+  (let* ((target-line (line-number-at-pos))
+         (timer (run-at-time 1 nil
+                             `(lambda ()
+                                ;; Stubbing cancel hook
+                                (defun vidbina/jump-to-active-line-in-consult-flymake--cancel ()
+                                  (message "🪂 Cancelling timer")
+                                  (advice-remove 'vertico-exit #'vidbina/jump-to-active-line-in-consult-flymake)
+                                  (advice-remove 'exit-minibuffers #'vidbina/jump-to-active-line-in-consult-flymake))
+
+                                (message "🪂 Arming timer cancellation on minibuffer escape")
+                                ;; Arm (abort-minibuffers) and (exit-minibuffers) called by vertico-exit to cancel jump helper
+                                (advice-add 'abort-minibuffers :before #'vidbina/jump-to-active-line-in-consult-flymake--cancel)
+                                (advice-add 'exit-minibuffers :before #'vidbina/jump-to-active-line-in-consult-flymake--cancel)
+                                (message "🪂 Executing jump to %s in buffer %s" ,(number-to-string target-line) (buffer-name))
+                                ;; Note that entering the digits is not enough to update the position in vertico
+                                (mapcar (lambda (x) (self-insert-command 1 x)) ,(number-to-string target-line))
+                                (insert "")))))
+    (message "🪂 Armed jumper to %s" (number-to-string target-line))))
+
+(advice-add 'consult-flymake :before #'vidbina/jump-to-active-line-in-consult-flymake)
+#+end_src
+
 ** LSP
 
 *** Eglot

@@ -451,6 +451,33 @@ PROMPT is the prompt string we send to the API."
                (vidbina/kill result-new)))
     (message "No region is selected.")))
 
+(with-eval-after-load 'flymake
+  ;; Set flymake bindings
+  (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
+  (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)
+  (defun vidbina/jump-to-active-line-in-consult-flymake ()
+    "Jump to the current line in consult-flymake"
+    (let* ((target-line (line-number-at-pos))
+           (timer (run-at-time 1 nil
+                               `(lambda ()
+                                  ;; Stubbing cancel hook
+                                  (defun vidbina/jump-to-active-line-in-consult-flymake--cancel ()
+                                    (message "🪂 Cancelling timer")
+                                    (advice-remove 'vertico-exit #'vidbina/jump-to-active-line-in-consult-flymake)
+                                    (advice-remove 'exit-minibuffers #'vidbina/jump-to-active-line-in-consult-flymake))
+
+                                  (message "🪂 Arming timer cancellation on minibuffer escape")
+                                  ;; Arm (abort-minibuffers) and (exit-minibuffers) called by vertico-exit to cancel jump helper
+                                  (advice-add 'abort-minibuffers :before #'vidbina/jump-to-active-line-in-consult-flymake--cancel)
+                                  (advice-add 'exit-minibuffers :before #'vidbina/jump-to-active-line-in-consult-flymake--cancel)
+                                  (message "🪂 Executing jump to %s in buffer %s" ,(number-to-string target-line) (buffer-name))
+                                  ;; Note that entering the digits is not enough to update the position in vertico
+                                  (mapcar (lambda (x) (self-insert-command 1 x)) ,(number-to-string target-line))
+                                  (insert "")))))
+      (message "🪂 Armed jumper to %s" (number-to-string target-line))))
+
+  (advice-add 'consult-flymake :before #'vidbina/jump-to-active-line-in-consult-flymake))
+
 ;; https://github.com/joaotavora/eglot
 (use-package eglot
   :straight (eglot :type git
