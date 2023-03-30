@@ -24,6 +24,9 @@
 ;; https://github.com/raxod502/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 
+(with-eval-after-load 'eldoc
+  (setq eldoc-echo-area-prefer-doc-buffer t))
+
 ;; https://orgmode.org/worg/org-contrib/org-protocol.html
 ;; https://github.com/org-roam/org-roam/issues/529
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/

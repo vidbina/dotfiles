@@ -313,6 +313,13 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
 (straight-dependencies 'org-roam)
 #+end_src
 
+* Eldoc
+
+#+begin_src elisp :noweb yes :tangle init.el :results none
+(with-eval-after-load 'eldoc
+  (setq eldoc-echo-area-prefer-doc-buffer t))
+#+end_src
+
 * 📓 Org
 
 [[https://orgmode.org/worg/org-contrib/org-protocol.html][Org]] is probably the killer app of Emacs and is actually just a clearly standardized markup format. Three ways in which Org discerns itself from Markdown are in that it:
