@@ -438,12 +438,7 @@
   (setq evil-undo-system 'undo-fu)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
-  (setq evil-mode-line-format nil)
-  (setq evil-emacs-state-cursor '(hollow "black"))
-  (setq evil-insert-state-cursor '((bar . 5) "black"))
-  (setq evil-visual-state-cursor '((hbar . 5) "black"))
-  (setq evil-motion-state-cursor '(hollow "black"))
-  (setq evil-normal-state-cursor '(box "black")))
+  (setq evil-mode-line-format nil))
 
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection

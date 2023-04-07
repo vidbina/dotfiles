@@ -2727,13 +2727,10 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
   (setq evil-undo-system 'undo-fu)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
-  (setq evil-mode-line-format nil)
-  (setq evil-emacs-state-cursor '(hollow "black"))
-  (setq evil-insert-state-cursor '((bar . 5) "black"))
-  (setq evil-visual-state-cursor '((hbar . 5) "black"))
-  (setq evil-motion-state-cursor '(hollow "black"))
-  (setq evil-normal-state-cursor '(box "black")))
+  (setq evil-mode-line-format nil))
+#+end_src
 
+#+begin_src elisp :tangle init.el
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
   :straight (evil-collection :type git
@@ -4467,6 +4464,17 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   :type 'boolean
   :group 'display)
 
+(defun vidbina/theme-switch-update-cursor-styles ()
+  "Update colors of cursors for new theme"
+  (interactive)
+  (message "🌕 Setting evil cursors with modus-themes colors")
+  (let ((my-cursor-color (modus-themes-color 'fg-special-calm)))
+    (setq evil-emacs-state-cursor `(hollow ,my-cursor-color))
+    (setq evil-insert-state-cursor `((bar . 5) ,my-cursor-color))
+    (setq evil-visual-state-cursor `((hbar . 5) ,my-cursor-color))
+    (setq evil-motion-state-cursor `(hollow ,my-cursor-color))
+    (setq evil-normal-state-cursor `(box ,my-cursor-color))))
+
 (defun vidbina/theme-switch-to-choice ()
   "Switch to the theme of choice"
   (message "🦋 Switching to vidbina's theme")
@@ -4481,6 +4489,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (setq org-format-latex-options
         '(:scale 2 :foreground "White" :background "Transparent")
         zoom-window-mode-line-color "DodgerBlue4")
+  (vidbina/theme-switch-update-cursor-styles)
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
 
@@ -4491,6 +4500,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (setq org-format-latex-options
         '(:scale 2 :foreground "Black" :background "Transparent")
         zoom-window-mode-line-color "Gold")
+  (vidbina/theme-switch-update-cursor-styles)
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
 
