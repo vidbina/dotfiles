@@ -2721,13 +2721,14 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
   :after
   undo-fu
   :init
-  ;; https://github.com/emacs-evil/evil-collection#installation
   ;; pre-set some evil vars prior to package load
   (setq evil-respect-visual-line-mode t)
   (setq evil-undo-system 'undo-fu)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
-  (setq evil-mode-line-format nil))
+  (setq evil-mode-line-format nil)
+  :config
+  (messsage "😈 Configured evil-mode"))
 #+end_src
 
 #+begin_src elisp :tangle init.el
@@ -2737,7 +2738,11 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
                              :host github
                              :repo "emacs-evil/evil-collection")
   :after evil
+  :custom
+  (evil-collection-setup-minibuffer t)
   :config
+  (evil-mode 1)
+  (message "😈 Enable evil-mode")
   (evil-collection-init)
   (advice-add 'evil-collection-mu4e-setup
               :before (lambda ()
@@ -4853,7 +4858,7 @@ For additional context, one can display /mode line/ or /header line/ elements al
                     ;; <O> operator-pending state
                     ;; <M> motion state
                     ;; <E> emacs state
-                    ;;evil-mode-line-tag
+                    ;; evil-mode-line-tag
 
                     mode-line-modes
                     (propertize "(%c,%l)%p ")

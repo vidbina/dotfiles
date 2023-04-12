@@ -432,13 +432,14 @@
   :after
   undo-fu
   :init
-  ;; https://github.com/emacs-evil/evil-collection#installation
   ;; pre-set some evil vars prior to package load
   (setq evil-respect-visual-line-mode t)
   (setq evil-undo-system 'undo-fu)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
-  (setq evil-mode-line-format nil))
+  (setq evil-mode-line-format nil)
+  :config
+  (messsage "😈 Configured evil-mode"))
 
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
@@ -446,7 +447,11 @@
                              :host github
                              :repo "emacs-evil/evil-collection")
   :after evil
+  :custom
+  (evil-collection-setup-minibuffer t)
   :config
+  (evil-mode 1)
+  (message "😈 Enable evil-mode")
   (evil-collection-init)
   (advice-add 'evil-collection-mu4e-setup
               :before (lambda ()
