@@ -5158,6 +5158,34 @@ nodePackages.yaml-language-server
                                        '((gnuplot . t)))))
 #+end_src
 
+*** Mermaid
+
+https://github.com/abrochard/mermaid-mode
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/abrochard/mermaid-mode
+(use-package mermaid-mode
+  :straight (mermaid-mode :type git
+                          :host github
+                          :repo "abrochard/mermaid-mode"))
+#+end_src
+
+Enter a dedicated buffer by hovering over any mermaid containing block and enter =C-c C-o= to open a live editor in a browser.
+
+**** ERD
+
+- =|o=,	=o|= :: Zero or one
+- =||=, =||= :: Exactly one
+- =}o=, =o{= :: Zero or more (no upper limit)
+- =}|=, =|{= :: One or more (no upper limit)
+
+#+begin_src mermaid
+erDiagram
+    User ||..o{ Source : has
+    User ||..o{ EmailAddress : has
+    Source ||..o{ SourceSecret : has
+#+end_src
+
 ** DSL
 
 The selected nomer is a poor choice if you think about it. 🤔 Plotting languages are arguably domain-specific, markup languages are arguably domain specific -- naming is hard. 🤷🏿‍♂️

@@ -112,6 +112,12 @@
                                (append org-babel-load-languages
                                        '((gnuplot . t)))))
 
+;; https://github.com/abrochard/mermaid-mode
+(use-package mermaid-mode
+  :straight (mermaid-mode :type git
+                          :host github
+                          :repo "abrochard/mermaid-mode"))
+
 (with-eval-after-load 'org
   (message "Load Shell into Org Babel")
   (org-babel-do-load-languages 'org-babel-load-languages
