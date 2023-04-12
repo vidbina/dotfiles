@@ -706,6 +706,7 @@
   (persp-mode-prefix-key (kbd "C-c p") "same as persp-mode")
   (persp-modestring-short t)
   (persp-state-default-file "~/.emacs.d/perspective")
+  (persp-show-modestring 'header)
   :config
   (message "Configuring ‘perspective’")
 
