@@ -2365,6 +2365,73 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 darkreader
 #+end_src
 
+**** Override for mermaid on GitHub
+
+/html/body/div[1]/div/div/svg/g[2]/rect
+#entity-Document-5b2ba057-c937-56df-837d-8bac67f835ce > rect
+
+GitHub wraps mermaid diagrams in a div with the .mermaid class:
+
+#+begin_src css
+div.mermaid svg#diagram rect.er.entityBox {
+  fill: transparent !important;
+}
+#+end_src
+
+More generally and for the Mermaid Live editor the following applies added up top:
+
+#+begin_src css :noweb yes
+<<darkreader-mermaid>>
+#+end_src
+
+We fix the navigation controls for embedded mermaid diagrams by setting the fill and background clors on the control-panel buttons:
+
+#+begin_src css :noweb-ref darkreader-mermaid
+div.mermaid-viewer-control-panel .btn {
+  fill: var(--darkreader-text--color-fg-muted);
+  background-color: var(--darkreader-bg--color-btn-bg);
+}
+#+end_src
+
+For the ER diagrams:
+
+#+begin_src css :noweb-ref darkreader-mermaid
+svg g rect.er {
+  fill: var(--darkreader-neutral-background) !important;
+}
+svg g rect.er.entityBox {
+  fill: var(--darkreader-neutral-background) !important;
+}
+svg g rect.er.attributeBoxOdd {
+  fill: var(--darkreader-neutral-background) !important;
+}
+svg g rect.er.attributeBoxEven {
+  fill-opacity: 0.8 !important;
+  fill: var(--darkreader-selection-background);
+}
+svg rect.er.relationshipLabelBox {
+  fill: var(--darkreader-neutral-background) !important;
+}
+#+end_src
+
+For the Flow diagrams:
+
+#+begin_src css :noweb-ref darkreader-mermaid
+svg g g.nodes rect, svg g g.nodes polygon {
+  fill: var(--darkreader-neutral-background) !important;
+}
+#+end_src
+
+For Gantt diagrams:
+
+#+begin_src css :noweb-ref darkreader-mermaid
+svg g rect.task {
+  fill: var(--darkreader-selection-background) !important;
+}
+#+end_src
+
+Filed into https://github.com/darkreader/darkreader/pull/11108
+
 * Chat
 ** Slack
 
