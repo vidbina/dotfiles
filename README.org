@@ -401,13 +401,13 @@ vterm_cmd() {
 }
 #+end_src
 
-***** COMMENT Completions
+***** Completions
 
 ****** TODO Read up on completions for ideas
 
 Read https://scriptingosx.com/2019/07/moving-to-zsh-part-5-completions/
 
-****** COMMENT Bash completions
+****** Bash completions
 
 #+begin_src sh :noweb-ref zsh-init-extra
 # enable bash completion
@@ -415,7 +415,7 @@ autoload -U +X bashcompinit && \
 bashcompinit
 #+end_src
 
-****** COMMENT Color
+****** Color
 
 The [[https://zsh.sourceforge.io/Doc/Release/Zsh-Modules.html#The-zsh_002fcomplist-Module][complist]] module allows completion lists to be color-coded.
 
@@ -424,7 +424,9 @@ zmodload -i zsh/complist
 #source ${./zsh/zstyle.zsh}
 #+end_src
 
-****** COMMENT Fzf completions
+****** Fzf completions
+
+The fzf ([[https://github.com/junegunn/fzf][GitHub]]) fuzzy finder utility, is reported to be blazingly fast. It was commented out of the configuration a while back because of some memory-allocation issue way back but it is hard to live without any form of reverse search help in bash.
 
 #+begin_src sh :noweb-ref zsh-init-extra
 source ${pkgs.fzf}/share/fzf/completion.zsh

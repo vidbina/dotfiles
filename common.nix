@@ -132,7 +132,13 @@ in
     '';
 
     initExtra = ''
-
+      # enable bash completion
+      autoload -U +X bashcompinit && \
+      bashcompinit
+      zmodload -i zsh/complist
+      #source ${./zsh/zstyle.zsh}
+      source ${pkgs.fzf}/share/fzf/completion.zsh
+      source ${pkgs.fzf}/share/fzf/key-bindings.zsh
     '';
   };
 }
