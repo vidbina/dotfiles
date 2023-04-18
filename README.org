@@ -2390,8 +2390,8 @@ We fix the navigation controls for embedded mermaid diagrams by setting the fill
 
 #+begin_src css :noweb-ref darkreader-mermaid
 div.mermaid-viewer-control-panel .btn {
-  fill: var(--darkreader-text--color-fg-muted);
-  background-color: var(--darkreader-bg--color-btn-bg);
+  fill: var(--darkreader-neutral-text);
+  background-color: var(--darkreader-neutral-background);
 }
 #+end_src
 
