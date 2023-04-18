@@ -2432,6 +2432,20 @@ svg g rect.task {
 }
 #+end_src
 
+For Sequence diagrams:
+
+#+begin_src css :noweb-ref darkreader-mermaid
+svg line.messageLine0, svg line.messageLine1 {
+  stroke: var(--darkreader-neutral-text) !important;
+}
+div.mermaid .actor {
+  fill: var(--darkreader-neutral-background) !important;
+}
+div.mermaid .sequenceNumber {
+  color: var(--darkreader-selection-text) !important;
+}
+#+end_src
+
 Filed into https://github.com/darkreader/darkreader/pull/11108
 
 * Chat
