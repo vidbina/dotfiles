@@ -680,7 +680,9 @@
 (use-package vterm
   :straight (:type built-in)
   :after evil
-  :init (evil-collection-vterm-setup))
+  :init (evil-collection-vterm-setup)
+  :bind
+  ("C-x C-f" . vidbina/ffap-vterm-in-persp-mode))
 
 (use-package pdf-tools
   :straight (:type built-in)
