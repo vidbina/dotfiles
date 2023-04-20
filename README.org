@@ -201,12 +201,19 @@ in
 
   nixpkgs = {
     overlays = [
-      (self: super: { })
+      (self: super: {
+        <<common-overlays>>
+      })
     ];
 
-    config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) (with pkgs; [
-      <<nixpkgs-unfree>>
-    ]);
+    # config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    #   <<nixpkgs-unfree>>
+    # ];
+
+    # TODO: Remove hack in favor of allowUnfreePredicate above
+    config. = {
+      allowUnfree = true;
+    }
   };
 
   programs.bat = {
@@ -2459,6 +2466,28 @@ pkgs.slack
 
 #+begin_src nix :noweb-ref nixpkgs-unfree
 "slack"
+#+end_src
+
+** Discord
+
+#+begin_src nix :noweb-ref desktop-packages
+pkgs-bleeding.discord
+#+end_src
+
+#+begin_src nix :noweb-ref nixpkgs-unfree
+"discord"
+"discord-ptb"
+"discord-canary"
+#+end_src
+
+*** COMMENT Skip Discord host update
+
+Tangle single block in order to configure file:~/.config/discord/settings.json such that Discord skips the host update logic as host updates won't work well on NixOS.
+
+#+begin_src json :tangle ~/.config/discord/settings.json
+{
+  "SKIP_HOST_UPDATE": true
+}
 #+end_src
 
 * Docs

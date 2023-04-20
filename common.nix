@@ -21,6 +21,7 @@ in
     pkgs-bleeding.niv
     pkgs-bleeding.nixVersions.nix_2_13
     pkgs.slack
+    pkgs-bleeding.discord
   ];
 
   home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
@@ -46,13 +47,23 @@ in
 
   nixpkgs = {
     overlays = [
-      (self: super: { })
+      (self: super: {
+
+      })
     ];
 
-    config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) (with pkgs; [
-      "google-chrome-dev"
-      "slack"
-    ]);
+    # config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    #   "google-chrome-dev"
+    #   "slack"
+    #   "discord"
+    #   "discord-ptb"
+    #   "discord-canary"
+    # ];
+
+    # TODO: Remove hack in favor of allowUnfreePredicate above
+    config. = {
+      allowUnfree = true;
+    }
   };
 
   programs.bat = {
