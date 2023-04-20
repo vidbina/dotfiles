@@ -5,6 +5,10 @@
 let
   inherit (pkgs) stdenv;
   pathIfExists = (p: if (builtins.pathExists p) then [ p ] else [ ]);
+
+  sources = import ./nix/sources.nix;
+  nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
+  pkgs-bleeding = import nixpkgs-bleeding-src { };
 in
 {
   imports = [
@@ -12,6 +16,13 @@ in
     ./vim.nix
   ]
   ++ (pathIfExists ./personal.nix);
+
+  home.packages = [
+    pkgs-bleeding.niv
+    pkgs-bleeding.nixVersions.nix_2_13
+    pkgs.slack
+    pkgs-bleeding.discord
+  ];
 
   home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
 
@@ -27,14 +38,32 @@ in
     (toString ./bin)
   ];
 
+  nix = {
+    package = pkgs-bleeding.nixVersions.nix_2_13;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+  };
+
   nixpkgs = {
     overlays = [
-      (self: super: { })
+      (self: super: {
+
+      })
     ];
 
-    config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) (with pkgs; [
-      "google-chrome-dev"
-    ]);
+    # config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    #   "google-chrome-dev"
+    #   "slack"
+    #   "discord"
+    #   "discord-ptb"
+    #   "discord-canary"
+    # ];
+
+    # TODO: Remove hack in favor of allowUnfreePredicate above
+    config. = {
+      allowUnfree = true;
+    }
   };
 
   programs.bat = {
@@ -114,7 +143,13 @@ in
     '';
 
     initExtra = ''
-
+      # enable bash completion
+      autoload -U +X bashcompinit && \
+      bashcompinit
+      zmodload -i zsh/complist
+      #source ${./zsh/zstyle.zsh}
+      source ${pkgs.fzf}/share/fzf/completion.zsh
+      source ${pkgs.fzf}/share/fzf/key-bindings.zsh
     '';
   };
 }

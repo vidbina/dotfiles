@@ -24,6 +24,9 @@
 ;; https://github.com/raxod502/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 
+(with-eval-after-load 'eldoc
+  (setq eldoc-echo-area-prefer-doc-buffer t))
+
 ;; https://orgmode.org/worg/org-contrib/org-protocol.html
 ;; https://github.com/org-roam/org-roam/issues/529
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
@@ -247,7 +250,10 @@
 
   :hook
   (prog-mode . (lambda () (display-line-numbers-mode 1)))
-  (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0))))
+  (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
+
+  :bind
+  (("C-c n n" . display-line-numbers-mode)))
 
 ;; https://www.emacswiki.org/emacs/WhiteSpace
 ;; https://www.emacswiki.org/emacs?action=browse;oldid=WhitespaceMode;id=WhiteSpace
@@ -429,17 +435,14 @@
   :after
   undo-fu
   :init
-  ;; https://github.com/emacs-evil/evil-collection#installation
   ;; pre-set some evil vars prior to package load
   (setq evil-respect-visual-line-mode t)
   (setq evil-undo-system 'undo-fu)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
+  (setq evil-mode-line-format nil)
   :config
-  (evil-mode t)
-  (evil-set-initial-state 'info-mode 'emacs)
-  (evil-set-initial-state 'help-mode 'emacs)
-  (evil-set-initial-state 'special-mode 'emacs))
+  (messsage "😈 Configured evil-mode"))
 
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
@@ -447,7 +450,11 @@
                              :host github
                              :repo "emacs-evil/evil-collection")
   :after evil
+  :custom
+  (evil-collection-setup-minibuffer t)
   :config
+  (evil-mode 1)
+  (message "😈 Enable evil-mode")
   (evil-collection-init)
   (advice-add 'evil-collection-mu4e-setup
               :before (lambda ()
@@ -676,7 +683,9 @@
 (use-package vterm
   :straight (:type built-in)
   :after evil
-  :init (evil-collection-vterm-setup))
+  :init (evil-collection-vterm-setup)
+  :config
+  (define-key vterm-mode-map (kbd "C-x C-f") 'vidbina/ffap-vterm-in-persp-mode))
 
 (use-package pdf-tools
   :straight (:type built-in)
@@ -707,6 +716,7 @@
   (persp-mode-prefix-key (kbd "C-c p") "same as persp-mode")
   (persp-modestring-short t)
   (persp-state-default-file "~/.emacs.d/perspective")
+  (persp-show-modestring 'header)
   :config
   (message "Configuring ‘perspective’")
 

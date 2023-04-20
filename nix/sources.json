@@ -82,5 +82,17 @@
         "type": "tarball",
         "url": "https://github.com/NixOS/nixpkgs/archive/7a6a010c3a1d00f8470a5ca888f2f927f1860a19.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs-bleeding": {
+        "branch": "master",
+        "description": "Nix Packages collection",
+        "homepage": "",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "1f8ac70db85189f2e58bc93259ab06b703d393ea",
+        "sha256": "055khd7ypqp69h4959yys49mpxzw92j5k53zrf53hyq1k25xryn0",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/1f8ac70db85189f2e58bc93259ab06b703d393ea.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

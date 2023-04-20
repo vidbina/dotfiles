@@ -61,6 +61,20 @@ Typical use will be as follows:
 💡 Note that home-manager generated configuration files will be written somewhere to ~~/.config~, e.g.: ~~/.config/git/config~ for git.
 #+end_quote
 
+*** Core packages
+
+We use niv to manage our dependencies and manage this throught the =pkgs-bleeding= which we set up in let blocks of shell.nix and common.nix:
+
+#+begin_src nix :noweb-ref common-packages-let
+nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
+pkgs-bleeding = import nixpkgs-bleeding-src { };
+#+end_src
+
+#+begin_src nix :noweb-ref common-packages
+pkgs-bleeding.niv
+pkgs-bleeding.nixVersions.nix_2_13
+#+end_src
+
 *** Shell
 
 For home-manager to work, we define a nix-shell that we creates a controlled environment for our Makefile to work.
@@ -70,18 +84,18 @@ For home-manager to work, we define a nix-shell that we creates a controlled env
 # From https://github.com/ryantm/home-manager-template
 
 let
-
   sources = import ./nix/sources.nix;
 
   nixpkgs-src = sources."nixpkgs";
+  pkgs = import nixpkgs-src { };
+
   hm-src = sources."home-manager";
   nur-src = sources."NUR";
 
-  pkgs = import nixpkgs-src { };
+  <<common-packages-let>>
 
 in
 pkgs.mkShell rec {
-
   name = "home-manager-shell";
 
   buildInputs = with pkgs; [
@@ -94,14 +108,12 @@ pkgs.mkShell rec {
 
 The build inputs for our shell are:
 
-#+begin_src nix :noweb-ref shell-build-inputs
-niv
+#+begin_src nix :noweb yes :noweb-ref shell-build-inputs
+<<common-packages>>
 (import hm-src { inherit pkgs; }).home-manager
-
 cacert # to resolve CA cert issue
 hello
 git
-nix
 ncurses # to resolve tput issue
 which
 #+end_src
@@ -151,12 +163,20 @@ hm = import <home-manager/modules> { inherit pkgs; configuration = ./home-linux.
 let
   inherit (pkgs) stdenv;
   pathIfExists = (p: if (builtins.pathExists p) then [ p ] else [ ]);
+
+  sources = import ./nix/sources.nix;
+  <<common-packages-let>>
 in
 {
   imports = [
     <<common-imports>>
   ]
   ++ (pathIfExists ./personal.nix);
+
+  home.packages = [
+    <<common-packages>>
+    <<desktop-packages>>
+  ];
 
   home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
 
@@ -172,14 +192,28 @@ in
     (toString ./bin)
   ];
 
+  nix = {
+    package = pkgs-bleeding.nixVersions.nix_2_13;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+  };
+
   nixpkgs = {
     overlays = [
-      (self: super: { })
+      (self: super: {
+        <<common-overlays>>
+      })
     ];
 
-    config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) (with pkgs; [
-      <<nixpkgs-unfree>>
-    ]);
+    # config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    #   <<nixpkgs-unfree>>
+    # ];
+
+    # TODO: Remove hack in favor of allowUnfreePredicate above
+    config. = {
+      allowUnfree = true;
+    }
   };
 
   programs.bat = {
@@ -374,13 +408,13 @@ vterm_cmd() {
 }
 #+end_src
 
-***** COMMENT Completions
+***** Completions
 
 ****** TODO Read up on completions for ideas
 
 Read https://scriptingosx.com/2019/07/moving-to-zsh-part-5-completions/
 
-****** COMMENT Bash completions
+****** Bash completions
 
 #+begin_src sh :noweb-ref zsh-init-extra
 # enable bash completion
@@ -388,7 +422,7 @@ autoload -U +X bashcompinit && \
 bashcompinit
 #+end_src
 
-****** COMMENT Color
+****** Color
 
 The [[https://zsh.sourceforge.io/Doc/Release/Zsh-Modules.html#The-zsh_002fcomplist-Module][complist]] module allows completion lists to be color-coded.
 
@@ -397,7 +431,9 @@ zmodload -i zsh/complist
 #source ${./zsh/zstyle.zsh}
 #+end_src
 
-****** COMMENT Fzf completions
+****** Fzf completions
+
+The fzf ([[https://github.com/junegunn/fzf][GitHub]]) fuzzy finder utility, is reported to be blazingly fast. It was commented out of the configuration a while back because of some memory-allocation issue way back but it is hard to live without any form of reverse search help in bash.
 
 #+begin_src sh :noweb-ref zsh-init-extra
 source ${pkgs.fzf}/share/fzf/completion.zsh
@@ -436,6 +472,7 @@ runtime: panic before malloc heap initialized
   home.packages = with pkgs; [
     vokoscreen
     montserrat
+    <<home-linux-packages>>
   ];
 
   <<home-linux-services>>
@@ -470,7 +507,7 @@ runtime: panic before malloc heap initialized
 
   nixpkgs.overlays = [
     (self: super: {
-      <<x-overlays>>
+      <<linux-overlays>>
     })
   ];
 
@@ -523,7 +560,7 @@ runtime: panic before malloc heap initialized
 
 We define an overlay in which we build an env that contains a script and the desktop item that our mimehandler can resolve to for the appropriate mimetypes.
 
-#+begin_src nix :noweb-ref x-overlays
+#+begin_src nix :noweb-ref linux-overlays
 xsel-copy-url = pkgs.buildEnv (
   let
     script = pkgs.writeScriptBin "xsel-copy-url" ''
@@ -652,7 +689,7 @@ bar.enable = false;
 
 ******* Themes
 
-#+begin_src nix :noweb-ref x-overlays
+#+begin_src nix :noweb-ref linux-overlays
 vidbina-urxvt-themes =
   let
     readTheme = x:
@@ -1577,6 +1614,633 @@ We pass along the string equivalent of the package name for use by the =allowUnf
 "google-chrome-dev"
 #+end_src
 
+** TODO Debug Chrome freeze-ups (possibly accelleration-related)
+
+Output of starting chromium on [2023-03-04 Sat 16:51]
+
+#+begin_src text
+libva error: /run/opengl-driver/lib/dri/iHD_drv_video.so has no function __vaDriverInit_1_0
+libva error: /run/opengl-driver/lib/dri/i965_drv_video.so has no function __vaDriverInit_1_0
+[5045:5178:0304/164722.289526:ERROR:object_proxy.cc(623)] Failed to call method: org.freedesktop.DBus.Properties.Get: object_path= /org/freedesktop/UPower: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.UPower was not provided by any .service files
+[5045:5178:0304/164722.289875:ERROR:object_proxy.cc(623)] Failed to call method: org.freedesktop.UPower.GetDisplayDevice: object_path= /org/freedesktop/UPower: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.UPower was not provided by any .service files
+[5045:5178:0304/164722.290266:ERROR:object_proxy.cc(623)] Failed to call method: org.freedesktop.UPower.EnumerateDevices: object_path= /org/freedesktop/UPower: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.UPower was not provided by any .service files
+pFontconfig error: Cannot load default config file: No such file: (null)
+#+end_src
+
+Note that the content of the object file has a different init func:
+
+#+begin_src bash :wrap src text
+nm -gD /run/opengl-driver/lib/dri/iHD_drv_video.so | grep __vaDriverInit
+#+end_src
+
+#+RESULTS:
+#+begin_src text
+0000000000391d50 T __vaDriverInit_1_17
+#+end_src
+
+Searching through the other files object files in file:/run/opengl-driver/lib/dri, I noticed that a few do list a v1.0 init function.
+
+#+begin_src bash :wrap src text
+nm -gD /run/opengl-driver/lib/dri/nvidia_drv_video.so | grep __vaDriverInit
+#+end_src
+
+#+RESULTS:
+#+begin_src text
+000000000000c480 T __vaDriverInit_1_0
+#+end_src
+
+So, we need to clean up some of the drivers if Chromium is trying to resolve which init function to calld dynamically.
+
+Also =vainfo= communicates the version to be beyond 1.0, 1.17 to be precise.
+
+Output of chrome://gpu on [2023-02-11 Sat 23:55]
+
+#+begin_src text
+Graphics Feature Status
+Canvas: Hardware accelerated
+Canvas out-of-process rasterization: Disabled
+Direct Rendering Display Compositor: Disabled
+Compositing: Hardware accelerated
+Multiple Raster Threads: Enabled
+OpenGL: Enabled
+Rasterization: Hardware accelerated
+Raw Draw: Disabled
+Video Decode: Hardware accelerated
+Video Encode: Software only. Hardware acceleration disabled
+Vulkan: Disabled
+WebGL: Hardware accelerated
+WebGL2: Hardware accelerated
+WebGPU: Disabled
+Driver Bug Workarounds
+clear_uniforms_before_first_program_use
+count_all_in_varyings_packing
+disable_post_sub_buffers_for_onscreen_surfaces
+enable_webgl_timer_query_extensions
+exit_on_context_lost
+rely_on_implicit_sync_for_swap_buffers
+disabled_extension_GL_KHR_blend_equation_advanced
+disabled_extension_GL_KHR_blend_equation_advanced_coherent
+disabled_extension_GL_MESA_framebuffer_flip_y
+Problems Detected
+WebGPU has been disabled via blocklist or the command line.
+Disabled Features: webgpu
+Accelerated video encode has been disabled, either via blocklist, about:flags or the command line.
+Disabled Features: video_encode
+Clear uniforms before first program use on all platforms: 124764, 349137
+Applied Workarounds: clear_uniforms_before_first_program_use
+Mesa drivers in Linux handle varyings without static use incorrectly: 333885
+Applied Workarounds: count_all_in_varyings_packing
+Disable partial swaps on Mesa drivers (detected with GL_RENDERER): 339493
+Applied Workarounds: disable_post_sub_buffers_for_onscreen_surfaces
+Disable partial swaps on Mesa drivers (detected with GL_VERSION): 339493
+Applied Workarounds: disable_post_sub_buffers_for_onscreen_surfaces
+Disable KHR_blend_equation_advanced until cc shaders are updated: 661715
+Applied Workarounds: disable(GL_KHR_blend_equation_advanced), disable(GL_KHR_blend_equation_advanced_coherent)
+Expose WebGL's disjoint_timer_query extensions on platforms with site isolation: 808744, 870491
+Applied Workarounds: enable_webgl_timer_query_extensions
+Some drivers can't recover after OUT_OF_MEM and context lost: 893177
+Applied Workarounds: exit_on_context_lost
+Avoid waiting on a egl fence before swapping buffers and rely on implicit sync on Intel GPUs: 938286
+Applied Workarounds: rely_on_implicit_sync_for_swap_buffers
+Disable GL_MESA_framebuffer_flip_y for desktop GL: 964010
+Applied Workarounds: disable(GL_MESA_framebuffer_flip_y)
+ANGLE Features
+allowCompressedFormats (Frontend workarounds): Enabled: true
+Allow compressed formats
+cacheCompiledShader (Frontend features) anglebug:7036: Disabled
+Enable to cache compiled shaders
+disableAnisotropicFiltering (Frontend workarounds): Disabled
+Disable support for anisotropic filtering
+disableDrawBuffersIndexed (Frontend features) anglebug:7724: Disabled
+Disable support for OES_draw_buffers_indexed and EXT_draw_buffers_indexed
+disableProgramBinary (Frontend features) anglebug:5007: Disabled: IsPowerVrRogue(functions)
+Disable support for GL_OES_get_program_binary
+disableProgramCachingForTransformFeedback (Frontend workarounds): Disabled: IsAndroid() && isQualcomm
+On some GPUs, program binaries don't contain transform feedback varyings
+emulatePixelLocalStorage (Frontend features) anglebug:7279: Disabled: false
+Emulate ANGLE_shader_pixel_local_storage using shader images
+enableCaptureLimits (Frontend features) anglebug:5750: Disabled
+Set the context limits like frame capturing was enabled
+enableCompressingPipelineCacheInThreadPool (Frontend workarounds) anglebug:4722: Disabled: false
+Enable compressing pipeline cache in thread pool.
+enableProgramBinaryForCapture (Frontend features) anglebug:5658: Disabled
+Even if FrameCapture is enabled, enable GL_OES_get_program_binary
+forceDepthAttachmentInitOnClear (Frontend workarounds) anglebug:7246: Disabled
+Force depth attachment initialization on clear ops
+forceGlErrorChecking (Frontend features) https://issuetracker.google.com/220069903: Disabled
+Force GL error checking (i.e. prevent applications from disabling error checking
+forceInitShaderVariables (Frontend features): Disabled
+Force-enable shader variable initialization
+forceRobustResourceInit (Frontend features) anglebug:6041: Disabled
+Force-enable robust resource init
+loseContextOnOutOfMemory (Frontend workarounds): Enabled: true
+Some users rely on a lost context notification if a GL_OUT_OF_MEMORY error occurs
+scalarizeVecAndMatConstructorArgs (Frontend workarounds) 1165751: Disabled: false
+Always rewrite vec/mat constructors to be consistent
+RGBA4IsNotSupportedForColorRendering (OpenGL workarounds): Enabled: functions->standard == STANDARD_GL_DESKTOP && isIntel
+GL_RGBA4 is not color renderable
+RGBDXT1TexturesSampleZeroAlpha (OpenGL workarounds) anglebug:3729: Disabled: IsApple()
+Sampling BLACK texels from RGB DXT1 textures returns transparent black on Mac.
+addAndTrueToLoopCondition (OpenGL workarounds): Disabled: IsApple() && isIntel
+Calculation of loop conditions in for and while loop has bug
+adjustSrcDstRegionForBlitFramebuffer (OpenGL workarounds) 830046: Enabled: IsLinux() || (IsAndroid() && isNvidia) || (IsWindows() && isNvidia) || (IsApple() && functions->standard == STANDARD_GL_ES)
+Many platforms have issues with blitFramebuffer when the parameters are large.
+allowAstcFormats (OpenGL workarounds): Disabled: !isMesa || isIntel && (Is9thGenIntel(device) || IsGeminiLake(device) || IsCoffeeLake(device) || Is11thGenIntel(device) || Is12thGenIntel(device))
+Enable ASTC on desktop OpenGL
+allowClearForRobustResourceInit (OpenGL workarounds) 848952: Disabled: IsApple()
+Using glClear for robust resource initialization is buggy on some drivers and leads to texture corruption. Default to data uploads except on MacOS where it is very slow.
+allowETCFormats (OpenGL workarounds): Enabled: isIntel && !IsSandyBridge(device) && !IsIvyBridge(device) && !IsHaswell(device)
+Enable ETC2/EAC on desktop OpenGL
+alwaysCallUseProgramAfterLink (OpenGL workarounds) 110263: Enabled: true
+Always call useProgram after a successful link to avoid a driver bug
+alwaysUnbindFramebufferTexture2D (OpenGL workarounds) anglebug:5536: Disabled: isNvidia && (IsWindows() || IsLinux())
+Force unbind framebufferTexture2D before binding renderbuffer to work around driver bug.
+avoid1BitAlphaTextureFormats (OpenGL workarounds): Disabled: functions->standard == STANDARD_GL_DESKTOP && isAMD
+Issue with 1-bit alpha framebuffer formats
+bindTransformFeedbackBufferBeforeBindBufferRange (OpenGL workarounds) anglebug:5140: Disabled: IsApple()
+Bind transform feedback buffers to the generic binding point before calling glBindBufferBase or glBindBufferRange.
+clampArrayAccess (OpenGL workarounds) anglebug:2978: Disabled: IsAndroid() || isAMD || !functions->hasExtension("GL_KHR_robust_buffer_access_behavior")
+Clamp uniform array access to avoid reading invalid memory.
+clampFragDepth (OpenGL workarounds): Disabled: isNvidia
+gl_FragDepth is not clamped correctly when rendering to a floating point depth buffer
+clampMscRate (OpenGL workarounds) 1042393: Disabled: IsLinux() && IsWayland()
+Some drivers return bogus values for GetMscRate, so we clamp it to 30Hz
+clampPointSize (OpenGL workarounds): Disabled: IsAndroid() || isNvidia
+The point size range reported from the API is inconsistent with the actual behavior
+clearToZeroOrOneBroken (OpenGL workarounds) 710443: Disabled: IsApple() && isIntel && GetMacOSVersion() < OSVersion(10, 12, 6)
+Clears when the clear color is all zeros or ones do not work.
+clipSrcRegionForBlitFramebuffer (OpenGL workarounds) 830046: Disabled: IsApple() || (IsLinux() && isAMD)
+Issues with blitFramebuffer when the parameters don't match the framebuffer size.
+decodeEncodeSRGBForGenerateMipmap (OpenGL workarounds) anglebug:4646: Disabled: IsApple()
+Decode and encode before generateMipmap for srgb format textures.
+disableBlendFuncExtended (OpenGL workarounds) anglebug:1085: Enabled: isAMD || isIntel
+ARB_blend_func_extended does not pass the tests
+disableDrawBuffersIndexed (OpenGL workarounds): Disabled: IsWindows() && isAMD
+Disable OES_draw_buffers_indexed extension.
+disableGPUSwitchingSupport (OpenGL workarounds) 1091824: Disabled: isDualGPUMacWithNVIDIA
+Disable GPU switching support (use only the low-power GPU) on older MacBook Pros.
+disableMultisampledRenderToTexture (OpenGL workarounds) anglebug:2894: Disabled: isAdreno4xxOnAndroidLessThan51 || isAdreno4xxOnAndroid70 || isAdreno5xxOnAndroidLessThan70 || isAdreno5xxOnAndroid71 || isLinuxVivante
+Many drivers have bugs when using GL_EXT_multisampled_render_to_texture
+disableNativeParallelCompile (OpenGL workarounds) 1094869: Disabled: isTSANBuild && IsLinux() && isNvidia
+Do not use native KHR_parallel_shader_compile even when available.
+disableSemaphoreFd (OpenGL workarounds) 1046462: Disabled: IsLinux() && isAMD && isMesa && mesaVersion < (std::array<int, 3>{19, 3, 5})
+Disable GL_EXT_semaphore_fd extension
+disableSyncControlSupport (OpenGL workarounds) 1137851: Disabled: IsLinux() && isIntel && isMesa && mesaVersion[0] == 20
+Speculative fix for issues on Linux/Wayland where exposing GLX_OML_sync_control renders Chrome unusable
+disableTextureClampToBorder (OpenGL workarounds) anglebug:7405: Disabled: isImagination
+Imagination devices generate INVALID_ENUM when setting the texture border color.
+disableTimestampQueries (OpenGL workarounds) 811661: Disabled: (IsLinux() && isVMWare) || (IsAndroid() && isNvidia) || (IsAndroid() && GetAndroidSdkLevel() < 27 && IsAdreno5xxOrOlder(functions)) || (IsAndroid() && IsMaliT8xxOrOlder(functions)) || (IsAndroid() && IsMaliG31OrOlder(functions))
+Disable GL_EXT_disjoint_timer_query extension
+disableWorkerContexts (OpenGL workarounds) 849576: Disabled: (IsWindows() && (isIntel || isAMD)) || (IsLinux() && isNvidia) || IsIOS() || IsAndroid() || IsAndroidEmulator(functions)
+Some tests have been seen to fail using worker contexts
+doWhileGLSLCausesGPUHang (OpenGL workarounds) 644669: Disabled: IsApple() && functions->standard == STANDARD_GL_DESKTOP && GetMacOSVersion() < OSVersion(10, 11, 0)
+Some GLSL constructs involving do-while loops cause GPU hangs
+doesSRGBClearsOnLinearFramebufferAttachments (OpenGL workarounds): Enabled: isIntel || isAMD
+Issue clearing framebuffers with linear attachments when GL_FRAMEBUFFER_SRGB is enabled
+dontInitializeUninitializedLocals (OpenGL workarounds) anglebug:2046: Disabled: IsAndroid() && isQualcomm
+Initializing uninitialized locals caused odd behavior in a few WebGL 2 tests
+dontRelinkProgramsInParallel (OpenGL workarounds) anglebug:3045: Disabled: IsAndroid() || (IsWindows() && isIntel)
+Relinking a program in parallel is buggy
+dontUseLoopsToInitializeVariables (OpenGL workarounds) 809422: Disabled: (IsAndroid() && isQualcomm) || (isIntel && IsApple())
+For loops used to initialize variables hit native GLSL compiler bugs
+emulateAbsIntFunction (OpenGL workarounds) 642227: Disabled: IsApple() && isIntel
+abs(i) where i is an integer returns unexpected result
+emulateAtan2Float (OpenGL workarounds) 672380: Disabled: isNvidia
+atan(y, x) may return a wrong answer
+emulateCopyTexImage2D (OpenGL workarounds): Disabled: isApple
+Replace CopyTexImage2D with TexImage2D + CopyTexSubImage2D.
+emulateCopyTexImage2DFromRenderbuffers (OpenGL workarounds) anglebug:4674: Disabled: IsApple() && functions->standard == STANDARD_GL_ES && !(isAMD && IsWindows())
+CopyTexImage2D spuriously returns errors on iOS when copying from renderbuffers.
+emulateImmutableCompressedTexture3D (OpenGL workarounds) 1060012: Disabled: isQualcomm
+Use non-immutable texture allocation to work around a driver bug.
+emulateIsnanFloat (OpenGL workarounds) 650547: Disabled: isIntel && IsApple() && IsSkylake(device) && GetMacOSVersion() < OSVersion(10, 13, 2)
+Using isnan() on highp float will get wrong answer
+emulateMaxVertexAttribStride (OpenGL workarounds) anglebug:1936: Disabled: IsLinux() && functions->standard == STANDARD_GL_DESKTOP && isAMD
+Some drivers return 0 when MAX_VERTEX_ATTRIB_STRIED queried
+emulatePackSkipRowsAndPackSkipPixels (OpenGL workarounds) anglebug:4849: Disabled: IsApple()
+GL_PACK_SKIP_ROWS and GL_PACK_SKIP_PIXELS are ignored in Apple's OpenGL driver.
+emulatePrimitiveRestartFixedIndex (OpenGL workarounds) anglebug:3997: Disabled: functions->standard == STANDARD_GL_DESKTOP && functions->isAtLeastGL(gl::Version(3, 1)) && !functions->isAtLeastGL(gl::Version(4, 3))
+When GL_PRIMITIVE_RESTART_FIXED_INDEX is not available, emulate it with GL_PRIMITIVE_RESTART and glPrimitiveRestartIndex.
+emulateRGB10 (OpenGL workarounds) 1300575: Enabled: functions->standard == STANDARD_GL_DESKTOP
+Emulate RGB10 support using RGB10_A2.
+finishDoesNotCauseQueriesToBeAvailable (OpenGL workarounds): Disabled: functions->standard == STANDARD_GL_DESKTOP && isNvidia
+glFinish doesn't cause all queries to report available result
+flushBeforeDeleteTextureIfCopiedTo (OpenGL workarounds) anglebug:4267: Disabled: IsApple() && isIntel
+Some drivers track CopyTex{Sub}Image texture dependencies incorrectly. Flush before glDeleteTextures in this case
+flushOnFramebufferChange (OpenGL workarounds) 1181068: Disabled: IsApple() && Has9thGenIntelGPU(systemInfo)
+Switching framebuffers without a flush can lead to crashes on Intel 9th Generation GPU Macs.
+initFragmentOutputVariables (OpenGL workarounds) 1171371: Disabled: IsAdreno42xOr3xx(functions)
+No init gl_FragColor causes context lost
+initializeCurrentVertexAttributes (OpenGL workarounds): Disabled: isNvidia
+During initialization, assign the current vertex attributes to the spec-mandated defaults
+keepBufferShadowCopy (OpenGL workarounds): Disabled: !CanMapBufferForRead(functions)
+Maintain a shadow copy of buffer data when the GL API does not permit reading data back.
+limitMax3dArrayTextureSizeTo1024 (OpenGL workarounds) 927470: Disabled: limitMaxTextureSize
+Limit max 3d texture size and max array texture layers to 1024 to avoid system hang
+limitMaxMSAASamplesTo4 (OpenGL workarounds) 797243: Disabled: IsAndroid() || (IsApple() && (isIntel || isAMD || isNvidia))
+Various rendering bugs have been observed when using higher MSAA counts
+limitWebglMaxTextureSizeTo4096 (OpenGL workarounds) 927470: Disabled: IsAndroid() || limitMaxTextureSize
+Limit webgl max texture size to 4096 to avoid frequent out-of-memory errors
+packLastRowSeparatelyForPaddingInclusion (OpenGL workarounds) anglebug:1512: Disabled: IsApple() || isNvidia
+When uploading textures from an pack buffer, some drivers count an extra row padding
+packOverlappingRowsSeparatelyPackBuffer (OpenGL workarounds): Disabled: isNvidia
+In the case of packing to a pixel pack buffer, pack overlapping rows row by row
+passHighpToPackUnormSnormBuiltins (OpenGL workarounds) anglebug:7527: Disabled: isQualcomm
+packUnorm4x8 fails on Pixel 4 if it is not passed a highp vec4.
+preAddTexelFetchOffsets (OpenGL workarounds) 642605: Disabled: IsApple() && isIntel
+Intel Mac drivers mistakenly consider the parameter position of nagative vaule as invalid even if the sum of position and offset is in range, so we need to add workarounds by rewriting texelFetchOffset(sampler, position, lod, offset) into texelFetch(sampler, position + offset, lod).
+promotePackedFormatsTo8BitPerChannel (OpenGL workarounds) anglebug:5469: Disabled: IsApple() && hasAMD
+Packed color formats are buggy on Macs with AMD GPUs
+queryCounterBitsGeneratesErrors (OpenGL workarounds) anglebug:3027: Disabled: IsNexus5X(vendor, device)
+Drivers generate errors when querying the number of bits in timer queries
+readPixelsUsingImplementationColorReadFormatForNorm16 (OpenGL workarounds) anglebug:4214: Disabled: !isIntel && functions->standard == STANDARD_GL_ES && functions->isAtLeastGLES(gl::Version(3, 1)) && functions->hasGLESExtension("GL_EXT_texture_norm16")
+Quite some OpenGL ES drivers don't implement readPixels for RGBA/UNSIGNED_SHORT from EXT_texture_norm16 correctly
+reapplyUBOBindingsAfterUsingBinaryProgram (OpenGL workarounds) anglebug:1637: Disabled: isAMD || IsAndroid()
+Some drivers forget about UBO bindings when using program binaries
+regenerateStructNames (OpenGL workarounds) 403957: Disabled: IsApple()
+All Mac drivers do not handle struct scopes correctly. This workaround overwrites a structname with a unique prefix.
+removeDynamicIndexingOfSwizzledVector (OpenGL workarounds) 709351: Disabled: IsApple() || IsAndroid() || IsWindows()
+Dynamic indexing of swizzled l-values doesn't work correctly on various platforms.
+removeInvariantAndCentroidForESSL3 (OpenGL workarounds): Disabled: functions->isAtMostGL(gl::Version(4, 1)) || (functions->standard == STANDARD_GL_DESKTOP && isAMD)
+Fix spec difference between GLSL 4.1 or lower and ESSL3
+resetTexImage2DBaseLevel (OpenGL workarounds) 705865: Disabled: IsApple() && isIntel && GetMacOSVersion() >= OSVersion(10, 12, 4)
+Reset texture base level before calling glTexImage2D to work around pixel comparison failure.
+rewriteFloatUnaryMinusOperator (OpenGL workarounds) 308366: Disabled: IsApple() && isIntel && GetMacOSVersion() < OSVersion(10, 12, 0)
+Using '-<float>' will get wrong answer
+rewriteRepeatedAssignToSwizzled (OpenGL workarounds): Disabled: isNvidia
+Repeated assignment to swizzled values inside a GLSL user-defined function have incorrect results
+rewriteRowMajorMatrices (OpenGL workarounds) anglebug:2273: Disabled: false
+Rewrite row major matrices in shaders as column major as a driver bug workaround
+sanitizeAMDGPURendererString (OpenGL workarounds) 1181193: Disabled: IsLinux() && hasAMD
+Strip precise kernel and DRM version information from amdgpu renderer strings.
+setPrimitiveRestartFixedIndexForDrawArrays (OpenGL workarounds) anglebug:3997: Disabled: features->emulatePrimitiveRestartFixedIndex.enabled && IsApple() && isIntel
+Some drivers discard vertex data in DrawArrays calls when the fixed primitive restart index is within the number of primitives being drawn.
+setZeroLevelBeforeGenerateMipmap (OpenGL workarounds): Disabled: IsApple()
+glGenerateMipmap fails if the zero texture level is not set on some Mac drivers.
+shiftInstancedArrayDataWithOffset (OpenGL workarounds) 1144207: Disabled: IsApple() && IsIntel(vendor) && !IsHaswell(device)
+glDrawArraysInstanced is buggy on certain new Mac Intel GPUs
+supportsFragmentShaderInterlockARB (OpenGL features) anglebug:7279: Enabled: functions->isAtLeastGL(gl::Version(4, 5)) && functions->hasGLExtension("GL_ARB_fragment_shader_interlock")
+Backend GL context supports ARB_fragment_shader_interlock extension
+supportsFragmentShaderInterlockNV (OpenGL features) anglebug:7279: Enabled: functions->isAtLeastGL(gl::Version(4, 3)) && functions->hasGLExtension("GL_NV_fragment_shader_interlock")
+Backend GL context supports NV_fragment_shader_interlock extension
+supportsFragmentShaderOrderingINTEL (OpenGL features) anglebug:7279: Disabled: functions->isAtLeastGL(gl::Version(4, 4)) && functions->hasGLExtension("GL_INTEL_fragment_shader_ordering")
+Backend GL context supports GL_INTEL_fragment_shader_ordering extension
+supportsShaderFramebufferFetchEXT (OpenGL features) anglebug:7279: Disabled: functions->hasGLESExtension("GL_EXT_shader_framebuffer_fetch")
+Backend GL context supports EXT_shader_framebuffer_fetch extension
+supportsShaderFramebufferFetchNonCoherentEXT (OpenGL features) anglebug:7279: Disabled: functions->hasGLESExtension("EXT_shader_framebuffer_fetch_non_coherent")
+Backend GL context supports EXT_shader_framebuffer_fetch_non_coherent extension
+syncVertexArraysToDefault (OpenGL workarounds) anglebug:5577: Disabled: !nativegl::SupportsVertexArrayObjects(functions)
+Only use the default VAO because of missing support or driver bugs
+unbindFBOBeforeSwitchingContext (OpenGL workarounds) 1181193: Disabled: IsPowerVR(vendor)
+Imagination GL drivers are buggy with context switching.
+unfoldShortCircuits (OpenGL workarounds) anglebug:482: Disabled: IsApple()
+Mac incorrectly executes both sides of && and || expressions when they should short-circuit.
+unpackLastRowSeparatelyForPaddingInclusion (OpenGL workarounds) anglebug:1512: Disabled: IsApple() || isNvidia
+When uploading textures from an unpack buffer, some drivers count an extra row padding
+unpackOverlappingRowsSeparatelyUnpackBuffer (OpenGL workarounds): Disabled: isNvidia
+In the case of unpacking from a pixel unpack buffer, unpack overlapping rows row by row
+unsizedSRGBReadPixelsDoesntTransform (OpenGL workarounds) 550292: Disabled: IsAndroid() && isQualcomm
+Drivers returning raw sRGB values instead of linearized values when calling glReadPixels on unsized sRGB texture formats
+uploadTextureDataInChunks (OpenGL workarounds) 1181068: Disabled: IsApple()
+Upload texture data in <120kb chunks to work around Mac driver hangs and crashes.
+useUnusedBlocksWithStandardOrSharedLayout (OpenGL workarounds): Disabled: (IsApple() && functions->standard == STANDARD_GL_DESKTOP) || (IsLinux() && isAMD)
+Unused std140 or shared uniform blocks will be treated as inactive
+vertexIDDoesNotIncludeBaseVertex (OpenGL workarounds): Disabled: IsApple() && isAMD
+gl_VertexID in GLSL vertex shader doesn't include base vertex value
+DAWN Info
+
+<CPU> Vulkan backend - SwiftShader Device (Subzero)
+[Default Toggle Names]
+lazy_clear_resource_on_first_use: https://crbug.com/dawn/145: Clears resource to zero on first usage. This initializes the resource so that no dirty bits from recycled memory is present in the new resource.
+use_temporary_buffer_in_texture_to_texture_copy: https://crbug.com/dawn/42: Split texture-to-texture copy into two copies: copy from source texture into a temporary buffer, and copy from the temporary buffer into the destination texture when copying between compressed textures that don't have block-aligned sizes. This workaround is enabled by default on all Vulkan drivers to solve an issue in the Vulkan SPEC about the texture-to-texture copies with compressed formats. See #1005 (https://github.com/KhronosGroup/Vulkan-Docs/issues/1005) for more details.
+vulkan_use_d32s8: https://crbug.com/dawn/286: Vulkan mandates support of either D32_FLOAT_S8 or D24_UNORM_S8. When available the backend will use D32S8 (toggle to on) but setting the toggle to off will make it use the D24S8 format when possible.
+vulkan_use_s8: https://crbug.com/dawn/666: Vulkan has a pure stencil8 format but it is not universally available. When this toggle is on, the backend will use S8 for the stencil8 format, otherwise it will fallback to D32S8 or D24S8.
+disallow_unsafe_apis: http://crbug.com/1138528: Produces validation errors on API entry points or parameter combinations that aren't considered secure yet.
+use_vulkan_zero_initialize_workgroup_memory_extension: https://crbug.com/dawn/1302: Initialize workgroup memory with OpConstantNull on Vulkan when the Vulkan extension VK_KHR_zero_initialize_workgroup_memory is supported.
+[WebGPU Forced Toggles - enabled]
+disallow_spirv: https://crbug.com/1214923: Disallow usage of SPIR-V completely so that only WGSL is used for shader modules. This is useful to prevent a Chromium renderer process from successfully sending SPIR-V code to be compiled in the GPU process.
+[Supported Features]
+texture-compression-bc
+texture-compression-etc2
+texture-compression-astc
+timestamp-query
+depth-clip-control
+depth32float-stencil8
+indirect-first-instance
+rg11b10ufloat-renderable
+dawn-internal-usages
+dawn-native
+Version Information
+Data exported
+2023-02-11T23:53:25.967Z
+Chrome version
+Chrome/108.0.5359.98
+Operating system
+Linux 5.15.81
+Software rendering list URL
+https://chromium.googlesource.com/chromium/src/+/aa99c50ebc03bd334a4a8f11e99ab6fb5e0adf78/gpu/config/software_rendering_list.json
+Driver bug list URL
+https://chromium.googlesource.com/chromium/src/+/aa99c50ebc03bd334a4a8f11e99ab6fb5e0adf78/gpu/config/gpu_driver_bug_list.json
+ANGLE commit id
+unknown hash
+2D graphics backend
+Skia/108 7c55be996a81ff9c5c66984c9d4ef85d12a44c8c
+Command Line
+/nix/store/nq2g91pahhdvyw99kb18s9dh3csqg9my-chromium-unwrapped-108.0.5359.98/libexec/chromium/chromium --flag-switches-begin --flag-switches-end
+Driver Information
+Initialization time
+235
+In-process GPU
+false
+Passthrough Command Decoder
+true
+Sandboxed
+false
+GPU0
+VENDOR= 0x0000 [Google Inc. (Intel)], DEVICE=0x0000 [ANGLE (Intel, Mesa Intel(R) UHD Graphics (TGL GT1), OpenGL 4.6 (Core Profile) Mesa 22.2.4)], DRIVER_VENDOR=Mesa, DRIVER_VERSION=22.2.4 *ACTIVE*
+Optimus
+false
+AMD switchable
+false
+GPU CUDA compute capability major version
+0
+Pixel shader version
+1.00
+Vertex shader version
+1.00
+Max. MSAA samples
+16
+Machine model name
+Machine model version
+GL_VENDOR
+Google Inc. (Intel)
+GL_RENDERER
+ANGLE (Intel, Mesa Intel(R) UHD Graphics (TGL GT1), OpenGL 4.6 (Core Profile) Mesa 22.2.4)
+GL_VERSION
+OpenGL ES 2.0.0 (ANGLE 2.1.0 git hash: unknown hash)
+GL_EXTENSIONS
+GL_AMD_performance_monitor GL_ANGLE_base_vertex_base_instance GL_ANGLE_base_vertex_base_instance_shader_builtin GL_ANGLE_client_arrays GL_ANGLE_compressed_texture_etc GL_ANGLE_depth_texture GL_ANGLE_framebuffer_blit GL_ANGLE_framebuffer_multisample GL_ANGLE_get_serialized_context_string GL_ANGLE_get_tex_level_parameter GL_ANGLE_instanced_arrays GL_ANGLE_logic_op GL_ANGLE_memory_size GL_ANGLE_multi_draw GL_ANGLE_program_cache_control GL_ANGLE_provoking_vertex GL_ANGLE_request_extension GL_ANGLE_robust_client_memory GL_ANGLE_texture_compression_dxt3 GL_ANGLE_texture_compression_dxt5 GL_ANGLE_texture_external_update GL_ANGLE_texture_rectangle GL_ANGLE_translated_shader_source GL_APPLE_clip_distance GL_ARB_sync GL_CHROMIUM_bind_generates_resource GL_CHROMIUM_bind_uniform_location GL_CHROMIUM_color_buffer_float_rgb GL_CHROMIUM_color_buffer_float_rgba GL_CHROMIUM_copy_texture GL_CHROMIUM_lose_context GL_CHROMIUM_sync_query GL_EXT_base_instance GL_EXT_blend_minmax GL_EXT_color_buffer_half_float GL_EXT_compressed_ETC1_RGB8_sub_texture GL_EXT_debug_label GL_EXT_debug_marker GL_EXT_discard_framebuffer GL_EXT_disjoint_timer_query GL_EXT_draw_buffers GL_EXT_draw_elements_base_vertex GL_EXT_float_blend GL_EXT_frag_depth GL_EXT_instanced_arrays GL_EXT_map_buffer_range GL_EXT_memory_object GL_EXT_memory_object_fd GL_EXT_multi_draw_indirect GL_EXT_multisample_compatibility GL_EXT_occlusion_query_boolean GL_EXT_read_format_bgra GL_EXT_robustness GL_EXT_sRGB GL_EXT_sRGB_write_control GL_EXT_semaphore GL_EXT_semaphore_fd GL_EXT_shader_texture_lod GL_EXT_shadow_samplers GL_EXT_texture_compression_bptc GL_EXT_texture_compression_dxt1 GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc_srgb GL_EXT_texture_filter_anisotropic GL_EXT_texture_format_BGRA8888 GL_EXT_texture_norm16 GL_EXT_texture_rg GL_EXT_texture_sRGB_decode GL_EXT_texture_storage GL_EXT_texture_type_2_10_10_10_REV GL_EXT_unpack_subimage GL_KHR_debug GL_KHR_parallel_shader_compile GL_MESA_framebuffer_flip_y GL_NV_depth_buffer_float2 GL_NV_fence GL_NV_framebuffer_blit GL_NV_pack_subimage GL_NV_pixel_buffer_object GL_NV_read_depth GL_NV_read_stencil GL_OES_compressed_EAC_R11_signed_texture GL_OES_compressed_EAC_R11_unsigned_texture GL_OES_compressed_EAC_RG11_signed_texture GL_OES_compressed_EAC_RG11_unsigned_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_compressed_ETC2_RGB8_texture GL_OES_compressed_ETC2_RGBA8_texture GL_OES_compressed_ETC2_punchthroughA_RGBA8_texture GL_OES_compressed_ETC2_punchthroughA_sRGB8_alpha_texture GL_OES_compressed_ETC2_sRGB8_alpha8_texture GL_OES_compressed_ETC2_sRGB8_texture GL_OES_depth24 GL_OES_depth32 GL_OES_depth_texture GL_OES_draw_elements_base_vertex GL_OES_element_index_uint GL_OES_fbo_render_mipmap GL_OES_get_program_binary GL_OES_mapbuffer GL_OES_packed_depth_stencil GL_OES_rgb8_rgba8 GL_OES_standard_derivatives GL_OES_surfaceless_context GL_OES_texture_3D GL_OES_texture_border_clamp GL_OES_texture_float GL_OES_texture_float_linear GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_texture_npot GL_OES_texture_stencil8 GL_OES_vertex_array_object GL_WEBGL_video_texture
+Disabled Extensions
+GL_KHR_blend_equation_advanced GL_KHR_blend_equation_advanced_coherent GL_MESA_framebuffer_flip_y
+Disabled WebGL Extensions
+Window system binding vendor
+Google Inc. (Intel)
+Window system binding version
+1.5 (ANGLE 2.1.0 git hash: unknown hash)
+Window system binding extensions
+EGL_KHR_create_context EGL_KHR_get_all_proc_addresses EGL_ANGLE_create_context_webgl_compatibility EGL_CHROMIUM_create_context_bind_generates_resource EGL_CHROMIUM_sync_control EGL_ANGLE_sync_control_rate EGL_EXT_pixel_format_float EGL_KHR_surfaceless_context EGL_ANGLE_display_texture_share_group EGL_ANGLE_display_semaphore_share_group EGL_ANGLE_create_context_client_arrays EGL_ANGLE_program_cache_control EGL_ANGLE_robust_resource_initialization EGL_ANGLE_create_context_extensions_enabled EGL_ANDROID_blob_cache EGL_ANDROID_recordable EGL_ANGLE_create_context_backwards_compatible EGL_KHR_create_context_no_error EGL_NOK_texture_from_pixmap EGL_KHR_reusable_sync
+XDG_CURRENT_DESKTOP
+none+xmonad
+XDG_SESSION_TYPE
+x11
+GDMSESSION
+none+xmonad
+Ozone platform
+x11
+Direct rendering version
+unknown
+Reset notification strategy
+0x8261
+GPU process crash count
+0
+gfx::BufferFormats supported for allocation and texturing
+R_8: not supported, R_16: not supported, RG_88: not supported, RG_1616: not supported, BGR_565: not supported, RGBA_4444: not supported, RGBX_8888: not supported, RGBA_8888: not supported, BGRX_8888: not supported, BGRA_1010102: not supported, RGBA_1010102: not supported, BGRA_8888: not supported, RGBA_F16: not supported, YVU_420: not supported, YUV_420_BIPLANAR: not supported, P010: not supported
+Compositor Information
+Tile Update Mode
+One-copy
+Partial Raster
+Enabled
+GpuMemoryBuffers Status
+R_8
+Software only
+R_16
+Software only
+RG_88
+Software only
+RG_1616
+Software only
+BGR_565
+Software only
+RGBA_4444
+Software only
+RGBX_8888
+Software only
+RGBA_8888
+Software only
+BGRX_8888
+Software only
+BGRA_1010102
+Software only
+RGBA_1010102
+Software only
+BGRA_8888
+Software only
+RGBA_F16
+Software only
+YVU_420
+Software only
+YUV_420_BIPLANAR
+Software only
+P010
+Software only
+Display(s) Information
+Info
+Display[21691165392764996] bounds=[0,0 3840x2400], workarea=[0,0 3840x2400], scale=1, rotation=0, panel_rotation=0 internal.
+Color space (all)
+{primaries:BT709, transfer:SRGB, matrix:RGB, range:FULL}
+Buffer format (all)
+BGRA_8888
+Color volume
+{name:'srgb', r:[0.6400, 0.3300], g:[0.3000, 0.6000], b:[0.1500, 0.3300], w:[0.3127, 0.3290]}
+SDR white level in nits
+203
+HDR relative maximum luminance
+1
+Bits per color component
+8
+Bits per pixel
+24
+Refresh Rate in Hz
+59
+Video Acceleration Information
+Decoding
+Decode h264 baseline
+16x16 to 4096x4096 pixels
+Decode h264 main
+16x16 to 4096x4096 pixels
+Decode h264 high
+16x16 to 4096x4096 pixels
+Decode vp8
+16x16 to 4096x4096 pixels
+Decode vp9 profile0
+16x16 to 16384x16384 pixels
+Decode vp9 profile2
+16x16 to 16384x16384 pixels
+Decode hevc main
+16x16 to 16384x16384 pixels
+Decode hevc main 10
+16x16 to 16384x16384 pixels
+Decode hevc main still-picture
+16x16 to 16384x16384 pixels
+Decode av1 profile main
+16x16 to 16384x16384 pixels
+Encoding
+Vulkan Information
+Device Performance Information
+Log Messages
+[1858585:1858585:0211/232104.502857:WARNING:sandbox_linux.cc(380)] : InitializeSandbox() called with multiple threads in process gpu-process.
+[1858585:1858585:0211/234145.374942:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234145.375064:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/234145.472058:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.472574:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.472770:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.472972:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.473111:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.473964:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.474153:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.474295:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.474451:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.474599:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.474739:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.474874:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.475011:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.475147:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.475869:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.476784:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.476967:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.477109:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.477248:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.477397:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.477564:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.477712:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.477858:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.478010:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.478149:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.479018:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.479208:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.479354:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.479524:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.479681:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.479829:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.479983:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.480136:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.480280:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.480443:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.481307:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.481504:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.481657:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.481805:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.481998:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.482229:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.482413:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.482587:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.482722:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.482859:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.483817:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.484022:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.484169:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.484315:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.484488:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.484623:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.484775:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.484887:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.485001:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.485104:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.486015:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.486163:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.486267:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.486377:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.486519:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.486642:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.486747:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.486840:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.486941:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.487083:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.487998:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.488196:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.488343:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.488500:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.488637:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.488785:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.489265:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.489548:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.489796:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.490028:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.491453:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.491695:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.491918:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.492140:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.492362:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.492624:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.492927:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.493165:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.493355:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.493516:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.494795:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.495075:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.495280:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.495463:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.495620:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.495771:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.497542:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.497807:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.498098:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.498257:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234145.631943:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234145.632070:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/234146.170252:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234146.170355:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/234146.523490:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234146.523599:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/234146.560416:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234150.723272:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234150.723417:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/234150.737067:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234207.688807:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234207.688946:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/234213.092461:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234213.092595:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/234213.123400:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234218.292369:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234218.292525:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/234218.305831:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/234222.073241:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234222.073365:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/234223.812997:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234223.813131:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/234240.669524:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/234240.669723:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/235218.585448:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/235218.585586:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/235222.337372:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/235222.337522:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/235222.339168:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235222.350324:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235222.367798:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235222.385180:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235222.402502:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235222.419584:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235222.421363:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235222.422162:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235222.422436:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235222.422755:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235226.230783:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/235226.230894:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/235307.724218:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/235307.724384:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+[1858585:1858585:0211/235307.752809:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235307.754053:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235307.754875:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235307.755625:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235307.756357:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235307.757201:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235307.757925:ERROR:shared_image_manager.cc(202)] : SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
+[1858585:1858585:0211/235308.645226:ERROR:shared_image_factory.cc(575)] : Could not find SharedImageBackingFactory with params: usage: DisplayRead|Scanout, format: YUV_420_BIPLANAR, share_between_threads: 0, gmb_type: platform
+[1858585:1858585:0211/235308.645332:ERROR:shared_image_stub.cc(147)] : SharedImageStub: Unable to create shared image
+#+end_src
+
+https://www.lifewire.com/hardware-acceleration-in-chrome-4125122
+
 ** Chromium
 
 #+begin_src nix :noweb yes :noweb-ref browser-chromium
@@ -1586,6 +2250,26 @@ programs.chromium = {
   extensions = [
     <<browser-chromium-extensions>>
   ];
+};
+#+end_src
+
+See https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/common/chrome_switches.cc and https://source.chromium.org/search?q=file:switches.cc&amp;ss=chromium%2Fchromium%2Fsrc for some switches that we can use according to the =commandLineArgs= option in [[https://github.com/nix-community/home-manager/blob/master/modules/programs/chromium.nix][programs/chromium.nix]].
+
+*** Debugging
+
+https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
+
+chrome://version
+chrome://flags
+chrome://gpu
+
+*** Chromium Overlay
+
+See https://discourse.nixos.org/t/failed-vaapi-init/23317/3
+
+#+begin_src nix :noweb-ref linux-overlays
+chromium = super.chromium.override {
+  commandLineArgs = "--enable-features=VaapiVideoEncoder,VaapiVideoDecoder --use-gl=desktop --ignore-gpu-blocklist --enable-accelerated-video-decode";
 };
 #+end_src
 
@@ -1612,6 +2296,8 @@ vi-like navigation of the browser
   id = "dbepggeogbaibhgnhhndojpepiihcmeb";
 }
 #+end_src
+
+- =c= :: enter caret mode from either of the visual modes (=v= visual mode, =V= visual line mode)
 
 **** Wasavi
 
@@ -1688,6 +2374,130 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 
 #+begin_src nix :noweb-ref browser-firefox-extensions
 darkreader
+#+end_src
+
+**** Override for mermaid on GitHub
+
+/html/body/div[1]/div/div/svg/g[2]/rect
+#entity-Document-5b2ba057-c937-56df-837d-8bac67f835ce > rect
+
+GitHub wraps mermaid diagrams in a div with the .mermaid class:
+
+#+begin_src css
+div.mermaid svg#diagram rect.er.entityBox {
+  fill: transparent !important;
+}
+#+end_src
+
+More generally and for the Mermaid Live editor the following applies added up top:
+
+#+begin_src css :noweb yes
+<<darkreader-mermaid>>
+#+end_src
+
+We fix the navigation controls for embedded mermaid diagrams by setting the fill and background clors on the control-panel buttons:
+
+#+begin_src css :noweb-ref darkreader-mermaid
+div.mermaid-viewer-control-panel .btn {
+  fill: var(--darkreader-neutral-text);
+  background-color: var(--darkreader-neutral-background);
+}
+#+end_src
+
+For the ER diagrams:
+
+#+begin_src css :noweb-ref darkreader-mermaid
+svg g rect.er {
+  fill: var(--darkreader-neutral-background) !important;
+}
+svg g rect.er.entityBox {
+  fill: var(--darkreader-neutral-background) !important;
+}
+svg g rect.er.attributeBoxOdd {
+  fill: var(--darkreader-neutral-background) !important;
+}
+svg g rect.er.attributeBoxEven {
+  fill-opacity: 0.8 !important;
+  fill: var(--darkreader-selection-background);
+}
+svg rect.er.relationshipLabelBox {
+  fill: var(--darkreader-neutral-background) !important;
+}
+#+end_src
+
+For the Flow diagrams:
+
+#+begin_src css :noweb-ref darkreader-mermaid
+svg g g.nodes rect, svg g g.nodes polygon {
+  fill: var(--darkreader-neutral-background) !important;
+}
+#+end_src
+
+For Gantt diagrams:
+
+#+begin_src css :noweb-ref darkreader-mermaid
+svg g rect.task {
+  fill: var(--darkreader-selection-background) !important;
+}
+#+end_src
+
+For Sequence diagrams:
+
+#+begin_src css :noweb-ref darkreader-mermaid
+svg line.messageLine0, svg line.messageLine1 {
+  stroke: var(--darkreader-neutral-text) !important;
+}
+div.mermaid .actor {
+  fill: var(--darkreader-neutral-background) !important;
+}
+div.mermaid .sequenceNumber {
+  color: var(--darkreader-selection-text) !important;
+}
+#+end_src
+
+Filed into https://github.com/darkreader/darkreader/pull/11108
+
+**** DXOS Overides
+
+#+begin_src css :noweb-ref darkreader-mermaid
+.sidebar {
+  background: var(--darkreader-neutral-background) !important;
+}
+#+end_src
+
+* Chat
+** Slack
+
+Using Slack from the browser is a shitty experience because one has to keep so many tabs open for the different workspaces. I'm finally budging and installing the official client.
+
+#+begin_src nix :noweb-ref desktop-packages
+pkgs.slack
+#+end_src
+
+#+begin_src nix :noweb-ref nixpkgs-unfree
+"slack"
+#+end_src
+
+** Discord
+
+#+begin_src nix :noweb-ref desktop-packages
+pkgs-bleeding.discord
+#+end_src
+
+#+begin_src nix :noweb-ref nixpkgs-unfree
+"discord"
+"discord-ptb"
+"discord-canary"
+#+end_src
+
+*** COMMENT Skip Discord host update
+
+Tangle single block in order to configure file:~/.config/discord/settings.json such that Discord skips the host update logic as host updates won't work well on NixOS.
+
+#+begin_src json :tangle ~/.config/discord/settings.json
+{
+  "SKIP_HOST_UPDATE": true
+}
 #+end_src
 
 * Docs

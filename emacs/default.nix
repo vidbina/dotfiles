@@ -17,6 +17,8 @@ in
   home.packages = with pkgs; [
     cask
 
+    yamllint
+    nodePackages.yaml-language-server
     (mu.overrideAttrs (oldAttrs:
       let
         rev = "4924daef6cdafec26cbbfe82de8cf52736d745f8";

@@ -112,6 +112,12 @@
                                (append org-babel-load-languages
                                        '((gnuplot . t)))))
 
+;; https://github.com/abrochard/mermaid-mode
+(use-package mermaid-mode
+  :straight (mermaid-mode :type git
+                          :host github
+                          :repo "abrochard/mermaid-mode"))
+
 (with-eval-after-load 'org
   (message "Load Shell into Org Babel")
   (org-babel-do-load-languages 'org-babel-load-languages
@@ -187,6 +193,36 @@
   :straight (web-mode :type git
                       :host github
                       :repo "fxbois/web-mode"))
+
+;; https://github.com/w-vi/apib-mode
+(use-package apib-mode
+  :straight (apib-mode :type git
+                       :host github
+                       :repo "w-vi/apib-mode")
+  :config
+  (add-to-list 'auto-mode-alist '("\\.apib\\'" . apib-mode)))
+
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(python-mode . ("pyright-langserver" "--stdio"))))
+
+(defun vidbina/init-eglot-pyright-config ()
+  "Stub a pyrightconfig.json file for a project"
+  (interactive)
+
+  (let* ((project-dir default-directory)
+         (venv-dir ".venv"))
+
+    (message (format "🐍 Writing config for %s with venv in %s" project-dir venv-dir))
+    (with-temp-buffer
+      (insert (json-serialize `((venvPath . ,project-dir)
+                                (venv . ,venv-dir)
+                                (verboseOutput . :false)
+                                (typeCheckingMode . "strict")
+                                (useLibraryCodeForTypes . t)
+                                (defineConstant . ((DEBUG . t))))))
+      (json-pretty-print-buffer)
+      (append-to-file (point-min) (point-max) (expand-file-name "pyrightconfig.json" project-dir)))))
 
 ;; https://github.com/dominikh/go-mode.el
 (use-package go-mode
@@ -370,12 +406,119 @@
                   :branch "vidbina/retrieve-secret-through-function")
   :custom
   (aide-completions-model "text-davinci-003")
+  (aide-max-output-tokens 1000)
   (aide-openai-api-key-getter (lambda ()
-                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2022.02.18"))))
+                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+
+(defun vidbina/aide-openai-chat-complete (instruction target)
+  "Return the prompt answer from OpenAI API.
+API-KEY is the OpenAI API key.
+
+PROMPT is the prompt string we send to the API."
+  (message "Let's get schwifty")
+  (let* ((result nil)
+         (auth-value (format "Bearer %s" (funcall aide-openai-api-key-getter)))
+         (model "gpt-3.5-turbo")
+         (data `(("model" . "gpt-3.5-turbo")
+
+                 ("top_p" . ,aide-top-p)
+                 ("max_tokens" . ,aide-max-tokens)
+                 ("messages" . [
+                                (("role" . "system") ("content" . ,instruction))
+                                (("role" . "user") ("content" . ,target))
+                                ])))
+         ;;(json-data (json-encode data))
+         (endpoint "https://api.openai.com/v1/chat/completions"))
+    (message "Payload %s" data)
+    (message "Target %s" endpoint)
+    (vidbina/kill (json-encode data))
+    (request endpoint
+      :type "POST"
+      :data (json-encode data)
+      :headers `(("Authorization" . ,auth-value) ("Content-Type" . "application/json"))
+      :sync t
+      :parser 'json-read
+      :success (cl-function
+                (lambda (&key data &allow-other-keys)
+
+                  (message "Yes! %s" data)
+                  (let ((top-choice-message (alist-get 'message (elt (alist-get 'choices data) 0))))
+                    (setq result (alist-get 'content top-choice-message))
+                    (message "%s: %s" (alist-get 'role top-choice-message) (alist-get 'content top-choice-message)))))
+      :error (cl-function (lambda (x) (message "Error: %s" x))))
+    result))
+
+(defun vidbina/gpt-pair-prog (start end)
+  (interactive "r")
+  (if (region-active-p)
+      (progn (message "Region is selected!")
+             (let* ((instruction (read-string ">" "As a senior programmer, "))
+                    (region (buffer-substring-no-properties start end))
+                    ;;(result (aide--openai-complete-string region))
+                    (result-new (vidbina/aide-openai-chat-complete instruction region)))
+               (vidbina/kill result-new)))
+    (message "No region is selected.")))
+
+;; https://github.com/karthink/gptel
+(use-package gptel
+  :straight (gptel :type git
+                   :host github
+                   :repo "karthink/gptel")
+  :config
+  (setq gptel-api-key (lambda ()
+                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+
+(with-eval-after-load 'flymake
+  ;; Set flymake bindings
+  (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
+  (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)
+  (defun vidbina/jump-to-active-line-in-consult-flymake ()
+    "Jump to the current line in consult-flymake"
+    (let* ((target-line (line-number-at-pos))
+           (timer (run-at-time 1 nil
+                               `(lambda ()
+                                  ;; Stubbing cancel hook
+                                  (defun vidbina/jump-to-active-line-in-consult-flymake--cancel ()
+                                    (message "🪂 Cancelling timer")
+                                    (advice-remove 'vertico-exit #'vidbina/jump-to-active-line-in-consult-flymake)
+                                    (advice-remove 'exit-minibuffers #'vidbina/jump-to-active-line-in-consult-flymake))
+
+                                  (message "🪂 Arming timer cancellation on minibuffer escape")
+                                  ;; Arm (abort-minibuffers) and (exit-minibuffers) called by vertico-exit to cancel jump helper
+                                  (advice-add 'abort-minibuffers :before #'vidbina/jump-to-active-line-in-consult-flymake--cancel)
+                                  (advice-add 'exit-minibuffers :before #'vidbina/jump-to-active-line-in-consult-flymake--cancel)
+                                  (message "🪂 Executing jump to %s in buffer %s" ,(number-to-string target-line) (buffer-name))
+                                  ;; Note that entering the digits is not enough to update the position in vertico
+                                  (mapcar (lambda (x) (self-insert-command 1 x)) ,(number-to-string target-line))
+                                  (insert "")))))
+      (message "🪂 Armed jumper to %s" (number-to-string target-line))))
+
+  (advice-add 'consult-flymake :before #'vidbina/jump-to-active-line-in-consult-flymake))
 
 ;; https://github.com/joaotavora/eglot
 (use-package eglot
   :straight (eglot :type git
                    :host github
                    :repo "joaotavora/eglot")
-  :bind (:map eglot-mode-map ("C-h j" . xref-find-definition)))
+  :hook
+  (eglot-managed-mode-hook . (lambda ()
+                               ;; Show flymake diagnostics first.
+                               (setq eldoc-documentation-functions
+                                     (cons #'flymake-eldoc-function
+                                           (remove #'flymake-eldoc-function eldoc-documentation-functions)))
+                               ;; Show all eldoc feedback.
+                               (setq eldoc-documentation-strategy #'eldoc-documentation-compose)))
+  :custom
+  (eglot-autoshutdown t)
+  :bind (("C-c j" . eglot)
+         :map eglot-mode-map
+         ("C-c j f d" . eglot-find-declaration)
+         ("C-c j f i" . eglot-find-implementation)
+         ("C-c j f t" . eglot-find-typeDefinition)
+         ("C-c j j j" . eglot)
+         ("C-c j j r" . eglot-reconnect)
+         ("C-c j h s" . eglot-signature-eldoc-function)
+         ("C-c j h h" . eglot-hover-eldoc-function)
+         ("C-c j \\" . eglot-format)
+         ("C-c j k" . eglot-shutdown)
+         ("C-c j j k" . eglot-rename)))

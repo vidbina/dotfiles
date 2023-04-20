@@ -313,6 +313,13 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
 (straight-dependencies 'org-roam)
 #+end_src
 
+* Eldoc
+
+#+begin_src elisp :noweb yes :tangle init.el :results none
+(with-eval-after-load 'eldoc
+  (setq eldoc-echo-area-prefer-doc-buffer t))
+#+end_src
+
 * 📓 Org
 
 [[https://orgmode.org/worg/org-contrib/org-protocol.html][Org]] is probably the killer app of Emacs and is actually just a clearly standardized markup format. Three ways in which Org discerns itself from Markdown are in that it:
@@ -1957,7 +1964,10 @@ Let's hide line numbers and For the sake of ease of navigation and spatial orien
 
   :hook
   (prog-mode . (lambda () (display-line-numbers-mode 1)))
-  (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0))))
+  (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
+
+  :bind
+  (("C-c n n" . display-line-numbers-mode)))
 #+end_src
 
 ** 🏳️ Whitespace
@@ -2620,6 +2630,18 @@ In order to provide point-specific behavior, we use the [[https://www.gnu.org/so
 (ffap-bindings)
 #+end_src
 
+#+begin_src elisp
+(defun vidbina/ffap-vterm-in-persp-mode ()
+  "Handle FFAP within persp-mode"
+  (interactive)
+  (if (eq major-mode 'vterm-mode)
+      (let* ((other-buffer (persp-get-scratch-buffer))
+             (other-directory (with-current-buffer other-buffer default-directory)))
+        (message (format "🛣️ ffap on buffer %s to find directory %s" other-buffer other-directory))
+        (find-file-at-point other-directory))
+    (message "not in vterm-mode, so no fapp-ing to be done")))
+#+end_src
+
 ** Indentation
 
 Turn of tab-indentation and opt for space-based indentation such that whitespace is a bit more controllable.
@@ -2714,25 +2736,28 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
   :after
   undo-fu
   :init
-  ;; https://github.com/emacs-evil/evil-collection#installation
   ;; pre-set some evil vars prior to package load
   (setq evil-respect-visual-line-mode t)
   (setq evil-undo-system 'undo-fu)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
+  (setq evil-mode-line-format nil)
   :config
-  (evil-mode t)
-  (evil-set-initial-state 'info-mode 'emacs)
-  (evil-set-initial-state 'help-mode 'emacs)
-  (evil-set-initial-state 'special-mode 'emacs))
+  (messsage "😈 Configured evil-mode"))
+#+end_src
 
+#+begin_src elisp :tangle init.el
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
   :straight (evil-collection :type git
                              :host github
                              :repo "emacs-evil/evil-collection")
   :after evil
+  :custom
+  (evil-collection-setup-minibuffer t)
   :config
+  (evil-mode 1)
+  (message "😈 Enable evil-mode")
   (evil-collection-init)
   (advice-add 'evil-collection-mu4e-setup
               :before (lambda ()
@@ -3176,11 +3201,13 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
 
 *** vterm
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 (use-package vterm
   :straight (:type built-in)
   :after evil
-  :init (evil-collection-vterm-setup))
+  :init (evil-collection-vterm-setup)
+  :config
+  <<vterm-config>>)
 #+end_src
 
 **** TODO delete word in vterm prompt changes case
@@ -3201,10 +3228,8 @@ Somehow the ffap function didn't seem to be overriden in dired, so it seems that
 
 Reading [[info:find#Top][find#Top]] for more info.
 
-#+begin_src elisp
-(defun vterm-find-file ()
-  (interactive)
-  ())
+#+begin_src elisp :noweb-ref vterm-config
+(define-key vterm-mode-map (kbd "C-x C-f") 'vidbina/ffap-vterm-in-persp-mode)
 #+end_src
 
 *** TODO Debug =evil-collection-vterm-delete=
@@ -3340,6 +3365,7 @@ The [[https://github.com/nex3/perspective-el][Perspective]] package provides som
   (persp-mode-prefix-key (kbd "C-c p") "same as persp-mode")
   (persp-modestring-short t)
   (persp-state-default-file "~/.emacs.d/perspective")
+  (persp-show-modestring 'header)
   :config
   (message "Configuring ‘perspective’")
   <<perspective-config>>
@@ -4459,6 +4485,17 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   :type 'boolean
   :group 'display)
 
+(defun vidbina/theme-switch-update-cursor-styles ()
+  "Update colors of cursors for new theme"
+  (interactive)
+  (message "🌕 Setting evil cursors with modus-themes colors")
+  (let ((my-cursor-color (modus-themes-color 'fg-special-calm)))
+    (setq evil-emacs-state-cursor `(hollow ,my-cursor-color))
+    (setq evil-insert-state-cursor `((bar . 5) ,my-cursor-color))
+    (setq evil-visual-state-cursor `((hbar . 5) ,my-cursor-color))
+    (setq evil-motion-state-cursor `(hollow ,my-cursor-color))
+    (setq evil-normal-state-cursor `(box ,my-cursor-color))))
+
 (defun vidbina/theme-switch-to-choice ()
   "Switch to the theme of choice"
   (message "🦋 Switching to vidbina's theme")
@@ -4473,6 +4510,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (setq org-format-latex-options
         '(:scale 2 :foreground "White" :background "Transparent")
         zoom-window-mode-line-color "DodgerBlue4")
+  (vidbina/theme-switch-update-cursor-styles)
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
 
@@ -4483,6 +4521,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (setq org-format-latex-options
         '(:scale 2 :foreground "Black" :background "Transparent")
         zoom-window-mode-line-color "Gold")
+  (vidbina/theme-switch-update-cursor-styles)
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
 
@@ -4822,7 +4861,6 @@ For additional context, one can display /mode line/ or /header line/ elements al
                     ;; %+ read-only but modified
                     mode-line-modified
 
-                    <<persp-lighter>>
 
                     mode-line-frame-identification
                     mode-line-buffer-identification
@@ -4835,9 +4873,7 @@ For additional context, one can display /mode line/ or /header line/ elements al
                     ;; <O> operator-pending state
                     ;; <M> motion state
                     ;; <E> emacs state
-                    (propertize evil-mode-line-tag
-                     'face 'italic
-                     'mouse-face 'bold-italic)
+                    ;; evil-mode-line-tag
 
                     mode-line-modes
                     (propertize "(%c,%l)%p ")
@@ -4972,6 +5008,24 @@ This configuration is derived from the article [[https://200ok.ch/posts/2020-08-
     (write-region "" nil ispell-personal-dictionary nil 0)))
 #+end_src
 
+*** TODO COMMENT Languagetool
+
+https://dev.languagetool.org/http-server
+
+#+begin_src bash
+curl -d "language=en-US" -d "text=a simple test" http://localhost:8081/v2/check
+#+end_src
+
+https://search.nixos.org/options?channel=22.11&show=services.languagetool.enable&from=0&size=50&sort=relevance&type=packages&query=yaml+language
+
+#+begin_src nix :noweb-ref nix-linux-services
+services.languagetool = {
+  enable = true;
+};
+#+end_src
+
+https://github.com/mhayashi1120/Emacs-langtool
+
 ** Markup Languages
 
 *** COMMENT Org
@@ -5005,6 +5059,27 @@ This configuration is derived from the article [[https://200ok.ch/posts/2020-08-
          ("\\.markdown\\'" . markdown-mode))
   :init
   (setq markdown-command "multimarkdown"))
+#+end_src
+
+Helper to convert a markdown file to an Org file. From my private notes, the following command comes in handy:
+
+#+begin_src bash
+pandoc -f markdown -t org -o README.org --wrap=preserve README.md
+#+end_src
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/markdown-move-to-orgdown ()
+  "Convert a markdown file to an orgdown file"
+  (interactive)
+  (let* ((origin-file-name (buffer-file-name))
+         (temp-file-name (file-name-with-extension origin-file-name ".prev.md"))
+         (target-file-name (file-name-with-extension origin-file-name ".org")))
+    ;; move .md file to .org file
+    (copy-file origin-file-name temp-file-name t)
+    (magit-file-rename origin-file-name target-file-name)
+    (shell-command (format "pandoc -f markdown -t org -o %s --wrap=preserve %s"
+                           (shell-quote-argument target-file-name)
+                           (shell-quote-argument temp-file-name)))))
 #+end_src
 
 ** Serialization Languages/Formats
@@ -5069,6 +5144,20 @@ Some of the relevant keybindings are:
                        :repo "yoshiki/yaml-mode"))
 #+end_src
 
+**** YAML Formatter
+
+#+begin_src nix :noweb-ref nix-linux-packages
+yamllint
+#+end_src
+
+**** WIP YAML LSP-support
+
+We install the [[https://github.com/redhat-developer/yaml-language-server][YAML language server]] to offer LSP support for YAML files.
+
+#+begin_src nix :noweb-ref nix-linux-packages
+nodePackages.yaml-language-server
+#+end_src
+
 ** Viz Languages for graphing, plotting and more
 
 *** PlantUML
@@ -5121,6 +5210,36 @@ Some of the relevant keybindings are:
   (org-babel-do-load-languages 'org-babel-load-languages
                                (append org-babel-load-languages
                                        '((gnuplot . t)))))
+#+end_src
+
+*** Mermaid
+
+https://github.com/abrochard/mermaid-mode
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/abrochard/mermaid-mode
+(use-package mermaid-mode
+  :straight (mermaid-mode :type git
+                          :host github
+                          :repo "abrochard/mermaid-mode"))
+#+end_src
+
+Enter a dedicated buffer by hovering over any mermaid containing block and enter =C-c C-o= to open a live editor in a browser.
+
+See [[file:~/src/vidbina/dotfiles/README.org::*Override for mermaid on GitHub][Override for mermaid on GitHub]]
+
+**** ERD
+
+- =|o=,	=o|= :: Zero or one
+- =||=, =||= :: Exactly one
+- =}o=, =o{= :: Zero or more (no upper limit)
+- =}|=, =|{= :: One or more (no upper limit)
+
+#+begin_src mermaid
+erDiagram
+    User ||..o{ Source : has
+    User ||..o{ EmailAddress : has
+    Source ||..o{ SourceSecret : has
 #+end_src
 
 ** DSL
@@ -5177,7 +5296,9 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
 https://github.com/nix-community/rnix-lsp
 
 #+begin_src elisp :tangle lang.example.el
-(add-to-list 'eglot-server-programs '(nix-mode . ("rnix-lsp")))
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(nix-mode . ("rnix-lsp"))))
 #+end_src
 
 **** TODO COMMENT Test nixpkgs-fmt
@@ -5573,7 +5694,71 @@ but I am trying to figure out how to spawn a nix shell interpreter in a Flake-ba
                       :repo "fxbois/web-mode"))
 #+end_src
 
+*** WIP API Blueprint
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/w-vi/apib-mode
+(use-package apib-mode
+  :straight (apib-mode :type git
+                       :host github
+                       :repo "w-vi/apib-mode")
+  :config
+  (add-to-list 'auto-mode-alist '("\\.apib\\'" . apib-mode)))
+#+end_src
+
 ** General Purpose Programming Languages
+
+*** Python
+
+**** Use pyright-langserver as default LSP for Python
+
+#+begin_src elisp
+(rassq-delete-all 'python-mode eglot-server-programs)
+#+end_src
+
+#+begin_src elisp :tangle lang.example.el
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(python-mode . ("pyright-langserver" "--stdio"))))
+#+end_src
+
+***** Helper to stub configuration file for pyright
+
+The configuration file for pyright may look as follows:
+
+#+begin_src json
+{
+    "venvPath": "/absolute/path/to/dir/",
+    "venv": ".venv",
+    "verboseOutput": false,
+    "typeCheckingMode": "strict",
+    "useLibraryCodeForTypes": true,
+}
+#+end_src
+
+Most important is setting the venvPath and venv directories since we may have varying setups between projects and just want the language server to pick up the right pieces. The following helper just naively stubs the config file for the current working directory with the .venv subdirectory as the virtualenv path.
+
+Inspired from https://robbmann.io/posts/emacs-eglot-pyrightconfig/
+
+#+begin_src elisp :tangle lang.example.el
+(defun vidbina/init-eglot-pyright-config ()
+  "Stub a pyrightconfig.json file for a project"
+  (interactive)
+
+  (let* ((project-dir default-directory)
+         (venv-dir ".venv"))
+
+    (message (format "🐍 Writing config for %s with venv in %s" project-dir venv-dir))
+    (with-temp-buffer
+      (insert (json-serialize `((venvPath . ,project-dir)
+                                (venv . ,venv-dir)
+                                (verboseOutput . :false)
+                                (typeCheckingMode . "strict")
+                                (useLibraryCodeForTypes . t)
+                                (defineConstant . ((DEBUG . t))))))
+      (json-pretty-print-buffer)
+      (append-to-file (point-min) (point-max) (expand-file-name "pyrightconfig.json" project-dir)))))
+#+end_src
 
 *** Go (Golang)
 
@@ -5694,6 +5879,21 @@ Superset of JavaScript that folks really should be using instead of just vanilla
   (tsx-mode :type git
             :host github
             :repo "orzechowskid/tsx-mode.el"))
+#+end_src
+
+**** Deno
+
+#+begin_src elisp
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs '((js-mode typescript-mode) . (eglot-deno "deno" "lsp"))))
+
+(defclass eglot-deno (eglot-lsp-server) ()
+  :documentation "A custom class for deno lsp.")
+
+(cl-defmethod eglot-initialization-options ((server eglot-deno))
+  "Passes through required deno initialization options"
+  (list :enable t
+        :lint t))
 #+end_src
 
 *** Java
@@ -6138,7 +6338,8 @@ hello
 : Hello, world!
 #+end_src
 
-*** AIDE
+*** AI
+**** AIDE
 
 In order to use OpenAI's GPT models directly inside of Emacs, we are using the AIDE package.
 
@@ -6151,44 +6352,152 @@ In order to use OpenAI's GPT models directly inside of Emacs, we are using the A
                   :branch "vidbina/retrieve-secret-through-function")
   :custom
   (aide-completions-model "text-davinci-003")
+  (aide-max-output-tokens 1000)
   (aide-openai-api-key-getter (lambda ()
-                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2022.02.18"))))
+                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
 #+end_src
 
 A newer version of the =aide-openai-complete= that uses a more general path but specified the model in the JSON payload is:
 
-#+begin_src elisp
-(defun aide-openai-complete (api-key prompt)
+#+begin_src elisp :tangle lang.example.el
+(defun vidbina/aide-openai-chat-complete (instruction target)
   "Return the prompt answer from OpenAI API.
 API-KEY is the OpenAI API key.
 
 PROMPT is the prompt string we send to the API."
-  (let ((result nil)
-        (auth-value (format "Bearer %s" api-key)))
-    (request
-      "https://api.openai.com/v1/completions"
+  (message "Let's get schwifty")
+  (let* ((result nil)
+         (auth-value (format "Bearer %s" (funcall aide-openai-api-key-getter)))
+         (model "gpt-3.5-turbo")
+         (data `(("model" . "gpt-3.5-turbo")
+
+                 ("top_p" . ,aide-top-p)
+                 ("max_tokens" . ,aide-max-tokens)
+                 ("messages" . [
+                                (("role" . "system") ("content" . ,instruction))
+                                (("role" . "user") ("content" . ,target))
+                                ])))
+         ;;(json-data (json-encode data))
+         (endpoint "https://api.openai.com/v1/chat/completions"))
+    (message "Payload %s" data)
+    (message "Target %s" endpoint)
+    (vidbina/kill (json-encode data))
+    (request endpoint
       :type "POST"
-      :data (json-encode `(("prompt" . ,prompt)
-                           ("model" . ,aide-completions-model)
-                           ("max_tokens" . ,aide-max-tokens)
-                           ("temperature" . ,aide-temperature)
-                           ("frequency_penalty" . ,aide-frequency-penalty)
-                           ("presence_penalty" . ,aide-presence-penalty)
-                           ("top_p" . ,aide-top-p)))
+      :data (json-encode data)
       :headers `(("Authorization" . ,auth-value) ("Content-Type" . "application/json"))
       :sync t
       :parser 'json-read
       :success (cl-function
                 (lambda (&key data &allow-other-keys)
-                  (setq result (alist-get 'text (elt (alist-get 'choices data) 0))))))
+
+                  (message "Yes! %s" data)
+                  (let ((top-choice-message (alist-get 'message (elt (alist-get 'choices data) 0))))
+                    (setq result (alist-get 'content top-choice-message))
+                    (message "%s: %s" (alist-get 'role top-choice-message) (alist-get 'content top-choice-message)))))
+      :error (cl-function (lambda (x) (message "Error: %s" x))))
     result))
+#+end_src
+
+Here is a pair programming helper that uses aide under the hood:
+
+#+begin_src elisp :tangle lang.example.el
+(defun vidbina/gpt-pair-prog (start end)
+  (interactive "r")
+  (if (region-active-p)
+      (progn (message "Region is selected!")
+             (let* ((instruction (read-string ">" "As a senior programmer, "))
+                    (region (buffer-substring-no-properties start end))
+                    ;;(result (aide--openai-complete-string region))
+                    (result-new (vidbina/aide-openai-chat-complete instruction region)))
+               (vidbina/kill result-new)))
+    (message "No region is selected.")))
+#+end_src
+
+#+begin_src text :noweb-ref vidbina-prompt-template
+As an experienced ROLE, PROMPT or return the original code with a comment stating: AI am unsure.
+
+CODE
+#+end_src
+
+#+begin_src elisp :noweb yes
+;; TODO: Fix
+(defun vidbina/morph-code-with-llm (start end role question)
+  "What is this"
+  (interactive "rsWhat is your buddies role: \nsWhat do you want to know?")
+
+  (let* ((region (buffer-substring-no-properties start end))
+         (prompt (let ((template (string-trim "
+<<vidbina-prompt-template>>
+"))
+                       (prompt "do something funny")
+                       (buddy-role "senior TypeScript"))
+                   (->> template
+                        (string-replace "TYPE" buddy-role)
+                        (string-replace "PROMPT" "hi there")
+                        (string-replace "CODE" "..."))
+                   ))
+         (result (aide-openai-edits (funcall aide-openai-api-key-getter) prompt region)))
+    (goto-char end)
+    (if result
+        (progn
+          (kill-region start end)
+          (insert "\n" result)
+          (fill-paragraph)
+          (let ((x (make-overlay end (point))))
+            (overlay-put x 'face '(:foreground "orange red")))
+          result)
+      (message "Empty result"))))
+#+end_src
+
+#+begin_src elisp
+(defun vidbina/morph-code-with-llm (start end role question)
+  (interactive "r\nsWhat is your buddies role: \nsWhat do you want to know?")
+
+  (let* ((region (buffer-substring-no-properties start end))
+         (prompt (let ((template (string-trim "
+<<vidbina-prompt-template>>
+"))
+                       (prompt "do something funny")
+                       (buddy-role "senior TypeScript"))
+                   (->> template
+                        (string-replace "TYPE" buddy-role)
+                        (string-replace "PROMPT" "hi there")
+                        (string-replace "CODE" "..."))))
+         (result (aide-openai-edits (funcall aide-openai-api-key-getter) "Rephrase the text" region)))
+    (goto-char end)
+    (if result
+        (progn
+          (kill-region start end)
+          (insert "\n" result)
+          (fill-paragraph)
+          (let ((x (make-overlay end (point))))
+            (overlay-put x 'face '(:foreground "orange red")))
+          result)
+      (message "Empty result"))))
 #+end_src
 
 #+begin_src elisp
 (aide-openai-complete (funcall aide-openai-api-key-getter) "Define an agenda for a meeting")
 #+end_src
 
-*** COMMENT WIP gpt-elisp
+****** TODO Add chatgpt helper to aide
+
+**** GPTel
+
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/karthink/gptel
+(use-package gptel
+  :straight (gptel :type git
+                   :host github
+                   :repo "karthink/gptel")
+  :config
+  (setq gptel-api-key (lambda ()
+                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+#+end_src
+
+**** COMMENT WIP gpt-elisp
 
 Just trying out [[https://github.com/beguene/emacs-gpt][emacs-gpt]] for the lols.
 
@@ -6197,12 +6506,51 @@ Just trying out [[https://github.com/beguene/emacs-gpt][emacs-gpt]] for the lols
   :straight (gpt-elisp :local-repo "~/src/beguene/emacs-gpt")
   :custom
   (gpt-elisp-edit-api-key-getter (lambda ()
-                                   (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2022.02.18"))))
+                                   (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+#+end_src
+
+*** Flymake
+
+#+begin_src elisp :noweb yes :tangle lang.example.el
+(with-eval-after-load 'flymake
+  ;; Set flymake bindings
+  (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
+  (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)
+  <<flymake-helpers>>)
+#+end_src
+
+For the ease of use, we provide a helper to enter the line of interest when we enter the consult-flymake completion interface:
+
+#+begin_src elisp :noweb-ref flymake-helpers
+(defun vidbina/jump-to-active-line-in-consult-flymake ()
+  "Jump to the current line in consult-flymake"
+  (let* ((target-line (line-number-at-pos))
+         (timer (run-at-time 1 nil
+                             `(lambda ()
+                                ;; Stubbing cancel hook
+                                (defun vidbina/jump-to-active-line-in-consult-flymake--cancel ()
+                                  (message "🪂 Cancelling timer")
+                                  (advice-remove 'vertico-exit #'vidbina/jump-to-active-line-in-consult-flymake)
+                                  (advice-remove 'exit-minibuffers #'vidbina/jump-to-active-line-in-consult-flymake))
+
+                                (message "🪂 Arming timer cancellation on minibuffer escape")
+                                ;; Arm (abort-minibuffers) and (exit-minibuffers) called by vertico-exit to cancel jump helper
+                                (advice-add 'abort-minibuffers :before #'vidbina/jump-to-active-line-in-consult-flymake--cancel)
+                                (advice-add 'exit-minibuffers :before #'vidbina/jump-to-active-line-in-consult-flymake--cancel)
+                                (message "🪂 Executing jump to %s in buffer %s" ,(number-to-string target-line) (buffer-name))
+                                ;; Note that entering the digits is not enough to update the position in vertico
+                                (mapcar (lambda (x) (self-insert-command 1 x)) ,(number-to-string target-line))
+                                (insert "")))))
+    (message "🪂 Armed jumper to %s" (number-to-string target-line))))
+
+(advice-add 'consult-flymake :before #'vidbina/jump-to-active-line-in-consult-flymake)
 #+end_src
 
 ** LSP
 
-*** TODO Eglot
+*** Eglot
+
+[[https://joaotavora.github.io/eglot][Eglot]] (Emacs Polyglot) is the integrated Emacs LSP integration.
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/joaotavora/eglot
@@ -6210,8 +6558,35 @@ Just trying out [[https://github.com/beguene/emacs-gpt][emacs-gpt]] for the lols
   :straight (eglot :type git
                    :host github
                    :repo "joaotavora/eglot")
-  :bind (:map eglot-mode-map ("C-h j" . xref-find-definition)))
+  :hook
+  (eglot-managed-mode-hook . (lambda ()
+                               ;; Show flymake diagnostics first.
+                               (setq eldoc-documentation-functions
+                                     (cons #'flymake-eldoc-function
+                                           (remove #'flymake-eldoc-function eldoc-documentation-functions)))
+                               ;; Show all eldoc feedback.
+                               (setq eldoc-documentation-strategy #'eldoc-documentation-compose)))
+  :custom
+  (eglot-autoshutdown t)
+  :bind (("C-c j" . eglot)
+         :map eglot-mode-map
+         ("C-c j f d" . eglot-find-declaration)
+         ("C-c j f i" . eglot-find-implementation)
+         ("C-c j f t" . eglot-find-typeDefinition)
+         ("C-c j j j" . eglot)
+         ("C-c j j r" . eglot-reconnect)
+         ("C-c j h s" . eglot-signature-eldoc-function)
+         ("C-c j h h" . eglot-hover-eldoc-function)
+         ("C-c j \\" . eglot-format)
+         ("C-c j k" . eglot-shutdown)
+         ("C-c j j k" . eglot-rename)))
 #+end_src
+
+Set =eglot-server-programs= to configure which LSP servers you want to use for the different modes. Consult https://github.com/joaotavora/eglot#connecting-to-a-server for a list of LSPs that you can consider for different languages.
+
+**** Off-topic: Org-mode LSP server
+
+https://list.orgmode.org/87zh2g2pby.fsf@bzg.fr/t/
 
 *** COMMENT Emacs LSP
 
@@ -6223,20 +6598,54 @@ Just trying out [[https://github.com/beguene/emacs-gpt][emacs-gpt]] for the lols
   :straight (lsp-mode :type git
                       :host github
                       :repo "emacs-lsp/lsp-mode")
-  :bind (:map lsp-mode-map ("TAB" . completion-at-point))
   :init
   (setq-default read-process-output-max (* 1024 1024))
   (setq  gc-cons-threshold (* 100 1024 1024))
   ;;(setq lsp-keymap-prefix "C-c C-M-l")
   ;;(setq lsp-log-io t) ;; ⚠️ turn off for performance
-  :hook ((java-mode . lsp)
-         (go-mode . lsp))
+  :bind (:map lsp-mode-map ("TAB" . completion-at-point))
+  :bind-keymap ("C-c M-l" . lsp-command-prefix)
+  :hook (;;(java-mode . lsp-deferred)
+         ;;(go-mode . lsp-deferred)
+         (lsp-mode . lsp-enable-which-key-integration))
   :commands
   (lsp lsp-deferred)
   ;;:config
   ;;(define-key lsp-mode-map (kbd "C-c C-M-l") lsp-command-map)
   ;;(lsp-enable-which-key-integration t)
   )
+#+end_src
+
+Run =lsp-doctor= to verify that your configuration is ready to go.
+
+***** Docker support
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacs-lsp/lsp-docker
+(use-package lsp-docker
+  :straight (lsp-mode :type git
+                      :host github
+                      :repo "emacs-lsp/lsp-docker")
+  :after lsp-mode)
+#+end_src
+
+In order to work with LSP servers running inside of Docker containers, see https://emacs-lsp.github.io/lsp-mode/tutorials/docker-integration/ or https://github.com/emacs-lsp/lsp-docker#custom-language-server-containers which outlines how to configure .lsp-docker.yml (or .yaml) in a project's working directory to use custom containers. This case is almost always the case we want to go for.
+
+#+begin_src yaml
+lsp:
+  server:
+    type: docker
+    subtype: container # Or image. container subtype means launching an existing container
+    # image subtype means creating a new container each time from a specified image
+    name: not-significant-but-unique-name # Must be unique across all language servers
+    server: server-id-of-the-base-server # Server id of a registered server (by lsp-mode)
+    launch_command: "launch command with arguments" # Launch command of the language server
+    # (selected by a server id specified above) in stdio mode
+    # Note: launch_command is not used with container subtype servers
+    # as a command is embedded in a container itself and serves as an entrypoint
+  mappings:
+    - source: "/your/host/source/path"
+      destination: "/your/local/path/inside/a/container"
 #+end_src
 
 **** LSP-ui
@@ -6321,6 +6730,96 @@ In order to use LSP with projects where the language servers runs inside Docker 
 ***** TODO Language-specific configuration
 
 Refactor the =lsp-docker-client-configs= such that the LSP config for every language is defined within the language's chapter within this config.
+
+** COMMENT Jupyter Notebook
+
+*** Emacs-Jupyter
+
+https://github.com/nnicandro/emacs-jupyter#org-mode-source-blocks
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/nnicandro/emacs-jupyter
+(use-package jupyter
+  :after (websocket zmq simple-httpd)
+  :straight (jupyter :type git
+                     :host github
+                     :repo "nnicandro/emacs-jupyter")
+  :config
+  (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia"))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((jupyter . t)))))
+#+end_src
+
+*** EIN
+
+#+begin_src elisp
+;; https://github.com/millejoh/emacs-ipython-notebook
+(use-package ein
+  :straight (ein :type git
+                 :host github
+                 :repo "millejoh/emacs-ipython-notebook"))
+#+end_src
+
+**** ob-ein: Babel backend for EIN
+
+#+begin_src elisp
+;; https://github.com/millejoh/emacs-ipython-notebook
+(use-package ein
+  :straight (ein :type git
+                 :host github
+                 :repo "millejoh/emacs-ipython-notebook"))
+#+end_src
+
+*** Simple Https
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/skeeto/emacs-web-server
+(use-package simple-httpd
+  :straight (simple-httpd :type git
+                          :host github
+                          :repo "skeeto/emacs-web-server"))
+#+end_src
+
+*** Emacs Websocket
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/ahyatt/emacs-websocket
+(use-package websocket
+  :straight (websocket :type git
+                       :host github
+                       :repo "ahyatt/emacs-websocket"))
+#+end_src
+
+*** Emacs ZMQ
+
+https://github.com/nnicandro/emacs-zmq
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/nnicandro/emacs-zmq
+(use-package zmq
+  :straight (zmq :type git
+                 :host github
+                 :repo "nnicandro/emacs-zmq"))
+#+end_src
+
+**** Create context
+
+#+begin_src elisp
+(zmq-context)
+#+end_src
+
+**** Create socket
+
+#+begin_src elisp
+(zmq-socket (zmq-current-context) zmq-PUB)
+#+end_src
+
+**** Bind to a socket
+
+#+begin_src elisp
+(zmq-bind zmq-PUB "tcp://127.0.0.1:5555")
+#+end_src
 
 * Developer Notes
 
@@ -6922,6 +7421,110 @@ The only diff being the change of name of the package, the attribute set (which 
 [fn:1] Literal in the "Literal Programming" way as coined by Donald Knuth. There are a bunch of interesting bytes on the topic at [[http://literateprogramming.com/][literateprogramming.com]] and numerous other resources that can be link-followed when starting from one of the more recent related HN threads as per [2022-06-30 Thu] to the article [[https://news.ycombinator.com/item?id=31301777#31302835][Donald Knuth was framed (2020)]].
 
 [fn:5] Keywords can be recognized by the =:= (colon character) prefix.
+
+* Custom Keyboard ⌨️ Helpers
+
+** WIP mugur
+
+#+begin_src elisp
+;; https://github.com/mihaiolteanu/mugur
+(use-package mugur
+  :straight (mugur :type git
+                   :host github
+                   :repo "mihaiolteanu/mugur"))
+#+end_src
+
+#+begin_src elisp
+;;(advice-add 'mugur--symbol :after 'mugur--symbol)
+;;(advice-remove 'mugur--symbol)
+(advice-add 'mugur--keycode
+            :filter-return
+            (lambda (x)
+              (pcase x
+                ("KC_BSLASH" "KC_BSLS")
+                ("KC_BSPACE" "KC_BSPC")
+                ("KC_LAPO" "SC_LAPO")
+                ("KC_LBRACKET" "KC_LBRC")
+                ("KC_RAPC" "SC_RAPC")
+                ("KC_RBRACKET" "KC_RBRC")
+                ("KC_SCOLON" "KC_SCLN")
+                ("RESET" "QK_BOOT")
+                (_ x)))
+            '((name . "blah")))
+(advice-remove 'mugur--keycode "H")
+
+(let ((/m "blah")) (message /m))
+
+(vidbina/kill (mugur--keycode '(G ent)))
+#+end_src
+
+Example of a keymap based off of https://github.com/zzkt/charybdis which is based off of https://github.com/zzkt/crkbd:
+
+#+begin_src elisp
+(let ((mugur-qmk-path        "~/src/vidbina/qmk_firmware")
+      (mugur-keyboard-name   "bastardkb/charybdis/4x6")
+      (mugur-layout-name     "LAYOUT")
+      (mugur-keymap-name     "mugur-emacs-vidbina")
+      (mugur-user-defined-keys '((email  "mihai@fastmail.fm")
+                                 (replay (C-x e))
+                                 (E (MO emacs))
+                                 (z_ (LT mouse z))
+                                 (/_ (LT mouse slash)))))
+  (mugur-mugur '(
+     ("base"
+       esc  1     2   3   4   5          6   7   8   9     0  bspace
+       tab  q     w   e   r   t          y   u   i   o     p  -
+       S    a     s   d   f   g          h   j   k   l    ";" (LT move ?\')
+       C    z_    x   c   v   b          n   m  "," "."   /_  (LT hypm down)
+
+                M  space  (G spc)       (TT numeric)  (G ent)
+                       E     lapo       rapc)
+
+     ("numeric"
+       "~"       ?\!   ?\@   ?\#  ?\$  ?\%     ?\^  ?\&  ?\*   _   +  bspace
+       tab       ?\!   ?\@   ?\#  ?\$  ?\%     ?\^  ?\&  ?\*   -   =  ---
+        0         1     2     3    4    5       6    7    8    9   0  (LT move ent)
+       (S left)  "`"   ?\\   ?\\  ?\{  ?\[     ?\]  ?\} comma dot  |  (S right)
+
+                               --- --- ---   --- ent
+                            (TG mouse) lapo   rapc)
+
+     ("move"
+       --- M-<   ---  ---  --- ---      ---  ---  ---  ---  --- ---
+       --- M-v   up   ---  --- ---      ---  ---  ---  ---  --- ---
+       C-a left down right C-e ---      left  up  down right -x- ---
+       --- M-<  C-v   M->  --- ---      ---  ---  ---  ---  --- ---
+
+                      C    S   ---      ---  ---
+                           --- ---      ---)
+
+     ("emacs"
+       esc  --- --- (C-x 0) (C-x 2) (C-x 3)      (C-x 4 t)  --- --- --- --- ---
+       ---  --- --- (C-x 0) (C-x 2) (C-x 3)      (C-x 4 t)  --- --- (C-M o) --- ---
+       ---  --- M-%   ---     ---    (H-t)       (C-x b)    --- --- "λ" --- ---
+      reset --- M-x   C-c     ---      ?\(        ?\)  (M-x "magit" ent) --- --- --- ---
+
+                           ---  ---  (H-i e)   (C-x 8) (MO hypm)
+                                ---    ---      ---)
+
+     ("hypm"
+         x  --- --- --- --- ( C-a "* " )    ---     ---    ---      ---     ---   ---
+         x  --- --- --- ---  "  - [ ] "     ---     ---     H-i   (H-i o) (H-i l) ---
+        --- --- --- H-d ---  "  - "         ---     ---     ---     ---     ---   reset
+        --- --- --- --- ---    ---          (H-m n) (H-m m) (H-m s) ---     ---   ---
+
+                       --- --- ---      ---  ---
+                          ---  ---      ---)
+
+     ("mouse"
+       --- --- --- --- --- ---                         --- --- --- --- --- ---
+       --- "SNIPER_CONFIG" --- --- --- ---             --- --- --- --- --- ---
+       --- "DPI_CONFIG" "DRAG_SCROLL" --- --- ---      --- --- "DRAG_SCROLL" --- --- ---
+       --- --- --- --- --- ---                         --- btn1 btn2 btn3 --- ---
+                                    btn2 btn1 G     --- ---
+                                            C S     ---)
+     )))
+#+end_src
 
 * Local Variables
 
