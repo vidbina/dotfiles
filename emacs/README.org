@@ -5008,6 +5008,24 @@ This configuration is derived from the article [[https://200ok.ch/posts/2020-08-
     (write-region "" nil ispell-personal-dictionary nil 0)))
 #+end_src
 
+*** TODO COMMENT Languagetool
+
+https://dev.languagetool.org/http-server
+
+#+begin_src bash
+curl -d "language=en-US" -d "text=a simple test" http://localhost:8081/v2/check
+#+end_src
+
+https://search.nixos.org/options?channel=22.11&show=services.languagetool.enable&from=0&size=50&sort=relevance&type=packages&query=yaml+language
+
+#+begin_src nix :noweb-ref nix-linux-services
+services.languagetool = {
+  enable = true;
+};
+#+end_src
+
+https://github.com/mhayashi1120/Emacs-langtool
+
 ** Markup Languages
 
 *** COMMENT Org
