@@ -5187,6 +5187,8 @@ https://github.com/abrochard/mermaid-mode
 
 Enter a dedicated buffer by hovering over any mermaid containing block and enter =C-c C-o= to open a live editor in a browser.
 
+See [[file:~/src/vidbina/dotfiles/README.org::*Override for mermaid on GitHub][Override for mermaid on GitHub]]
+
 **** ERD
 
 - =|o=,	=o|= :: Zero or one
