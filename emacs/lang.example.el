@@ -498,6 +498,14 @@ PROMPT is the prompt string we send to the API."
   :straight (eglot :type git
                    :host github
                    :repo "joaotavora/eglot")
+  :hook
+  (eglot-managed-mode-hook . (lambda ()
+                               ;; Show flymake diagnostics first.
+                               (setq eldoc-documentation-functions
+                                     (cons #'flymake-eldoc-function
+                                           (remove #'flymake-eldoc-function eldoc-documentation-functions)))
+                               ;; Show all eldoc feedback.
+                               (setq eldoc-documentation-strategy #'eldoc-documentation-compose)))
   :custom
   (eglot-autoshutdown t)
   :bind (("C-c j" . eglot)

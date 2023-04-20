@@ -6509,7 +6509,7 @@ For the ease of use, we provide a helper to enter the line of interest when we e
 
 *** Eglot
 
-https://joaotavora.github.io/eglot
+[[https://joaotavora.github.io/eglot][Eglot]] (Emacs Polyglot) is the integrated Emacs LSP integration.
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/joaotavora/eglot
@@ -6517,6 +6517,14 @@ https://joaotavora.github.io/eglot
   :straight (eglot :type git
                    :host github
                    :repo "joaotavora/eglot")
+  :hook
+  (eglot-managed-mode-hook . (lambda ()
+                               ;; Show flymake diagnostics first.
+                               (setq eldoc-documentation-functions
+                                     (cons #'flymake-eldoc-function
+                                           (remove #'flymake-eldoc-function eldoc-documentation-functions)))
+                               ;; Show all eldoc feedback.
+                               (setq eldoc-documentation-strategy #'eldoc-documentation-compose)))
   :custom
   (eglot-autoshutdown t)
   :bind (("C-c j" . eglot)
@@ -6533,6 +6541,12 @@ https://joaotavora.github.io/eglot
          ("C-c j j k" . eglot-rename)))
 #+end_src
 
+Set =eglot-server-programs= to configure which LSP servers you want to use for the different modes. Consult https://github.com/joaotavora/eglot#connecting-to-a-server for a list of LSPs that you can consider for different languages.
+
+**** Off-topic: Org-mode LSP server
+
+https://list.orgmode.org/87zh2g2pby.fsf@bzg.fr/t/
+
 *** COMMENT Emacs LSP
 
 **** LSP-mode
@@ -6543,20 +6557,54 @@ https://joaotavora.github.io/eglot
   :straight (lsp-mode :type git
                       :host github
                       :repo "emacs-lsp/lsp-mode")
-  :bind (:map lsp-mode-map ("TAB" . completion-at-point))
   :init
   (setq-default read-process-output-max (* 1024 1024))
   (setq  gc-cons-threshold (* 100 1024 1024))
   ;;(setq lsp-keymap-prefix "C-c C-M-l")
   ;;(setq lsp-log-io t) ;; ⚠️ turn off for performance
-  :hook ((java-mode . lsp)
-         (go-mode . lsp))
+  :bind (:map lsp-mode-map ("TAB" . completion-at-point))
+  :bind-keymap ("C-c M-l" . lsp-command-prefix)
+  :hook (;;(java-mode . lsp-deferred)
+         ;;(go-mode . lsp-deferred)
+         (lsp-mode . lsp-enable-which-key-integration))
   :commands
   (lsp lsp-deferred)
   ;;:config
   ;;(define-key lsp-mode-map (kbd "C-c C-M-l") lsp-command-map)
   ;;(lsp-enable-which-key-integration t)
   )
+#+end_src
+
+Run =lsp-doctor= to verify that your configuration is ready to go.
+
+***** Docker support
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacs-lsp/lsp-docker
+(use-package lsp-docker
+  :straight (lsp-mode :type git
+                      :host github
+                      :repo "emacs-lsp/lsp-docker")
+  :after lsp-mode)
+#+end_src
+
+In order to work with LSP servers running inside of Docker containers, see https://emacs-lsp.github.io/lsp-mode/tutorials/docker-integration/ or https://github.com/emacs-lsp/lsp-docker#custom-language-server-containers which outlines how to configure .lsp-docker.yml (or .yaml) in a project's working directory to use custom containers. This case is almost always the case we want to go for.
+
+#+begin_src yaml
+lsp:
+  server:
+    type: docker
+    subtype: container # Or image. container subtype means launching an existing container
+    # image subtype means creating a new container each time from a specified image
+    name: not-significant-but-unique-name # Must be unique across all language servers
+    server: server-id-of-the-base-server # Server id of a registered server (by lsp-mode)
+    launch_command: "launch command with arguments" # Launch command of the language server
+    # (selected by a server id specified above) in stdio mode
+    # Note: launch_command is not used with container subtype servers
+    # as a command is embedded in a container itself and serves as an entrypoint
+  mappings:
+    - source: "/your/host/source/path"
+      destination: "/your/local/path/inside/a/container"
 #+end_src
 
 **** LSP-ui
