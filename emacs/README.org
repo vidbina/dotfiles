@@ -1964,7 +1964,10 @@ Let's hide line numbers and For the sake of ease of navigation and spatial orien
 
   :hook
   (prog-mode . (lambda () (display-line-numbers-mode 1)))
-  (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0))))
+  (notmuch-hello-mode . (lambda () (display-line-numbers-mode 0)))
+
+  :bind
+  (("C-c n n" . display-line-numbers-mode)))
 #+end_src
 
 ** 🏳️ Whitespace
