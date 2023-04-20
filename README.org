@@ -487,12 +487,6 @@ runtime: panic before malloc heap initialized
 
 {
   home.packages = with pkgs; [
-    brightnessctl
-    neofetch
-    peek
-    screenkey
-    xdotool
-
     <<x-packages>>
   ];
 
@@ -536,6 +530,14 @@ runtime: panic before malloc heap initialized
     <<x-services>>
   };
 }
+#+end_src
+
+#+begin_src nix :noweb-ref x-packages
+brightnessctl
+neofetch
+peek
+screenkey
+xdotool
 #+end_src
 
 ****** colors
