@@ -5680,7 +5680,9 @@ but I am trying to figure out how to spawn a nix shell interpreter in a Flake-ba
 (use-package apib-mode
   :straight (apib-mode :type git
                        :host github
-                       :repo "w-vi/apib-mode"))
+                       :repo "w-vi/apib-mode")
+  :config
+  (add-to-list 'auto-mode-alist '("\\.apib\\'" . apib-mode)))
 #+end_src
 
 ** General Purpose Programming Languages
