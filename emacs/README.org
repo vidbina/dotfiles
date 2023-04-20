@@ -7399,6 +7399,110 @@ The only diff being the change of name of the package, the attribute set (which 
 
 [fn:5] Keywords can be recognized by the =:= (colon character) prefix.
 
+* Custom Keyboard ⌨️ Helpers
+
+** WIP mugur
+
+#+begin_src elisp
+;; https://github.com/mihaiolteanu/mugur
+(use-package mugur
+  :straight (mugur :type git
+                   :host github
+                   :repo "mihaiolteanu/mugur"))
+#+end_src
+
+#+begin_src elisp
+;;(advice-add 'mugur--symbol :after 'mugur--symbol)
+;;(advice-remove 'mugur--symbol)
+(advice-add 'mugur--keycode
+            :filter-return
+            (lambda (x)
+              (pcase x
+                ("KC_BSLASH" "KC_BSLS")
+                ("KC_BSPACE" "KC_BSPC")
+                ("KC_LAPO" "SC_LAPO")
+                ("KC_LBRACKET" "KC_LBRC")
+                ("KC_RAPC" "SC_RAPC")
+                ("KC_RBRACKET" "KC_RBRC")
+                ("KC_SCOLON" "KC_SCLN")
+                ("RESET" "QK_BOOT")
+                (_ x)))
+            '((name . "blah")))
+(advice-remove 'mugur--keycode "H")
+
+(let ((/m "blah")) (message /m))
+
+(vidbina/kill (mugur--keycode '(G ent)))
+#+end_src
+
+Example of a keymap based off of https://github.com/zzkt/charybdis which is based off of https://github.com/zzkt/crkbd:
+
+#+begin_src elisp
+(let ((mugur-qmk-path        "~/src/vidbina/qmk_firmware")
+      (mugur-keyboard-name   "bastardkb/charybdis/4x6")
+      (mugur-layout-name     "LAYOUT")
+      (mugur-keymap-name     "mugur-emacs-vidbina")
+      (mugur-user-defined-keys '((email  "mihai@fastmail.fm")
+                                 (replay (C-x e))
+                                 (E (MO emacs))
+                                 (z_ (LT mouse z))
+                                 (/_ (LT mouse slash)))))
+  (mugur-mugur '(
+     ("base"
+       esc  1     2   3   4   5          6   7   8   9     0  bspace
+       tab  q     w   e   r   t          y   u   i   o     p  -
+       S    a     s   d   f   g          h   j   k   l    ";" (LT move ?\')
+       C    z_    x   c   v   b          n   m  "," "."   /_  (LT hypm down)
+
+                M  space  (G spc)       (TT numeric)  (G ent)
+                       E     lapo       rapc)
+
+     ("numeric"
+       "~"       ?\!   ?\@   ?\#  ?\$  ?\%     ?\^  ?\&  ?\*   _   +  bspace
+       tab       ?\!   ?\@   ?\#  ?\$  ?\%     ?\^  ?\&  ?\*   -   =  ---
+        0         1     2     3    4    5       6    7    8    9   0  (LT move ent)
+       (S left)  "`"   ?\\   ?\\  ?\{  ?\[     ?\]  ?\} comma dot  |  (S right)
+
+                               --- --- ---   --- ent
+                            (TG mouse) lapo   rapc)
+
+     ("move"
+       --- M-<   ---  ---  --- ---      ---  ---  ---  ---  --- ---
+       --- M-v   up   ---  --- ---      ---  ---  ---  ---  --- ---
+       C-a left down right C-e ---      left  up  down right -x- ---
+       --- M-<  C-v   M->  --- ---      ---  ---  ---  ---  --- ---
+
+                      C    S   ---      ---  ---
+                           --- ---      ---)
+
+     ("emacs"
+       esc  --- --- (C-x 0) (C-x 2) (C-x 3)      (C-x 4 t)  --- --- --- --- ---
+       ---  --- --- (C-x 0) (C-x 2) (C-x 3)      (C-x 4 t)  --- --- (C-M o) --- ---
+       ---  --- M-%   ---     ---    (H-t)       (C-x b)    --- --- "λ" --- ---
+      reset --- M-x   C-c     ---      ?\(        ?\)  (M-x "magit" ent) --- --- --- ---
+
+                           ---  ---  (H-i e)   (C-x 8) (MO hypm)
+                                ---    ---      ---)
+
+     ("hypm"
+         x  --- --- --- --- ( C-a "* " )    ---     ---    ---      ---     ---   ---
+         x  --- --- --- ---  "  - [ ] "     ---     ---     H-i   (H-i o) (H-i l) ---
+        --- --- --- H-d ---  "  - "         ---     ---     ---     ---     ---   reset
+        --- --- --- --- ---    ---          (H-m n) (H-m m) (H-m s) ---     ---   ---
+
+                       --- --- ---      ---  ---
+                          ---  ---      ---)
+
+     ("mouse"
+       --- --- --- --- --- ---                         --- --- --- --- --- ---
+       --- "SNIPER_CONFIG" --- --- --- ---             --- --- --- --- --- ---
+       --- "DPI_CONFIG" "DRAG_SCROLL" --- --- ---      --- --- "DRAG_SCROLL" --- --- ---
+       --- --- --- --- --- ---                         --- btn1 btn2 btn3 --- ---
+                                    btn2 btn1 G     --- ---
+                                            C S     ---)
+     )))
+#+end_src
+
 * Local Variables
 
 For convenience, we call =delete-trailing-whitespace= as outlined in an [[https://www.mail-archive.com/emacs-orgmode@gnu.org/msg112517.html][emacs-orgmode mailing thread]] to automatically clean up trailing whitespaces that may be artifact from tangling noweb refs that
