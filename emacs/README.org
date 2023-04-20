@@ -6690,6 +6690,96 @@ In order to use LSP with projects where the language servers runs inside Docker 
 
 Refactor the =lsp-docker-client-configs= such that the LSP config for every language is defined within the language's chapter within this config.
 
+** COMMENT Jupyter Notebook
+
+*** Emacs-Jupyter
+
+https://github.com/nnicandro/emacs-jupyter#org-mode-source-blocks
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/nnicandro/emacs-jupyter
+(use-package jupyter
+  :after (websocket zmq simple-httpd)
+  :straight (jupyter :type git
+                     :host github
+                     :repo "nnicandro/emacs-jupyter")
+  :config
+  (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia"))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((jupyter . t)))))
+#+end_src
+
+*** EIN
+
+#+begin_src elisp
+;; https://github.com/millejoh/emacs-ipython-notebook
+(use-package ein
+  :straight (ein :type git
+                 :host github
+                 :repo "millejoh/emacs-ipython-notebook"))
+#+end_src
+
+**** ob-ein: Babel backend for EIN
+
+#+begin_src elisp
+;; https://github.com/millejoh/emacs-ipython-notebook
+(use-package ein
+  :straight (ein :type git
+                 :host github
+                 :repo "millejoh/emacs-ipython-notebook"))
+#+end_src
+
+*** Simple Https
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/skeeto/emacs-web-server
+(use-package simple-httpd
+  :straight (simple-httpd :type git
+                          :host github
+                          :repo "skeeto/emacs-web-server"))
+#+end_src
+
+*** Emacs Websocket
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/ahyatt/emacs-websocket
+(use-package websocket
+  :straight (websocket :type git
+                       :host github
+                       :repo "ahyatt/emacs-websocket"))
+#+end_src
+
+*** Emacs ZMQ
+
+https://github.com/nnicandro/emacs-zmq
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/nnicandro/emacs-zmq
+(use-package zmq
+  :straight (zmq :type git
+                 :host github
+                 :repo "nnicandro/emacs-zmq"))
+#+end_src
+
+**** Create context
+
+#+begin_src elisp
+(zmq-context)
+#+end_src
+
+**** Create socket
+
+#+begin_src elisp
+(zmq-socket (zmq-current-context) zmq-PUB)
+#+end_src
+
+**** Bind to a socket
+
+#+begin_src elisp
+(zmq-bind zmq-PUB "tcp://127.0.0.1:5555")
+#+end_src
+
 * Developer Notes
 
 ** Tangle Helper
