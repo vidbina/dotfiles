@@ -6297,7 +6297,8 @@ hello
 : Hello, world!
 #+end_src
 
-*** AIDE
+*** AI
+**** AIDE
 
 In order to use OpenAI's GPT models directly inside of Emacs, we are using the AIDE package.
 
@@ -6310,9 +6311,9 @@ In order to use OpenAI's GPT models directly inside of Emacs, we are using the A
                   :branch "vidbina/retrieve-secret-through-function")
   :custom
   (aide-completions-model "text-davinci-003")
-  (aide-max-tokens 1000)
+  (aide-max-output-tokens 1000)
   (aide-openai-api-key-getter (lambda ()
-                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2022.02.18"))))
+                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
 #+end_src
 
 A newer version of the =aide-openai-complete= that uses a more general path but specified the model in the JSON payload is:
@@ -6371,11 +6372,91 @@ Here is a pair programming helper that uses aide under the hood:
                (vidbina/kill result-new)))
     (message "No region is selected.")))
 #+end_src
+
+#+begin_src text :noweb-ref vidbina-prompt-template
+As an experienced ROLE, PROMPT or return the original code with a comment stating: AI am unsure.
+
+CODE
+#+end_src
+
+#+begin_src elisp :noweb yes
+;; TODO: Fix
+(defun vidbina/morph-code-with-llm (start end role question)
+  "What is this"
+  (interactive "rsWhat is your buddies role: \nsWhat do you want to know?")
+
+  (let* ((region (buffer-substring-no-properties start end))
+         (prompt (let ((template (string-trim "
+<<vidbina-prompt-template>>
+"))
+                       (prompt "do something funny")
+                       (buddy-role "senior TypeScript"))
+                   (->> template
+                        (string-replace "TYPE" buddy-role)
+                        (string-replace "PROMPT" "hi there")
+                        (string-replace "CODE" "..."))
+                   ))
+         (result (aide-openai-edits (funcall aide-openai-api-key-getter) prompt region)))
+    (goto-char end)
+    (if result
+        (progn
+          (kill-region start end)
+          (insert "\n" result)
+          (fill-paragraph)
+          (let ((x (make-overlay end (point))))
+            (overlay-put x 'face '(:foreground "orange red")))
+          result)
+      (message "Empty result"))))
+#+end_src
+
+#+begin_src elisp
+(defun vidbina/morph-code-with-llm (start end role question)
+  (interactive "r\nsWhat is your buddies role: \nsWhat do you want to know?")
+
+  (let* ((region (buffer-substring-no-properties start end))
+         (prompt (let ((template (string-trim "
+<<vidbina-prompt-template>>
+"))
+                       (prompt "do something funny")
+                       (buddy-role "senior TypeScript"))
+                   (->> template
+                        (string-replace "TYPE" buddy-role)
+                        (string-replace "PROMPT" "hi there")
+                        (string-replace "CODE" "..."))))
+         (result (aide-openai-edits (funcall aide-openai-api-key-getter) "Rephrase the text" region)))
+    (goto-char end)
+    (if result
+        (progn
+          (kill-region start end)
+          (insert "\n" result)
+          (fill-paragraph)
+          (let ((x (make-overlay end (point))))
+            (overlay-put x 'face '(:foreground "orange red")))
+          result)
+      (message "Empty result"))))
+#+end_src
+
 #+begin_src elisp
 (aide-openai-complete (funcall aide-openai-api-key-getter) "Define an agenda for a meeting")
 #+end_src
 
-*** COMMENT WIP gpt-elisp
+****** TODO Add chatgpt helper to aide
+
+**** GPTel
+
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/karthink/gptel
+(use-package gptel
+  :straight (gptel :type git
+                   :host github
+                   :repo "karthink/gptel")
+  :config
+  (setq gptel-api-key (lambda ()
+                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+#+end_src
+
+**** COMMENT WIP gpt-elisp
 
 Just trying out [[https://github.com/beguene/emacs-gpt][emacs-gpt]] for the lols.
 
@@ -6384,7 +6465,7 @@ Just trying out [[https://github.com/beguene/emacs-gpt][emacs-gpt]] for the lols
   :straight (gpt-elisp :local-repo "~/src/beguene/emacs-gpt")
   :custom
   (gpt-elisp-edit-api-key-getter (lambda ()
-                                   (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2022.02.18"))))
+                                   (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
 #+end_src
 
 *** Flymake

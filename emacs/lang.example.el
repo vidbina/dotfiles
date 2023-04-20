@@ -404,9 +404,9 @@
                   :branch "vidbina/retrieve-secret-through-function")
   :custom
   (aide-completions-model "text-davinci-003")
-  (aide-max-tokens 1000)
+  (aide-max-output-tokens 1000)
   (aide-openai-api-key-getter (lambda ()
-                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2022.02.18"))))
+                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
 
 (defun vidbina/aide-openai-chat-complete (instruction target)
   "Return the prompt answer from OpenAI API.
@@ -456,6 +456,15 @@ PROMPT is the prompt string we send to the API."
                     (result-new (vidbina/aide-openai-chat-complete instruction region)))
                (vidbina/kill result-new)))
     (message "No region is selected.")))
+
+;; https://github.com/karthink/gptel
+(use-package gptel
+  :straight (gptel :type git
+                   :host github
+                   :repo "karthink/gptel")
+  :config
+  (setq gptel-api-key (lambda ()
+                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
 
 (with-eval-after-load 'flymake
   ;; Set flymake bindings
