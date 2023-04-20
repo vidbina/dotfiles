@@ -5061,6 +5061,27 @@ https://github.com/mhayashi1120/Emacs-langtool
   (setq markdown-command "multimarkdown"))
 #+end_src
 
+Helper to convert a markdown file to an Org file. From my private notes, the following command comes in handy:
+
+#+begin_src bash
+pandoc -f markdown -t org -o README.org --wrap=preserve README.md
+#+end_src
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/markdown-move-to-orgdown ()
+  "Convert a markdown file to an orgdown file"
+  (interactive)
+  (let* ((origin-file-name (buffer-file-name))
+         (temp-file-name (file-name-with-extension origin-file-name ".prev.md"))
+         (target-file-name (file-name-with-extension origin-file-name ".org")))
+    ;; move .md file to .org file
+    (copy-file origin-file-name temp-file-name t)
+    (magit-file-rename origin-file-name target-file-name)
+    (shell-command (format "pandoc -f markdown -t org -o %s --wrap=preserve %s"
+                           (shell-quote-argument target-file-name)
+                           (shell-quote-argument temp-file-name)))))
+#+end_src
+
 ** Serialization Languages/Formats
 
 *** JSON

@@ -684,8 +684,8 @@
   :straight (:type built-in)
   :after evil
   :init (evil-collection-vterm-setup)
-  :bind
-  ("C-x C-f" . vidbina/ffap-vterm-in-persp-mode))
+  :config
+  (define-key vterm-mode-map (kbd "C-x C-f") 'vidbina/ffap-vterm-in-persp-mode))
 
 (use-package pdf-tools
   :straight (:type built-in)
