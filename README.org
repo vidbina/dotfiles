@@ -206,14 +206,9 @@ in
       })
     ];
 
-    # config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    #   <<nixpkgs-unfree>>
-    # ];
-
-    # TODO: Remove hack in favor of allowUnfreePredicate above
-    config. = {
-      allowUnfree = true;
-    }
+    config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+      <<nixpkgs-unfree>>
+    ];
   };
 
   programs.bat = {
@@ -2491,7 +2486,7 @@ pkgs.slack
 ** Discord
 
 #+begin_src nix :noweb-ref desktop-packages
-pkgs-bleeding.discord
+pkgs.discord
 #+end_src
 
 #+begin_src nix :noweb-ref nixpkgs-unfree
