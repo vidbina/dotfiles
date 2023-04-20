@@ -24,6 +24,8 @@
     '')
 
     xsel-copy-url
+
+    darkman
   ];
 
   xdg.mimeApps.defaultApplications = {

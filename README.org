@@ -752,6 +752,16 @@ screen-locker = {
 };
 #+end_src
 
+****** darkman
+
+Use darkman to manage dark/light theme switching for GTK and Qt.
+
+#+begin_src nix :noweb-ref x-packages
+darkman
+#+end_src
+
+Run =darkman set light= or =darkman set dark= or just run =darkman toggle=.
+
 ***** Applets
 
 #+begin_src nix :noweb-ref home-linux-services
