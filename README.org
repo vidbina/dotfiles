@@ -2297,6 +2297,8 @@ vi-like navigation of the browser
 }
 #+end_src
 
+- =c= :: enter caret mode from either of the visual modes (=v= visual mode, =V= visual line mode)
+
 **** Wasavi
 
 vi-editor for input controls
@@ -2454,6 +2456,14 @@ div.mermaid .sequenceNumber {
 #+end_src
 
 Filed into https://github.com/darkreader/darkreader/pull/11108
+
+**** DXOS Overides
+
+#+begin_src css :noweb-ref darkreader-mermaid
+.sidebar {
+  background: var(--darkreader-neutral-background) !important;
+}
+#+end_src
 
 * Chat
 ** Slack
