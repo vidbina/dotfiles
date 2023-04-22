@@ -533,6 +533,7 @@ neofetch
 peek
 screenkey
 xdotool
+btop
 #+end_src
 
 ****** colors
