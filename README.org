@@ -1331,7 +1331,7 @@ pkgs.nodePackages.typescript-language-server
 pkgs.tree-sitter
 #+end_src
 
-*** Query
+*** DSL
 **** jq, yq
 
 #+begin_src nix :noweb-ref dev-packages
@@ -1340,6 +1340,8 @@ pkgs.yq
 #+end_src
 
 *** DB
+
+**** SQLite
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.sqlite-interactive
