@@ -1347,6 +1347,12 @@ pkgs.yq
 pkgs.sqlite-interactive
 #+end_src
 
+**** Redis
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.redis
+#+end_src
+
 * COMMENT E-mail
 
 We configure file:mail.nix as our mail-related config file.
