@@ -349,6 +349,9 @@
         (list (cons (regexp-opt-group '("*org-roam*"))
                     (cons #'display-buffer-in-side-window
                           `((slot . 0) ,@sidebar)))
+              (cons (regexp-opt-group '("*ChatGPT*"))
+                    (cons #'display-buffer-same-window
+                          `((slot . 0) ,@sidebar)))
               (cons (regexp-opt-group '("*Dictionary*"))
                     (cons #'display-buffer-in-side-window
                           `((slot . -1) ,@sidebar)))
