@@ -445,7 +445,7 @@
   (setq evil-want-keybinding nil)
   (setq evil-mode-line-format nil)
   :config
-  (messsage "😈 Configured evil-mode"))
+  (message "😈 Configured evil-mode"))
 
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
@@ -687,6 +687,12 @@
   :straight (:type built-in)
   :after evil
   :init (evil-collection-vterm-setup)
+  :hook
+  (vterm-mode . (lambda ()
+                  (message "HOOK FIRED 2")
+                  `(let ((target ,(list (cons (vidbina/get-likely-current-directory) 2))))
+                     (message "⚠️ Setting %s" target)
+                     (customize-set-value 'magit-repository-directories target "Set through vidbina/get-likely-current-directory"))))
   :config
   (define-key vterm-mode-map (kbd "C-x C-f") 'vidbina/ffap-vterm-in-persp-mode))
 

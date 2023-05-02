@@ -2634,15 +2634,36 @@ In order to provide point-specific behavior, we use the [[https://www.gnu.org/so
 #+end_src
 
 #+begin_src elisp
+(defun vidbina/get-likely-current-directory ()
+  (interactive)
+  (let* ((other-buffer (persp-get-scratch-buffer))
+         (other-directory (with-current-buffer other-buffer default-directory))
+         (file-name buffer-file-name))
+    (if (eq major-mode 'vterm-mode)
+        (progn
+          (message (format "📁 Finding Folder: in buffer %s directory %s" other-buffer other-directory))
+          other-directory)
+      (unless (eq file-name nil)
+        (message "📁 Not in vterm-mode, so just returning dir of buffer file")
+        (file-name-directory buffer-file-name)))))
+
 (defun vidbina/ffap-vterm-in-persp-mode ()
   "Handle FFAP within persp-mode"
   (interactive)
-  (if (eq major-mode 'vterm-mode)
-      (let* ((other-buffer (persp-get-scratch-buffer))
-             (other-directory (with-current-buffer other-buffer default-directory)))
-        (message (format "🛣️ ffap on buffer %s to find directory %s" other-buffer other-directory))
-        (find-file-at-point other-directory))
-    (message "not in vterm-mode, so no fapp-ing to be done")))
+  (message "🛣️ FFAP: figuring out dir for vterm")
+  (let ((likely-directory (vidbina/get-likely-current-directory)))
+    (if (eq likely-directory nil)
+        (warn "🛣️ FFAP: No likely directory, so nothing")
+      (message "🛣️ FFAP: likely dir = %s" likely-directory)
+      (find-file-at-point likely-directory))))
+#+end_src
+
+**  Magit status =magic-status= in vterm
+
+Running =magic-status= in vterm doesn't work because variable =magit-repository-directory=.
+
+#+begin_src elisp
+(message magit-repository-directories)
 #+end_src
 
 ** Indentation
@@ -2746,7 +2767,7 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
   (setq evil-want-keybinding nil)
   (setq evil-mode-line-format nil)
   :config
-  (messsage "😈 Configured evil-mode"))
+  (message "😈 Configured evil-mode"))
 #+end_src
 
 #+begin_src elisp :tangle init.el
@@ -3209,6 +3230,8 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
   :straight (:type built-in)
   :after evil
   :init (evil-collection-vterm-setup)
+  :hook
+  <<vterm-hooks>>
   :config
   <<vterm-config>>)
 #+end_src
@@ -3233,6 +3256,18 @@ Reading [[info:find#Top][find#Top]] for more info.
 
 #+begin_src elisp :noweb-ref vterm-config
 (define-key vterm-mode-map (kbd "C-x C-f") 'vidbina/ffap-vterm-in-persp-mode)
+#+end_src
+
+**** Set =magit-respositories-directories= for magit dir awareness
+
+Make magit aware of the correct directory when invoked from a vterm.
+
+#+begin_src elisp :noweb-ref vterm-hooks
+(vterm-mode . (lambda ()
+                (message "HOOK FIRED 2")
+                `(let ((target ,(list (cons (vidbina/get-likely-current-directory) 2))))
+                   (message "⚠️ Setting %s" target)
+                   (customize-set-value 'magit-repository-directories target "Set through vidbina/get-likely-current-directory"))))
 #+end_src
 
 *** TODO Debug =evil-collection-vterm-delete=
