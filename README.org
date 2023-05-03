@@ -1235,6 +1235,12 @@ difftastic = {
 };
 #+end_src
 
+*** GitHub
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.gh
+#+end_src
+
 ** Utils
 
 *** Hex editors/viewers

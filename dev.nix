@@ -35,6 +35,7 @@
   };
 
   home.packages = [
+    pkgs.gh
     pkgs.xxd
     pkgs.hexyl
     pkgs.ghidra-bin
