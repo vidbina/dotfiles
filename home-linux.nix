@@ -57,11 +57,11 @@
       align = "right";
       alpha = 0;
       edge = "top";
-      #height = 24;
+      height = 20;
       monitor = "primary";
       tint = "0x00000000";
       transparent = true;
-      width = 150;
+      width = 250;
       widthtype = "pixel";
     };
   };
