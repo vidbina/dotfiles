@@ -59,5 +59,6 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
+    pkgs.evemu
   ];
 }
