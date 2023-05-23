@@ -772,6 +772,7 @@
   (gnus-dired-mail-mode 'mu4e-user-agent)
   (mu4e-use-fancy-chars nil "Use fancy unicode characters for mu4e marks")
   (mu4e-headers-fields '((:flags . 6) (:human-date . 12) (:from . 20) (:subject)))
+  (mu4e-headers-date-format "%F")
   (mu4e-sent-messages-behavior 'delete)
   (mu4e-context-policy 'ask)
   (mu4e-compose-context-policy 'ask)

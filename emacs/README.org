@@ -3677,9 +3677,9 @@ You will find the following MTA options in Emacs:
 
 Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.html][Mail Composition Methods (Emacs Manual)]] for more information on how to compose mail in Emacs.
 
-*** WIP <<mu4e>> Mu4e
+*** WIP mu4e
 
-[[https://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]] is a Maildir-friendly mail client that uses mu as a backend.
+mu4e is a Maildir-friendly mail client that uses mu as a backend.
 
 #+begin_src elisp :noweb yes :tangle init.el
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
@@ -3793,6 +3793,7 @@ Disabled until we have some font-issues resolved.
 
 #+begin_src elisp :noweb-ref mu4e-custom
 (mu4e-headers-fields '((:flags . 6) (:human-date . 12) (:from . 20) (:subject)))
+(mu4e-headers-date-format "%F")
 #+end_src
 
 **** PROTOTYPE Disable saving of drafts
