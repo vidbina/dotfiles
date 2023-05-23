@@ -465,6 +465,7 @@ PROMPT is the prompt string we send to the API."
                    :host github
                    :repo "karthink/gptel")
   :config
+  (setq gptel-default-mode 'org-mode)
   (setq gptel-api-key (lambda ()
                         (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
 
