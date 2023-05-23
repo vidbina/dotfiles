@@ -29,8 +29,8 @@
     enable = true;
     dawnTime = "5:00-6:00";
     duskTime = "17:35-19:00";
-    latitude = 13.7;
-    longitude = 100.5;
+    latitude = 52.5;
+    longitude = 13.4;
 
     temperature = {
       # https://www.eizo.com/library/basics/color_temperature_on_an_LCD_monitor/
