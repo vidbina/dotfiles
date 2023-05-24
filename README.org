@@ -811,7 +811,7 @@ services.gpg-agent = {
 };
 #+end_src
 
-***** Syncthing
+***** COMMENT Syncthing
 
 #+begin_src nix :noweb-ref home-linux-services
 services.syncthing = {
