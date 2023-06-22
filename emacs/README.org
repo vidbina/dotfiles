@@ -5845,7 +5845,15 @@ Superset of JavaScript that folks really should be using instead of just vanilla
   (typescript-indent-level 2))
 #+end_src
 
-***** Tide
+***** Configure default LSP for TypeScript
+
+#+begin_src elisp :tangle lang.example.el
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(typescript-mode . ("typescript-language-server" "--stdio"))))
+#+end_src
+
+***** COMMENT Tide
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/ananthakumaran/tide

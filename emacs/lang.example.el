@@ -254,22 +254,9 @@
   :custom
   (typescript-indent-level 2))
 
-;; https://github.com/ananthakumaran/tide
-(use-package tide
-  :straight
-  (tide :type git
-        :host github
-        :repo "ananthakumaran/tide")
-
-  :init
-  (evil-collection-tide-setup)
-  :delight
-  (tide-mode "🌊")
-  :after (typescript-mode evil-collection)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode))
-  :custom
-  (tide-always-show-documentation nil "Don't show docs if only type info is available to minimize disruption"))
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(typescript-mode . ("typescript-language-server" "--stdio"))))
 
 ;; https://emacs-lsp.github.io/lsp-java/
 (use-package lsp-java
