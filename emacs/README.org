@@ -4771,7 +4771,7 @@ At some point it becomes too Inception-esque to reasonably assume that future me
 #+begin_src elisp :tangle personal-example.el
 (defun vidbina-mime-handle-open-message-in-mu4e (window-name target &optional create-frame)
   "Open a message in a new frame"
-  (vidbina-mime-handle--open window-name #'mu4e target create-frame))
+  (vidbina-mime-handle--open window-name #'mu4e~compose-mail target create-frame))
 #+end_src
 
 *** Conveniences
@@ -7232,7 +7232,7 @@ javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(loca
   target_path=$@
   echo "Target: $target_path"
 
-  exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-dired\" \"$target_path\")"
+  exec emacsclient -a emacs -c -F "((name . \"emacs-mu4e\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-mu4e\" \"$target_path\")"
 '')
 #+end_src
 
