@@ -1035,7 +1035,7 @@ Set the Org-Roam directory through variable =org-roam-directory= and keep in min
 A possible workaround to trigger the tangling from the root directory thata contains all note directories and letting Org-Roam recursively walk through the file tree to visit all those directories.
 
 #+begin_src elisp :noweb-ref org-roam-init
-(let ((directory (file-truename "~/org/roam/")))
+(let ((directory (file-truename "~/org/")))
   (make-directory directory t)
   (setq org-roam-directory directory
         ;; Define a directory that does not change along with the Org-Roam folder

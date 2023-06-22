@@ -156,7 +156,7 @@
   :after org
   :init
   (setq org-roam-v2-ack t)
-  (let ((directory (file-truename "~/org/roam/")))
+  (let ((directory (file-truename "~/org/")))
     (make-directory directory t)
     (setq org-roam-directory directory
           ;; Define a directory that does not change along with the Org-Roam folder
