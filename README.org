@@ -247,6 +247,23 @@ home.sessionVariables.EDITOR = "nvim";
 
 **** Manual
 
+Disabled because of validation errors.
+
+#+begin_src text
+error: builder for '/nix/store/1f5lhdhsj2lf090pbxbvpmp3nijmzpy6-manual-combined.drv' failed with exit code 3;
+       last 10 log lines:
+       > /nix/store/vlpr4h1k43rbr5gpb3zrphq8gn6l4n4l-manual-combined/manual-combined.xml:1336: element variablelist: Relax-NG validity error : Did not expect element variablelist there
+       >   1332        </section>
+       >   1333      </chapter>
+       >   1334       <appendix xml:id="ch-options">
+       >   1335   <title>Configuration Options</title>
+       >   1336    <variablelist xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="home-manager-options" xml:base="nmd-result/home-manager-options.xml"><varlistentry><term xlink:href="#opt-_module.args" xml:id="opt-_module.args"><option>_module.args</option></term><listitem><para/><para><emphasis>Type:</emphasis> lazy attribute set of raw value</para><para><emphasis>Declared by:</emphasis></para><simplelist><member><filename xlink:href="https://github.com/nix-community/home-manager/blob/master/lib/modules.nix#blob-path">
+       >   1337                        &lt;home-manager/lib/modules.nix&gt;
+       >   1338                        </filename></member></simplelist></listitem></varlistentry><varlistentry><term xlink:href="#opt-accounts.email.accounts" xml:id="opt-accounts.email.accounts"><option>accounts.email.accounts</option></term><listitem><para>List of email accounts.</para><para><emphasis>Type:</emphasis> attribute set of (submodule)</para><para><emphasis>Default:</emphasis> <literal>
+       >
+       > /nix/store/vlpr4h1k43rbr5gpb3zrphq8gn6l4n4l-manual-combined/manual-combined.xml fails to validate
+#+end_src
+
 #+begin_src nix :noweb-ref common-programs
 manual = {
   # Use `home-manager-help`
