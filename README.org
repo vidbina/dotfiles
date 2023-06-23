@@ -2622,6 +2622,23 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
 
 ** Shared Extensions
+*** WIP GhostText
+
+Use GhostText to edit text in the browser through a text editor.
+
+just trying this out to edit text in browser in Emacs
+
+https://chrome.google.com/webstore/detail/ghosttext/godiecgffnchndlihlpaajjcplehddca/related
+
+#+begin_src nix :noweb-ref browser-chromium-extensions
+{
+  # GhostText
+  # https://chrome.google.com/webstore/detail/ghosttext/godiecgffnchndlihlpaajjcplehddca
+  # see https://ghosttext.fregante.com/
+  id = "godiecgffnchndlihlpaajjcplehddca";
+}
+#+end_src
+
 *** Darkreader
 
 #+begin_src nix :noweb-ref browser-chromium-extensions

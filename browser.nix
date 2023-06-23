@@ -48,6 +48,12 @@ in
         id = "dgogifpkoilgiofhhhodbodcfgomelhe";
       }
       {
+        # GhostText
+        # https://chrome.google.com/webstore/detail/ghosttext/godiecgffnchndlihlpaajjcplehddca
+        # see https://ghosttext.fregante.com/
+        id = "godiecgffnchndlihlpaajjcplehddca";
+      }
+      {
         # Darkreader
         # https://chrome.google.com/webstore/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh
         id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";
