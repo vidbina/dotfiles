@@ -4,14 +4,18 @@
 let
   # TODO: Find a cleaner implementation, like an pkgs overlay at shell.nix?!?
   nur = import <NUR> { inherit pkgs; };
+
+  sources = import ./nix/sources.nix;
+  nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
+  pkgs-bleeding = import nixpkgs-bleeding-src { };
 in
 {
   home.packages = with pkgs; [
-    google-chrome-dev
   ];
 
   programs.chromium = {
     enable = true;
+    package = pkgs-bleeding.chromium;
     commandLineArgs = [
      # https://www.linuxuprising.com/2018/08/how-to-enable-hardware-accelerated.html
      "--enable-accelerated-video-decode"

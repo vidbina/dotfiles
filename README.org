@@ -1636,6 +1636,10 @@ v4l-utils
 let
   # TODO: Find a cleaner implementation, like an pkgs overlay at shell.nix?!?
   nur = import <NUR> { inherit pkgs; };
+
+  sources = import ./nix/sources.nix;
+  nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
+  pkgs-bleeding = import nixpkgs-bleeding-src { };
 in
 {
   home.packages = with pkgs; [
@@ -1648,7 +1652,7 @@ in
 }
 #+end_src
 
-** Chrome
+** COMMENT Chrome
 
 We just want to try the unfree Google Chrome, to test whether this works with Twitch:
 
@@ -1662,7 +1666,14 @@ We pass along the string equivalent of the package name for use by the =allowUnf
 "google-chrome-dev"
 #+end_src
 
-** TODO Debug Chrome freeze-ups (possibly accelleration-related)
+#+begin_src bash
+chromium --disable-gpu-vsync --disable-frame-rate-limit
+#+end_src
+
+- chrome://gpu
+- chrome://flags/
+
+** DONE Debug Chrome freeze-ups (possibly accelleration-related)
 
 Output of starting chromium on [2023-03-04 Sat 16:51]
 
@@ -2289,11 +2300,36 @@ Log Messages
 
 https://www.lifewire.com/hardware-acceleration-in-chrome-4125122
 
+Somehow resolved after disabling offloading. Also running chrome as =DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1=1 chromium=.
+
+** DONE Debug Chrome
+
+See https://github.com/NixOS/nixpkgs/issues/216361
+
+#+begin_src text
+libGL error: MESA-LOADER: failed to open iris: /nix/store/lqz6hmd86viw83f9qll2ip87jhb7p1ah-glibc-2.35-224/lib/libc.so.6: version `GLIBC_2.36' not found (required by /nix/store/hvi95rrzrnqqhwvfn5b10l5c3f2lhr0h-llvm-15.0.7-lib/lib/libLLVM-15.so) (search paths /run/opengl-driver/lib/dri, suffix _dri)
+libGL error: failed to load driver: iris
+libGL error: MESA-LOADER: failed to open iris: /nix/store/lqz6hmd86viw83f9qll2ip87jhb7p1ah-glibc-2.35-224/lib/libc.so.6: version `GLIBC_2.36' not found (required by /nix/store/hvi95rrzrnqqhwvfn5b10l5c3f2lhr0h-llvm-15.0.7-lib/lib/libLLVM-15.so) (search paths /run/opengl-driver/lib/dri, suffix _dri)
+libGL error: failed to load driver: iris
+libGL error: MESA-LOADER: failed to open swrast: /nix/store/lqz6hmd86viw83f9qll2ip87jhb7p1ah-glibc-2.35-224/lib/libc.so.6: version `GLIBC_2.36' not found (required by /nix/store/hvi95rrzrnqqhwvfn5b10l5c3f2lhr0h-llvm-15.0.7-lib/lib/libLLVM-15.so) (search paths /run/opengl-driver/lib/dri, suffix _dri)
+libGL error: failed to load driver: swrast
+[3436:3436:0622/194103.267052:ERROR:angle_platform_impl.cc(43)] Display.cpp:1014 (initialize): ANGLE Display::initialize error 12289: Could not create a backing OpenGL context.
+ERR: Display.cpp:1014 (initialize): ANGLE Display::initialize error 12289: Could not create a backing OpenGL context.
+[3436:3436:0622/194103.268458:ERROR:gl_display.cc(504)] EGL Driver message (Critical) eglInitialize: Could not create a backing OpenGL context.
+[3436:3436:0622/194103.268557:ERROR:gl_display.cc(917)] eglInitialize OpenGL failed with error EGL_NOT_INITIALIZED, trying next display type
+[3436:3436:0622/194103.271814:ERROR:angle_platform_impl.cc(43)] Display.cpp:1014 (initialize): ANGLE Display::initialize error 12289: Could not create a backing OpenGL context.
+ERR: Display.cpp:1014 (initialize): ANGLE Display::initialize error 12289: Could not create a backing OpenGL context.
+[3436:3436:0622/194103.271908:ERROR:gl_display.cc(504)] EGL Driver message (Critical) eglInitialize: Could not create a backing OpenGL context.
+#+end_src
+
+Resolved by disabling offloading.
+
 ** Chromium
 
 #+begin_src nix :noweb yes :noweb-ref browser-chromium
 programs.chromium = {
   enable = true;
+  package = pkgs-bleeding.chromium;
   commandLineArgs = [
    # https://www.linuxuprising.com/2018/08/how-to-enable-hardware-accelerated.html 
    "--enable-accelerated-video-decode"
@@ -2329,7 +2365,7 @@ chrome://version
 chrome://flags
 chrome://gpu
 
-*** Chromium Overlay
+*** COMMENT Chromium Overlay
 
 See https://discourse.nixos.org/t/failed-vaapi-init/23317/3
 

@@ -53,7 +53,6 @@ in
     ];
 
     config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-      "google-chrome-dev"
       "slack"
       "discord"
       "discord-ptb"
