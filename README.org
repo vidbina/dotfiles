@@ -237,6 +237,14 @@ in
 }
 #+end_src
 
+**** Default editor
+
+I'm a bit of an emacs nut, but I still prefer nvim for one-off quick-edits, so let's set it as the system default for "all things text".
+
+#+begin_src nix :noweb-ref common-programs
+home.sessionVariables.EDITOR = "nvim";
+#+end_src
+
 **** Manual
 
 #+begin_src nix :noweb-ref common-programs
@@ -286,7 +294,7 @@ source ${./zsh/functions.zsh}
 
 ***** Emacs-related Settings
 
-****** COMMENT Emacs as Default Editor
+****** COMMENT Emacs as Default Editor through zsh-init
 Let's set Emacs up as our default editor by setting ~EDITOR~ and ~VISUAL~ such that the Emacs client is fired up when text needs to be edited.
 
 #+begin_src sh :noweb-ref zsh-init-before-compinit
