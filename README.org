@@ -1377,15 +1377,134 @@ I have issues with my touchpad often enough and also have issues with Chromium h
 
 See https://lwn.net/Articles/658948/
 
+***** COMMENT libinput
+
+https://wayland.freedesktop.org/libinput/doc/latest/index.html
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.libinput
+#+end_src
+
+***** xinput
+
+1. List xinputs
+
+   #+begin_src bash
+xinput --list
+   #+end_src
+
+2. Show properties for device
+
+   #+begin_src bash
+xinput show-props ID
+   #+end_src
+
 ***** evemu
+
+https://www.freedesktop.org/wiki/Evemu/
+https://wiki.ubuntu.com/Multitouch/Testing/Evemu
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.evemu
 #+end_src
 
+- evemu-describe
+- evemu-device
+- evemu-event
+- evemu-play
+- evemu-record
+
+  #+begin_src bash
+evemu-record /dev/input/event13 touchpad-debug.evemu
+  #+end_src
+
+***** TODO Debug laggy/choppy touchpad
+
+Recorded some data while I was observing the choppy behavior
+
+#+begin_src bash
+evemu-record /dev/input/event13 touchpad-debug.evemu
+#+end_src
+
+Then replayed the recording to confirm choppiness in the recorded output
+
+#+begin_src bash
+evemu-play touchpad-debug.evemu
+#+end_src
+
+According to ChatGPT:
+
+#+begin_quote org
+If the recording from evemu-record is already choppy, the problem is likely at a lower level than libinput. Libinput processes the events given by the kernel, so if the kernel events are choppy, libinput will also see choppy data.
+
+Here are some steps you can take to debug the issue:
+
+- Check the Kernel Version: As mentioned before, the issue may lie within the kernel. If you're using an old version of the kernel, consider updating it.
+
+- Check for Hardware Issues: If possible, test the trackpad in a different operating system (like Windows or a different Linux distribution) to rule out hardware issues.
+
+- Check for Dropped Events: The evemu-record tool records events as they come from the kernel. If events are being dropped, that might cause choppy input. Use the evtest tool to check if any events are being dropped.
+
+- Check for Firmware Issues: It might be possible that your laptop's firmware is causing issues. Check the manufacturer's website for any firmware updates.
+
+- Check dmesg for Errors: Run dmesg | grep -i error to check for any hardware errors related to the touchpad.
+
+- Contact the libinput Community: If you're unable to resolve the issue yourself, consider reaching out to the libinput community for help. They might be able to provide more specific guidance.
+
+- Remember, always be careful when upgrading the kernel or firmware, or changing system settings. Always backup your data before making significant changes to your system.
+#+end_quote
+
+Reading https://www.dell.com/support/kbdoc/de-de/000150104/precision-xps-allgemeine-problemloesung-f-uuml-er-touchpad-maus-in-ubuntu and concluding that dmesg needs to be monitored for kernel events
+
+#+begin_src bash
+dmesg -H --follow
+#+end_src
+
+#+begin_src text
+[May24 10:26] systemd-gpt-auto-generator[83303]: EFI loader partition unknown, exiting.
+[  +0.000006] systemd-gpt-auto-generator[83303]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+[May24 11:04] input: DLL0945:00 04F3:311C Touchpad as /devices/virtual/input/input70
+[May24 11:07] input: DLL0945:00 04F3:311C Touchpad as /devices/virtual/input/input71
+#+end_src
+
+Is the touchpad being reconnected over different ports?
+
+#+begin_src text
+> xinput --list
+⎡ Virtual core pointer                          id=2    [master pointer  (3)]
+⎜   ↳ Virtual core XTEST pointer                id=4    [slave  pointer  (2)]
+⎜   ↳ ELAN2D24:00 04F3:2D24                     id=11   [slave  pointer  (2)]
+⎜   ↳ DLL0945:00 04F3:311C Mouse                id=12   [slave  pointer  (2)]
+⎜   ↳ PS/2 Generic Mouse                        id=18   [slave  pointer  (2)]
+⎜   ↳ DLL0945:00 04F3:311C Touchpad             id=13   [slave  pointer  (2)]
+⎣ Virtual core keyboard                         id=3    [master keyboard (2)]
+    ↳ Virtual core XTEST keyboard               id=5    [slave  keyboard (3)]
+    ↳ Video Bus                                 id=6    [slave  keyboard (3)]
+    ↳ Video Bus                                 id=7    [slave  keyboard (3)]
+    ↳ Power Button                              id=8    [slave  keyboard (3)]
+    ↳ Integrated_Webcam_HD: Integrate           id=9    [slave  keyboard (3)]
+    ↳ Integrated_Webcam_HD: Integrate           id=10   [slave  keyboard (3)]
+    ↳ Intel HID events                          id=14   [slave  keyboard (3)]
+    ↳ Intel HID 5 button array                  id=15   [slave  keyboard (3)]
+    ↳ Dell WMI hotkeys                          id=16   [slave  keyboard (3)]
+    ↳ AT Translated Set 2 keyboard              id=17   [slave  keyboard (3)]
+#+end_src
+
+Searching for DLL0945:00 04F3:311C on Google yields https://www.dell.com/community/XPS/XPS-15-9510-Touchpad-Intermittent-touchpad-lag/td-p/8012567/page/4 where the following comment is posted:
+
+#+begin_quote
+I can also reproduce that this is related to the palm rejection on the side of the touchpad. Usually the cursor does not move when I move the finger on the very right side of the touchpad. Every time the cursor is laggy, the palm rejection does not work and I can move the cursor by touching the pad on the very right side.
+
+I also tried out the mtouch drivers instead of libinput but the problem persists. so I suppose that the problem is related to the firmware of the touchpad.
+#+end_quote
+
 ***** TODO mtdiag-qt
 
+https://github.com/bentiss/mtdiag-qt
+
 ***** TODO mtview
+
+https://github.com/whot/mtview
 
 ***** COMMENT mtr
 
