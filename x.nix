@@ -92,10 +92,6 @@
             "vidbina-light.Xresources"
           ];
         };
-
-      chromium = super.chromium.override {
-        commandLineArgs = "--enable-features=VaapiVideoEncoder,VaapiVideoDecoder --use-gl=desktop --ignore-gpu-blocklist --enable-accelerated-video-decode";
-      };
     })
   ];
 
