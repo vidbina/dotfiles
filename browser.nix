@@ -54,6 +54,7 @@ in
       }
     ];
   };
+  home.sessionVariables.DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 = 1;
 
   programs.firefox = {
     enable = true;

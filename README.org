@@ -2357,6 +2357,20 @@ programs.chromium = {
 
 See https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/common/chrome_switches.cc and https://source.chromium.org/search?q=file:switches.cc&amp;ss=chromium%2Fchromium%2Fsrc for some switches that we can use according to the =commandLineArgs= option in [[https://github.com/nix-community/home-manager/blob/master/modules/programs/chromium.nix][programs/chromium.nix]].
 
+*** Setting environment variable to disable switching
+
+Note how https://github.com/NixOS/nixpkgs/issues/211408 outlines a fix regarding graphics switching/offloading:
+
+#+begin_src bash
+DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1=1
+#+end_src
+
+We set this through the =home.sessionVariables= option, so we can just run =chromium= to keep things simple:
+
+#+begin_src nix :noweb yes :noweb-ref browser-chromium
+home.sessionVariables.DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 = 1;
+#+end_src
+
 *** Debugging
 
 https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
