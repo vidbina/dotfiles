@@ -11,6 +11,7 @@ let
 in
 {
   home.packages = with pkgs; [
+
   ];
 
   programs.chromium = {
