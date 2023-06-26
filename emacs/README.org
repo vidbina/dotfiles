@@ -3812,6 +3812,28 @@ Based on https://emacs.stackexchange.com/a/56334/37975
 (mu4e-sent-messages-behavior 'delete)
 #+end_src
 
+***** Background
+
+https://emacs.stackexchange.com/a/24430
+
+#+begin_src elisp :noweb yes :tangle init.el
+(defun draft-auto-save-buffer-name-handler (operation &rest args)
+  "for `make-auto-save-file-name' set '.' in front of the file name; do nothing for other operations"  
+  (if
+      (and buffer-file-name (eq operation 'make-auto-save-file-name))
+      (concat (file-name-directory buffer-file-name)
+              "."
+              (file-name-nondirectory buffer-file-name))
+    (let ((inhibit-file-name-handlers
+           (cons 'draft-auto-save-buffer-name-handler
+                 (and (eq inhibit-file-name-operation operation)
+                      inhibit-file-name-handlers)))
+          (inhibit-file-name-operation operation))
+      (apply operation args))))
+
+(add-to-list 'file-name-handler-alist '("Drafts/cur/" . draft-auto-save-buffer-name-handler))
+#+end_src
+
 **** TODO Contexts
 
 In mu4e we can use contexts to manage the different "contexts" in which we write and read email.
@@ -3819,13 +3841,13 @@ In mu4e we can use contexts to manage the different "contexts" in which we write
 We configure mu4e to try to detect a context based using the match or :
 
 #+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-context-policy 'ask)
+(mu4e-context-policy 'ask-if-none)
 #+end_src
 
 During composing we do the same, just =ask-if-none=:
 
 #+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-compose-context-policy 'ask)
+(mu4e-compose-context-policy 'ask-if-none)
 #+end_src
 
 Switching contexts during e-mail drafting can be achieved with the =C-c ;= binding. Just remember that.

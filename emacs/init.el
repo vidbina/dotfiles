@@ -774,14 +774,30 @@
   (mu4e-headers-fields '((:flags . 6) (:human-date . 12) (:from . 20) (:subject)))
   (mu4e-headers-date-format "%F")
   (mu4e-sent-messages-behavior 'delete)
-  (mu4e-context-policy 'ask)
-  (mu4e-compose-context-policy 'ask)
+  (mu4e-context-policy 'ask-if-none)
+  (mu4e-compose-context-policy 'ask-if-none)
   (mu4e-index-update-in-background t "Index in background")
   (mu4e-mu-debug t "Run mu in debug mode")
   (mu4e-index-cleanup nil)
   (mu4e-index-lazy-check t)
   (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
   (mu4e-update-interval 300 "Auto index every 5 minutes"))
+
+(defun draft-auto-save-buffer-name-handler (operation &rest args)
+  "for `make-auto-save-file-name' set '.' in front of the file name; do nothing for other operations"
+  (if
+      (and buffer-file-name (eq operation 'make-auto-save-file-name))
+      (concat (file-name-directory buffer-file-name)
+              "."
+              (file-name-nondirectory buffer-file-name))
+    (let ((inhibit-file-name-handlers
+           (cons 'draft-auto-save-buffer-name-handler
+                 (and (eq inhibit-file-name-operation operation)
+                      inhibit-file-name-handlers)))
+          (inhibit-file-name-operation operation))
+      (apply operation args))))
+
+(add-to-list 'file-name-handler-alist '("Drafts/cur/" . draft-auto-save-buffer-name-handler))
 
 (use-package sendmail
   :straight (:type built-in)
