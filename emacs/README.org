@@ -6554,7 +6554,6 @@ CODE
 
 **** GPTel
 
-
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/karthink/gptel
 (use-package gptel
@@ -6565,6 +6564,45 @@ CODE
   (setq gptel-default-mode 'org-mode)
   (setq gptel-api-key (lambda ()
                         (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+#+end_src
+
+**** Copilot
+
+https://www.irfanhabib.com/2022-04-26-setting-up-github-copilot-in-emacs/
+
+#+begin_src elisp :tangle lang.example.el
+(use-package copilot
+  :straight (:host github :repo "zerolfx/copilot.el"
+                   :files ("dist" "copilot.el"))
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook 'copilot-mode)
+  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "M-S-n") 'copilot-next-completion)
+  (define-key copilot-completion-map (kbd "M-S-p") 'copilot-previous-completion))
+#+end_src
+
+***** COMMENT Company completions for Copilot in Emacs
+
+We aren't using company mode afaik
+
+#+begin_src elisp :tangle lang.example.el
+; complete by copilot first, then company-mode
+(defun my-tab ()
+  (interactive)
+  (or (copilot-accept-completion)
+      (company-indent-or-complete-common nil)))
+
+; modify company-mode behaviors
+(with-eval-after-load 'company
+  ; disable inline previews
+  (delq 'company-preview-if-just-one-frontend company-frontends)
+  ; enable tab completion
+  (define-key company-mode-map (kbd "<tab>") 'my-tab)
+  (define-key company-mode-map (kbd "TAB") 'my-tab)
+  (define-key company-active-map (kbd "<tab>") 'my-tab)
+  (define-key company-active-map (kbd "TAB") 'my-tab))
 #+end_src
 
 **** COMMENT WIP gpt-elisp

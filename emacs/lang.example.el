@@ -456,6 +456,17 @@ PROMPT is the prompt string we send to the API."
   (setq gptel-api-key (lambda ()
                         (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
 
+(use-package copilot
+  :straight (:host github :repo "zerolfx/copilot.el"
+                   :files ("dist" "copilot.el"))
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook 'copilot-mode)
+  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "M-S-n") 'copilot-next-completion)
+  (define-key copilot-completion-map (kbd "M-S-p") 'copilot-previous-completion))
+
 (with-eval-after-load 'flymake
   ;; Set flymake bindings
   (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
