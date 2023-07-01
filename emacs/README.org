@@ -359,6 +359,19 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
 (org-refile-targets '((nil . (:maxlevel . 3))) "Allow refiling to 3rd level headings")
 #+end_src
 
+*** Set $LaTeX$ formula format
+
+#+begin_src elisp :noweb-ref org-custom
+(org-format-latex-options '(
+                            :foreground default
+                            :background default
+                            :scale 2.0
+                            :html-foreground "Black"
+                            :html-background "Transparent"
+                            :html-scale 1.0
+                            :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
+#+end_src
+
 *** Default workflow states
 
 To facilitate my [[https://orgmode.org/manual/Workflow-states.html][workflow states]], we define:
@@ -4568,9 +4581,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   "Switch to the dark theme"
   (interactive)
   (modus-themes-load-vivendi)
-  (setq org-format-latex-options
-        '(:scale 2 :foreground "White" :background "Transparent")
-        zoom-window-mode-line-color "DodgerBlue4")
+  (setq zoom-window-mode-line-color "DodgerBlue4")
   (vidbina/theme-switch-update-cursor-styles)
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
@@ -4579,9 +4590,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   "Switch to the light theme"
   (interactive)
   (modus-themes-load-operandi)
-  (setq org-format-latex-options
-        '(:scale 2 :foreground "Black" :background "Transparent")
-        zoom-window-mode-line-color "Gold")
+  (setq zoom-window-mode-line-color "Gold")
   (vidbina/theme-switch-update-cursor-styles)
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))

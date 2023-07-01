@@ -113,6 +113,14 @@
   (org-catch-invisible-edits 'error "Disable invisible edits")
   (org-src-window-setup 'current-window "Show edit buffer in calling window")
   (org-refile-targets '((nil . (:maxlevel . 3))) "Allow refiling to 3rd level headings")
+  (org-format-latex-options '(
+                              :foreground default
+                              :background default
+                              :scale 2.0
+                              :html-foreground "Black"
+                              :html-background "Transparent"
+                              :html-scale 1.0
+                              :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
   (org-todo-keywords '((sequence "TODO(t)" "WIP(w)" "|" "DONE(d)" "CANCELED(@c)")) "Allow fast-selection for my standard TODO states")
   (org-html-head (format "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />" (expand-file-name "ox-html.css" user-emacs-directory)) "Point to our custom stylesheet"))
 
