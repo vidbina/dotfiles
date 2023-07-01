@@ -2272,6 +2272,18 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
 
 * 🌷 Misc
 
+** YASnippets
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/joaotavora/yasnippet
+(use-package yasnippet
+  :straight (yasnippet :type git
+                       :host github
+                       :repo "joaotavora/yasnippet")
+  :config
+  (yas-global-mode 1))
+#+end_src
+
 ** 🪟 Windows
 
 *** 🏗️ Buffer Placement

@@ -350,6 +350,14 @@
   (setq dired-k-style 'git)
   :hook (dired-initial-position-hook . dired-k))
 
+;; https://github.com/joaotavora/yasnippet
+(use-package yasnippet
+  :straight (yasnippet :type git
+                       :host github
+                       :repo "joaotavora/yasnippet")
+  :config
+  (yas-global-mode 1))
+
 (setq display-buffer-alist
       (let* ((sidebar-width '(window-width . 85))
              (sidebar-parameters '(window-parameters . ((no-other-window . t))))
