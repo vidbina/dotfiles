@@ -4892,7 +4892,9 @@ Sometimes, I just need the current branch name to paste into an email or somewhe
 (global-set-key (kbd "C-c v TAB") 'vidbina/wrap)
 (global-set-key (kbd "C-c v \\") 'visual-fill-column-mode)
 (global-set-key (kbd "C-c v SPC") 'whitespace-mode)
-(global-set-key (kbd "C-c v c") 'completion-at-point)
+(global-set-key (kbd "C-c v c") 'copilot-complete)
+(global-set-key (kbd "C-c v t") 'gptel-send-menu)
+(global-set-key (kbd "C-c v i") 'completion-at-point)
 (global-set-key (kbd "C-c v O") 'vidbina/orui-node-zoom-padding-set)
 (global-set-key (kbd "C-c v _") 'vidbina/tail-buffer)
 (global-set-key (kbd "C-c v .") 'vidbina/orui-node-zoom)
@@ -6627,11 +6629,10 @@ https://www.irfanhabib.com/2022-04-26-setting-up-github-copilot-in-emacs/
                    :files ("dist" "copilot.el"))
   :ensure t
   :config
-  (add-hook 'prog-mode-hook 'copilot-mode)
   (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
   (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-  (define-key copilot-completion-map (kbd "M-S-n") 'copilot-next-completion)
-  (define-key copilot-completion-map (kbd "M-S-p") 'copilot-previous-completion))
+  (define-key copilot-completion-map (kbd "M-n") 'copilot-next-completion)
+  (define-key copilot-completion-map (kbd "M-p") 'copilot-previous-completion))
 #+end_src
 
 ***** COMMENT Company completions for Copilot in Emacs

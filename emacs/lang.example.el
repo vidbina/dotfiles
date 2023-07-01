@@ -484,11 +484,10 @@ PROMPT is the prompt string we send to the API."
                    :files ("dist" "copilot.el"))
   :ensure t
   :config
-  (add-hook 'prog-mode-hook 'copilot-mode)
   (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
   (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-  (define-key copilot-completion-map (kbd "M-S-n") 'copilot-next-completion)
-  (define-key copilot-completion-map (kbd "M-S-p") 'copilot-previous-completion))
+  (define-key copilot-completion-map (kbd "M-n") 'copilot-next-completion)
+  (define-key copilot-completion-map (kbd "M-p") 'copilot-previous-completion))
 
 (with-eval-after-load 'flymake
   ;; Set flymake bindings
