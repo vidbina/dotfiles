@@ -5176,6 +5176,24 @@ pandoc -f markdown -t org -o README.org --wrap=preserve README.md
                            (shell-quote-argument temp-file-name)))))
 #+end_src
 
+*** HTLM/Webdev
+
+**** Helper to refactor JSX
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/wrap-wrap-string-to-interpolate ()
+  (interactive)
+  (let ((pattern "'<,'>s|['\"]\\([ :.a-zA-Z0-9-\\[\\]]+\\)['\"]|{`\\1`}|"))
+    (evil-ex pattern)))
+#+end_src
+
+#+begin_src typescript
+<div className="haha">
+</div>
+
+<span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-red-400 group-hover:text-white">
+#+end_src
+
 ** Serialization Languages/Formats
 
 *** JSON
