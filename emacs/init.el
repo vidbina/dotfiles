@@ -748,6 +748,12 @@
   :init
   (persp-mode))
 
+;; https://github.com/alpha22jp/atomic-chrome
+(use-package atomic-chrome
+  :straight (atomic-chrome :type git
+                           :host github
+                           :repo "alpha22jp/atomic-chrome"))
+
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
   :after (:all

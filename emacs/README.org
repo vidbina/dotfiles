@@ -3687,6 +3687,16 @@ The following is an example of how we access a password in a password store keys
 
 Use the ideas in this section to configure your private Emacs config to setup all of the secrets, passwords and other tokens that you want to load from your password store.
 
+** WIP Browser
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/alpha22jp/atomic-chrome
+(use-package atomic-chrome
+  :straight (atomic-chrome :type git
+                           :host github
+                           :repo "alpha22jp/atomic-chrome"))
+#+end_src
+
 * <<mail>> 📧 Mail
 
 For mail, there are a couple of options within Emacs. First, one needs to understand that a mail user agent (MUA) is a tool used to compose and read messages and a mail transfer agent (MTA) is a tool to send messages.
