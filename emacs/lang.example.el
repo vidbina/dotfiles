@@ -412,8 +412,7 @@
 (use-package aide
   :straight (aide :type git
                   :host github
-                  :repo "vidbina/aide.el"
-                  :branch "vidbina/retrieve-secret-through-function")
+                  :repo "junjizhi/aide.el")
   :custom
   (aide-completions-model "text-davinci-003")
   (aide-max-output-tokens 1000)
