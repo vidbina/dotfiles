@@ -558,6 +558,14 @@
   (deft-use-filename-as-title t)
   (deft-use-filter-string-for-filename t))
 
+;; https://github.com/jaypei/emacs-neotree
+(use-package neotree
+  :straight (neotree :type git
+                     :host github
+                     :repo "jaypei/emacs-neotree")
+  :custom
+  (neo-theme (if (display-graphic-p) 'icons 'arrow)))
+
 (use-package orderless
   :straight (orderless :type git
                        :host github

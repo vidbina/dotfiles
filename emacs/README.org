@@ -2936,6 +2936,20 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
   (deft-use-filter-string-for-filename t))
 #+end_src
 
+*** Neotree
+
+In order to have a vim NERDTree-like experience where we get to explore directory structures in a narrow sidebar, we install [[https://github.com/jaypei/emacs-neotree][neotree]].
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/jaypei/emacs-neotree
+(use-package neotree
+  :straight (neotree :type git
+                     :host github
+                     :repo "jaypei/emacs-neotree")
+  :custom
+  (neo-theme (if (display-graphic-p) 'icons 'arrow)))
+#+end_src
+
 ** Completion
 
 Function ~completing-read-default~ is triggered to resolve completions. Observe the following example that fires up whichever completion framework is actively configured:
