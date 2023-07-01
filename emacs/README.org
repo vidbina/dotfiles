@@ -4627,7 +4627,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 (add-hook 'after-init-hook 'vidbina/theme-switch-to-choice)
 #+end_src
 
-*** Org-Export
+*** Org-Export Helpers
 
 #+begin_src elisp :tangle personal-example.el
 (defun vidbina/toggle-local-org-export-use-babel ()
@@ -7027,9 +7027,13 @@ The =my-dotfiles-tangle-wrapper= helper allows us to spawn an Emacs session with
 
 Enable the tangle helper by running the following snippet with ~(org-ctrl-c-ctrl-c)~ mapped by default to =C-c C-c=.
 
+⚠️ [2023-07-01 Sat] I just had issues running this using the =C-c C-c= binding and ended up navigating to the expression and just evaluating it (using =C-c C-e= which maps to =eval-last-sexp=).
+
 #+begin_src elisp :results none
 (advice-add 'org-babel-tangle :around #'my-dotfiles-tangle-wrapper)
 #+end_src
+
+Before running this, you may want to auto-accept evaluations of code blocks. I've written ~vidbina/toggle-local-org-confirm-babel-evaluate~ in [[*Org-Export Helpers][Org-Export Helpers]] in order to avoid having to confirm that I want to evaluate every block in my literate config through separate confirmations. Trust me, it's not scalable to type "yes" over 30 times. 😅 Just run =M-x vidbina/toggle-local-org-confirm-babel-evaluate= and be happy!
 
 *** Disable
 
