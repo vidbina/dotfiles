@@ -353,6 +353,13 @@
   (setq dired-k-style 'git)
   :hook (dired-initial-position-hook . dired-k))
 
+;; https://github.com/domtronn/all-the-icons.el
+(use-package all-the-icons
+  :straight (all-the-icons :type git
+                     :host github
+                     :repo "domtronn/all-the-icons.el")
+:if (display-graphic-p))
+
 ;; https://github.com/joaotavora/yasnippet
 (use-package yasnippet
   :straight (yasnippet :type git
