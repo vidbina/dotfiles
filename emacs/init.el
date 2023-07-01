@@ -140,7 +140,10 @@
                       :host github
                       :repo "misohena/phscroll")
   :init
-  (setq org-startup-truncated nil))
+  (setq org-startup-truncated nil)
+  :config
+  (with-eval-after-load "org"
+    (require 'org-phscroll)))
 
 (use-package ol-bibtex
   :straight (:type built-in)

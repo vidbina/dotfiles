@@ -771,7 +771,7 @@ The ox-clip exporters allow us to export fragments of our org documents into ric
   ("C-c y" . ox-clip-formatted-copy))
 #+end_src
 
-** phscroll
+** WIP phscroll
 
 The [[https://github.com/misohena/phscroll][phscroll]] package allows to exclude some regions in a buffer from wrapping. This is really convenient when you have section with long lines that lose meaning when wrapped (or being unreadable) like rows from tables.
 
@@ -782,7 +782,10 @@ The [[https://github.com/misohena/phscroll][phscroll]] package allows to exclude
                       :host github
                       :repo "misohena/phscroll")
   :init
-  (setq org-startup-truncated nil))
+  (setq org-startup-truncated nil)
+  :config
+  (with-eval-after-load "org"
+    (require 'org-phscroll)))
 #+end_src
 
 Some of the bindings to remember when in phscroll-mode are:
