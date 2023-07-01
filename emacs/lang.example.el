@@ -243,6 +243,12 @@
   :custom
   (js-indent-level 2))
 
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(typescript-mode . ("typescript-language-server" "--stdio"))
+               '(typescript-ts-mode . ("typescript-language-server" "--stdio"))
+               '(tsx-ts-mode . ("typescript-language-server" "--stdio"))))
+
 ;; https://github.com/emacs-typescript/typescript.el
 (use-package typescript-mode
   :straight
@@ -253,23 +259,6 @@
   (typescript-mode "ts")
   :custom
   (typescript-indent-level 2))
-
-;; https://github.com/ananthakumaran/tide
-(use-package tide
-  :straight
-  (tide :type git
-        :host github
-        :repo "ananthakumaran/tide")
-
-  :init
-  (evil-collection-tide-setup)
-  :delight
-  (tide-mode "🌊")
-  :after (typescript-mode evil-collection)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode))
-  :custom
-  (tide-always-show-documentation nil "Don't show docs if only type info is available to minimize disruption"))
 
 ;; https://emacs-lsp.github.io/lsp-java/
 (use-package lsp-java
@@ -355,6 +344,27 @@
   ;; ;; https://github.com/patrickt/emacs
   ;; ((prog-mode) . rainbow-delimiters-mode)
   )
+
+;; https://github.com/emacs-tree-sitter/elisp-tree-sitter
+(use-package tree-sitter
+  :straight (tree-sitter :type git
+                         :host github
+                         :repo "emacs-tree-sitter/elisp-tree-sitter")
+  :config
+  ;; activate tree-sitter on any buffer containing code for which it has a parser available
+  (global-tree-sitter-mode)
+  ;; you can easily see the difference tree-sitter-hl-mode makes for python, ts or tsx
+  ;; by switching on and off
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+  :delight
+  (tree-sitter-mode "🌲"))
+
+;; https://github.com/emacs-tree-sitter/tree-sitter-langs
+(use-package tree-sitter-langs
+  :straight (tree-sitter-langs :type git
+                               :host github
+                               :repo "emacs-tree-sitter/tree-sitter-langs")
+  :after tree-sitter)
 
 ;; https://github.com/DarthFennec/highlight-indent-guides
 (use-package highlight-indent-guides
@@ -465,8 +475,19 @@ PROMPT is the prompt string we send to the API."
                    :host github
                    :repo "karthink/gptel")
   :config
+  (setq gptel-default-mode 'org-mode)
   (setq gptel-api-key (lambda ()
                         (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+
+(use-package copilot
+  :straight (:host github :repo "zerolfx/copilot.el"
+                   :files ("dist" "copilot.el"))
+  :ensure t
+  :config
+  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "M-n") 'copilot-next-completion)
+  (define-key copilot-completion-map (kbd "M-p") 'copilot-previous-completion))
 
 (with-eval-after-load 'flymake
   ;; Set flymake bindings

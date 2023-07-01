@@ -359,6 +359,19 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
 (org-refile-targets '((nil . (:maxlevel . 3))) "Allow refiling to 3rd level headings")
 #+end_src
 
+*** Set $LaTeX$ formula format
+
+#+begin_src elisp :noweb-ref org-custom
+(org-format-latex-options '(
+                            :foreground default
+                            :background default
+                            :scale 2.0
+                            :html-foreground "Black"
+                            :html-background "Transparent"
+                            :html-scale 1.0
+                            :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
+#+end_src
+
 *** Default workflow states
 
 To facilitate my [[https://orgmode.org/manual/Workflow-states.html][workflow states]], we define:
@@ -1035,7 +1048,7 @@ Set the Org-Roam directory through variable =org-roam-directory= and keep in min
 A possible workaround to trigger the tangling from the root directory thata contains all note directories and letting Org-Roam recursively walk through the file tree to visit all those directories.
 
 #+begin_src elisp :noweb-ref org-roam-init
-(let ((directory (file-truename "~/org/roam/")))
+(let ((directory (file-truename "~/org/")))
   (make-directory directory t)
   (setq org-roam-directory directory
         ;; Define a directory that does not change along with the Org-Roam folder
@@ -2259,6 +2272,18 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
 
 * 🌷 Misc
 
+** YASnippets
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/joaotavora/yasnippet
+(use-package yasnippet
+  :straight (yasnippet :type git
+                       :host github
+                       :repo "joaotavora/yasnippet")
+  :config
+  (yas-global-mode 1))
+#+end_src
+
 ** 🪟 Windows
 
 *** 🏗️ Buffer Placement
@@ -2270,6 +2295,9 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
              (sidebar (list '(side . left) sidebar-width sidebar-parameters)))
         (list (cons (regexp-opt-group '("*org-roam*"))
                     (cons #'display-buffer-in-side-window
+                          `((slot . 0) ,@sidebar)))
+              (cons (regexp-opt-group '("*ChatGPT*"))
+                    (cons #'display-buffer-same-window
                           `((slot . 0) ,@sidebar)))
               (cons (regexp-opt-group '("*Dictionary*"))
                     (cons #'display-buffer-in-side-window
@@ -2631,15 +2659,36 @@ In order to provide point-specific behavior, we use the [[https://www.gnu.org/so
 #+end_src
 
 #+begin_src elisp
+(defun vidbina/get-likely-current-directory ()
+  (interactive)
+  (let* ((other-buffer (persp-get-scratch-buffer))
+         (other-directory (with-current-buffer other-buffer default-directory))
+         (file-name buffer-file-name))
+    (if (eq major-mode 'vterm-mode)
+        (progn
+          (message (format "📁 Finding Folder: in buffer %s directory %s" other-buffer other-directory))
+          other-directory)
+      (unless (eq file-name nil)
+        (message "📁 Not in vterm-mode, so just returning dir of buffer file")
+        (file-name-directory buffer-file-name)))))
+
 (defun vidbina/ffap-vterm-in-persp-mode ()
   "Handle FFAP within persp-mode"
   (interactive)
-  (if (eq major-mode 'vterm-mode)
-      (let* ((other-buffer (persp-get-scratch-buffer))
-             (other-directory (with-current-buffer other-buffer default-directory)))
-        (message (format "🛣️ ffap on buffer %s to find directory %s" other-buffer other-directory))
-        (find-file-at-point other-directory))
-    (message "not in vterm-mode, so no fapp-ing to be done")))
+  (message "🛣️ FFAP: figuring out dir for vterm")
+  (let ((likely-directory (vidbina/get-likely-current-directory)))
+    (if (eq likely-directory nil)
+        (warn "🛣️ FFAP: No likely directory, so nothing")
+      (message "🛣️ FFAP: likely dir = %s" likely-directory)
+      (find-file-at-point likely-directory))))
+#+end_src
+
+**  Magit status =magic-status= in vterm
+
+Running =magic-status= in vterm doesn't work because variable =magit-repository-directory=.
+
+#+begin_src elisp
+(message magit-repository-directories)
 #+end_src
 
 ** Indentation
@@ -2743,7 +2792,7 @@ Consult the [[https://github.com/noctuid/evil-guide][guide]] for more informatio
   (setq evil-want-keybinding nil)
   (setq evil-mode-line-format nil)
   :config
-  (messsage "😈 Configured evil-mode"))
+  (message "😈 Configured evil-mode"))
 #+end_src
 
 #+begin_src elisp :tangle init.el
@@ -3206,6 +3255,8 @@ In case you are using company, the [[http://company-mode.github.io/manual/Gettin
   :straight (:type built-in)
   :after evil
   :init (evil-collection-vterm-setup)
+  :hook
+  <<vterm-hooks>>
   :config
   <<vterm-config>>)
 #+end_src
@@ -3230,6 +3281,18 @@ Reading [[info:find#Top][find#Top]] for more info.
 
 #+begin_src elisp :noweb-ref vterm-config
 (define-key vterm-mode-map (kbd "C-x C-f") 'vidbina/ffap-vterm-in-persp-mode)
+#+end_src
+
+**** Set =magit-respositories-directories= for magit dir awareness
+
+Make magit aware of the correct directory when invoked from a vterm.
+
+#+begin_src elisp :noweb-ref vterm-hooks
+(vterm-mode . (lambda ()
+                (message "HOOK FIRED 2")
+                `(let ((target ,(list (cons (vidbina/get-likely-current-directory) 2))))
+                   (message "⚠️ Setting %s" target)
+                   (customize-set-value 'magit-repository-directories target "Set through vidbina/get-likely-current-directory"))))
 #+end_src
 
 *** TODO Debug =evil-collection-vterm-delete=
@@ -3624,6 +3687,16 @@ The following is an example of how we access a password in a password store keys
 
 Use the ideas in this section to configure your private Emacs config to setup all of the secrets, passwords and other tokens that you want to load from your password store.
 
+** WIP Browser
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/alpha22jp/atomic-chrome
+(use-package atomic-chrome
+  :straight (atomic-chrome :type git
+                           :host github
+                           :repo "alpha22jp/atomic-chrome"))
+#+end_src
+
 * <<mail>> 📧 Mail
 
 For mail, there are a couple of options within Emacs. First, one needs to understand that a mail user agent (MUA) is a tool used to compose and read messages and a mail transfer agent (MTA) is a tool to send messages.
@@ -3639,9 +3712,9 @@ You will find the following MTA options in Emacs:
 
 Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.html][Mail Composition Methods (Emacs Manual)]] for more information on how to compose mail in Emacs.
 
-*** WIP <<mu4e>> Mu4e
+*** WIP mu4e
 
-[[https://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]] is a Maildir-friendly mail client that uses mu as a backend.
+mu4e is a Maildir-friendly mail client that uses mu as a backend.
 
 #+begin_src elisp :noweb yes :tangle init.el
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
@@ -3755,6 +3828,7 @@ Disabled until we have some font-issues resolved.
 
 #+begin_src elisp :noweb-ref mu4e-custom
 (mu4e-headers-fields '((:flags . 6) (:human-date . 12) (:from . 20) (:subject)))
+(mu4e-headers-date-format "%F")
 #+end_src
 
 **** PROTOTYPE Disable saving of drafts
@@ -3773,6 +3847,28 @@ Based on https://emacs.stackexchange.com/a/56334/37975
 (mu4e-sent-messages-behavior 'delete)
 #+end_src
 
+***** Background
+
+https://emacs.stackexchange.com/a/24430
+
+#+begin_src elisp :noweb yes :tangle init.el
+(defun draft-auto-save-buffer-name-handler (operation &rest args)
+  "for `make-auto-save-file-name' set '.' in front of the file name; do nothing for other operations"  
+  (if
+      (and buffer-file-name (eq operation 'make-auto-save-file-name))
+      (concat (file-name-directory buffer-file-name)
+              "."
+              (file-name-nondirectory buffer-file-name))
+    (let ((inhibit-file-name-handlers
+           (cons 'draft-auto-save-buffer-name-handler
+                 (and (eq inhibit-file-name-operation operation)
+                      inhibit-file-name-handlers)))
+          (inhibit-file-name-operation operation))
+      (apply operation args))))
+
+(add-to-list 'file-name-handler-alist '("Drafts/cur/" . draft-auto-save-buffer-name-handler))
+#+end_src
+
 **** TODO Contexts
 
 In mu4e we can use contexts to manage the different "contexts" in which we write and read email.
@@ -3780,13 +3876,13 @@ In mu4e we can use contexts to manage the different "contexts" in which we write
 We configure mu4e to try to detect a context based using the match or :
 
 #+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-context-policy 'ask)
+(mu4e-context-policy 'ask-if-none)
 #+end_src
 
 During composing we do the same, just =ask-if-none=:
 
 #+begin_src elisp :noweb-ref mu4e-custom
-(mu4e-compose-context-policy 'ask)
+(mu4e-compose-context-policy 'ask-if-none)
 #+end_src
 
 Switching contexts during e-mail drafting can be achieved with the =C-c ;= binding. Just remember that.
@@ -4507,9 +4603,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   "Switch to the dark theme"
   (interactive)
   (modus-themes-load-vivendi)
-  (setq org-format-latex-options
-        '(:scale 2 :foreground "White" :background "Transparent")
-        zoom-window-mode-line-color "DodgerBlue4")
+  (setq zoom-window-mode-line-color "DodgerBlue4")
   (vidbina/theme-switch-update-cursor-styles)
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
@@ -4518,9 +4612,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   "Switch to the light theme"
   (interactive)
   (modus-themes-load-operandi)
-  (setq org-format-latex-options
-        '(:scale 2 :foreground "Black" :background "Transparent")
-        zoom-window-mode-line-color "Gold")
+  (setq zoom-window-mode-line-color "Gold")
   (vidbina/theme-switch-update-cursor-styles)
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
@@ -4535,7 +4627,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 (add-hook 'after-init-hook 'vidbina/theme-switch-to-choice)
 #+end_src
 
-*** Org-Export
+*** Org-Export Helpers
 
 #+begin_src elisp :tangle personal-example.el
 (defun vidbina/toggle-local-org-export-use-babel ()
@@ -4732,7 +4824,7 @@ At some point it becomes too Inception-esque to reasonably assume that future me
 #+begin_src elisp :tangle personal-example.el
 (defun vidbina-mime-handle-open-message-in-mu4e (window-name target &optional create-frame)
   "Open a message in a new frame"
-  (vidbina-mime-handle--open window-name #'mu4e target create-frame))
+  (vidbina-mime-handle--open window-name #'mu4e~compose-mail target create-frame))
 #+end_src
 
 *** Conveniences
@@ -4800,7 +4892,9 @@ Sometimes, I just need the current branch name to paste into an email or somewhe
 (global-set-key (kbd "C-c v TAB") 'vidbina/wrap)
 (global-set-key (kbd "C-c v \\") 'visual-fill-column-mode)
 (global-set-key (kbd "C-c v SPC") 'whitespace-mode)
-(global-set-key (kbd "C-c v c") 'completion-at-point)
+(global-set-key (kbd "C-c v c") 'copilot-complete)
+(global-set-key (kbd "C-c v t") 'gptel-send-menu)
+(global-set-key (kbd "C-c v i") 'completion-at-point)
 (global-set-key (kbd "C-c v O") 'vidbina/orui-node-zoom-padding-set)
 (global-set-key (kbd "C-c v _") 'vidbina/tail-buffer)
 (global-set-key (kbd "C-c v .") 'vidbina/orui-node-zoom)
@@ -5080,6 +5174,24 @@ pandoc -f markdown -t org -o README.org --wrap=preserve README.md
     (shell-command (format "pandoc -f markdown -t org -o %s --wrap=preserve %s"
                            (shell-quote-argument target-file-name)
                            (shell-quote-argument temp-file-name)))))
+#+end_src
+
+*** HTLM/Webdev
+
+**** Helper to refactor JSX
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/wrap-wrap-string-to-interpolate ()
+  (interactive)
+  (let ((pattern "'<,'>s|['\"]\\([ :.a-zA-Z0-9-\\[\\]]+\\)['\"]|{`\\1`}|"))
+    (evil-ex pattern)))
+#+end_src
+
+#+begin_src typescript
+<div className="haha">
+</div>
+
+<span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-red-400 group-hover:text-white">
 #+end_src
 
 ** Serialization Languages/Formats
@@ -5793,6 +5905,20 @@ Since JavaScript is everywhere, let's make sure we can at least read it with eas
 
 Superset of JavaScript that folks really should be using instead of just vanilla JS but we're not here to judge. 🤷🏿‍♂️
 
+***** Configure default LSP for TypeScript
+
+#+begin_src elisp :tangle lang.example.el
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(typescript-mode . ("typescript-language-server" "--stdio"))
+               '(typescript-ts-mode . ("typescript-language-server" "--stdio"))
+               '(tsx-ts-mode . ("typescript-language-server" "--stdio"))))
+#+end_src
+
+**** Typescript-mode
+
+Development of this package has been halted, so we're stopping our use of this.
+
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacs-typescript/typescript.el
 (use-package typescript-mode
@@ -5806,7 +5932,7 @@ Superset of JavaScript that folks really should be using instead of just vanilla
   (typescript-indent-level 2))
 #+end_src
 
-***** Tide
+***** COMMENT Tide
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/ananthakumaran/tide
@@ -6072,13 +6198,23 @@ See https://github.com/editorconfig/editorconfig-emacs/issues/264 regarding =ind
   )
 #+end_src
 
-*** COMMENT tree-sitter
+*** tree-sitter
 
 #+begin_quote
 ⚠️ Commented in order to test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]].
 #+end_quote
 
 Based on the [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/][TypeScript development with Emacs, tree-sitter and LSP in 2022]] article by vxlabs.
+
+**** Basics
+
+See if treesitter is available in a buffer by running:
+
+#+begin_src elisp
+(treesit-available-p)
+#+end_src
+
+**** Install Elisp bindings
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacs-tree-sitter/elisp-tree-sitter
@@ -6094,7 +6230,11 @@ Based on the [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-t
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
   :delight
   (tree-sitter-mode "🌲"))
+#+end_src
 
+**** Install Tree-sitter langs
+
+#+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacs-tree-sitter/tree-sitter-langs
 (use-package tree-sitter-langs
   :straight (tree-sitter-langs :type git
@@ -6485,7 +6625,6 @@ CODE
 
 **** GPTel
 
-
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/karthink/gptel
 (use-package gptel
@@ -6493,8 +6632,47 @@ CODE
                    :host github
                    :repo "karthink/gptel")
   :config
+  (setq gptel-default-mode 'org-mode)
   (setq gptel-api-key (lambda ()
                         (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+#+end_src
+
+**** Copilot
+
+https://www.irfanhabib.com/2022-04-26-setting-up-github-copilot-in-emacs/
+
+#+begin_src elisp :tangle lang.example.el
+(use-package copilot
+  :straight (:host github :repo "zerolfx/copilot.el"
+                   :files ("dist" "copilot.el"))
+  :ensure t
+  :config
+  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "M-n") 'copilot-next-completion)
+  (define-key copilot-completion-map (kbd "M-p") 'copilot-previous-completion))
+#+end_src
+
+***** COMMENT Company completions for Copilot in Emacs
+
+We aren't using company mode afaik
+
+#+begin_src elisp :tangle lang.example.el
+; complete by copilot first, then company-mode
+(defun my-tab ()
+  (interactive)
+  (or (copilot-accept-completion)
+      (company-indent-or-complete-common nil)))
+
+; modify company-mode behaviors
+(with-eval-after-load 'company
+  ; disable inline previews
+  (delq 'company-preview-if-just-one-frontend company-frontends)
+  ; enable tab completion
+  (define-key company-mode-map (kbd "<tab>") 'my-tab)
+  (define-key company-mode-map (kbd "TAB") 'my-tab)
+  (define-key company-active-map (kbd "<tab>") 'my-tab)
+  (define-key company-active-map (kbd "TAB") 'my-tab))
 #+end_src
 
 **** COMMENT WIP gpt-elisp
@@ -6849,9 +7027,13 @@ The =my-dotfiles-tangle-wrapper= helper allows us to spawn an Emacs session with
 
 Enable the tangle helper by running the following snippet with ~(org-ctrl-c-ctrl-c)~ mapped by default to =C-c C-c=.
 
+⚠️ [2023-07-01 Sat] I just had issues running this using the =C-c C-c= binding and ended up navigating to the expression and just evaluating it (using =C-c C-e= which maps to =eval-last-sexp=).
+
 #+begin_src elisp :results none
 (advice-add 'org-babel-tangle :around #'my-dotfiles-tangle-wrapper)
 #+end_src
+
+Before running this, you may want to auto-accept evaluations of code blocks. I've written ~vidbina/toggle-local-org-confirm-babel-evaluate~ in [[*Org-Export Helpers][Org-Export Helpers]] in order to avoid having to confirm that I want to evaluate every block in my literate config through separate confirmations. Trust me, it's not scalable to type "yes" over 30 times. 😅 Just run =M-x vidbina/toggle-local-org-confirm-babel-evaluate= and be happy!
 
 *** Disable
 
@@ -7184,7 +7366,7 @@ javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(loca
   target_path=$@
   echo "Target: $target_path"
 
-  exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-dired\" \"$target_path\")"
+  exec emacsclient -a emacs -c -F "((name . \"emacs-mu4e\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-mu4e\" \"$target_path\")"
 '')
 #+end_src
 

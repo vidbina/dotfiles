@@ -113,6 +113,14 @@
   (org-catch-invisible-edits 'error "Disable invisible edits")
   (org-src-window-setup 'current-window "Show edit buffer in calling window")
   (org-refile-targets '((nil . (:maxlevel . 3))) "Allow refiling to 3rd level headings")
+  (org-format-latex-options '(
+                              :foreground default
+                              :background default
+                              :scale 2.0
+                              :html-foreground "Black"
+                              :html-background "Transparent"
+                              :html-scale 1.0
+                              :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
   (org-todo-keywords '((sequence "TODO(t)" "WIP(w)" "|" "DONE(d)" "CANCELED(@c)")) "Allow fast-selection for my standard TODO states")
   (org-html-head (format "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />" (expand-file-name "ox-html.css" user-emacs-directory)) "Point to our custom stylesheet"))
 
@@ -156,7 +164,7 @@
   :after org
   :init
   (setq org-roam-v2-ack t)
-  (let ((directory (file-truename "~/org/roam/")))
+  (let ((directory (file-truename "~/org/")))
     (make-directory directory t)
     (setq org-roam-directory directory
           ;; Define a directory that does not change along with the Org-Roam folder
@@ -342,12 +350,23 @@
   (setq dired-k-style 'git)
   :hook (dired-initial-position-hook . dired-k))
 
+;; https://github.com/joaotavora/yasnippet
+(use-package yasnippet
+  :straight (yasnippet :type git
+                       :host github
+                       :repo "joaotavora/yasnippet")
+  :config
+  (yas-global-mode 1))
+
 (setq display-buffer-alist
       (let* ((sidebar-width '(window-width . 85))
              (sidebar-parameters '(window-parameters . ((no-other-window . t))))
              (sidebar (list '(side . left) sidebar-width sidebar-parameters)))
         (list (cons (regexp-opt-group '("*org-roam*"))
                     (cons #'display-buffer-in-side-window
+                          `((slot . 0) ,@sidebar)))
+              (cons (regexp-opt-group '("*ChatGPT*"))
+                    (cons #'display-buffer-same-window
                           `((slot . 0) ,@sidebar)))
               (cons (regexp-opt-group '("*Dictionary*"))
                     (cons #'display-buffer-in-side-window
@@ -442,7 +461,7 @@
   (setq evil-want-keybinding nil)
   (setq evil-mode-line-format nil)
   :config
-  (messsage "😈 Configured evil-mode"))
+  (message "😈 Configured evil-mode"))
 
 ;; https://github.com/emacs-evil/evil-collection
 (use-package evil-collection
@@ -684,6 +703,12 @@
   :straight (:type built-in)
   :after evil
   :init (evil-collection-vterm-setup)
+  :hook
+  (vterm-mode . (lambda ()
+                  (message "HOOK FIRED 2")
+                  `(let ((target ,(list (cons (vidbina/get-likely-current-directory) 2))))
+                     (message "⚠️ Setting %s" target)
+                     (customize-set-value 'magit-repository-directories target "Set through vidbina/get-likely-current-directory"))))
   :config
   (define-key vterm-mode-map (kbd "C-x C-f") 'vidbina/ffap-vterm-in-persp-mode))
 
@@ -722,6 +747,12 @@
 
   :init
   (persp-mode))
+
+;; https://github.com/alpha22jp/atomic-chrome
+(use-package atomic-chrome
+  :straight (atomic-chrome :type git
+                           :host github
+                           :repo "alpha22jp/atomic-chrome"))
 
 ;; https://www.djcbsoftware.nl/code/mu/mu4e.html
 (use-package mu4e
@@ -763,15 +794,32 @@
   (gnus-dired-mail-mode 'mu4e-user-agent)
   (mu4e-use-fancy-chars nil "Use fancy unicode characters for mu4e marks")
   (mu4e-headers-fields '((:flags . 6) (:human-date . 12) (:from . 20) (:subject)))
+  (mu4e-headers-date-format "%F")
   (mu4e-sent-messages-behavior 'delete)
-  (mu4e-context-policy 'ask)
-  (mu4e-compose-context-policy 'ask)
+  (mu4e-context-policy 'ask-if-none)
+  (mu4e-compose-context-policy 'ask-if-none)
   (mu4e-index-update-in-background t "Index in background")
   (mu4e-mu-debug t "Run mu in debug mode")
   (mu4e-index-cleanup nil)
   (mu4e-index-lazy-check t)
   (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
   (mu4e-update-interval 300 "Auto index every 5 minutes"))
+
+(defun draft-auto-save-buffer-name-handler (operation &rest args)
+  "for `make-auto-save-file-name' set '.' in front of the file name; do nothing for other operations"
+  (if
+      (and buffer-file-name (eq operation 'make-auto-save-file-name))
+      (concat (file-name-directory buffer-file-name)
+              "."
+              (file-name-nondirectory buffer-file-name))
+    (let ((inhibit-file-name-handlers
+           (cons 'draft-auto-save-buffer-name-handler
+                 (and (eq inhibit-file-name-operation operation)
+                      inhibit-file-name-handlers)))
+          (inhibit-file-name-operation operation))
+      (apply operation args))))
+
+(add-to-list 'file-name-handler-alist '("Drafts/cur/" . draft-auto-save-buffer-name-handler))
 
 (use-package sendmail
   :straight (:type built-in)

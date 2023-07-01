@@ -81,7 +81,7 @@ in
       target_path=$@
       echo "Target: $target_path"
 
-      exec emacsclient -a emacs -c -F "((name . \"emacs-dired\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-dired\" \"$target_path\")"
+      exec emacsclient -a emacs -c -F "((name . \"emacs-mu4e\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-mu4e\" \"$target_path\")"
     '')
 
     # https://emacs.stackexchange.com/questions/13927/how-to-set-emacs-as-the-default-file-manager

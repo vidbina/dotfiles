@@ -206,14 +206,9 @@ in
       })
     ];
 
-    # config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    #   <<nixpkgs-unfree>>
-    # ];
-
-    # TODO: Remove hack in favor of allowUnfreePredicate above
-    config. = {
-      allowUnfree = true;
-    }
+    config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+      <<nixpkgs-unfree>>
+    ];
   };
 
   programs.bat = {
@@ -242,7 +237,32 @@ in
 }
 #+end_src
 
+**** Default editor
+
+I'm a bit of an emacs nut, but I still prefer nvim for one-off quick-edits, so let's set it as the system default for "all things text".
+
+#+begin_src nix :noweb-ref common-programs
+home.sessionVariables.EDITOR = "nvim";
+#+end_src
+
 **** Manual
+
+Disabled because of validation errors.
+
+#+begin_src text
+error: builder for '/nix/store/1f5lhdhsj2lf090pbxbvpmp3nijmzpy6-manual-combined.drv' failed with exit code 3;
+       last 10 log lines:
+       > /nix/store/vlpr4h1k43rbr5gpb3zrphq8gn6l4n4l-manual-combined/manual-combined.xml:1336: element variablelist: Relax-NG validity error : Did not expect element variablelist there
+       >   1332        </section>
+       >   1333      </chapter>
+       >   1334       <appendix xml:id="ch-options">
+       >   1335   <title>Configuration Options</title>
+       >   1336    <variablelist xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="home-manager-options" xml:base="nmd-result/home-manager-options.xml"><varlistentry><term xlink:href="#opt-_module.args" xml:id="opt-_module.args"><option>_module.args</option></term><listitem><para/><para><emphasis>Type:</emphasis> lazy attribute set of raw value</para><para><emphasis>Declared by:</emphasis></para><simplelist><member><filename xlink:href="https://github.com/nix-community/home-manager/blob/master/lib/modules.nix#blob-path">
+       >   1337                        &lt;home-manager/lib/modules.nix&gt;
+       >   1338                        </filename></member></simplelist></listitem></varlistentry><varlistentry><term xlink:href="#opt-accounts.email.accounts" xml:id="opt-accounts.email.accounts"><option>accounts.email.accounts</option></term><listitem><para>List of email accounts.</para><para><emphasis>Type:</emphasis> attribute set of (submodule)</para><para><emphasis>Default:</emphasis> <literal>
+       >
+       > /nix/store/vlpr4h1k43rbr5gpb3zrphq8gn6l4n4l-manual-combined/manual-combined.xml fails to validate
+#+end_src
 
 #+begin_src nix :noweb-ref common-programs
 manual = {
@@ -291,7 +311,7 @@ source ${./zsh/functions.zsh}
 
 ***** Emacs-related Settings
 
-****** COMMENT Emacs as Default Editor
+****** COMMENT Emacs as Default Editor through zsh-init
 Let's set Emacs up as our default editor by setting ~EDITOR~ and ~VISUAL~ such that the Emacs client is fired up when text needs to be edited.
 
 #+begin_src sh :noweb-ref zsh-init-before-compinit
@@ -487,12 +507,6 @@ runtime: panic before malloc heap initialized
 
 {
   home.packages = with pkgs; [
-    brightnessctl
-    neofetch
-    peek
-    screenkey
-    xdotool
-
     <<x-packages>>
   ];
 
@@ -536,6 +550,15 @@ runtime: panic before malloc heap initialized
     <<x-services>>
   };
 }
+#+end_src
+
+#+begin_src nix :noweb-ref x-packages
+brightnessctl
+neofetch
+peek
+screenkey
+xdotool
+btop
 #+end_src
 
 ****** colors
@@ -709,6 +732,24 @@ vidbina-urxvt-themes =
 
 ****** autorandr
 
+In order to simplify screen management, we can use the [[https://github.com/phillipberndt/autorandr/][autorandr]] utility.
+
+For the first time using a configuration, we use the =arandr= utility to graphically align the screens in the formation that we want after which we can save and name the configuration using the following command (where =CONFIGNAME= is the name that we want to save the configuration as):
+
+#+begin_src bash
+autorandr --save CONFIGNAME
+#+end_src
+
+A configuration can be autoloaded by running the following command:
+
+#+begin_src bash
+autorandr --change
+#+end_src
+
+#+begin_quote
+⚠️ With the autorandr tool, we have to plug screens into the same ports as we used when configuring the setup. In the case of my newer laptop where I have a bunch of USB C ports with the risk of pluggin monitors in different configurations between docking attempts, I just connect the monitor in every likely configuration, configure my setup with =arandr= and then save it with =autorandr --save= to ensure that autorandr will have seen that configuration before. 😉
+#+end_quote
+
 #+begin_src nix :noweb-ref x-programs
 programs.autorandr = {
   enable = true;
@@ -732,6 +773,16 @@ screen-locker = {
 };
 #+end_src
 
+****** darkman
+
+Use darkman to manage dark/light theme switching for GTK and Qt.
+
+#+begin_src nix :noweb-ref x-packages
+darkman
+#+end_src
+
+Run =darkman set light= or =darkman set dark= or just run =darkman toggle=.
+
 ***** Applets
 
 #+begin_src nix :noweb-ref home-linux-services
@@ -740,6 +791,8 @@ services.network-manager-applet.enable = true;
 #+end_src
 
 ***** Gammastep
+
+The next thing after redshift.
 
 #+begin_src nix :noweb yes :noweb-ref home-linux-services
 services.gammastep = {
@@ -756,7 +809,7 @@ services.gammastep = {
 };
 #+end_src
 
-****** COMMENT Berlin
+****** Berlin
 
 #+begin_src nix :noweb-ref home-linux-services-gammastep
 dawnTime = "5:00-6:00";
@@ -765,7 +818,7 @@ latitude = 52.5;
 longitude = 13.4;
 #+end_src
 
-****** Bangkok
+****** COMMENT Bangkok
 
 #+begin_src nix :noweb-ref home-linux-services-gammastep
 dawnTime = "5:00-6:00";
@@ -783,7 +836,7 @@ services.gpg-agent = {
 };
 #+end_src
 
-***** Syncthing
+***** COMMENT Syncthing
 
 #+begin_src nix :noweb-ref home-linux-services
 services.syncthing = {
@@ -801,11 +854,11 @@ services.trayer = {
     align = "right";
     alpha = 0;
     edge = "top";
-    #height = 24;
+    height = 20;
     monitor = "primary";
     tint = "0x00000000";
     transparent = true;
-    width = 150;
+    width = 250;
     widthtype = "pixel";
   };
 };
@@ -1209,6 +1262,12 @@ difftastic = {
 };
 #+end_src
 
+*** GitHub
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.gh
+#+end_src
+
 ** Utils
 
 *** Hex editors/viewers
@@ -1305,7 +1364,7 @@ pkgs.nodePackages.typescript-language-server
 pkgs.tree-sitter
 #+end_src
 
-*** Query
+*** DSL
 **** jq, yq
 
 #+begin_src nix :noweb-ref dev-packages
@@ -1315,8 +1374,161 @@ pkgs.yq
 
 *** DB
 
+**** SQLite
+
 #+begin_src nix :noweb-ref dev-packages
 pkgs.sqlite-interactive
+#+end_src
+
+**** Redis
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.redis
+#+end_src
+
+*** Linux Hacking
+
+I have issues with my touchpad often enough and also have issues with Chromium hanging here and there. It's time that I learned to dig into some of the Linux innards and do some good kernel watching.
+
+**** Linux Input Debugging/Kernel Watching
+
+See https://lwn.net/Articles/658948/
+
+***** COMMENT libinput
+
+https://wayland.freedesktop.org/libinput/doc/latest/index.html
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.libinput
+#+end_src
+
+***** xinput
+
+1. List xinputs
+
+   #+begin_src bash
+xinput --list
+   #+end_src
+
+2. Show properties for device
+
+   #+begin_src bash
+xinput show-props ID
+   #+end_src
+
+***** evemu
+
+https://www.freedesktop.org/wiki/Evemu/
+https://wiki.ubuntu.com/Multitouch/Testing/Evemu
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.evemu
+#+end_src
+
+- evemu-describe
+- evemu-device
+- evemu-event
+- evemu-play
+- evemu-record
+
+  #+begin_src bash
+evemu-record /dev/input/event13 touchpad-debug.evemu
+  #+end_src
+
+***** TODO Debug laggy/choppy touchpad
+
+Recorded some data while I was observing the choppy behavior
+
+#+begin_src bash
+evemu-record /dev/input/event13 touchpad-debug.evemu
+#+end_src
+
+Then replayed the recording to confirm choppiness in the recorded output
+
+#+begin_src bash
+evemu-play touchpad-debug.evemu
+#+end_src
+
+According to ChatGPT:
+
+#+begin_quote org
+If the recording from evemu-record is already choppy, the problem is likely at a lower level than libinput. Libinput processes the events given by the kernel, so if the kernel events are choppy, libinput will also see choppy data.
+
+Here are some steps you can take to debug the issue:
+
+- Check the Kernel Version: As mentioned before, the issue may lie within the kernel. If you're using an old version of the kernel, consider updating it.
+
+- Check for Hardware Issues: If possible, test the trackpad in a different operating system (like Windows or a different Linux distribution) to rule out hardware issues.
+
+- Check for Dropped Events: The evemu-record tool records events as they come from the kernel. If events are being dropped, that might cause choppy input. Use the evtest tool to check if any events are being dropped.
+
+- Check for Firmware Issues: It might be possible that your laptop's firmware is causing issues. Check the manufacturer's website for any firmware updates.
+
+- Check dmesg for Errors: Run dmesg | grep -i error to check for any hardware errors related to the touchpad.
+
+- Contact the libinput Community: If you're unable to resolve the issue yourself, consider reaching out to the libinput community for help. They might be able to provide more specific guidance.
+
+- Remember, always be careful when upgrading the kernel or firmware, or changing system settings. Always backup your data before making significant changes to your system.
+#+end_quote
+
+Reading https://www.dell.com/support/kbdoc/de-de/000150104/precision-xps-allgemeine-problemloesung-f-uuml-er-touchpad-maus-in-ubuntu and concluding that dmesg needs to be monitored for kernel events
+
+#+begin_src bash
+dmesg -H --follow
+#+end_src
+
+#+begin_src text
+[May24 10:26] systemd-gpt-auto-generator[83303]: EFI loader partition unknown, exiting.
+[  +0.000006] systemd-gpt-auto-generator[83303]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+[May24 11:04] input: DLL0945:00 04F3:311C Touchpad as /devices/virtual/input/input70
+[May24 11:07] input: DLL0945:00 04F3:311C Touchpad as /devices/virtual/input/input71
+#+end_src
+
+Is the touchpad being reconnected over different ports?
+
+#+begin_src text
+> xinput --list
+⎡ Virtual core pointer                          id=2    [master pointer  (3)]
+⎜   ↳ Virtual core XTEST pointer                id=4    [slave  pointer  (2)]
+⎜   ↳ ELAN2D24:00 04F3:2D24                     id=11   [slave  pointer  (2)]
+⎜   ↳ DLL0945:00 04F3:311C Mouse                id=12   [slave  pointer  (2)]
+⎜   ↳ PS/2 Generic Mouse                        id=18   [slave  pointer  (2)]
+⎜   ↳ DLL0945:00 04F3:311C Touchpad             id=13   [slave  pointer  (2)]
+⎣ Virtual core keyboard                         id=3    [master keyboard (2)]
+    ↳ Virtual core XTEST keyboard               id=5    [slave  keyboard (3)]
+    ↳ Video Bus                                 id=6    [slave  keyboard (3)]
+    ↳ Video Bus                                 id=7    [slave  keyboard (3)]
+    ↳ Power Button                              id=8    [slave  keyboard (3)]
+    ↳ Integrated_Webcam_HD: Integrate           id=9    [slave  keyboard (3)]
+    ↳ Integrated_Webcam_HD: Integrate           id=10   [slave  keyboard (3)]
+    ↳ Intel HID events                          id=14   [slave  keyboard (3)]
+    ↳ Intel HID 5 button array                  id=15   [slave  keyboard (3)]
+    ↳ Dell WMI hotkeys                          id=16   [slave  keyboard (3)]
+    ↳ AT Translated Set 2 keyboard              id=17   [slave  keyboard (3)]
+#+end_src
+
+Searching for DLL0945:00 04F3:311C on Google yields https://www.dell.com/community/XPS/XPS-15-9510-Touchpad-Intermittent-touchpad-lag/td-p/8012567/page/4 where the following comment is posted:
+
+#+begin_quote
+I can also reproduce that this is related to the palm rejection on the side of the touchpad. Usually the cursor does not move when I move the finger on the very right side of the touchpad. Every time the cursor is laggy, the palm rejection does not work and I can move the cursor by touching the pad on the very right side.
+
+I also tried out the mtouch drivers instead of libinput but the problem persists. so I suppose that the problem is related to the firmware of the touchpad.
+#+end_quote
+
+***** TODO mtdiag-qt
+
+https://github.com/bentiss/mtdiag-qt
+
+***** TODO mtview
+
+https://github.com/whot/mtview
+
+***** COMMENT mtr
+
+https://github.com/traviscross/mtr
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.mtr
 #+end_src
 
 * COMMENT E-mail
@@ -1486,26 +1698,6 @@ services.taffybar = {
 };
 #+end_src
 
-* autorandr: Screen configuration
-
-In order to simplify screen management, we can use the [[https://github.com/phillipberndt/autorandr/][autorandr]] utility.
-
-For the first time using a configuration, we use the =arandr= utility to graphically align the screens in the formation that we want after which we can save and name the configuration using the following command (where =CONFIGNAME= is the name that we want to save the configuration as):
-
-#+begin_src bash
-autorandr --save CONFIGNAME
-#+end_src
-
-A configuration can be autoloaded by running the following command:
-
-#+begin_src bash
-autorandr --change
-#+end_src
-
-#+begin_quote
-⚠️ With the autorandr tool, we have to plug screens into the same ports as we used when configuring the setup. In the case of my newer laptop where I have a bunch of USB C ports with the risk of pluggin monitors in different configurations between docking attempts, I just connect the monitor in every likely configuration, configure my setup with =arandr= and then save it with =autorandr --save= to ensure that autorandr will have seen that configuration before. 😉
-#+end_quote
-
 * Syncthing
 
 Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup. As per [2022-05-05 Thu 12:08], the syncthing service in home-manager is only declarative to the extend of turning it on and providing extra CLI options to start the service with.
@@ -1588,6 +1780,10 @@ v4l-utils
 let
   # TODO: Find a cleaner implementation, like an pkgs overlay at shell.nix?!?
   nur = import <NUR> { inherit pkgs; };
+
+  sources = import ./nix/sources.nix;
+  nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
+  pkgs-bleeding = import nixpkgs-bleeding-src { };
 in
 {
   home.packages = with pkgs; [
@@ -1600,7 +1796,7 @@ in
 }
 #+end_src
 
-** Chrome
+** COMMENT Chrome
 
 We just want to try the unfree Google Chrome, to test whether this works with Twitch:
 
@@ -1614,7 +1810,14 @@ We pass along the string equivalent of the package name for use by the =allowUnf
 "google-chrome-dev"
 #+end_src
 
-** TODO Debug Chrome freeze-ups (possibly accelleration-related)
+#+begin_src bash
+chromium --disable-gpu-vsync --disable-frame-rate-limit
+#+end_src
+
+- chrome://gpu
+- chrome://flags/
+
+** DONE Debug Chrome freeze-ups (possibly accelleration-related)
 
 Output of starting chromium on [2023-03-04 Sat 16:51]
 
@@ -2241,11 +2444,54 @@ Log Messages
 
 https://www.lifewire.com/hardware-acceleration-in-chrome-4125122
 
+Somehow resolved after disabling offloading. Also running chrome as =DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1=1 chromium=.
+
+** DONE Debug Chrome
+
+See https://github.com/NixOS/nixpkgs/issues/216361
+
+#+begin_src text
+libGL error: MESA-LOADER: failed to open iris: /nix/store/lqz6hmd86viw83f9qll2ip87jhb7p1ah-glibc-2.35-224/lib/libc.so.6: version `GLIBC_2.36' not found (required by /nix/store/hvi95rrzrnqqhwvfn5b10l5c3f2lhr0h-llvm-15.0.7-lib/lib/libLLVM-15.so) (search paths /run/opengl-driver/lib/dri, suffix _dri)
+libGL error: failed to load driver: iris
+libGL error: MESA-LOADER: failed to open iris: /nix/store/lqz6hmd86viw83f9qll2ip87jhb7p1ah-glibc-2.35-224/lib/libc.so.6: version `GLIBC_2.36' not found (required by /nix/store/hvi95rrzrnqqhwvfn5b10l5c3f2lhr0h-llvm-15.0.7-lib/lib/libLLVM-15.so) (search paths /run/opengl-driver/lib/dri, suffix _dri)
+libGL error: failed to load driver: iris
+libGL error: MESA-LOADER: failed to open swrast: /nix/store/lqz6hmd86viw83f9qll2ip87jhb7p1ah-glibc-2.35-224/lib/libc.so.6: version `GLIBC_2.36' not found (required by /nix/store/hvi95rrzrnqqhwvfn5b10l5c3f2lhr0h-llvm-15.0.7-lib/lib/libLLVM-15.so) (search paths /run/opengl-driver/lib/dri, suffix _dri)
+libGL error: failed to load driver: swrast
+[3436:3436:0622/194103.267052:ERROR:angle_platform_impl.cc(43)] Display.cpp:1014 (initialize): ANGLE Display::initialize error 12289: Could not create a backing OpenGL context.
+ERR: Display.cpp:1014 (initialize): ANGLE Display::initialize error 12289: Could not create a backing OpenGL context.
+[3436:3436:0622/194103.268458:ERROR:gl_display.cc(504)] EGL Driver message (Critical) eglInitialize: Could not create a backing OpenGL context.
+[3436:3436:0622/194103.268557:ERROR:gl_display.cc(917)] eglInitialize OpenGL failed with error EGL_NOT_INITIALIZED, trying next display type
+[3436:3436:0622/194103.271814:ERROR:angle_platform_impl.cc(43)] Display.cpp:1014 (initialize): ANGLE Display::initialize error 12289: Could not create a backing OpenGL context.
+ERR: Display.cpp:1014 (initialize): ANGLE Display::initialize error 12289: Could not create a backing OpenGL context.
+[3436:3436:0622/194103.271908:ERROR:gl_display.cc(504)] EGL Driver message (Critical) eglInitialize: Could not create a backing OpenGL context.
+#+end_src
+
+Resolved by disabling offloading.
+
 ** Chromium
 
 #+begin_src nix :noweb yes :noweb-ref browser-chromium
 programs.chromium = {
   enable = true;
+  package = pkgs-bleeding.chromium;
+  commandLineArgs = [
+   # https://www.linuxuprising.com/2018/08/how-to-enable-hardware-accelerated.html 
+   "--enable-accelerated-video-decode"
+   "--enable-logging=stderr"
+   "--ignore-gpu-blocklist"
+   "--use-gl=desktop"
+   "--enable-features=VaapiVideoEncoder,VaapiVideoDecoder"
+   "--disable-features=UseChromeOSDirectVideoDecoder"
+
+   # https://github.com/NixOS/nixpkgs/issues/209101
+   "--disable-gpu-vsync"
+   "--disable-frame-rate-limit"
+
+   # https://wiki.archlinux.org/title/chromium
+   "--ignore-gpu-blocklist"
+   "--enable-gpu-rasterization"
+   "--enable-zero-copy"
+  ];
 
   extensions = [
     <<browser-chromium-extensions>>
@@ -2255,6 +2501,20 @@ programs.chromium = {
 
 See https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/common/chrome_switches.cc and https://source.chromium.org/search?q=file:switches.cc&amp;ss=chromium%2Fchromium%2Fsrc for some switches that we can use according to the =commandLineArgs= option in [[https://github.com/nix-community/home-manager/blob/master/modules/programs/chromium.nix][programs/chromium.nix]].
 
+*** Setting environment variable to disable switching
+
+Note how https://github.com/NixOS/nixpkgs/issues/211408 outlines a fix regarding graphics switching/offloading:
+
+#+begin_src bash
+DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1=1
+#+end_src
+
+We set this through the =home.sessionVariables= option, so we can just run =chromium= to keep things simple:
+
+#+begin_src nix :noweb yes :noweb-ref browser-chromium
+home.sessionVariables.DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 = 1;
+#+end_src
+
 *** Debugging
 
 https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
@@ -2263,7 +2523,7 @@ chrome://version
 chrome://flags
 chrome://gpu
 
-*** Chromium Overlay
+*** COMMENT Chromium Overlay
 
 See https://discourse.nixos.org/t/failed-vaapi-init/23317/3
 
@@ -2362,6 +2622,23 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
 
 ** Shared Extensions
+*** WIP GhostText
+
+Use GhostText to edit text in the browser through a text editor.
+
+just trying this out to edit text in browser in Emacs
+
+https://chrome.google.com/webstore/detail/ghosttext/godiecgffnchndlihlpaajjcplehddca/related
+
+#+begin_src nix :noweb-ref browser-chromium-extensions
+{
+  # GhostText
+  # https://chrome.google.com/webstore/detail/ghosttext/godiecgffnchndlihlpaajjcplehddca
+  # see https://ghosttext.fregante.com/
+  id = "godiecgffnchndlihlpaajjcplehddca";
+}
+#+end_src
+
 *** Darkreader
 
 #+begin_src nix :noweb-ref browser-chromium-extensions
@@ -2481,7 +2758,7 @@ pkgs.slack
 ** Discord
 
 #+begin_src nix :noweb-ref desktop-packages
-pkgs-bleeding.discord
+pkgs.discord
 #+end_src
 
 #+begin_src nix :noweb-ref nixpkgs-unfree

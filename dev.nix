@@ -35,6 +35,7 @@
   };
 
   home.packages = [
+    pkgs.gh
     pkgs.xxd
     pkgs.hexyl
     pkgs.ghidra-bin
@@ -57,5 +58,7 @@
     pkgs.jq
     pkgs.yq
     pkgs.sqlite-interactive
+    pkgs.redis
+    pkgs.evemu
   ];
 }

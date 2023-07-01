@@ -8,6 +8,7 @@
     peek
     screenkey
     xdotool
+    btop
 
     (writeScriptBin "colors" ''
       # https://askubuntu.com/questions/27314/script-to-display-all-terminal-colors
@@ -24,6 +25,8 @@
     '')
 
     xsel-copy-url
+
+    darkman
   ];
 
   xdg.mimeApps.defaultApplications = {
@@ -89,10 +92,6 @@
             "vidbina-light.Xresources"
           ];
         };
-
-      chromium = super.chromium.override {
-        commandLineArgs = "--enable-features=VaapiVideoEncoder,VaapiVideoDecoder --use-gl=desktop --ignore-gpu-blocklist --enable-accelerated-video-decode";
-      };
     })
   ];
 
