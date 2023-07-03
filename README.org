@@ -2594,16 +2594,20 @@ vi-editor for input controls
 programs.firefox = {
   enable = true;
 
-  # NOTE: Extensions need firefox.profiles to be defined
-  extensions =
-    # https://nur.nix-community.org/repos/rycee/
-    with nur.repos.rycee.firefox-addons; [
-      <<browser-firefox-extensions>>
-    ];
+  <<browser-firefox-profiles>>
 };
 #+end_src
 
 *** Extensions
+
+#+begin_src nix :noweb yes :noweb-ref browser-firefox-profiles
+# NOTE: Extensions need firefox.profiles to be defined
+profiles.personal.extensions =
+  # https://nur.nix-community.org/repos/rycee/
+  with nur.repos.rycee.firefox-addons; [
+    <<browser-firefox-extensions>>
+  ];
+#+end_src
 
 **** Tridactyl
 

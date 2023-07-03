@@ -67,7 +67,7 @@ in
     enable = true;
 
     # NOTE: Extensions need firefox.profiles to be defined
-    extensions =
+    profiles.personal.extensions =
       # https://nur.nix-community.org/repos/rycee/
       with nur.repos.rycee.firefox-addons; [
         multi-account-containers # needed by tridactyl
