@@ -6255,11 +6255,7 @@ See https://github.com/editorconfig/editorconfig-emacs/issues/264 regarding =ind
   )
 #+end_src
 
-*** tree-sitter
-
-#+begin_quote
-⚠️ Commented in order to test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]].
-#+end_quote
+*** Tree-Sitter
 
 Based on the [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/][TypeScript development with Emacs, tree-sitter and LSP in 2022]] article by vxlabs.
 
@@ -6272,6 +6268,23 @@ See if treesitter is available in a buffer by running:
 #+end_src
 
 **** Install Elisp bindings
+
+***** COMMENT Use built-in treesitter
+
+- ⚠️ I initally thought of test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]] but am realising that my current build of Emacs may not have tree-sitter bundled into it. 😅
+
+#+begin_src elisp :tangle lang.example.el
+(use-package tree-sitter
+  :straight (:type built-in))
+#+end_src
+
+***** TODO Reinstall Emacs with built-in tree-sitter
+
+I'll need to pry open my Emacs installation and fix tree-sitter.
+
+***** Use self-installed treesitter
+
+Instead of using the built-in tree-sitter, we use the self-installed [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][Elisp tree-sitter bindings]].
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacs-tree-sitter/elisp-tree-sitter
