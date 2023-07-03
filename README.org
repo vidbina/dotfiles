@@ -19,7 +19,7 @@ Refer to [[file:emacs/README.org]] for an example of a literate config that tang
 - [ ] Termite
 - [ ] Starship
 - [ ] Rofi (handled through Pywal since [2023-07-03 Mon])
-- [ ] Redshift
+- [ ] Redshift (or Gammastep)
 - [ ] Ghorg
 - [ ] Asciinema
 - [ ] Compton
