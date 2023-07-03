@@ -7,21 +7,21 @@
 ;; https://github.com/raxod502/straight.el/issues/757#issuecomment-839764260
 (defvar comp-deferred-compilation-deny-list ())
 
-;; https://github.com/raxod502/straight.el#getting-started
+;; https://github.com/radian-software/straight.el#getting-started
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
+      (bootstrap-version 6))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
         (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
          'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-;; https://github.com/raxod502/straight.el#integration-with-use-package
+;; https://github.com/radian-software/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 
 (with-eval-after-load 'eldoc

@@ -164,7 +164,7 @@ Setting =package-enable-at-startup= to =nil= before the Emacs default package sy
 
 ** Straight
 
-[[https://github.com/raxod502/straight.el#getting-started][Straight.el]] 🍀 is a popular package manager used to manage Emacs packages.
+[[https://github.com/radian-software/straight.el#getting-started][Straight.el]] 🍀 is a popular package manager used to manage Emacs packages.
 
 The primary advantage of using *straight.el* is the ability to _pin package version in a [[file:straight/versions/default.el][lockfile]]_ (e.g.: =~/.emacs.d/straight/versions/default.el=) in manner quite similar to how popular package managers such as Bundler (Ruby) and NPM (JavaScript) or Yarn (JavaScript) improve reproducibility of a configuration by pinning the versions of their packages in a dependency manifest (e.g.: Gemfile.lock for Bundler, package.lock for NPM and yarn.lock for Yarn).
 
@@ -187,15 +187,15 @@ Installation of the following packages may break when this block is disabled:
 Run the following bootstrap 🥾 logic at the start of your file:init.el in order to get your straight set up as our package manager.
 
 #+begin_src elisp :tangle init.el
-;; https://github.com/raxod502/straight.el#getting-started
+;; https://github.com/radian-software/straight.el#getting-started
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
+      (bootstrap-version 6))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
         (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
          'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
@@ -207,7 +207,7 @@ Run the following bootstrap 🥾 logic at the start of your file:init.el in orde
 For [[use-package-format][convenience]], we configure *straight.el* to use the *use-package* interface.
 
 #+begin_src elisp :tangle init.el
-;; https://github.com/raxod502/straight.el#integration-with-use-package
+;; https://github.com/radian-software/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 #+end_src
 
