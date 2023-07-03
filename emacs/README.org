@@ -2213,9 +2213,15 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
         modus-themes-scale-headings t))
 #+end_src
 
-** NΛNO: NANO Theme by Rougier
+** COMMENT NΛNO: NANO Theme by Rougier
 
 The [[https://github.com/rougier/nano-emacs][NΛNO theme by Rougier]] provides a very "clean" Emacs experience. Let's use parts of it for a better DX.
+
+[2023-07-03 Mon 08:15] Looks slick, but disabling this for now because:
+- it doesn't play ball nicely with *modus themes* and I don't have time to figure it out
+- some formatting issues when I enter multiple asterisks in Org-mode to denote headings, somehow they don't get reflected in the UI or there seems to be some replacement magic going on in the presentation of content that complicates reasoning about what is going on
+- much information is lost by default (like sparser modelines) that require more getting used to than anticipated
+- just did a large =straight-pull-all= which caused a lot of change! not a good time for a UX paradigm shift. 😅
 
 #+begin_src elisp :tangle init.el
 (use-package nano
@@ -2223,9 +2229,10 @@ The [[https://github.com/rougier/nano-emacs][NΛNO theme by Rougier]] provides a
                   :host github
                   :repo "rougier/nano-emacs")
   :after (:all modus-themes svg-tag-mode mu4e-dashboard mu4e-thread-folding)
-  :config
-  (require 'nano-faces)
-  (require 'nano-mu4e))
+  ;; :config
+  ;; (require 'nano-faces)
+  ;; (require 'nano-mu4e)
+)
 #+end_src
 
 *** TODO Debug why this doesn't work nicely yet :xmas:
@@ -2257,7 +2264,7 @@ Probably a good holiday hacking effort.
                           :repo "rougier/svg-tag-mode"))
 #+end_src
 
-** Dired-k
+** COMMENT Dired-k
 
 The standard Emacs directory editor named dired doesn't ship with convenient highlighting or coloring of the listed files. The dired-k package adds some flair to the dired ouput.
 
