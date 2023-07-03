@@ -6,6 +6,8 @@
 
 This is an emoji-heavy 😅 literal[fn:1] configuration for [[https://www.gnu.org/software/emacs/][Emacs]] which is definitely not as feature complete like some distros out there (think: [[https://github.com/hlissner/doom-emacs][Doom Emacs]] or [[https://www.spacemacs.org/][Spacemacs]]) but may still provide you a pragmatic and easily parsable configuration that sticks to standard tooling 🧰 and patterns while providing sufficient context as to what is happening such that beginners[fn:2] can also have a good time cooking 👨🏿‍🔬 up or tweaking 👨🏿‍🔧 their configurations.
 
+See [[https://github.com/emacs-tw/awesome-emacs][Awesome Emacs]] for ideas of things to do in your own configuration (in case you aren't declaring bankruptcy yet).
+
 * Installation
 
 I manage both my Emacs installation and my Emacs configuration declaratively. A [[nix-config][home-manager configuration written in Nix]] manages the version and bundle of Emacs on my system while classic Emacs LISP manages the Emacs configuration itself.
