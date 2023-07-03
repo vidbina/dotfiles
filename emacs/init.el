@@ -344,6 +344,30 @@
                                 (t . (background overline rainbow)))
         modus-themes-scale-headings t))
 
+(use-package nano
+  :straight (nano :type git
+                  :host github
+                  :repo "rougier/nano-emacs")
+  :after (:all modus-themes svg-tag-mode mu4e-dashboard mu4e-thread-folding)
+  :config
+  (require 'nano-faces)
+  (require 'nano-mu4e))
+
+(use-package mu4e-dashboard
+  :straight (mu4e-dashboard :type git
+                            :host github
+                            :repo "rougier/mu4e-dashboard"))
+
+(use-package mu4e-thread-folding
+  :straight (mu4e-thread-folding :type git
+                                 :host github
+                                 :repo "rougier/mu4e-thread-folding"))
+
+(use-package svg-tag-mode
+  :straight (svg-tag-mode :type git
+                          :host github
+                          :repo "rougier/svg-tag-mode"))
+
 ;; https://github.com/emacsorphanage/dired-k
 (use-package dired-k
   :straight (dired-k :type git
