@@ -6313,6 +6313,22 @@ Instead of using the built-in tree-sitter, we use the self-installed [[https://g
   :after tree-sitter)
 #+end_src
 
+*** Structural Editing
+
+Structural editing allows us to treat structural units of code with specific actions like movement, splicing and selection.
+
+**** COMMENT Combobulate
+
+The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored by the same Mickey who brought us /[[https://www.masteringemacs.org/][Mastering Emacs]]/. 
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/mickeynp/combobulate
+(use-package combobulate
+  :straight (combobulate :type git
+                         :host github
+                         :repo "mickeynp/combobulate"))
+#+end_src
+
 *** <<highlight-indent-guides>> Highlight Indent Guides
 
 #+begin_src elisp :tangle lang.example.el
