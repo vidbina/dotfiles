@@ -573,6 +573,14 @@
   :custom
   (neo-theme (if (display-graphic-p) 'icons 'arrow)))
 
+;; https://github.com/alexluigit/dirvish
+(use-package dirvish
+  :straight (dirvish :type git
+                     :host github
+                     :repo "alexluigit/dirvish")
+  :config
+  (dirvish-override-dired-mode))
+
 (use-package orderless
   :straight (orderless :type git
                        :host github

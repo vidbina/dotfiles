@@ -2963,6 +2963,20 @@ In order to have a vim NERDTree-like experience where we get to explore director
   (neo-theme (if (display-graphic-p) 'icons 'arrow)))
 #+end_src
 
+*** WIP Dirvish
+
+Use [[https://github.com/alexluigit/dirvish][Dirvish]] to supercharge your dired experience. It is closer to offering a [[https://ranger.github.io/][ranger]]-like experience inside of Emacs.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/alexluigit/dirvish
+(use-package dirvish
+  :straight (dirvish :type git
+                     :host github
+                     :repo "alexluigit/dirvish")
+  :config
+  (dirvish-override-dired-mode))
+#+end_src
+
 ** Completion
 
 Function ~completing-read-default~ is triggered to resolve completions. Observe the following example that fires up whichever completion framework is actively configured:
