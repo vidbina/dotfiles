@@ -531,9 +531,13 @@
   :straight (diff-hl :type git
                      :host github
                      :repo "dgutov/diff-hl")
-  :hook (after-init . global-diff-hl-mode)
+  :hook
+  (after-init . global-diff-hl-mode)
+  (magit-pre-refresh . diff-hl-magit-pre-refresh)
+  (magit-post-refresh . diff-hl-magit-post-refresh)
+
   :custom
-  (diff-hl-margin-mode t "Use margin mode to clear up the fringe"))
+  (diff-hl-margin-mode nil "Use the fringe"))
 
 ;; https://github.com/jrblevin/deft
 (use-package deft

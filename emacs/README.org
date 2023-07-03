@@ -2921,15 +2921,23 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
 
 *** Diff-hl: Diff highlighting in the left gutter of a buffer
 
+The [[https://github.com/dgutov/diff-hl][diff-hl]] package allows us to display which lines are added or removed by either providing red or green regions *in the margin or fringe*.
+
+I've been using diff-hl in /margin mode/ for a while, but with the latest updates [2023-07-03 Mon], I disabled /margin mode/ in exchange for /fringe mode/ where we use the more consended representation of showing the diff highlights in the fringe (and thus using less horizontal real-estate). As I don't use Emacs in the terminal, I don't care about diff-hl not being able to show up in the terminal when we use it in /fringe mode/ but YMMV. 🤷🏿‍♂️
+
 #+begin_src elisp :tangle init.el
 ;; https://github.com/dgutov/diff-hl
 (use-package diff-hl
   :straight (diff-hl :type git
                      :host github
                      :repo "dgutov/diff-hl")
-  :hook (after-init . global-diff-hl-mode)
+  :hook
+  (after-init . global-diff-hl-mode)
+  (magit-pre-refresh . diff-hl-magit-pre-refresh)
+  (magit-post-refresh . diff-hl-magit-post-refresh)
+
   :custom
-  (diff-hl-margin-mode t "Use margin mode to clear up the fringe"))
+  (diff-hl-margin-mode nil "Use the fringe"))
 #+end_src
 
 ** 📁 Navigation
