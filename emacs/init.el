@@ -328,8 +328,6 @@
   :straight (modus-themes :type git
                           :host gitlab
                           :repo "protesilaos/modus-themes")
-  :config
-  (modus-themes-load-themes)
   :init
   (setq modus-themes-bold-constructs t
         modus-themes-org-blocks 'gray-background

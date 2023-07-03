@@ -2196,8 +2196,6 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
   :straight (modus-themes :type git
                           :host gitlab
                           :repo "protesilaos/modus-themes")
-  :config
-  (modus-themes-load-themes)
   :init
   (setq modus-themes-bold-constructs t
         modus-themes-org-blocks 'gray-background
@@ -4636,7 +4634,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   "Update colors of cursors for new theme"
   (interactive)
   (message "🌕 Setting evil cursors with modus-themes colors")
-  (let ((my-cursor-color (modus-themes-color 'fg-special-calm)))
+  (let ((my-cursor-color (modus-themes-get-color-value 'fg-special-calm)))
     (setq evil-emacs-state-cursor `(hollow ,my-cursor-color))
     (setq evil-insert-state-cursor `((bar . 5) ,my-cursor-color))
     (setq evil-visual-state-cursor `((hbar . 5) ,my-cursor-color))
@@ -4653,8 +4651,8 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 (defun vidbina/theme-switch-to-dark ()
   "Switch to the dark theme"
   (interactive)
-  (modus-themes-load-vivendi)
   (setq zoom-window-mode-line-color "DodgerBlue4")
+  (load-theme 'modus-vivendi :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
@@ -4662,8 +4660,8 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 (defun vidbina/theme-switch-to-light ()
   "Switch to the light theme"
   (interactive)
-  (modus-themes-load-operandi)
   (setq zoom-window-mode-line-color "Gold")
+  (load-theme 'modus-operandi :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
