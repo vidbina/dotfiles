@@ -154,7 +154,7 @@ We enabe lexical binding, since some packages (e.g.: consult) will require this.
 (message "🚜 Loading init.el")
 #+end_src
 
-* 📦 Package Management
+* Package Management
 
 Setting =package-enable-at-startup= to =nil= before the Emacs default package system even loads (i.e.: before *early-init.el*) minimizes the potential for global state to affect the configuration which ends up simplifying this configuration's use[fn:4].
 
@@ -162,13 +162,13 @@ Setting =package-enable-at-startup= to =nil= before the Emacs default package sy
 (setq package-enable-at-startup nil)
 #+end_src
 
-** Straight 🍀
+** Straight
 
 [[https://github.com/raxod502/straight.el#getting-started][Straight.el]] 🍀 is a popular package manager used to manage Emacs packages.
 
 The primary advantage of using *straight.el* is the ability to _pin package version in a [[file:straight/versions/default.el][lockfile]]_ (e.g.: =~/.emacs.d/straight/versions/default.el=) in manner quite similar to how popular package managers such as Bundler (Ruby) and NPM (JavaScript) or Yarn (JavaScript) improve reproducibility of a configuration by pinning the versions of their packages in a dependency manifest (e.g.: Gemfile.lock for Bundler, package.lock for NPM and yarn.lock for Yarn).
 
-*** ⚠️ Pre-bootstrap Work-around
+*** Pre-bootstrap Work-around
 
 The issue is that straight relies on the existence of variables with prefixes that have been renamed from =comp= to =native-comp=. So, if the installed variant of Emacs lacks native compilation capability, then straight will be bumping into undefined symbols.
 
@@ -182,7 +182,9 @@ Installation of the following packages may break when this block is disabled:
 - [[*Org-contrib][org-contrib]]
 - [[*Dockerfile][dockerfile-mode]]
 
-*** 🥾 Bootstrap
+*** Bootstrap
+
+Run the following bootstrap 🥾 logic at the start of your file:init.el in order to get your straight set up as our package manager.
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/raxod502/straight.el#getting-started
@@ -322,7 +324,7 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
   (setq eldoc-echo-area-prefer-doc-buffer t))
 #+end_src
 
-* 📓 Org
+* Org
 
 [[https://orgmode.org/worg/org-contrib/org-protocol.html][Org]] is probably the killer app of Emacs and is actually just a clearly standardized markup format. Three ways in which Org discerns itself from Markdown are in that it:
 1. has a single clear standard (that is widely used) as opposed to Markdown that has a few variants floating about that exhibit slightly differing behavior[fn:6] and may present a bit of challenge for application developers that wish to implement the standard
@@ -1014,9 +1016,9 @@ The example listed above will yield the following BibTeX entry which demonstrate
   (:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
 #+end_src
 
-** 🗄️ Org-Roam
+** Org-Roam
 
-A good solution for maintaining a Zettelkasten-inspired note-taking system is [[https://github.com/org-roam/org-roam][Org-Roam]] which allows one to conveniently link related notes together.
+A good solution for maintaining a Zettelkasten-inspired note-taking system is [[https://github.com/org-roam/org-roam][Org-Roam]] 🗄️ which allows one to conveniently link related notes together.
 
 #+CAPTION: Screenshot of Org-Roam in use with an Org-Roam-UI note network graph
 [[file:images/screenshot-orui-org-cite-dark.png]]
@@ -1933,11 +1935,11 @@ I've had this for a while but a bunch of profiling attempts turned out unspectac
            1   0% + redisplay_internal (C function)
 #+end_src
 
-* 👁️ Appearance
+* Appearance
 
 This section will deal with some of the visual trappings of Emacs. My design goal is to arrive at a rather minimal, or rather clean, design while providing the needed information scope perhaps through toggles (i.e.: showing whitespace characters at command).
 
-** 🙈 Hide GUI Elements
+** Hide GUI Elements
 
 In order to minimize visual noise, let's disable the graphical scroll bars, tool bars and menu bars.
 
@@ -1968,7 +1970,7 @@ Display a border at the position to indicate where the right margin is drawn. Th
 💡 Even if we have extremely wide displays, reading is a lot easier if the text is width-constrained so do yourself a favor and use something like [[visual-fill-column]] mode.
 #+end_quote
 
-** 🏷️ Line Numbers
+** Line Numbers
 
 Let's hide line numbers and For the sake of ease of navigation and spatial orientation we display line numbers in the left margin.
 
@@ -1988,7 +1990,7 @@ Let's hide line numbers and For the sake of ease of navigation and spatial orien
   (("C-c n n" . display-line-numbers-mode)))
 #+end_src
 
-** 🏳️ Whitespace
+** Whitespace
 
 Visualize white spaces (tabs, spaces, trailing whitespace). The global whitespace mode can be toggled through =(global-whitespace-mode)= in order to reduce the visual noise or enable the whitespace indication.
 
@@ -1998,7 +2000,7 @@ Visualize white spaces (tabs, spaces, trailing whitespace). The global whitespac
 (setq whitespace-style '(empty face lines-tail tabs trailing))
 #+end_src
 
-** 🎛️ Modeline
+** Modeline
 
 The modeline is the bar typically at the bottom of a buffer which provides useful information about the system.
 
@@ -2064,7 +2066,7 @@ Set =auto-revert-mode-text= since the delight setting isn't robust enough. Perha
 (customize-set-variable 'auto-revert-mode-text "♻️")
 #+end_src
 
-** 🔤 Text
+** Text
 
 *** <<visual-fill-column>> Visual Fill Column
 
@@ -2158,7 +2160,7 @@ For focus, [[https://github.com/rnkn/olivetti.git][Olivetti mode]] can be a grea
                       :repo "rnkn/olivetti"))
 #+end_src
 
-** 🎨 Rainbow Mode
+** Rainbow Mode
 
 [[https://github.com/emacsmirror/rainbow-mode][Rainbow mode]] allows the coloring or color codes within buffers such as #ff0000 and #0f0.
 
@@ -2170,7 +2172,7 @@ For focus, [[https://github.com/rnkn/olivetti.git][Olivetti mode]] can be a grea
                           :repo "emacsmirror/rainbow-mode"))
 #+end_src
 
-** 💄 Themes
+** Themes
 
 *** COMMENT Leuven Theme
 
@@ -2292,7 +2294,7 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
 
 Post-installation, don't forget to run ~all-the-icons-install-fonts~.
 
-* 🌷 Misc
+* Misc
 
 ** YASnippets
 
@@ -2306,9 +2308,9 @@ Post-installation, don't forget to run ~all-the-icons-install-fonts~.
   (yas-global-mode 1))
 #+end_src
 
-** 🪟 Windows
+** Windows
 
-*** 🏗️ Buffer Placement
+*** Buffer Placement
 
 #+begin_src elisp :tangle init.el
 (setq display-buffer-alist
@@ -2344,7 +2346,7 @@ Just did some updates and am getting a lot of warnings for docstrings being wide
                         "Pop up buffer for error-level or more severe warnings")
 #+end_src
 
-*** 🔍 <<zoom-window>> Zoom-window: Zoom to a single window
+*** <<zoom-window>> Zoom-window: Zoom to a single window
 
 In order to single out a particular window in order to return to the preceding layout shortly thereafter again, one may use the [[https://github.com/emacsorphanage/zoom-window][zoom-window]] package. It's a great way to clear some screen real estate and obtain some focus.
 
@@ -2359,7 +2361,7 @@ In order to single out a particular window in order to return to the preceding l
   <<zoom-window-init>>)
 #+end_src
 
-*** 🪄 <<ace-window>> ace-window
+*** <<ace-window>> ace-window
 
 In order to quickly jump between windows by numbers, we can use the [[https://github.com/abo-abo/ace-window][ace-window]] package. This eliminates the need for the tedious next/previous window bindings (either native Emacs or evil).
 
@@ -3297,7 +3299,7 @@ The [[https://company-mode.github.io/][company]] completion framework allows for
 In case you are using company, the [[http://company-mode.github.io/manual/Getting-Started.html#Usage-Basics][Usage Basics]] page will provide a good walkthrough of the bindings, notable options being:
 - =C-n= and =C-p= to navigate up and down the completions listing
 
-** TODO 🕳️ Terminals and Shells 🐚
+** TODO Terminals and Shells
 
 *** vterm
 
@@ -3397,7 +3399,7 @@ Result: triggers a case change.
   (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
 #+end_src
 
-** 📕 PDF
+** PDF
 
 *** TODO PDF-Tools
 
@@ -3410,7 +3412,7 @@ Result: triggers a case change.
   (setq-default pdf-view-display-size 'fit-width))
 #+end_src
 
-** 📑 Project Management
+** Project Management
 
 In order to manage projects more conveniently, one can opt for a variety of project management packages. In this section we configure and explain some of the options that I've relied on over time.
 
@@ -3748,7 +3750,7 @@ Use the ideas in this section to configure your private Emacs config to setup al
                            :repo "alpha22jp/atomic-chrome"))
 #+end_src
 
-* <<mail>> 📧 Mail
+* <<mail>> Mail
 
 For mail, there are a couple of options within Emacs. First, one needs to understand that a mail user agent (MUA) is a tool used to compose and read messages and a mail transfer agent (MTA) is a tool to send messages.
 
@@ -4417,7 +4419,7 @@ The message.el package provides a more general interfaces for message sending, s
 (message-kill-buffer-on-exit t "Kill a buffer once a message is sent")
 #+end_src
 
-* 🏁 Finale
+* Finale
 
 To keep our init as general as possible we store private information and language configurations in separate files since these are inherently personal concerns. This configuration will try to load [[file:lang.el]] and [[file:personal.el]] if these exist.
 
@@ -4438,13 +4440,15 @@ Furthermore we load customization since some configurations and changes to our E
 (load custom-file)
 #+end_src
 
-* 📛 Personal Details
+* Personal Details
 
 #+begin_quote
 💡 You can copy the content in this section to your own personal.org file in this directory and configure all the =:tangle= arguments to output to =personal.el= to cook up your own personal part of your configuration through literal programming. Remember that you can tangle an Org-file into the resulting code with the ~(org-babel-tangle)~ command (mapped to =C-c C-v t= by default).
 #+end_quote
 
-Populate a [[file:personal.el]] file which defines your name, your e-mail details and some other very personal configuration bits such as theme customizations or personalized keybindings. Use the following snippet as an example of a configuration that may work.
+Populate a [[file:personal.el]] file which defines your name, your e-mail details and some other very personal details. 📛 Personal theme customizations or keybindings are good fits for the file:personal.el as well.
+
+Use the following snippet as an example of a configuration that may work.
 
 #+begin_quote
 💡 Tangling this section/file should produce [[file:personal-example.el]] that you can use as a reference for your own file.
@@ -4566,7 +4570,7 @@ In order to keep things lean, I've defined my own citation line that easy enough
       message-citation-line-function #'message-insert-formatted-citation-line)
 #+end_src
 
-*** 📧 Mu4e
+*** Mu4e
 
 **** TODO Contexts
 
@@ -4620,7 +4624,7 @@ https://notmuchmail.org/emacstips/
         (:name "all mail" :query "*" :key "a")))
 #+end_src
 
-** 🥳 Personal Helpers
+** Personal Helpers
 
 Here be dragons! 🐉 This is my personal collection of helpers that I use for little things like switching themes, managing wrapping inside of buffers, managing opening of URL's and more junk. I will not explain these as these are simple enough and I'm not expecting me needing to explain this to myself or others (you likely will want to write your own).
 
@@ -5088,7 +5092,7 @@ Disable auto-save since I'm using crypt in this file.
 
 An alternate approach would be to append the =epa-file-encrypt-to= variable to the local variables list. The benefit of this is that one can encrypt a file for multiple recipients. I haven't tested this yet. 🤔
 
-* 💬 Languages
+* Languages
 
 Populate a =lang.el= file which defines all of the major-modes and language-related tooling that are relevant to you. In my case I have simply defined a symlink from [[file:lang.example.el][lang.example.el]] to lang.el. The literal configuration in this section defines my own languages setup. YMMV! 🤷🏿‍♂️
 
@@ -6235,7 +6239,7 @@ Misc bells and whistles from formatting aids to LLM-enabled magic.
 
 See https://github.com/editorconfig/editorconfig-emacs/issues/264 regarding =indent_size= being ignored editorconfig is being ignored.
 
-*** 🌈 Rainbow Delimiters
+*** Rainbow Delimiters
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/Fanael/rainbow-delimiters
@@ -7095,9 +7099,9 @@ Disable the tangle helper by running the following snippet with ~(org-ctrl-c-ctr
 (advice-remove 'org-babel-tangle #'my-dotfiles-tangle-wrapper)
 #+end_src
 
-* <<nix-config>> Nix ❄️ Home-manager Configuration
+* <<nix-config>> Nix Home-manager Configuration
 
-[[https://github.com/nix-community/home-manager][Home-manager]] allows management of a user environment through Nix -- the package-manager and language.
+[[https://github.com/nix-community/home-manager][Home-manager]] allows management of a user environment through Nix ❄️ -- the package-manager and language.
 
 ** General
 
@@ -7155,9 +7159,9 @@ baseCommand = windowName:
   ];
 #+end_src
 
-** <<nix-config-linux>> 🐧 GNU/Linux
+** <<nix-config-linux>> GNU/Linux
 
-On GNU/Linux, home-manager allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
+On GNU/Linux 🐧, home-manager allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
 
 #+begin_src nix :noweb yes :tangle default.nix
 # Tangled from README.org
@@ -7486,9 +7490,9 @@ xdg.mimeApps.defaultApplications = {
 };
 #+end_src
 
-** PROTOTYPE <<nix-config-darwin>> 🍏 Darwin
+** PROTOTYPE <<nix-config-darwin>> Darwin
 
-On Darwin, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd).
+On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd).
 
 #+begin_src nix :noweb yes :tangle default-darwin.nix
 # Tangled from README.org
@@ -7656,7 +7660,7 @@ The only diff being the change of name of the package, the attribute set (which 
 
 [fn:5] Keywords can be recognized by the =:= (colon character) prefix.
 
-* Custom Keyboard ⌨️ Helpers
+* Custom Keyboard Helpers
 
 ** WIP mugur
 
