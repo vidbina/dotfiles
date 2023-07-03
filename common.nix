@@ -147,4 +147,7 @@ in
       source ${pkgs.fzf}/share/fzf/key-bindings.zsh
     '';
   };
+  programs.pywal = {
+    enable = true;
+  };
 }

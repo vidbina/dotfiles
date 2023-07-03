@@ -18,7 +18,7 @@ Refer to [[file:emacs/README.org]] for an example of a literate config that tang
 - [ ] Neovim
 - [ ] Termite
 - [ ] Starship
-- [ ] Rofi
+- [ ] Rofi (handled through Pywal since [2023-07-03 Mon])
 - [ ] Redshift
 - [ ] Ghorg
 - [ ] Asciinema
@@ -465,6 +465,14 @@ fatal error: mallocgc called without a P or outside bootstrapping
 runtime: panic before malloc heap initialized
 #+end_src
 
+**** Pywal: 🎨 Generate and change color-schemes on the fly
+
+#+begin_src nix :noweb yes :noweb-ref common-programs
+programs.pywal = {
+  enable = true;
+};
+#+end_src
+
 *** Linux
 :PROPERTIES:
 :header-args: :noweb-sep "\n\n"
@@ -483,8 +491,6 @@ runtime: panic before malloc heap initialized
     ./multimedia.nix
 
     ./emacs
-
-    ./rofi
   ];
 
   fonts.fontconfig.enable = true;
