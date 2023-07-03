@@ -514,7 +514,8 @@
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit")
+                   :repo "magit/magit"
+                   :branch "main")
   :custom
   (magit-display-buffer-function
    (lambda (buffer)

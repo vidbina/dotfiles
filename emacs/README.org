@@ -2902,7 +2902,8 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit")
+                   :repo "magit/magit"
+                   :branch "main")
   :custom
   (magit-display-buffer-function
    (lambda (buffer)
