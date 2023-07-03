@@ -1568,8 +1568,13 @@ The following packages were part of my config before and are just seperated to h
 isync
 mb2md
 neomutt
-offlineimap
 urlview
+#+end_src
+
+*** COMMENT offlineimap
+
+#+begin_src nix :noweb-ref mail-packages
+offlineimap
 #+end_src
 
 *** TODO Split out packages into subordinate chapters
