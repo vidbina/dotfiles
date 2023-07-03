@@ -4634,11 +4634,13 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   "Update colors of cursors for new theme"
   (interactive)
   (message "🌕 Setting evil cursors with modus-themes colors")
-  (let ((my-cursor-color (modus-themes-get-color-value 'fg-special-calm)))
-    (setq evil-emacs-state-cursor `(hollow ,my-cursor-color))
+  (let ((my-cursor-color (modus-themes-get-color-value 'fg-main))
+        (my-intense-cursor-color (modus-themes-get-color-value 'red-intense))
+        (my-alt-cursor-color (modus-themes-get-color-value 'fg-alt)))
+    (setq evil-emacs-state-cursor `(box ,my-intense-cursor-color))
     (setq evil-insert-state-cursor `((bar . 5) ,my-cursor-color))
     (setq evil-visual-state-cursor `((hbar . 5) ,my-cursor-color))
-    (setq evil-motion-state-cursor `(hollow ,my-cursor-color))
+    (setq evil-motion-state-cursor `((bar . 5) ,my-cursor-color))
     (setq evil-normal-state-cursor `(box ,my-cursor-color))))
 
 (defun vidbina/theme-switch-to-choice ()
