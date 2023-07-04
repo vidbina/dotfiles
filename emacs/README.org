@@ -2754,7 +2754,7 @@ In order to [[https://www.emacswiki.org/emacs/SmoothScrolling][facilitate smooth
 
 💡 If you want to center the cursor (or point in Emacs vernacular), the ~evil-scroll-line-to-center~ command bound to =z z= is your friend.
 
-** TODO Undo
+** Undo
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsmirror/undo-fu
@@ -2790,7 +2790,7 @@ Emacs is single-threaded and this makes sense considering that many packages nav
 (async-variables-noprops-function #'async--purecopy)
 #+end_src
 
-** PROTOTYPE iedit
+** iedit
 
 The =evil-search-forward= (bound to =/=) which triggers =isearch-forward= under the hood allows for the temporary highlighting of entered patterns which can provide awareness of a patterns presence in a buffer but sometimes one just wants to highlight a symbol under point without having to type it in first.
 
