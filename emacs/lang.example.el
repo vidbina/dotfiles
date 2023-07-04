@@ -194,14 +194,6 @@
                       :host github
                       :repo "fxbois/web-mode"))
 
-;; https://github.com/w-vi/apib-mode
-(use-package apib-mode
-  :straight (apib-mode :type git
-                       :host github
-                       :repo "w-vi/apib-mode")
-  :config
-  (add-to-list 'auto-mode-alist '("\\.apib\\'" . apib-mode)))
-
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
                '(python-mode . ("pyright-langserver" "--stdio"))))
@@ -242,29 +234,6 @@
   (define-key js-mode-map (kbd "C-c b") 'js-send-buffer)
   :custom
   (js-indent-level 2))
-
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '(typescript-mode . ("typescript-language-server" "--stdio"))
-               '(typescript-ts-mode . ("typescript-language-server" "--stdio"))
-               '(tsx-ts-mode . ("typescript-language-server" "--stdio"))))
-
-;; https://github.com/emacs-typescript/typescript.el
-(use-package typescript-mode
-  :straight
-  (typescript-mode :type git
-                   :host github
-                   :repo "emacs-typescript/typescript.el")
-  :delight
-  (typescript-mode "ts")
-  :custom
-  (typescript-indent-level 2))
-
-;; https://emacs-lsp.github.io/lsp-java/
-(use-package lsp-java
-  :straight (lsp-java :type git
-                      :host github
-                      :repo "emacs-lsp/lsp-java"))
 
 ;; https://github.com/clojure-emacs/clojure-mode
 (use-package clojure-mode
@@ -345,19 +314,42 @@
   ;; ((prog-mode) . rainbow-delimiters-mode)
   )
 
-;; https://github.com/emacs-tree-sitter/elisp-tree-sitter
-(use-package tree-sitter
-  :straight (tree-sitter :type git
-                         :host github
-                         :repo "emacs-tree-sitter/elisp-tree-sitter")
+(use-package treesit
+  :straight (:type built-in)
+  ;;:autoload treesit-install-language-grammar
+  :commands (treesit-install-language-grammar nf/treesit-install-all-languages)
+  :init
+  (setq treesit-language-source-alist
+        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+          (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+          (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+          (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+          (make . ("https://github.com/alemuller/tree-sitter-make"))
+          (org . ("https://github.com/milisims/tree-sitter-org"))
+          (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
+          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+          (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
+          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+          (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+          (zig . ("https://github.com/GrayJack/tree-sitter-zig")))
+        )
   :config
-  ;; activate tree-sitter on any buffer containing code for which it has a parser available
-  (global-tree-sitter-mode)
-  ;; you can easily see the difference tree-sitter-hl-mode makes for python, ts or tsx
-  ;; by switching on and off
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-  :delight
-  (tree-sitter-mode "🌲"))
+  (defun nf/treesit-install-all-languages ()
+    "Install all languages specified by `treesit-language-source-alist'."
+    (interactive)
+    (let ((languages (mapcar 'car treesit-language-source-alist)))
+      (dolist (lang languages)
+	(treesit-install-language-grammar lang)
+	(message "`%s' parser was installed." lang)
+	(sit-for 0.75)))))
 
 ;; https://github.com/emacs-tree-sitter/tree-sitter-langs
 (use-package tree-sitter-langs
@@ -412,8 +404,7 @@
 (use-package aide
   :straight (aide :type git
                   :host github
-                  :repo "vidbina/aide.el"
-                  :branch "vidbina/retrieve-secret-through-function")
+                  :repo "junjizhi/aide.el")
   :custom
   (aide-completions-model "text-davinci-003")
   (aide-max-output-tokens 1000)
@@ -521,16 +512,17 @@ PROMPT is the prompt string we send to the API."
   :straight (eglot :type git
                    :host github
                    :repo "joaotavora/eglot")
-  :hook
-  (eglot-managed-mode-hook . (lambda ()
-                               ;; Show flymake diagnostics first.
-                               (setq eldoc-documentation-functions
-                                     (cons #'flymake-eldoc-function
-                                           (remove #'flymake-eldoc-function eldoc-documentation-functions)))
-                               ;; Show all eldoc feedback.
-                               (setq eldoc-documentation-strategy #'eldoc-documentation-compose)))
+  ;; :hook
+  ;; (eglot-managed-mode-hook . (lambda ()
+  ;;                              ;; Show flymake diagnostics first.
+  ;;                              (setq eldoc-documentation-functions
+  ;;                                    (cons #'flymake-eldoc-function
+  ;;                                          (remove #'flymake-eldoc-function eldoc-documentation-functions)))
+  ;;                              ;; Show all eldoc feedback.
+  ;;                              (setq eldoc-documentation-strategy #'eldoc-documentation-compose)))
   :custom
   (eglot-autoshutdown t)
+
   :bind (("C-c j" . eglot)
          :map eglot-mode-map
          ("C-c j f d" . eglot-find-declaration)

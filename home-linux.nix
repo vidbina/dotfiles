@@ -10,8 +10,6 @@
     ./multimedia.nix
 
     ./emacs
-
-    ./rofi
   ];
 
   fonts.fontconfig.enable = true;

@@ -25,8 +25,8 @@ in
     (self: super: {
       my-emacs =
         let
-          emacs = pkgs.emacsPgtkGcc;
-          emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+          emacs = pkgs.emacs-pgtk;
+          emacsWithPackages = (pkgs.emacsPackagesFor emacs).emacsWithPackages;
           bundled-emacs = emacsWithPackages (epkgs: (
             with epkgs; [
               notmuch

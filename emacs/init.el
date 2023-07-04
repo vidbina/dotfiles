@@ -7,21 +7,21 @@
 ;; https://github.com/raxod502/straight.el/issues/757#issuecomment-839764260
 (defvar comp-deferred-compilation-deny-list ())
 
-;; https://github.com/raxod502/straight.el#getting-started
+;; https://github.com/radian-software/straight.el#getting-started
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
+      (bootstrap-version 6))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
         (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
          'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-;; https://github.com/raxod502/straight.el#integration-with-use-package
+;; https://github.com/radian-software/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 
 (with-eval-after-load 'eldoc
@@ -140,7 +140,10 @@
                       :host github
                       :repo "misohena/phscroll")
   :init
-  (setq org-startup-truncated nil))
+  (setq org-startup-truncated nil)
+  :config
+  (with-eval-after-load "org"
+    (require 'org-phscroll)))
 
 (use-package ol-bibtex
   :straight (:type built-in)
@@ -325,30 +328,40 @@
   :straight (modus-themes :type git
                           :host gitlab
                           :repo "protesilaos/modus-themes")
-  :config
-  (modus-themes-load-themes)
-  :init
-  (setq modus-themes-bold-constructs t
-        modus-themes-org-blocks 'gray-background
-        modus-themes-region '(bg-only no-extend accented)
-        modus-themes-prompts '(intense)
-        modus-themes-fringes '(intense)
-        modus-themes-hl-line '(accented)
-        modus-themes-paren-match '(bold intense)
-        modus-themes-syntax '(yellow-comments green-strings alt-syntax)
-        modus-themes-headings '((1 . (background overline))
-                                (2 . (background overline rainbow))
-                                (t . (background overline rainbow)))
-        modus-themes-scale-headings t))
+  :custom
+  (modus-themes-bold-constructs t)
+  (modus-themes-org-blocks 'gray-background)
+  (modus-themes-prompts '(intense))
+  (modus-themes-headings '((0 . (light 1.5))
+                           (1 . (regular 1.3))
+                           (2 . (regular 1.1))
+                           (t . (regular 1.1))))
+  (modus-themes-common-palette-overrides
+   '((bg-heading-1 bg-yellow-nuanced)
+     (bg-heading-2 bg-blue-nuanced)
+     (bg-heading-3 bg-green-nuanced)
+     (bg-heading-4 bg-cyan-nuanced)
+     (bg-heading-5 bg-red-nuanced)
+     (fg-heading-0 fg-main)
+     (fg-heading-1 fg-main)
+     (fg-heading-2 fg-main)
+     (fg-heading-3 fg-main)
+     (fg-heading-4 fg-main)
+     (fg-heading-5 fg-main)
+     (fg-heading-6 fg-main)
+     (fg-heading-7 fg-main)
+     (fg-heading-8 fg-main)
 
-;; https://github.com/emacsorphanage/dired-k
-(use-package dired-k
-  :straight (dired-k :type git
+     (prose-done green-intense)
+     (prose-todo red-intense)))
+  )
+
+;; https://github.com/domtronn/all-the-icons.el
+(use-package all-the-icons
+  :straight (all-the-icons :type git
                      :host github
-                     :repo "emacsorphanage/dired-k")
-  :init
-  (setq dired-k-style 'git)
-  :hook (dired-initial-position-hook . dired-k))
+                     :repo "domtronn/all-the-icons.el")
+:if (display-graphic-p))
 
 ;; https://github.com/joaotavora/yasnippet
 (use-package yasnippet
@@ -513,7 +526,8 @@
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit")
+                   :repo "magit/magit"
+                   :branch "main")
   :custom
   (magit-display-buffer-function
    (lambda (buffer)
@@ -531,9 +545,13 @@
   :straight (diff-hl :type git
                      :host github
                      :repo "dgutov/diff-hl")
-  :hook (after-init . global-diff-hl-mode)
+  :hook
+  (after-init . global-diff-hl-mode)
+  (magit-pre-refresh . diff-hl-magit-pre-refresh)
+  (magit-post-refresh . diff-hl-magit-post-refresh)
+
   :custom
-  (diff-hl-margin-mode t "Use margin mode to clear up the fringe"))
+  (diff-hl-margin-mode nil "Use the fringe"))
 
 ;; https://github.com/jrblevin/deft
 (use-package deft
@@ -554,6 +572,22 @@
            "\\)"))
   (deft-use-filename-as-title t)
   (deft-use-filter-string-for-filename t))
+
+;; https://github.com/jaypei/emacs-neotree
+(use-package neotree
+  :straight (neotree :type git
+                     :host github
+                     :repo "jaypei/emacs-neotree")
+  :custom
+  (neo-theme (if (display-graphic-p) 'icons 'arrow)))
+
+;; https://github.com/alexluigit/dirvish
+(use-package dirvish
+  :straight (dirvish :type git
+                     :host github
+                     :repo "alexluigit/dirvish")
+  :config
+  (dirvish-override-dired-mode))
 
 (use-package orderless
   :straight (orderless :type git

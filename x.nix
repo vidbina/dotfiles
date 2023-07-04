@@ -101,17 +101,22 @@
 
   xsession = {
     enable = true;
-    pointerCursor = {
-      name = "Vanilla-DMZ";
-      package = pkgs.vanilla-dmz;
-      size = 64;
-    };
     initExtra = ''
       setxkbmap -option -model dell -layout us -variant intl -option lv3:caps_switch
     '';
     profileExtra = ''
       hsetroot -solid '#ff9800'
     '';
+  };
+
+  home.pointerCursor = {
+    name = "Vanilla-DMZ";
+    package = pkgs.vanilla-dmz;
+    size = 64;
+    x11 = {
+      enable = true;
+      defaultCursor = "X_cursor";
+    };
   };
 
   programs.urxvt = {

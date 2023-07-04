@@ -6,6 +6,8 @@
 
 This is an emoji-heavy 😅 literal[fn:1] configuration for [[https://www.gnu.org/software/emacs/][Emacs]] which is definitely not as feature complete like some distros out there (think: [[https://github.com/hlissner/doom-emacs][Doom Emacs]] or [[https://www.spacemacs.org/][Spacemacs]]) but may still provide you a pragmatic and easily parsable configuration that sticks to standard tooling 🧰 and patterns while providing sufficient context as to what is happening such that beginners[fn:2] can also have a good time cooking 👨🏿‍🔬 up or tweaking 👨🏿‍🔧 their configurations.
 
+See [[https://github.com/emacs-tw/awesome-emacs][Awesome Emacs]] for ideas of things to do in your own configuration (in case you aren't declaring bankruptcy yet).
+
 * Installation
 
 I manage both my Emacs installation and my Emacs configuration declaratively. A [[nix-config][home-manager configuration written in Nix]] manages the version and bundle of Emacs on my system while classic Emacs LISP manages the Emacs configuration itself.
@@ -14,16 +16,60 @@ I manage both my Emacs installation and my Emacs configuration declaratively. A 
 ⚠️ In case you don't use Nix ❄️ or can't be bothered to dive into it (in the same way I can't be bothered to remember the different build instructions for the tools that I depend on), please skip the part where I [[install-hm][install Emacs with home-manager]] and focus on the [[install-manual][manual installation]] instructions instead.
 #+end_center
 
+** Developer Notes
+
+*** Tangle Helper
+
+The =my-dotfiles-tangle-wrapper= helper allows us to spawn an Emacs session with our freshly tangled configuration in order to spot early errors.
+
+#+CAPTION: Screenshot of the a blank Emacs session automatically started by the tangle helper.
+[[file:images/screenshot-tangle-helper-full.png]]
+
+#+begin_src elisp :results none
+(defun my-dotfiles-tangle-wrapper (orig-fun &rest args)
+  (message "Wrapping %S with %S" orig-fun args)
+  (let ((res (apply orig-fun args))
+        (command "emacs")
+        (args (list "-q"
+                    "--load=init.el"
+                    "--debug-init"
+                    "--name=Emacs Test"
+                    (format "--file=%s" buffer-file-name))))
+    (apply #'start-process `("emacs-for-org-cite-export" nil ,command ,@args))
+    (message "Done and got %S" res)
+    res))
+#+end_src
+
+**** Enable
+
+Enable the tangle helper by running the following snippet with ~(org-ctrl-c-ctrl-c)~ mapped by default to =C-c C-c=.
+
+⚠️ [2023-07-01 Sat] I just had issues running this using the =C-c C-c= binding and ended up navigating to the expression and just evaluating it (using =C-c C-e= which maps to =eval-last-sexp=).
+
+#+begin_src elisp :results none
+(advice-add 'org-babel-tangle :around #'my-dotfiles-tangle-wrapper)
+#+end_src
+
+Before running this, you may want to auto-accept evaluations of code blocks. I've written ~vidbina/toggle-local-org-confirm-babel-evaluate~ in [[*Org-Export Helpers][Org-Export Helpers]] in order to avoid having to confirm that I want to evaluate every block in my literate config through separate confirmations. Trust me, it's not scalable to type "yes" over 30 times. 😅 Just run =M-x vidbina/toggle-local-org-confirm-babel-evaluate= and be happy!
+
+**** Disable
+
+Disable the tangle helper by running the following snippet with ~(org-ctrl-c-ctrl-c)~ mapped by default to =C-c C-c=.
+
+#+begin_src elisp :results none
+(advice-remove 'org-babel-tangle #'my-dotfiles-tangle-wrapper)
+#+end_src
+
 ** <<install-hm>> Install with Home-Manager
 
-My Emacs version is pretty up-to-date as per [2022-06-30 Thu 14:06] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to rebuild Emacs from scratch whenever needed.
+My Emacs version is pretty up-to-date as per [2023-07-04 Tue 17:35] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to [[nix-config-linux][rebuild Emacs from scratch]] whenever needed.
 
 #+begin_src elisp :results verbatim :exports both
 (emacs-version)
 #+end_src
 
 #+RESULTS:
-: "GNU Emacs 29.0.50 (build 1, x86_64-pc-linux-gnu, X toolkit, cairo version 1.16.0, Xaw scroll bars)"
+: "GNU Emacs 30.0.50 (build 1, x86_64-pc-linux-gnu, X toolkit, cairo version 1.16.0, Xaw3d scroll bars)"
 
 The good bit about home-manager is that is will go as far as setting up home directories for me as well so there is little that I need to manually do other than the following steps:
 
@@ -152,7 +198,7 @@ We enabe lexical binding, since some packages (e.g.: consult) will require this.
 (message "🚜 Loading init.el")
 #+end_src
 
-* 📦 Package Management
+* Package Management
 
 Setting =package-enable-at-startup= to =nil= before the Emacs default package system even loads (i.e.: before *early-init.el*) minimizes the potential for global state to affect the configuration which ends up simplifying this configuration's use[fn:4].
 
@@ -160,13 +206,13 @@ Setting =package-enable-at-startup= to =nil= before the Emacs default package sy
 (setq package-enable-at-startup nil)
 #+end_src
 
-** Straight 🍀
+** Straight
 
-[[https://github.com/raxod502/straight.el#getting-started][Straight.el]] 🍀 is a popular package manager used to manage Emacs packages.
+[[https://github.com/radian-software/straight.el#getting-started][Straight.el]] 🍀 is a popular package manager used to manage Emacs packages.
 
 The primary advantage of using *straight.el* is the ability to _pin package version in a [[file:straight/versions/default.el][lockfile]]_ (e.g.: =~/.emacs.d/straight/versions/default.el=) in manner quite similar to how popular package managers such as Bundler (Ruby) and NPM (JavaScript) or Yarn (JavaScript) improve reproducibility of a configuration by pinning the versions of their packages in a dependency manifest (e.g.: Gemfile.lock for Bundler, package.lock for NPM and yarn.lock for Yarn).
 
-*** ⚠️ Pre-bootstrap Work-around
+*** Pre-bootstrap Work-around
 
 The issue is that straight relies on the existence of variables with prefixes that have been renamed from =comp= to =native-comp=. So, if the installed variant of Emacs lacks native compilation capability, then straight will be bumping into undefined symbols.
 
@@ -180,18 +226,20 @@ Installation of the following packages may break when this block is disabled:
 - [[*Org-contrib][org-contrib]]
 - [[*Dockerfile][dockerfile-mode]]
 
-*** 🥾 Bootstrap
+*** Bootstrap
+
+Run the following bootstrap 🥾 logic at the start of your file:init.el in order to get your straight set up as our package manager.
 
 #+begin_src elisp :tangle init.el
-;; https://github.com/raxod502/straight.el#getting-started
+;; https://github.com/radian-software/straight.el#getting-started
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
+      (bootstrap-version 6))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
         (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
          'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
@@ -203,7 +251,7 @@ Installation of the following packages may break when this block is disabled:
 For [[use-package-format][convenience]], we configure *straight.el* to use the *use-package* interface.
 
 #+begin_src elisp :tangle init.el
-;; https://github.com/raxod502/straight.el#integration-with-use-package
+;; https://github.com/radian-software/straight.el#integration-with-use-package
 (straight-use-package 'use-package)
 #+end_src
 
@@ -320,7 +368,7 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
   (setq eldoc-echo-area-prefer-doc-buffer t))
 #+end_src
 
-* 📓 Org
+* Org
 
 [[https://orgmode.org/worg/org-contrib/org-protocol.html][Org]] is probably the killer app of Emacs and is actually just a clearly standardized markup format. Three ways in which Org discerns itself from Markdown are in that it:
 1. has a single clear standard (that is widely used) as opposed to Markdown that has a few variants floating about that exhibit slightly differing behavior[fn:6] and may present a bit of challenge for application developers that wish to implement the standard
@@ -416,7 +464,7 @@ state_done -> [*]
 
 ** <<org-babel>> Org-Babel
 
-*** PROTOTYPE <<org-babel-tangle>> Asynchronous Tangle
+*** <<org-babel-tangle>> Asynchronous Tangle
 :LOGBOOK:
 - State "PROTOTYPE"  from "WIP"        [2022-06-28 Tue 13:34] \\
   initial concept using =find-file= which may be inefficient but we'll eat the gun on account of the ease of use
@@ -782,7 +830,10 @@ The [[https://github.com/misohena/phscroll][phscroll]] package allows to exclude
                       :host github
                       :repo "misohena/phscroll")
   :init
-  (setq org-startup-truncated nil))
+  (setq org-startup-truncated nil)
+  :config
+  (with-eval-after-load "org"
+    (require 'org-phscroll)))
 #+end_src
 
 Some of the bindings to remember when in phscroll-mode are:
@@ -791,6 +842,10 @@ Some of the bindings to remember when in phscroll-mode are:
 - =C-l= :: recenter top-bottom
 - =C-S-l= :: recenter left-right
   - twice to scroll to *left edge*
+
+| Name of something that could be very long, potentially | Feature Column | Another Feature Column | Yes another feature column |
+|--------------------------------------------------------+----------------+------------------------+----------------------------|
+| Just to test that this works                           |                |                        |                            |
 
 ** COMMENT htmlize
 
@@ -1009,9 +1064,9 @@ The example listed above will yield the following BibTeX entry which demonstrate
   (:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
 #+end_src
 
-** 🗄️ Org-Roam
+** Org-Roam
 
-A good solution for maintaining a Zettelkasten-inspired note-taking system is [[https://github.com/org-roam/org-roam][Org-Roam]] which allows one to conveniently link related notes together.
+A good solution for maintaining a Zettelkasten-inspired note-taking system is [[https://github.com/org-roam/org-roam][Org-Roam]] 🗄️ which allows one to conveniently link related notes together.
 
 #+CAPTION: Screenshot of Org-Roam in use with an Org-Roam-UI note network graph
 [[file:images/screenshot-orui-org-cite-dark.png]]
@@ -1075,7 +1130,7 @@ Set the Org-roam database location:
 (setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
 #+end_src
 
-**** WIP <<org-roam-db-sync-async>> Async Org-Roam-DB Sync or rather Non-blocking Org-Roam DB Sync
+**** <<org-roam-db-sync-async>> Async Org-Roam-DB Sync or rather Non-blocking Org-Roam DB Sync
 
 Yes, naming of this section is problematic because of the async-sync bit but we're trying to conduct the /synchronization/ in an /asynchronous/ manner such that we don't have to block the main thread all the time we conduct an =org-roam-db-sync= so forgive me. We define interactive function =vidbina/org-roam-async-forced-sync= to expose the asynchronous synchronization logic.
 
@@ -1928,11 +1983,11 @@ I've had this for a while but a bunch of profiling attempts turned out unspectac
            1   0% + redisplay_internal (C function)
 #+end_src
 
-* 👁️ Appearance
+* Appearance
 
 This section will deal with some of the visual trappings of Emacs. My design goal is to arrive at a rather minimal, or rather clean, design while providing the needed information scope perhaps through toggles (i.e.: showing whitespace characters at command).
 
-** 🙈 Hide GUI Elements
+** Hide GUI Elements
 
 In order to minimize visual noise, let's disable the graphical scroll bars, tool bars and menu bars.
 
@@ -1963,7 +2018,7 @@ Display a border at the position to indicate where the right margin is drawn. Th
 💡 Even if we have extremely wide displays, reading is a lot easier if the text is width-constrained so do yourself a favor and use something like [[visual-fill-column]] mode.
 #+end_quote
 
-** 🏷️ Line Numbers
+** Line Numbers
 
 Let's hide line numbers and For the sake of ease of navigation and spatial orientation we display line numbers in the left margin.
 
@@ -1983,7 +2038,7 @@ Let's hide line numbers and For the sake of ease of navigation and spatial orien
   (("C-c n n" . display-line-numbers-mode)))
 #+end_src
 
-** 🏳️ Whitespace
+** Whitespace
 
 Visualize white spaces (tabs, spaces, trailing whitespace). The global whitespace mode can be toggled through =(global-whitespace-mode)= in order to reduce the visual noise or enable the whitespace indication.
 
@@ -1993,7 +2048,7 @@ Visualize white spaces (tabs, spaces, trailing whitespace). The global whitespac
 (setq whitespace-style '(empty face lines-tail tabs trailing))
 #+end_src
 
-** 🎛️ Modeline
+** Modeline
 
 The modeline is the bar typically at the bottom of a buffer which provides useful information about the system.
 
@@ -2059,7 +2114,7 @@ Set =auto-revert-mode-text= since the delight setting isn't robust enough. Perha
 (customize-set-variable 'auto-revert-mode-text "♻️")
 #+end_src
 
-** 🔤 Text
+** Text
 
 *** <<visual-fill-column>> Visual Fill Column
 
@@ -2153,7 +2208,7 @@ For focus, [[https://github.com/rnkn/olivetti.git][Olivetti mode]] can be a grea
                       :repo "rnkn/olivetti"))
 #+end_src
 
-** 🎨 Rainbow Mode
+** Rainbow Mode
 
 [[https://github.com/emacsmirror/rainbow-mode][Rainbow mode]] allows the coloring or color codes within buffers such as #ff0000 and #0f0.
 
@@ -2165,7 +2220,7 @@ For focus, [[https://github.com/rnkn/olivetti.git][Olivetti mode]] can be a grea
                           :repo "emacsmirror/rainbow-mode"))
 #+end_src
 
-** 💄 Themes
+** Themes
 
 *** COMMENT Leuven Theme
 
@@ -2187,43 +2242,97 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 #+CAPTION: Screenshot of this Emacs configuration in light-mode
 [[file:images/screenshot-README-light.png]]
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 ;; https://gitlab.com/protesilaos/modus-themes
 (use-package modus-themes
   :straight (modus-themes :type git
                           :host gitlab
                           :repo "protesilaos/modus-themes")
-  :config
-  (modus-themes-load-themes)
-  :init
-  (setq modus-themes-bold-constructs t
-        modus-themes-org-blocks 'gray-background
-        modus-themes-region '(bg-only no-extend accented)
-        modus-themes-prompts '(intense)
-        modus-themes-fringes '(intense)
-        modus-themes-hl-line '(accented)
-        modus-themes-paren-match '(bold intense)
-        modus-themes-syntax '(yellow-comments green-strings alt-syntax)
-        modus-themes-headings '((1 . (background overline))
-                                (2 . (background overline rainbow))
-                                (t . (background overline rainbow)))
-        modus-themes-scale-headings t))
+  :custom
+  <<modus-custom>>
+  )
+#+end_src
+
+**** Misc Customizations
+
+***** COMMENT Use variable pitch
+
+#+begin_src elisp :noweb-ref modus-custom
+(modus-themes-variable-pitch-ui t)
+#+end_src
+
+***** Use bold text in more code constructs
+
+#+begin_src elisp :noweb-ref modus-custom
+(modus-themes-bold-constructs t)
+#+end_src
+
+***** Set Org blocks background to gray to make them easier to spot
+
+#+begin_src elisp :noweb-ref modus-custom
+(modus-themes-org-blocks 'gray-background)
+#+end_src
+
+***** Use subtle or intense style for minibuffer and REPL prompts
+
+#+begin_src elisp :noweb-ref modus-custom
+(modus-themes-prompts '(intense))
+#+end_src
+
+**** Heading Customization
+
+***** Heading typography customizations
+
+#+begin_src elisp :noweb-ref modus-custom
+(modus-themes-headings '((0 . (light 1.5))
+                         (1 . (regular 1.3))
+                         (2 . (regular 1.1))
+                         (t . (regular 1.1))))
+#+end_src
+
+***** Heading color customizations
+
+#+begin_src elisp :noweb-ref modus-custom
+(modus-themes-common-palette-overrides
+ '((bg-heading-1 bg-yellow-nuanced)
+   (bg-heading-2 bg-blue-nuanced)
+   (bg-heading-3 bg-green-nuanced)
+   (bg-heading-4 bg-cyan-nuanced)
+   (bg-heading-5 bg-red-nuanced)
+   (fg-heading-0 fg-main)
+   (fg-heading-1 fg-main)
+   (fg-heading-2 fg-main)
+   (fg-heading-3 fg-main)
+   (fg-heading-4 fg-main)
+   (fg-heading-5 fg-main)
+   (fg-heading-6 fg-main)
+   (fg-heading-7 fg-main)
+   (fg-heading-8 fg-main)
+
+   (prose-done green-intense)
+   (prose-todo red-intense)))
 #+end_src
 
 ** COMMENT NΛNO: NANO Theme by Rougier
 
 The [[https://github.com/rougier/nano-emacs][NΛNO theme by Rougier]] provides a very "clean" Emacs experience. Let's use parts of it for a better DX.
 
+[2023-07-03 Mon 08:15] Looks slick, but disabling this for now because:
+- it doesn't play ball nicely with *modus themes* and I don't have time to figure it out
+- some formatting issues when I enter multiple asterisks in Org-mode to denote headings, somehow they don't get reflected in the UI or there seems to be some replacement magic going on in the presentation of content that complicates reasoning about what is going on
+- much information is lost by default (like sparser modelines) that require more getting used to than anticipated
+- just did a large =straight-pull-all= which caused a lot of change! not a good time for a UX paradigm shift. 😅
+
 #+begin_src elisp :tangle init.el
-(use-package nano-emacs
-  :straight (nano-emacs :type git
-                        :host github
-                        :repo "rougier/nano-emacs")
+(use-package nano
+  :straight (nano :type git
+                  :host github
+                  :repo "rougier/nano-emacs")
   :after (:all modus-themes svg-tag-mode mu4e-dashboard mu4e-thread-folding)
-  :config
-  (require 'nano-base-colors)
-  (require 'nano-faces)
-  (require 'nano-mu4e))
+  ;; :config
+  ;; (require 'nano-faces)
+  ;; (require 'nano-mu4e)
+)
 #+end_src
 
 *** TODO Debug why this doesn't work nicely yet :xmas:
@@ -2255,7 +2364,7 @@ Probably a good holiday hacking effort.
                           :repo "rougier/svg-tag-mode"))
 #+end_src
 
-** Dired-k
+** COMMENT Dired-k
 
 The standard Emacs directory editor named dired doesn't ship with convenient highlighting or coloring of the listed files. The dired-k package adds some flair to the dired ouput.
 
@@ -2270,7 +2379,20 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
   :hook (dired-initial-position-hook . dired-k))
 #+end_src
 
-* 🌷 Misc
+** Icons: All the icons
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/domtronn/all-the-icons.el
+(use-package all-the-icons
+  :straight (all-the-icons :type git
+                     :host github
+                     :repo "domtronn/all-the-icons.el")
+:if (display-graphic-p))
+#+end_src
+
+Post-installation, don't forget to run ~all-the-icons-install-fonts~.
+
+* Misc
 
 ** YASnippets
 
@@ -2284,9 +2406,9 @@ The standard Emacs directory editor named dired doesn't ship with convenient hig
   (yas-global-mode 1))
 #+end_src
 
-** 🪟 Windows
+** Windows
 
-*** 🏗️ Buffer Placement
+*** Buffer Placement
 
 #+begin_src elisp :tangle init.el
 (setq display-buffer-alist
@@ -2322,7 +2444,7 @@ Just did some updates and am getting a lot of warnings for docstrings being wide
                         "Pop up buffer for error-level or more severe warnings")
 #+end_src
 
-*** 🔍 <<zoom-window>> Zoom-window: Zoom to a single window
+*** <<zoom-window>> Zoom-window: Zoom to a single window
 
 In order to single out a particular window in order to return to the preceding layout shortly thereafter again, one may use the [[https://github.com/emacsorphanage/zoom-window][zoom-window]] package. It's a great way to clear some screen real estate and obtain some focus.
 
@@ -2337,7 +2459,7 @@ In order to single out a particular window in order to return to the preceding l
   <<zoom-window-init>>)
 #+end_src
 
-*** 🪄 <<ace-window>> ace-window
+*** <<ace-window>> ace-window
 
 In order to quickly jump between windows by numbers, we can use the [[https://github.com/abo-abo/ace-window][ace-window]] package. This eliminates the need for the tedious next/previous window bindings (either native Emacs or evil).
 
@@ -2658,7 +2780,7 @@ In order to provide point-specific behavior, we use the [[https://www.gnu.org/so
 (ffap-bindings)
 #+end_src
 
-#+begin_src elisp
+#+begin_src elisp :tangle personal-example.el
 (defun vidbina/get-likely-current-directory ()
   (interactive)
   (let* ((other-buffer (persp-get-scratch-buffer))
@@ -2715,7 +2837,7 @@ In order to [[https://www.emacswiki.org/emacs/SmoothScrolling][facilitate smooth
 
 💡 If you want to center the cursor (or point in Emacs vernacular), the ~evil-scroll-line-to-center~ command bound to =z z= is your friend.
 
-** TODO Undo
+** Undo
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/emacsmirror/undo-fu
@@ -2751,7 +2873,7 @@ Emacs is single-threaded and this makes sense considering that many packages nav
 (async-variables-noprops-function #'async--purecopy)
 #+end_src
 
-** PROTOTYPE iedit
+** iedit
 
 The =evil-search-forward= (bound to =/=) which triggers =isearch-forward= under the hood allows for the temporary highlighting of entered patterns which can provide awareness of a patterns presence in a buffer but sometimes one just wants to highlight a symbol under point without having to type it in first.
 
@@ -2880,7 +3002,8 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit")
+                   :repo "magit/magit"
+                   :branch "main")
   :custom
   (magit-display-buffer-function
    (lambda (buffer)
@@ -2894,7 +3017,18 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
   (magit-diff-refine-hunk t "Show fine differences (word-granularity) for current hunk only"))
 #+end_src
 
+**** TODO Fix incompatible recipes issues
+
+#+begin_quote
+⛔ Warning (straight): Packages "magit-section" and "magit" have incompatible recipes (:branch cannot be both nil and "main")
+⛔ Warning (straight): Packages "git-commit" and "magit-section" have incompatible recipes (:branch cannot be both "main" and nil)
+#+end_quote
+
 *** Diff-hl: Diff highlighting in the left gutter of a buffer
+
+The [[https://github.com/dgutov/diff-hl][diff-hl]] package allows us to display which lines are added or removed by either providing red or green regions *in the margin or fringe*.
+
+I've been using diff-hl in /margin mode/ for a while, but with the latest updates [2023-07-03 Mon], I disabled /margin mode/ in exchange for /fringe mode/ where we use the more consended representation of showing the diff highlights in the fringe (and thus using less horizontal real-estate). As I don't use Emacs in the terminal, I don't care about diff-hl not being able to show up in the terminal when we use it in /fringe mode/ but YMMV. 🤷🏿‍♂️
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/dgutov/diff-hl
@@ -2902,14 +3036,18 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
   :straight (diff-hl :type git
                      :host github
                      :repo "dgutov/diff-hl")
-  :hook (after-init . global-diff-hl-mode)
+  :hook
+  (after-init . global-diff-hl-mode)
+  (magit-pre-refresh . diff-hl-magit-pre-refresh)
+  (magit-post-refresh . diff-hl-magit-post-refresh)
+
   :custom
-  (diff-hl-margin-mode t "Use margin mode to clear up the fringe"))
+  (diff-hl-margin-mode nil "Use the fringe"))
 #+end_src
 
 ** 📁 Navigation
 
-*** TODO Deft
+*** Deft
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/jrblevin/deft
@@ -2931,6 +3069,34 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
            "\\)"))
   (deft-use-filename-as-title t)
   (deft-use-filter-string-for-filename t))
+#+end_src
+
+*** Neotree
+
+In order to have a vim NERDTree-like experience where we get to explore directory structures in a narrow sidebar, we install [[https://github.com/jaypei/emacs-neotree][neotree]].
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/jaypei/emacs-neotree
+(use-package neotree
+  :straight (neotree :type git
+                     :host github
+                     :repo "jaypei/emacs-neotree")
+  :custom
+  (neo-theme (if (display-graphic-p) 'icons 'arrow)))
+#+end_src
+
+*** WIP Dirvish
+
+Use [[https://github.com/alexluigit/dirvish][Dirvish]] to supercharge your dired experience. It is closer to offering a [[https://ranger.github.io/][ranger]]-like experience inside of Emacs.
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/alexluigit/dirvish
+(use-package dirvish
+  :straight (dirvish :type git
+                     :host github
+                     :repo "alexluigit/dirvish")
+  :config
+  (dirvish-override-dired-mode))
 #+end_src
 
 ** Completion
@@ -2987,7 +3153,7 @@ Furthermore, we want to configure the ivy regex builder to play ball with orderl
 (ivy-re-builders-alist '((t . orderless-ivy-re-builder)))
 #+end_src
 
-*** TODO Marginalia
+*** Marginalia
 
 [[https://github.com/minad/marginalia
 ][Marginalia]] annotates entries in a completion buffer with additional context.
@@ -3045,7 +3211,7 @@ See the following example for Consult's multiple selection:
                                         "Red 🔴 pill 💊"))
 #+end_src
 
-**** TODO Bindings
+**** Bindings
 
 From the [[https://github.com/minad/consult#use-package-example][example configuration]].
 
@@ -3123,7 +3289,7 @@ From the [[https://github.com/minad/consult#use-package-example][example configu
 ("M-r" . consult-history)                 ; orig. previous-matching-history-element
 #+end_src
 
-*** WIP <<vertico>> Vertico
+*** <<vertico>> Vertico
 
 The [[https://github.com/minad/vertico][vertico]] package provides a lighter completion solution when compared to Helm or Ivy.
 
@@ -3246,7 +3412,7 @@ The [[https://company-mode.github.io/][company]] completion framework allows for
 In case you are using company, the [[http://company-mode.github.io/manual/Getting-Started.html#Usage-Basics][Usage Basics]] page will provide a good walkthrough of the bindings, notable options being:
 - =C-n= and =C-p= to navigate up and down the completions listing
 
-** TODO 🕳️ Terminals and Shells 🐚
+** Terminals and Shells
 
 *** vterm
 
@@ -3346,9 +3512,9 @@ Result: triggers a case change.
   (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
 #+end_src
 
-** 📕 PDF
+** PDF
 
-*** TODO PDF-Tools
+*** PDF-Tools
 
 #+begin_src elisp :tangle init.el
 (use-package pdf-tools
@@ -3359,7 +3525,7 @@ Result: triggers a case change.
   (setq-default pdf-view-display-size 'fit-width))
 #+end_src
 
-** 📑 Project Management
+** Project Management
 
 In order to manage projects more conveniently, one can opt for a variety of project management packages. In this section we configure and explain some of the options that I've relied on over time.
 
@@ -3687,7 +3853,9 @@ The following is an example of how we access a password in a password store keys
 
 Use the ideas in this section to configure your private Emacs config to setup all of the secrets, passwords and other tokens that you want to load from your password store.
 
-** WIP Browser
+** Browser
+
+*** WIP Atomic Chrome
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/alpha22jp/atomic-chrome
@@ -3697,7 +3865,7 @@ Use the ideas in this section to configure your private Emacs config to setup al
                            :repo "alpha22jp/atomic-chrome"))
 #+end_src
 
-* <<mail>> 📧 Mail
+* <<mail>> Mail
 
 For mail, there are a couple of options within Emacs. First, one needs to understand that a mail user agent (MUA) is a tool used to compose and read messages and a mail transfer agent (MTA) is a tool to send messages.
 
@@ -3712,7 +3880,7 @@ You will find the following MTA options in Emacs:
 
 Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.html][Mail Composition Methods (Emacs Manual)]] for more information on how to compose mail in Emacs.
 
-*** WIP mu4e
+*** mu4e
 
 mu4e is a Maildir-friendly mail client that uses mu as a backend.
 
@@ -4035,7 +4203,7 @@ sendmail: TLS handshake failed: An unexpected TLS packet was received.
 sendmail: could not send mail (account personal from /home/vidbina/.config/msmtp/config)
 #+end_src
 
-*** READY COMMENT <<notmuch>> Notmuch
+*** COMMENT <<notmuch>> Notmuch
 :LOGBOOK:
 - State "PROTOTYPE"  from "TODO"       [2022-06-23 Thu 21:51] \\
   with linking in place the setup is more or less prototype-worthy
@@ -4366,7 +4534,7 @@ The message.el package provides a more general interfaces for message sending, s
 (message-kill-buffer-on-exit t "Kill a buffer once a message is sent")
 #+end_src
 
-* 🏁 Finale
+* Finale
 
 To keep our init as general as possible we store private information and language configurations in separate files since these are inherently personal concerns. This configuration will try to load [[file:lang.el]] and [[file:personal.el]] if these exist.
 
@@ -4387,13 +4555,15 @@ Furthermore we load customization since some configurations and changes to our E
 (load custom-file)
 #+end_src
 
-* 📛 Personal Details
+* Personal Details
 
 #+begin_quote
 💡 You can copy the content in this section to your own personal.org file in this directory and configure all the =:tangle= arguments to output to =personal.el= to cook up your own personal part of your configuration through literal programming. Remember that you can tangle an Org-file into the resulting code with the ~(org-babel-tangle)~ command (mapped to =C-c C-v t= by default).
 #+end_quote
 
-Populate a [[file:personal.el]] file which defines your name, your e-mail details and some other very personal configuration bits such as theme customizations or personalized keybindings. Use the following snippet as an example of a configuration that may work.
+Populate a [[file:personal.el]] file which defines your name, your e-mail details and some other very personal details. 📛 Personal theme customizations or keybindings are good fits for the file:personal.el as well.
+
+Use the following snippet as an example of a configuration that may work.
 
 #+begin_quote
 💡 Tangling this section/file should produce [[file:personal-example.el]] that you can use as a reference for your own file.
@@ -4515,9 +4685,9 @@ In order to keep things lean, I've defined my own citation line that easy enough
       message-citation-line-function #'message-insert-formatted-citation-line)
 #+end_src
 
-*** 📧 Mu4e
+*** Mu4e
 
-**** TODO Contexts
+**** Contexts
 
 In order to get mail to work for multiple mailboxes you will need to configure [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][mu4e contexts]]. Refer to the [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts-example.html][examples]] in the documentation for some guidance on how to define contexts.
 
@@ -4569,7 +4739,7 @@ https://notmuchmail.org/emacstips/
         (:name "all mail" :query "*" :key "a")))
 #+end_src
 
-** 🥳 Personal Helpers
+** Personal Helpers
 
 Here be dragons! 🐉 This is my personal collection of helpers that I use for little things like switching themes, managing wrapping inside of buffers, managing opening of URL's and more junk. I will not explain these as these are simple enough and I'm not expecting me needing to explain this to myself or others (you likely will want to write your own).
 
@@ -4585,11 +4755,13 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   "Update colors of cursors for new theme"
   (interactive)
   (message "🌕 Setting evil cursors with modus-themes colors")
-  (let ((my-cursor-color (modus-themes-color 'fg-special-calm)))
-    (setq evil-emacs-state-cursor `(hollow ,my-cursor-color))
+  (let ((my-cursor-color (modus-themes-get-color-value 'fg-main))
+        (my-intense-cursor-color (modus-themes-get-color-value 'red-intense))
+        (my-alt-cursor-color (modus-themes-get-color-value 'fg-alt)))
+    (setq evil-emacs-state-cursor `(box ,my-intense-cursor-color))
     (setq evil-insert-state-cursor `((bar . 5) ,my-cursor-color))
     (setq evil-visual-state-cursor `((hbar . 5) ,my-cursor-color))
-    (setq evil-motion-state-cursor `(hollow ,my-cursor-color))
+    (setq evil-motion-state-cursor `((bar . 5) ,my-cursor-color))
     (setq evil-normal-state-cursor `(box ,my-cursor-color))))
 
 (defun vidbina/theme-switch-to-choice ()
@@ -4602,8 +4774,8 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 (defun vidbina/theme-switch-to-dark ()
   "Switch to the dark theme"
   (interactive)
-  (modus-themes-load-vivendi)
   (setq zoom-window-mode-line-color "DodgerBlue4")
+  (load-theme 'modus-vivendi :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
@@ -4611,8 +4783,8 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 (defun vidbina/theme-switch-to-light ()
   "Switch to the light theme"
   (interactive)
-  (modus-themes-load-operandi)
   (setq zoom-window-mode-line-color "Gold")
+  (load-theme 'modus-operandi :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
@@ -4882,9 +5054,13 @@ Sometimes, I just need the current branch name to paste into an email or somewhe
     (message target)))
 #+end_src
 
-** TODO Misc
+** Misc
 
 *** Global Keybindings
+
+**** My special bindings
+
+My special bindings are typically prefixed with =C-c v= (for vidbina) and also because it didn't typically collide with other default bindings. 🙈
 
 #+begin_src elisp :tangle personal-example.el
 (global-set-key (kbd "C-c v l") 'vidbina/theme-switch-to-light)
@@ -4898,9 +5074,23 @@ Sometimes, I just need the current branch name to paste into an email or somewhe
 (global-set-key (kbd "C-c v O") 'vidbina/orui-node-zoom-padding-set)
 (global-set-key (kbd "C-c v _") 'vidbina/tail-buffer)
 (global-set-key (kbd "C-c v .") 'vidbina/orui-node-zoom)
+#+end_src
 
+***** Window zoom helpers
+
+#+begin_src elisp :tangle personal-example.el
 (global-set-key (kbd "C-c v z") 'zoom-window-zoom)
+#+end_src
 
+***** Show Flymake buffer diagnostics
+
+#+begin_src elisp :tangle personal-example.el
+(global-set-key (kbd "C-c v j") 'flymake-show-buffer-diagnostics)
+#+end_src
+
+**** Org bindings
+
+#+begin_src elisp :tangle personal-example.el
 (global-set-key (kbd "C-c l") 'org-store-link)
 (global-set-key (kbd "C-c a") 'org-agenda)
 #+end_src
@@ -5035,7 +5225,7 @@ Disable auto-save since I'm using crypt in this file.
 
 An alternate approach would be to append the =epa-file-encrypt-to= variable to the local variables list. The benefit of this is that one can encrypt a file for multiple recipients. I haven't tested this yet. 🤔
 
-* 💬 Languages
+* Languages
 
 Populate a =lang.el= file which defines all of the major-modes and language-related tooling that are relevant to you. In my case I have simply defined a symlink from [[file:lang.example.el][lang.example.el]] to lang.el. The literal configuration in this section defines my own languages setup. YMMV! 🤷🏿‍♂️
 
@@ -5806,7 +5996,11 @@ but I am trying to figure out how to spawn a nix shell interpreter in a Flake-ba
                       :repo "fxbois/web-mode"))
 #+end_src
 
-*** WIP API Blueprint
+*** CANCELED COMMENT API Blueprint
+:LOGBOOK:
+- State "CANCELED"   from "WIP"        [2023-07-04 Tue 14:07] \\
+  Dead format. Shouldn't worry about this.
+:END:
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/w-vi/apib-mode
@@ -5905,17 +6099,22 @@ Since JavaScript is everywhere, let's make sure we can at least read it with eas
 
 Superset of JavaScript that folks really should be using instead of just vanilla JS but we're not here to judge. 🤷🏿‍♂️
 
-***** Configure default LSP for TypeScript
+***** COMMENT Configure default LSP for TypeScript
 
 #+begin_src elisp :tangle lang.example.el
 (with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '(typescript-mode . ("typescript-language-server" "--stdio"))
-               '(typescript-ts-mode . ("typescript-language-server" "--stdio"))
-               '(tsx-ts-mode . ("typescript-language-server" "--stdio"))))
+  (mapc (lambda (x) (add-to-list 'eglot-server-programs x))
+        (list
+         '(typescript-mode . ("typescript-language-server" "--stdio"))
+         '(typescript-ts-mode . ("typescript-language-server" "--stdio"))
+         '(tsx-ts-mode . ("typescript-language-server" "--stdio")))))
 #+end_src
 
-**** Typescript-mode
+**** CANCELED COMMENT Typescript-mode
+:LOGBOOK:
+- State "CANCELED"   from              [2023-07-04 Tue 14:15] \\
+  Just got eglot in tsx-ts-mode working again so cordially fuck this.
+:END:
 
 Development of this package has been halted, so we're stopping our use of this.
 
@@ -5932,7 +6131,7 @@ Development of this package has been halted, so we're stopping our use of this.
   (typescript-indent-level 2))
 #+end_src
 
-***** COMMENT Tide
+***** Tide
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/ananthakumaran/tide
@@ -5947,8 +6146,8 @@ Development of this package has been halted, so we're stopping our use of this.
   :delight
   (tide-mode "🌊")
   :after (typescript-mode evil-collection)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode))
+  ;; :hook ((typescript-mode . tide-setup)
+  ;;        (typescript-mode . tide-hl-identifier-mode))
   :custom
   (tide-always-show-documentation nil "Don't show docs if only type info is available to minimize disruption"))
 #+end_src
@@ -5996,7 +6195,11 @@ Development of this package has been halted, so we're stopping our use of this.
 (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
 #+end_src
 
-***** TODO COMMENT Look into tsx-mode.el
+***** CANCELED COMMENT Look into tsx-mode.el
+:LOGBOOK:
+- State "CANCELED"   from "TODO"       [2023-07-04 Tue 14:08] \\
+  Just stick to use of Tide and tsx-ts-mode going fwd.
+:END:
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/orzechowskid/tsx-mode.el
@@ -6022,7 +6225,9 @@ Development of this package has been halted, so we're stopping our use of this.
         :lint t))
 #+end_src
 
-*** Java
+*** COMMENT Java
+
+Commenting this out since it bootstraps LSP-mode which we're avoiding as we're going for eglot at the moment.
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://emacs-lsp.github.io/lsp-java/
@@ -6182,7 +6387,7 @@ Misc bells and whistles from formatting aids to LLM-enabled magic.
 
 See https://github.com/editorconfig/editorconfig-emacs/issues/264 regarding =indent_size= being ignored editorconfig is being ignored.
 
-*** 🌈 Rainbow Delimiters
+*** Rainbow Delimiters
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/Fanael/rainbow-delimiters
@@ -6198,15 +6403,9 @@ See https://github.com/editorconfig/editorconfig-emacs/issues/264 regarding =ind
   )
 #+end_src
 
-*** tree-sitter
+*** Tree-Sitter
 
-#+begin_quote
-⚠️ Commented in order to test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]].
-#+end_quote
-
-Based on the [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/][TypeScript development with Emacs, tree-sitter and LSP in 2022]] article by vxlabs.
-
-**** Basics
+Loosely based on the [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/][TypeScript development with Emacs, tree-sitter and LSP in 2022]] article by vxlabs.
 
 See if treesitter is available in a buffer by running:
 
@@ -6215,6 +6414,43 @@ See if treesitter is available in a buffer by running:
 #+end_src
 
 **** Install Elisp bindings
+
+***** Use built-in tree-sitter
+
+- ⚠️ I initally thought of test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]] but am realising that my current build of Emacs may not have tree-sitter bundled into it. 😅
+
+Fiddled around with this for a bit and stumbled into a variety of errors, so I tried [[https://www.nathanfurnal.xyz/posts/building-tree-sitter-langs-emacs/][Nathan's write-up on building tree-sitter-langs]] which led to the the explicit definition of variable =treesit-language-source-alist= which treesit-auto needs to get the job done. While playing around, I noticed that I misunderstood how tree-sitter-langs and treesit-auto factor into the picture. My current understanding as per [2023-07-04 Tue 15:19] is that:
+- tree-sitter-langs provides lang bundles *that need to be installed*
+
+#+begin_src elisp :noweb yes :tangle lang.example.el
+(use-package treesit
+  :straight (:type built-in)
+  ;;:autoload treesit-install-language-grammar
+  :commands (treesit-install-language-grammar nf/treesit-install-all-languages)
+  :init
+  (setq treesit-language-source-alist
+        <<treesit-languages>>
+        )
+  :config
+  (defun nf/treesit-install-all-languages ()
+    "Install all languages specified by `treesit-language-source-alist'."
+    (interactive)
+    (let ((languages (mapcar 'car treesit-language-source-alist)))
+      (dolist (lang languages)
+	(treesit-install-language-grammar lang)
+	(message "`%s' parser was installed." lang)
+	(sit-for 0.75)))))
+#+end_src
+
+****** DONE Reinstall Emacs with built-in tree-sitter
+
+Needed to downgrade to Emacs 29 (from 30) in order to get the built-in tree-sitter bindings. Weirdly the tree-sitter.el file in Emacs =master= lacks things like ~treesit-install-language-grammar~ which is needed to properly use tree-sitter because tree-sitter without grammars isn't very useful. 🤷🏿‍♂️
+
+***** COMMENT Use self-installed tree-sitter
+
+Instead of using the built-in tree-sitter, we use the self-installed [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][Elisp tree-sitter bindings]].
+
+https://emacs-tree-sitter.github.io/installation/#installing-with-straight-dot-el
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacs-tree-sitter/elisp-tree-sitter
@@ -6232,7 +6468,41 @@ See if treesitter is available in a buffer by running:
   (tree-sitter-mode "🌲"))
 #+end_src
 
-**** Install Tree-sitter langs
+**** tree-sitter Grammars
+
+See a listing of available grammars at https://tree-sitter.github.io/tree-sitter/ with links to their respective repositories.
+
+***** alist of language mappings
+
+Just because =treesit-language-source-alist= needs this (for the treesit config), we define the /language to grammar repo/ mapping here for "reuse".
+
+#+begin_src elisp :noweb-ref treesit-languages
+'((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+  (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+  (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+  (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+  (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+  (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+  (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+  (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+  (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+  (make . ("https://github.com/alemuller/tree-sitter-make"))
+  (org . ("https://github.com/milisims/tree-sitter-org"))
+  (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
+  (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+  (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+  (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
+  (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+  (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+  (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+  (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+  (zig . ("https://github.com/GrayJack/tree-sitter-zig")))
+#+end_src
+
+***** tree-sitter-langs: Bundle of tree-sitter grammars
+
+Bundle of tree-sitter grammars. You may need to run ~tree-sitter-langs-install-grammars~ for this to work.
+
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/emacs-tree-sitter/tree-sitter-langs
@@ -6241,6 +6511,39 @@ See if treesitter is available in a buffer by running:
                                :host github
                                :repo "emacs-tree-sitter/tree-sitter-langs")
   :after tree-sitter)
+#+end_src
+
+***** treesit-auto: Automatically install tree-sitter grammars
+
+Automatically installs treesitter grammars and calls the function ~treesit-install-language-grammar~ to get the job done.
+
+#+begin_src elisp
+(require 'treesit)
+;; https://github.com/renzmann/treesit-auto.git
+(use-package treesit-auto
+  :straight (treesit-auto :type git
+                          :host github
+                          :repo "renzmann/treesit-auto")
+  :config
+  (global-treesit-auto-mode))
+#+end_src
+
+Failing with =void-variable treesit-language-source-alist=
+
+*** Structural Editing
+
+Structural editing allows us to treat structural units of code with specific actions like movement, splicing and selection.
+
+**** COMMENT Combobulate
+
+The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored by the same Mickey who brought us /[[https://www.masteringemacs.org/][Mastering Emacs]]/. 
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/mickeynp/combobulate
+(use-package combobulate
+  :straight (combobulate :type git
+                         :host github
+                         :repo "mickeynp/combobulate"))
 #+end_src
 
 *** <<highlight-indent-guides>> Highlight Indent Guides
@@ -6488,8 +6791,7 @@ In order to use OpenAI's GPT models directly inside of Emacs, we are using the A
 (use-package aide
   :straight (aide :type git
                   :host github
-                  :repo "vidbina/aide.el"
-                  :branch "vidbina/retrieve-secret-through-function")
+                  :repo "junjizhi/aide.el")
   :custom
   (aide-completions-model "text-davinci-003")
   (aide-max-output-tokens 1000)
@@ -6736,16 +7038,17 @@ For the ease of use, we provide a helper to enter the line of interest when we e
   :straight (eglot :type git
                    :host github
                    :repo "joaotavora/eglot")
-  :hook
-  (eglot-managed-mode-hook . (lambda ()
-                               ;; Show flymake diagnostics first.
-                               (setq eldoc-documentation-functions
-                                     (cons #'flymake-eldoc-function
-                                           (remove #'flymake-eldoc-function eldoc-documentation-functions)))
-                               ;; Show all eldoc feedback.
-                               (setq eldoc-documentation-strategy #'eldoc-documentation-compose)))
+  ;; :hook
+  ;; (eglot-managed-mode-hook . (lambda ()
+  ;;                              ;; Show flymake diagnostics first.
+  ;;                              (setq eldoc-documentation-functions
+  ;;                                    (cons #'flymake-eldoc-function
+  ;;                                          (remove #'flymake-eldoc-function eldoc-documentation-functions)))
+  ;;                              ;; Show all eldoc feedback.
+  ;;                              (setq eldoc-documentation-strategy #'eldoc-documentation-compose)))
   :custom
   (eglot-autoshutdown t)
+
   :bind (("C-c j" . eglot)
          :map eglot-mode-map
          ("C-c j f d" . eglot-find-declaration)
@@ -6905,7 +7208,11 @@ In order to use LSP with projects where the language servers runs inside Docker 
                            ))
 #+end_src
 
-***** TODO Language-specific configuration
+***** CANCELED Language-specific configuration
+:LOGBOOK:
+- State "CANCELED"   from "TODO"       [2023-07-04 Tue 14:10] \\
+  eglot has won. No need to bother with lsp-mode for now.
+:END:
 
 Refactor the =lsp-docker-client-configs= such that the LSP config for every language is defined within the language's chapter within this config.
 
@@ -6999,53 +7306,9 @@ https://github.com/nnicandro/emacs-zmq
 (zmq-bind zmq-PUB "tcp://127.0.0.1:5555")
 #+end_src
 
-* Developer Notes
+* <<nix-config>> Nix Home-manager Configuration
 
-** Tangle Helper
-
-The =my-dotfiles-tangle-wrapper= helper allows us to spawn an Emacs session with our freshly tangled configuration in order to spot early errors.
-
-#+CAPTION: Screenshot of the a blank Emacs session automatically started by the tangle helper.
-[[file:images/screenshot-tangle-helper-full.png]]
-
-#+begin_src elisp :results none
-(defun my-dotfiles-tangle-wrapper (orig-fun &rest args)
-  (message "Wrapping %S with %S" orig-fun args)
-  (let ((res (apply orig-fun args))
-        (command "emacs")
-        (args (list "-q"
-                    "--load=init.el"
-                    "--debug-init"
-                    "--name=Emacs Test"
-                    (format "--file=%s" buffer-file-name))))
-    (apply #'start-process `("emacs-for-org-cite-export" nil ,command ,@args))
-    (message "Done and got %S" res)
-    res))
-#+end_src
-
-*** Enable
-
-Enable the tangle helper by running the following snippet with ~(org-ctrl-c-ctrl-c)~ mapped by default to =C-c C-c=.
-
-⚠️ [2023-07-01 Sat] I just had issues running this using the =C-c C-c= binding and ended up navigating to the expression and just evaluating it (using =C-c C-e= which maps to =eval-last-sexp=).
-
-#+begin_src elisp :results none
-(advice-add 'org-babel-tangle :around #'my-dotfiles-tangle-wrapper)
-#+end_src
-
-Before running this, you may want to auto-accept evaluations of code blocks. I've written ~vidbina/toggle-local-org-confirm-babel-evaluate~ in [[*Org-Export Helpers][Org-Export Helpers]] in order to avoid having to confirm that I want to evaluate every block in my literate config through separate confirmations. Trust me, it's not scalable to type "yes" over 30 times. 😅 Just run =M-x vidbina/toggle-local-org-confirm-babel-evaluate= and be happy!
-
-*** Disable
-
-Disable the tangle helper by running the following snippet with ~(org-ctrl-c-ctrl-c)~ mapped by default to =C-c C-c=.
-
-#+begin_src elisp :results none
-(advice-remove 'org-babel-tangle #'my-dotfiles-tangle-wrapper)
-#+end_src
-
-* <<nix-config>> Nix ❄️ Home-manager Configuration
-
-[[https://github.com/nix-community/home-manager][Home-manager]] allows management of a user environment through Nix -- the package-manager and language.
+[[https://github.com/nix-community/home-manager][Home-manager]] allows management of a user environment through Nix ❄️ -- the package-manager and language.
 
 ** General
 
@@ -7103,9 +7366,9 @@ baseCommand = windowName:
   ];
 #+end_src
 
-** <<nix-config-linux>> 🐧 GNU/Linux
+** <<nix-config-linux>> GNU/Linux
 
-On GNU/Linux, home-manager allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
+On GNU/Linux 🐧, home-manager allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
 
 #+begin_src nix :noweb yes :tangle default.nix
 # Tangled from README.org
@@ -7161,11 +7424,12 @@ nixpkgs.overlays = [
 We bundle emacs through a bunch of helpers that set whatever flags we need set and also take case of factoring our wanted package repositories into the mix.
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
-emacs = (pkgs.emacsGit.override {
-  nativeComp = true;
+emacs = (pkgs.emacs-unstable.override {
+  withNativeCompilation = true;
   withSQLite3 = true;
   withGTK2 = false;
   withGTK3 = false;
+  withTreeSitter = true;
 });
 bundled-emacs = emacs.pkgs.withPackages (epkgs: (
   with epkgs; [
@@ -7185,6 +7449,7 @@ pkgs.cmake
 pkgs.coreutils
 pkgs.fd
 pkgs.multimarkdown
+pkgs.python39
 #+end_src
 
 ***** ripgrep
@@ -7226,7 +7491,7 @@ jupyter-for-emacs
 
 **** mu
 
-***** COMMENT mu: basic package
+***** mu: basic package
 
 #+begin_src nix :noweb-ref nix-linux-packages
 mu
@@ -7236,7 +7501,7 @@ mu
 
 The overriden package may no longer be necessary at this point. Tried to build previously with this "plain" mu and that worked so I think we're ready to move along and park the overriden stuff.
 
-***** mu: overriden package
+***** COMMENT mu: overriden package
 
 Commenting this out because of collision issues in nix:
 
@@ -7434,9 +7699,9 @@ xdg.mimeApps.defaultApplications = {
 };
 #+end_src
 
-** PROTOTYPE <<nix-config-darwin>> 🍏 Darwin
+** PROTOTYPE <<nix-config-darwin>> Darwin
 
-On Darwin, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd).
+On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd).
 
 #+begin_src nix :noweb yes :tangle default-darwin.nix
 # Tangled from README.org
@@ -7473,8 +7738,8 @@ nixpkgs.overlays = [
   (self: super: {
     my-emacs =
       let
-        emacs = pkgs.emacsPgtkGcc;
-        emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+        emacs = pkgs.emacs-pgtk;
+        emacsWithPackages = (pkgs.emacsPackagesFor emacs).emacsWithPackages;
         bundled-emacs = emacsWithPackages (epkgs: (
           with epkgs; [
             notmuch
@@ -7541,55 +7806,6 @@ nixpkgs.overlays = [
 ];
 #+end_src
 
-**** emacsPgtkNativeComp vs emacsGit
-
-Looking at [[https://github.com/nix-community/emacs-overlay/blob/master/default.nix][emacs-overlay default.nix]], the diff between =emacsGit= and =emacsPgtkNativeComp= is basically that the latter extends the former with native compilation. 🤷🏿‍♂️
-
-Perhaps we use differing builds because of issues like [[https://github.com/nix-community/emacs-overlay/issues/187][emacs-overlay issue 187]] but I simply can't recall how I settled on the current design.
-
-***** Expansion
-
-For reference's sake, observe how the definition of =emacsGit= wraps =mkGitEmacs=:
-
-#+begin_src nix
-emacsGit = mkGitEmacs "emacs-git" ./repos/emacs/emacs-master.json { withSQLite3 = true; };
-#+end_src
-
-****** TL;DR
-
-The =emacsPgtkNativeComp= definition calls =mkPkgEmacs= and is listed below:
-
-#+begin_src nix
-emacsPgtkNativeComp = mkPgtkEmacs "emacs-pgtk-native-comp" ./repos/emacs/emacs-master.json { nativeComp = true; withSQLite3 = true; };
-#+end_src
-
-The =mkPgtkEmacs= definition just provides a wrapper around =mkGitEmacs=, removes the =--with-xft= configuration flag and adds the =--with-pgtk= flag.
-
-#+begin_src nix
-mkPgtkEmacs = namePrefix: jsonFile: { ... }@args: (mkGitEmacs namePrefix jsonFile args).overrideAttrs (
-  old: {
-    configureFlags = (super.lib.remove "--with-xft" old.configureFlags)
-      ++ super.lib.singleton "--with-pgtk";
-  }
-);
-#+end_src
-
-****** Conclusion
-
-It is fair to assume that =emacsPgtkNativeComp= expands to the following:
-
-#+begin_src nix
-(mkGitEmacs "emacs-pgtk-native-comp" ./repos/emacs/emacs-master.json {
-  nativeComp = true;
-  withSQLite3 = true;
-}).overrideAttrs (old: {
-  configureFlags = (super.lib.remove "--with-xft" old.configureFlags)
-                   ++ super.lib.singleton "--with-pgtk";
-});
-#+end_src
-
-The only diff being the change of name of the package, the attribute set (which now sets =nativeComp= to true) and the =configureFlags= override. Perhaps it is time to use =emacsPgtkNativeComp= for all builds after all. 🤷🏿‍♂️
-
 * Footnotes
 
 [fn:6] Different variants of Markdown may have slightly differing and sometimes conflicting notation for some simple formatting markers such as the ones needed to underline, boldface or italicize text.
@@ -7604,9 +7820,13 @@ The only diff being the change of name of the package, the attribute set (which 
 
 [fn:5] Keywords can be recognized by the =:= (colon character) prefix.
 
-* Custom Keyboard ⌨️ Helpers
+* Custom Keyboard Helpers
 
-** WIP mugur
+** CANCELED mugur
+:LOGBOOK:
+- State "CANCELED"   from "WIP"        [2023-07-04 Tue 14:10] \\
+  Bricked my boards. No need to sweat this for now.
+:END:
 
 #+begin_src elisp
 ;; https://github.com/mihaiolteanu/mugur

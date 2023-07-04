@@ -18,8 +18,8 @@ Refer to [[file:emacs/README.org]] for an example of a literate config that tang
 - [ ] Neovim
 - [ ] Termite
 - [ ] Starship
-- [ ] Rofi
-- [ ] Redshift
+- [ ] Rofi (handled through Pywal since [2023-07-03 Mon])
+- [ ] Redshift (or Gammastep)
 - [ ] Ghorg
 - [ ] Asciinema
 - [ ] Compton
@@ -52,7 +52,11 @@ The use of home-manager is pretty straightforward especially with the convenient
 
 Typical use will be as follows:
 1. Enter the nix-shell using =nix-shell --pure=
-2. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]])
+2. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]]), as demonstrated below:
+   #+begin_src bash
+niv update home-manager
+niv update nixpkgs
+   #+end_src
 3. Run =make test= to test the home-manager configuration or =make= to install the configuration
 4. Optionally, if package update step was completed (step 2 above), commit the changes made to the niv sources files
 5. Profit 💰
@@ -465,6 +469,14 @@ fatal error: mallocgc called without a P or outside bootstrapping
 runtime: panic before malloc heap initialized
 #+end_src
 
+**** Pywal: 🎨 Generate and change color-schemes on the fly
+
+#+begin_src nix :noweb yes :noweb-ref common-programs
+programs.pywal = {
+  enable = true;
+};
+#+end_src
+
 *** Linux
 :PROPERTIES:
 :header-args: :noweb-sep "\n\n"
@@ -483,8 +495,6 @@ runtime: panic before malloc heap initialized
     ./multimedia.nix
 
     ./emacs
-
-    ./rofi
   ];
 
   fonts.fontconfig.enable = true;
@@ -531,17 +541,22 @@ runtime: panic before malloc heap initialized
 
   xsession = {
     enable = true;
-    pointerCursor = {
-      name = "Vanilla-DMZ";
-      package = pkgs.vanilla-dmz;
-      size = 64;
-    };
     initExtra = ''
       setxkbmap -option -model dell -layout us -variant intl -option lv3:caps_switch
     '';
     profileExtra = ''
       hsetroot -solid '#ff9800'
     '';
+  };
+
+  home.pointerCursor = {
+    name = "Vanilla-DMZ";
+    package = pkgs.vanilla-dmz;
+    size = 64;
+    x11 = {
+      enable = true;
+      defaultCursor = "X_cursor";
+    };
   };
 
   <<x-programs>>
@@ -1562,8 +1577,13 @@ The following packages were part of my config before and are just seperated to h
 isync
 mb2md
 neomutt
-offlineimap
 urlview
+#+end_src
+
+*** COMMENT offlineimap
+
+#+begin_src nix :noweb-ref mail-packages
+offlineimap
 #+end_src
 
 *** TODO Split out packages into subordinate chapters
@@ -2583,16 +2603,20 @@ vi-editor for input controls
 programs.firefox = {
   enable = true;
 
-  # NOTE: Extensions need firefox.profiles to be defined
-  extensions =
-    # https://nur.nix-community.org/repos/rycee/
-    with nur.repos.rycee.firefox-addons; [
-      <<browser-firefox-extensions>>
-    ];
+  <<browser-firefox-profiles>>
 };
 #+end_src
 
 *** Extensions
+
+#+begin_src nix :noweb yes :noweb-ref browser-firefox-profiles
+# NOTE: Extensions need firefox.profiles to be defined
+profiles.personal.extensions =
+  # https://nur.nix-community.org/repos/rycee/
+  with nur.repos.rycee.firefox-addons; [
+    <<browser-firefox-extensions>>
+  ];
+#+end_src
 
 **** Tridactyl
 
