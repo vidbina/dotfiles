@@ -6013,7 +6013,7 @@ Development of this package has been halted, so we're stopping our use of this.
   (typescript-indent-level 2))
 #+end_src
 
-***** COMMENT Tide
+***** Tide
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/ananthakumaran/tide
@@ -6028,8 +6028,8 @@ Development of this package has been halted, so we're stopping our use of this.
   :delight
   (tide-mode "🌊")
   :after (typescript-mode evil-collection)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode))
+  ;; :hook ((typescript-mode . tide-setup)
+  ;;        (typescript-mode . tide-hl-identifier-mode))
   :custom
   (tide-always-show-documentation nil "Don't show docs if only type info is available to minimize disruption"))
 #+end_src
