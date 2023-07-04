@@ -235,12 +235,6 @@
   :custom
   (js-indent-level 2))
 
-;; https://emacs-lsp.github.io/lsp-java/
-(use-package lsp-java
-  :straight (lsp-java :type git
-                      :host github
-                      :repo "emacs-lsp/lsp-java"))
-
 ;; https://github.com/clojure-emacs/clojure-mode
 (use-package clojure-mode
   :straight (clojure-mode :type git
