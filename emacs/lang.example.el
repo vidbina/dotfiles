@@ -194,14 +194,6 @@
                       :host github
                       :repo "fxbois/web-mode"))
 
-;; https://github.com/w-vi/apib-mode
-(use-package apib-mode
-  :straight (apib-mode :type git
-                       :host github
-                       :repo "w-vi/apib-mode")
-  :config
-  (add-to-list 'auto-mode-alist '("\\.apib\\'" . apib-mode)))
-
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
                '(python-mode . ("pyright-langserver" "--stdio"))))

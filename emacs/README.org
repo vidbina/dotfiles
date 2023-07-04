@@ -420,7 +420,7 @@ state_done -> [*]
 
 ** <<org-babel>> Org-Babel
 
-*** PROTOTYPE <<org-babel-tangle>> Asynchronous Tangle
+*** <<org-babel-tangle>> Asynchronous Tangle
 :LOGBOOK:
 - State "PROTOTYPE"  from "WIP"        [2022-06-28 Tue 13:34] \\
   initial concept using =find-file= which may be inefficient but we'll eat the gun on account of the ease of use
@@ -775,7 +775,7 @@ The ox-clip exporters allow us to export fragments of our org documents into ric
   ("C-c y" . ox-clip-formatted-copy))
 #+end_src
 
-** WIP phscroll
+** phscroll
 
 The [[https://github.com/misohena/phscroll][phscroll]] package allows to exclude some regions in a buffer from wrapping. This is really convenient when you have section with long lines that lose meaning when wrapped (or being unreadable) like rows from tables.
 
@@ -798,6 +798,10 @@ Some of the bindings to remember when in phscroll-mode are:
 - =C-l= :: recenter top-bottom
 - =C-S-l= :: recenter left-right
   - twice to scroll to *left edge*
+
+| Name of something that could be very long, potentially | Feature Column | Another Feature Column | Yes another feature column |
+|--------------------------------------------------------+----------------+------------------------+----------------------------|
+| Just to test that this works                           |                |                        |                            |
 
 ** COMMENT htmlize
 
@@ -1082,7 +1086,7 @@ Set the Org-roam database location:
 (setq org-roam-db-location (file-truename "~/org/roam/org-roam.db"))
 #+end_src
 
-**** WIP <<org-roam-db-sync-async>> Async Org-Roam-DB Sync or rather Non-blocking Org-Roam DB Sync
+**** <<org-roam-db-sync-async>> Async Org-Roam-DB Sync or rather Non-blocking Org-Roam DB Sync
 
 Yes, naming of this section is problematic because of the async-sync bit but we're trying to conduct the /synchronization/ in an /asynchronous/ manner such that we don't have to block the main thread all the time we conduct an =org-roam-db-sync= so forgive me. We define interactive function =vidbina/org-roam-async-forced-sync= to expose the asynchronous synchronization logic.
 
@@ -2957,7 +2961,7 @@ I've been using diff-hl in /margin mode/ for a while, but with the latest update
 
 ** 📁 Navigation
 
-*** TODO Deft
+*** Deft
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/jrblevin/deft
@@ -3063,7 +3067,7 @@ Furthermore, we want to configure the ivy regex builder to play ball with orderl
 (ivy-re-builders-alist '((t . orderless-ivy-re-builder)))
 #+end_src
 
-*** TODO Marginalia
+*** Marginalia
 
 [[https://github.com/minad/marginalia
 ][Marginalia]] annotates entries in a completion buffer with additional context.
@@ -3121,7 +3125,7 @@ See the following example for Consult's multiple selection:
                                         "Red 🔴 pill 💊"))
 #+end_src
 
-**** TODO Bindings
+**** Bindings
 
 From the [[https://github.com/minad/consult#use-package-example][example configuration]].
 
@@ -3199,7 +3203,7 @@ From the [[https://github.com/minad/consult#use-package-example][example configu
 ("M-r" . consult-history)                 ; orig. previous-matching-history-element
 #+end_src
 
-*** WIP <<vertico>> Vertico
+*** <<vertico>> Vertico
 
 The [[https://github.com/minad/vertico][vertico]] package provides a lighter completion solution when compared to Helm or Ivy.
 
@@ -3322,7 +3326,7 @@ The [[https://company-mode.github.io/][company]] completion framework allows for
 In case you are using company, the [[http://company-mode.github.io/manual/Getting-Started.html#Usage-Basics][Usage Basics]] page will provide a good walkthrough of the bindings, notable options being:
 - =C-n= and =C-p= to navigate up and down the completions listing
 
-** TODO Terminals and Shells
+** Terminals and Shells
 
 *** vterm
 
@@ -3424,7 +3428,7 @@ Result: triggers a case change.
 
 ** PDF
 
-*** TODO PDF-Tools
+*** PDF-Tools
 
 #+begin_src elisp :tangle init.el
 (use-package pdf-tools
@@ -3763,7 +3767,9 @@ The following is an example of how we access a password in a password store keys
 
 Use the ideas in this section to configure your private Emacs config to setup all of the secrets, passwords and other tokens that you want to load from your password store.
 
-** WIP Browser
+** Browser
+
+*** WIP Atomic Chrome
 
 #+begin_src elisp :tangle init.el
 ;; https://github.com/alpha22jp/atomic-chrome
@@ -3788,7 +3794,7 @@ You will find the following MTA options in Emacs:
 
 Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.html][Mail Composition Methods (Emacs Manual)]] for more information on how to compose mail in Emacs.
 
-*** WIP mu4e
+*** mu4e
 
 mu4e is a Maildir-friendly mail client that uses mu as a backend.
 
@@ -4111,7 +4117,7 @@ sendmail: TLS handshake failed: An unexpected TLS packet was received.
 sendmail: could not send mail (account personal from /home/vidbina/.config/msmtp/config)
 #+end_src
 
-*** READY COMMENT <<notmuch>> Notmuch
+*** COMMENT <<notmuch>> Notmuch
 :LOGBOOK:
 - State "PROTOTYPE"  from "TODO"       [2022-06-23 Thu 21:51] \\
   with linking in place the setup is more or less prototype-worthy
@@ -4595,7 +4601,7 @@ In order to keep things lean, I've defined my own citation line that easy enough
 
 *** Mu4e
 
-**** TODO Contexts
+**** Contexts
 
 In order to get mail to work for multiple mailboxes you will need to configure [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][mu4e contexts]]. Refer to the [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts-example.html][examples]] in the documentation for some guidance on how to define contexts.
 
@@ -4962,7 +4968,7 @@ Sometimes, I just need the current branch name to paste into an email or somewhe
     (message target)))
 #+end_src
 
-** TODO Misc
+** Misc
 
 *** Global Keybindings
 
@@ -5886,7 +5892,11 @@ but I am trying to figure out how to spawn a nix shell interpreter in a Flake-ba
                       :repo "fxbois/web-mode"))
 #+end_src
 
-*** WIP API Blueprint
+*** CANCELED COMMENT API Blueprint
+:LOGBOOK:
+- State "CANCELED"   from "WIP"        [2023-07-04 Tue 14:07] \\
+  Dead format. Shouldn't worry about this.
+:END:
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/w-vi/apib-mode
@@ -6077,7 +6087,11 @@ Development of this package has been halted, so we're stopping our use of this.
 (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
 #+end_src
 
-***** TODO COMMENT Look into tsx-mode.el
+***** CANCELED COMMENT Look into tsx-mode.el
+:LOGBOOK:
+- State "CANCELED"   from "TODO"       [2023-07-04 Tue 14:08] \\
+  Just stick to use of Tide and tsx-ts-mode going fwd.
+:END:
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/orzechowskid/tsx-mode.el
@@ -7015,7 +7029,11 @@ In order to use LSP with projects where the language servers runs inside Docker 
                            ))
 #+end_src
 
-***** TODO Language-specific configuration
+***** CANCELED Language-specific configuration
+:LOGBOOK:
+- State "CANCELED"   from "TODO"       [2023-07-04 Tue 14:10] \\
+  eglot has won. No need to bother with lsp-mode for now.
+:END:
 
 Refactor the =lsp-docker-client-configs= such that the LSP config for every language is defined within the language's chapter within this config.
 
@@ -7716,7 +7734,11 @@ The only diff being the change of name of the package, the attribute set (which 
 
 * Custom Keyboard Helpers
 
-** WIP mugur
+** CANCELED mugur
+:LOGBOOK:
+- State "CANCELED"   from "WIP"        [2023-07-04 Tue 14:10] \\
+  Bricked my boards. No need to sweat this for now.
+:END:
 
 #+begin_src elisp
 ;; https://github.com/mihaiolteanu/mugur
