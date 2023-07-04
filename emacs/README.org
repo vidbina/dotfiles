@@ -2982,6 +2982,13 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
   (magit-diff-refine-hunk t "Show fine differences (word-granularity) for current hunk only"))
 #+end_src
 
+**** TODO Fix incompatible recipes issues
+
+#+begin_quote
+⛔ Warning (straight): Packages "magit-section" and "magit" have incompatible recipes (:branch cannot be both nil and "main")
+⛔ Warning (straight): Packages "git-commit" and "magit-section" have incompatible recipes (:branch cannot be both "main" and nil)
+#+end_quote
+
 *** Diff-hl: Diff highlighting in the left gutter of a buffer
 
 The [[https://github.com/dgutov/diff-hl][diff-hl]] package allows us to display which lines are added or removed by either providing red or green regions *in the margin or fringe*.
