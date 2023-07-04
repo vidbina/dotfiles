@@ -4972,6 +4972,10 @@ Sometimes, I just need the current branch name to paste into an email or somewhe
 
 *** Global Keybindings
 
+**** My special bindings
+
+My special bindings are typically prefixed with =C-c v= (for vidbina) and also because it didn't typically collide with other default bindings. 🙈
+
 #+begin_src elisp :tangle personal-example.el
 (global-set-key (kbd "C-c v l") 'vidbina/theme-switch-to-light)
 (global-set-key (kbd "C-c v d") 'vidbina/theme-switch-to-dark)
@@ -4984,9 +4988,23 @@ Sometimes, I just need the current branch name to paste into an email or somewhe
 (global-set-key (kbd "C-c v O") 'vidbina/orui-node-zoom-padding-set)
 (global-set-key (kbd "C-c v _") 'vidbina/tail-buffer)
 (global-set-key (kbd "C-c v .") 'vidbina/orui-node-zoom)
+#+end_src
 
+***** Window zoom helpers
+
+#+begin_src elisp :tangle personal-example.el
 (global-set-key (kbd "C-c v z") 'zoom-window-zoom)
+#+end_src
 
+***** Show Flymake buffer diagnostics
+
+#+begin_src elisp :tangle personal-example.el
+(global-set-key (kbd "C-c v j") 'flymake-show-buffer-diagnostics)
+#+end_src
+
+**** Org bindings
+
+#+begin_src elisp :tangle personal-example.el
 (global-set-key (kbd "C-c l") 'org-store-link)
 (global-set-key (kbd "C-c a") 'org-agenda)
 #+end_src
