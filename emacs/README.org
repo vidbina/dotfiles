@@ -7311,11 +7311,12 @@ nixpkgs.overlays = [
 We bundle emacs through a bunch of helpers that set whatever flags we need set and also take case of factoring our wanted package repositories into the mix.
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
-emacs = (pkgs.emacsGit.override {
+emacs = (pkgs.emacs-unstable.override {
   nativeComp = true;
   withSQLite3 = true;
   withGTK2 = false;
   withGTK3 = false;
+  withTreeSitter = true;
 });
 bundled-emacs = emacs.pkgs.withPackages (epkgs: (
   with epkgs; [
@@ -7335,6 +7336,7 @@ pkgs.cmake
 pkgs.coreutils
 pkgs.fd
 pkgs.multimarkdown
+pkgs.python39
 #+end_src
 
 ***** ripgrep
@@ -7376,7 +7378,7 @@ jupyter-for-emacs
 
 **** mu
 
-***** COMMENT mu: basic package
+***** mu: basic package
 
 #+begin_src nix :noweb-ref nix-linux-packages
 mu
@@ -7386,7 +7388,7 @@ mu
 
 The overriden package may no longer be necessary at this point. Tried to build previously with this "plain" mu and that worked so I think we're ready to move along and park the overriden stuff.
 
-***** mu: overriden package
+***** COMMENT mu: overriden package
 
 Commenting this out because of collision issues in nix:
 
