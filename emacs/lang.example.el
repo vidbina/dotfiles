@@ -235,34 +235,6 @@
   :custom
   (js-indent-level 2))
 
-;; https://github.com/emacs-typescript/typescript.el
-(use-package typescript-mode
-  :straight
-  (typescript-mode :type git
-                   :host github
-                   :repo "emacs-typescript/typescript.el")
-  :delight
-  (typescript-mode "ts")
-  :custom
-  (typescript-indent-level 2))
-
-;; https://github.com/ananthakumaran/tide
-(use-package tide
-  :straight
-  (tide :type git
-        :host github
-        :repo "ananthakumaran/tide")
-
-  :init
-  (evil-collection-tide-setup)
-  :delight
-  (tide-mode "🌊")
-  :after (typescript-mode evil-collection)
-  ;; :hook ((typescript-mode . tide-setup)
-  ;;        (typescript-mode . tide-hl-identifier-mode))
-  :custom
-  (tide-always-show-documentation nil "Don't show docs if only type info is available to minimize disruption"))
-
 ;; https://emacs-lsp.github.io/lsp-java/
 (use-package lsp-java
   :straight (lsp-java :type git

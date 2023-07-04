@@ -6006,7 +6006,11 @@ Superset of JavaScript that folks really should be using instead of just vanilla
          '(tsx-ts-mode . ("typescript-language-server" "--stdio")))))
 #+end_src
 
-**** Typescript-mode
+**** CANCELED COMMENT Typescript-mode
+:LOGBOOK:
+- State "CANCELED"   from              [2023-07-04 Tue 14:15] \\
+  Just got eglot in tsx-ts-mode working again so cordially fuck this.
+:END:
 
 Development of this package has been halted, so we're stopping our use of this.
 
