@@ -2697,7 +2697,7 @@ In order to provide point-specific behavior, we use the [[https://www.gnu.org/so
 (ffap-bindings)
 #+end_src
 
-#+begin_src elisp
+#+begin_src elisp :tangle personal-example.el
 (defun vidbina/get-likely-current-directory ()
   (interactive)
   (let* ((other-buffer (persp-get-scratch-buffer))
