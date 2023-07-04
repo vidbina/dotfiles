@@ -19,20 +19,7 @@ in
 
     yamllint
     nodePackages.yaml-language-server
-    (mu.overrideAttrs (oldAttrs:
-      let
-        rev = "4924daef6cdafec26cbbfe82de8cf52736d745f8";
-      in
-      {
-        version = "1.8.11-${rev}";
-        src = fetchFromGitHub {
-          inherit rev;
-          owner = "djcb";
-          repo = "mu";
-          sha256 = "sha256-IEfwAAUqEGtN4vww0pfW7iuIY/U3eqzC+MJsqtossCw=";
-        };
-        emacs = my-emacs;
-      }))
+    mu
 
     (writeScriptBin "e" ''
       exec emacsclient -a emacs -c "$@"
@@ -129,11 +116,12 @@ in
 
     (self: super:
       let
-        emacs = (pkgs.emacsGit.override {
-          nativeComp = true;
+        emacs = (pkgs.emacs-unstable.override {
+          withNativeCompilation = true;
           withSQLite3 = true;
           withGTK2 = false;
           withGTK3 = false;
+          withTreeSitter = true;
         });
         bundled-emacs = emacs.pkgs.withPackages (epkgs: (
           with epkgs; [
@@ -156,6 +144,7 @@ in
             pkgs.coreutils
             pkgs.fd
             pkgs.multimarkdown
+            pkgs.python39
             ripgrep-for-doom-emacs
           ];
         });

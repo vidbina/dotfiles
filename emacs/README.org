@@ -7312,7 +7312,7 @@ We bundle emacs through a bunch of helpers that set whatever flags we need set a
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
 emacs = (pkgs.emacs-unstable.override {
-  nativeComp = true;
+  withNativeCompilation = true;
   withSQLite3 = true;
   withGTK2 = false;
   withGTK3 = false;
@@ -7625,8 +7625,8 @@ nixpkgs.overlays = [
   (self: super: {
     my-emacs =
       let
-        emacs = pkgs.emacsPgtkGcc;
-        emacsWithPackages = (pkgs.emacsPackagesNgGen emacs).emacsWithPackages;
+        emacs = pkgs.emacs-pgtk;
+        emacsWithPackages = (pkgs.emacsPackagesFor emacs).emacsWithPackages;
         bundled-emacs = emacsWithPackages (epkgs: (
           with epkgs; [
             notmuch
@@ -7692,55 +7692,6 @@ nixpkgs.overlays = [
   })
 ];
 #+end_src
-
-**** emacsPgtkNativeComp vs emacsGit
-
-Looking at [[https://github.com/nix-community/emacs-overlay/blob/master/default.nix][emacs-overlay default.nix]], the diff between =emacsGit= and =emacsPgtkNativeComp= is basically that the latter extends the former with native compilation. 🤷🏿‍♂️
-
-Perhaps we use differing builds because of issues like [[https://github.com/nix-community/emacs-overlay/issues/187][emacs-overlay issue 187]] but I simply can't recall how I settled on the current design.
-
-***** Expansion
-
-For reference's sake, observe how the definition of =emacsGit= wraps =mkGitEmacs=:
-
-#+begin_src nix
-emacsGit = mkGitEmacs "emacs-git" ./repos/emacs/emacs-master.json { withSQLite3 = true; };
-#+end_src
-
-****** TL;DR
-
-The =emacsPgtkNativeComp= definition calls =mkPkgEmacs= and is listed below:
-
-#+begin_src nix
-emacsPgtkNativeComp = mkPgtkEmacs "emacs-pgtk-native-comp" ./repos/emacs/emacs-master.json { nativeComp = true; withSQLite3 = true; };
-#+end_src
-
-The =mkPgtkEmacs= definition just provides a wrapper around =mkGitEmacs=, removes the =--with-xft= configuration flag and adds the =--with-pgtk= flag.
-
-#+begin_src nix
-mkPgtkEmacs = namePrefix: jsonFile: { ... }@args: (mkGitEmacs namePrefix jsonFile args).overrideAttrs (
-  old: {
-    configureFlags = (super.lib.remove "--with-xft" old.configureFlags)
-      ++ super.lib.singleton "--with-pgtk";
-  }
-);
-#+end_src
-
-****** Conclusion
-
-It is fair to assume that =emacsPgtkNativeComp= expands to the following:
-
-#+begin_src nix
-(mkGitEmacs "emacs-pgtk-native-comp" ./repos/emacs/emacs-master.json {
-  nativeComp = true;
-  withSQLite3 = true;
-}).overrideAttrs (old: {
-  configureFlags = (super.lib.remove "--with-xft" old.configureFlags)
-                   ++ super.lib.singleton "--with-pgtk";
-});
-#+end_src
-
-The only diff being the change of name of the package, the attribute set (which now sets =nativeComp= to true) and the =configureFlags= override. Perhaps it is time to use =emacsPgtkNativeComp= for all builds after all. 🤷🏿‍♂️
 
 * Footnotes
 
