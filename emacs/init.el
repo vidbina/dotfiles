@@ -328,8 +328,6 @@
   :straight (modus-themes :type git
                           :host gitlab
                           :repo "protesilaos/modus-themes")
-  ;;:init
-  ;;(setq modus-themes-variable-pitch-ui t)
   :custom
   (modus-themes-bold-constructs t)
   (modus-themes-org-blocks 'gray-background)
@@ -339,23 +337,24 @@
                            (2 . (regular 1.1))
                            (t . (regular 1.1))))
   (modus-themes-common-palette-overrides
-  '((bg-heading-1 bg-yellow-nuanced)
-    (bg-heading-2 bg-blue-nuanced)
-    (bg-heading-3 bg-green-nuanced)
-    (bg-heading-4 bg-cyan-nuanced)
-    (bg-heading-5 bg-red-nuanced)
-    (fg-heading-0 fg-main)
-    (fg-heading-1 fg-main)
-    (fg-heading-2 fg-main)
-    (fg-heading-3 fg-main)
-    (fg-heading-4 fg-main)
-    (fg-heading-5 fg-main)
-    (fg-heading-6 fg-main)
-    (fg-heading-7 fg-main)
-    (fg-heading-8 fg-main)
+   '((bg-heading-1 bg-yellow-nuanced)
+     (bg-heading-2 bg-blue-nuanced)
+     (bg-heading-3 bg-green-nuanced)
+     (bg-heading-4 bg-cyan-nuanced)
+     (bg-heading-5 bg-red-nuanced)
+     (fg-heading-0 fg-main)
+     (fg-heading-1 fg-main)
+     (fg-heading-2 fg-main)
+     (fg-heading-3 fg-main)
+     (fg-heading-4 fg-main)
+     (fg-heading-5 fg-main)
+     (fg-heading-6 fg-main)
+     (fg-heading-7 fg-main)
+     (fg-heading-8 fg-main)
 
-    (prose-done green-intense)
-    (prose-todo red-intense))))
+     (prose-done green-intense)
+     (prose-todo red-intense)))
+  )
 
 ;; https://github.com/domtronn/all-the-icons.el
 (use-package all-the-icons
