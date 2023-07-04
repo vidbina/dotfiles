@@ -243,12 +243,6 @@
   :custom
   (js-indent-level 2))
 
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '(typescript-mode . ("typescript-language-server" "--stdio"))
-               '(typescript-ts-mode . ("typescript-language-server" "--stdio"))
-               '(tsx-ts-mode . ("typescript-language-server" "--stdio"))))
-
 ;; https://github.com/emacs-typescript/typescript.el
 (use-package typescript-mode
   :straight
