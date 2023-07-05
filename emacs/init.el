@@ -356,6 +356,13 @@
      (prose-todo red-intense)))
   )
 
+(use-package theme-magic
+  :straight (theme-magic :type git
+                         :host github
+                         :repo "jcaw/theme-magic")
+  :config
+  (theme-magic-export-theme-mode))
+
 ;; https://github.com/domtronn/all-the-icons.el
 (use-package all-the-icons
   :straight (all-the-icons :type git

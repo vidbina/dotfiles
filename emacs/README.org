@@ -2313,6 +2313,19 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
    (prose-todo red-intense)))
 #+end_src
 
+*** Theme Magic
+
+Use [[https://github.com/jcaw/theme-magic][theme-magic]] to use pywal to update your system theme based on your current Emacs theme.
+
+#+begin_src elisp :tangle init.el
+(use-package theme-magic
+  :straight (theme-magic :type git
+                         :host github
+                         :repo "jcaw/theme-magic")
+  :config
+  (theme-magic-export-theme-mode))
+#+end_src
+
 ** COMMENT NΛNO: NANO Theme by Rougier
 
 The [[https://github.com/rougier/nano-emacs][NΛNO theme by Rougier]] provides a very "clean" Emacs experience. Let's use parts of it for a better DX.
