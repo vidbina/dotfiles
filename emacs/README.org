@@ -2445,7 +2445,10 @@ Post-installation, don't forget to run ~all-the-icons-install-fonts~.
                           `((slot . 6) ,@sidebar)))
               (cons (regexp-opt-group '("*Warnings*"))
                     (cons #'display-buffer-in-side-window
-                          `((slot . 10) ,@sidebar))))))
+                          `((slot . 10) ,@sidebar)))
+              (cons (regexp-opt-group '("*dotfile-helpers*"))
+                    (cons #'display-buffer-no-window
+                          `())))))
 #+end_src
 
 **** Error reporting
@@ -4790,6 +4793,10 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (setq zoom-window-mode-line-color "DodgerBlue4")
   (load-theme 'modus-vivendi :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
+  ;; call commands
+  ;; hsetroot -solid '#000000'
+  (async-shell-command "hsetroot -solid '#000000'" "*dotfile-helpers*")
+  (message "see *dotfile-helpers* for output of wallpaper color set")
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
 
@@ -4799,6 +4806,9 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (setq zoom-window-mode-line-color "Gold")
   (load-theme 'modus-operandi :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
+  ;; call commands
+  (async-shell-command "hsetroot -solid '#ff9800'" "*dotfile-helpers*")
+  (message "see *dotfile-helpers* for output of wallpaper color set")
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
 
