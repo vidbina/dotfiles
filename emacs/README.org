@@ -2313,6 +2313,19 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
    (prose-todo red-intense)))
 #+end_src
 
+*** Theme Magic
+
+Use [[https://github.com/jcaw/theme-magic][theme-magic]] to use pywal to update your system theme based on your current Emacs theme.
+
+#+begin_src elisp :tangle init.el
+(use-package theme-magic
+  :straight (theme-magic :type git
+                         :host github
+                         :repo "jcaw/theme-magic")
+  :config
+  (theme-magic-export-theme-mode))
+#+end_src
+
 ** COMMENT NΛNO: NANO Theme by Rougier
 
 The [[https://github.com/rougier/nano-emacs][NΛNO theme by Rougier]] provides a very "clean" Emacs experience. Let's use parts of it for a better DX.
@@ -2432,7 +2445,10 @@ Post-installation, don't forget to run ~all-the-icons-install-fonts~.
                           `((slot . 6) ,@sidebar)))
               (cons (regexp-opt-group '("*Warnings*"))
                     (cons #'display-buffer-in-side-window
-                          `((slot . 10) ,@sidebar))))))
+                          `((slot . 10) ,@sidebar)))
+              (cons (regexp-opt-group '("*dotfile-helpers*"))
+                    (cons #'display-buffer-no-window
+                          `())))))
 #+end_src
 
 **** Error reporting
@@ -4777,6 +4793,10 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (setq zoom-window-mode-line-color "DodgerBlue4")
   (load-theme 'modus-vivendi :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
+  ;; call commands
+  ;; hsetroot -solid '#000000'
+  (async-shell-command "hsetroot -solid '#000000'" "*dotfile-helpers*")
+  (message "see *dotfile-helpers* for output of wallpaper color set")
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
 
@@ -4786,6 +4806,9 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (setq zoom-window-mode-line-color "Gold")
   (load-theme 'modus-operandi :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
+  ;; call commands
+  (async-shell-command "hsetroot -solid '#ff9800'" "*dotfile-helpers*")
+  (message "see *dotfile-helpers* for output of wallpaper color set")
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
 
@@ -5069,7 +5092,7 @@ My special bindings are typically prefixed with =C-c v= (for vidbina) and also b
 (global-set-key (kbd "C-c v \\") 'visual-fill-column-mode)
 (global-set-key (kbd "C-c v SPC") 'whitespace-mode)
 (global-set-key (kbd "C-c v c") 'copilot-complete)
-(global-set-key (kbd "C-c v t") 'gptel-send-menu)
+(global-set-key (kbd "C-c v t") 'gptel-menu)
 (global-set-key (kbd "C-c v i") 'completion-at-point)
 (global-set-key (kbd "C-c v O") 'vidbina/orui-node-zoom-padding-set)
 (global-set-key (kbd "C-c v _") 'vidbina/tail-buffer)
@@ -6110,8 +6133,10 @@ Superset of JavaScript that folks really should be using instead of just vanilla
          '(tsx-ts-mode . ("typescript-language-server" "--stdio")))))
 #+end_src
 
-**** CANCELED COMMENT Typescript-mode
+**** PROTOTYPE Typescript-mode
 :LOGBOOK:
+- State "PROTOTYPE"  from "CANCELED"   [2023-07-04 Tue 20:44] \\
+  Reopening typescript-mode as there seems to be a bit of a disconnect between major modes and the tree-sitter major modes that I really need to understand.
 - State "CANCELED"   from              [2023-07-04 Tue 14:15] \\
   Just got eglot in tsx-ts-mode working again so cordially fuck this.
 :END:
@@ -6131,7 +6156,7 @@ Development of this package has been halted, so we're stopping our use of this.
   (typescript-indent-level 2))
 #+end_src
 
-***** Tide
+***** COMMENT Tide
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/ananthakumaran/tide
@@ -6210,7 +6235,7 @@ Development of this package has been halted, so we're stopping our use of this.
             :repo "orzechowskid/tsx-mode.el"))
 #+end_src
 
-**** Deno
+**** COMMENT Deno
 
 #+begin_src elisp
 (with-eval-after-load 'eglot
@@ -6405,7 +6430,9 @@ See https://github.com/editorconfig/editorconfig-emacs/issues/264 regarding =ind
 
 *** Tree-Sitter
 
-Loosely based on the [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/][TypeScript development with Emacs, tree-sitter and LSP in 2022]] article by vxlabs.
+Read https://www.masteringemacs.org/article/how-to-get-started-tree-sitter for a good intro into using Tree-Sitter.
+
+Also see [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/][TypeScript development with Emacs, tree-sitter and LSP in 2022]] article by vxlabs and [[https://www.nathanfurnal.xyz/posts/building-tree-sitter-langs-emacs/][Nathan's write-up on building tree-sitter-langs]] which I all cherry-picked insights from.
 
 See if treesitter is available in a buffer by running:
 
@@ -6417,9 +6444,9 @@ See if treesitter is available in a buffer by running:
 
 ***** Use built-in tree-sitter
 
-- ⚠️ I initally thought of test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]] but am realising that my current build of Emacs may not have tree-sitter bundled into it. 😅
+- ⚠️ [2023-07-04 Tue 20:40] +I initally thought of test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]] but am realising that my current build of Emacs may not have tree-sitter bundled into it. 😅+ Don't use bleeding edge Emacs but just use the stable-ish version 29 if you don't want to screw around.
 
-Fiddled around with this for a bit and stumbled into a variety of errors, so I tried [[https://www.nathanfurnal.xyz/posts/building-tree-sitter-langs-emacs/][Nathan's write-up on building tree-sitter-langs]] which led to the the explicit definition of variable =treesit-language-source-alist= which treesit-auto needs to get the job done. While playing around, I noticed that I misunderstood how tree-sitter-langs and treesit-auto factor into the picture. My current understanding as per [2023-07-04 Tue 15:19] is that:
+Fiddled around with this for a bit and stumbled into a variety of errors, so I triehich led to the the explicit definition of variable =treesit-language-source-alist= which treesit-auto needs to get the job done. While playing around, I noticed that I misunderstood how tree-sitter-langs and treesit-auto factor into the picture. My current understanding as per [2023-07-04 Tue 15:19] is that:
 - tree-sitter-langs provides lang bundles *that need to be installed*
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
@@ -6432,6 +6459,7 @@ Fiddled around with this for a bit and stumbled into a variety of errors, so I t
         <<treesit-languages>>
         )
   :config
+  <<treesit-config>>
   (defun nf/treesit-install-all-languages ()
     "Install all languages specified by `treesit-language-source-alist'."
     (interactive)
@@ -6466,6 +6494,25 @@ https://emacs-tree-sitter.github.io/installation/#installing-with-straight-dot-e
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
   :delight
   (tree-sitter-mode "🌲"))
+#+end_src
+
+**** tree-sitter major mode mappings
+
+#+begin_src elisp :noweb-ref treesit-config
+(setq major-mode-remap-alist
+      '((yaml-mode . yaml-ts-mode)
+        (bash-mode . bash-ts-mode)
+        (js2-mode . js-ts-mode)
+        (typescript-mode . typescript-ts-mode)
+        (json-mode . json-ts-mode)
+        (css-mode . css-ts-mode)
+        (python-mode . python-ts-mode)))
+#+end_src
+
+**** tree-sitter extension mappings
+
+#+begin_src elisp :noweb-ref treesit-config
+(add-to-list 'auto-mode-alist '("\\.[tj]sx?\\'" . tsx-ts-mode))
 #+end_src
 
 **** tree-sitter Grammars
@@ -7491,57 +7538,17 @@ jupyter-for-emacs
 
 **** mu
 
+When using home-manager, the =runPersonalMuInit= activation executes =mu init= with the correct parameters in order to correctly setup your mu index. In case you want to retrigger this activation, the ~/.cache/mu directory must not exist. I typically rename =~/.cache/mu= to =~/.cache/mu-YYYYMMDD= in order to meet the condition to trigger a mu init.
+
 ***** mu: basic package
 
 #+begin_src nix :noweb-ref nix-linux-packages
 mu
 #+end_src
 
-***** TODO Explore if we can drop the overriden package instead of basic
+***** DONE Explore if we can drop the overriden package instead of basic
 
 The overriden package may no longer be necessary at this point. Tried to build previously with this "plain" mu and that worked so I think we're ready to move along and park the overriden stuff.
-
-***** COMMENT mu: overriden package
-
-Commenting this out because of collision issues in nix:
-
-#+begin_src text
-these 5 derivations will be built:
-  /nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv
-  /nix/store/idhr83djdm2aw18limb945sx4bl6iwaw-activation-script.drv
-  /nix/store/pvls44m9w4c54gw9m99ddxmpckiggl4n-hm_fontconfigconf.d10hmfonts.conf.drv
-  /nix/store/z2ab1bnwny925kmjrnkx24dlsm7sn9fg-home-manager-files.drv
-  /nix/store/1p4mmm2wp83zl243q4ygqbhdyzyhhh3k-home-manager-generation.drv
-building '/nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv'...
-error: collision between `/nix/store/nipkc69mampc75hqf2bscrak6pbs90vr-mu-1.8.11/share/emacs/site-lisp/mu4e/mu4e-search.elc' and `/nix/store/ssi8wd226dka2a4wv9yfw0hrnmpw1948-mu-1.8.13-1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9/share/emacs/site-lisp/mu4e/mu4e-search.elc'
-error: builder for '/nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv' failed with exit code 25;
-       last 1 log lines:
-       > error: collision between `/nix/store/nipkc69mampc75hqf2bscrak6pbs90vr-mu-1.8.11/share/emacs/site-lisp/mu4e/mu4e-search.elc' and `/nix/store/ssi8wd226dka2a4wv9yfw0hrnmpw1948-mu-1.8.13-1b2fb3b9bd737b09ec8b0168394d8a219b42e0d9/share/emacs/site-lisp/mu4e/mu4e-search.elc'
-       For full logs, run 'nix log /nix/store/4n1wx8smvbfq6y8kpbm6r5i4770sklas-home-manager-path.drv'.
-error: 1 dependencies of derivation '/nix/store/1p4mmm2wp83zl243q4ygqbhdyzyhhh3k-home-manager-generation.drv' failed to build
-make[1]: *** [Makefile:15: nix-switch] Error 1
-make[1]: Leaving directory '/home/vidbina/src/vidbina/dotfiles'
-make: *** [Makefile:9: all] Error 2
-#+end_src
-
-I believe that I installed this a long time ago because I needed to pin the version of mu but with the current updates on both the nixos-configuration and the dotfiles managed through home-manager, this may no longer be necessary.
-
-#+begin_src nix :noweb-ref nix-linux-packages
-(mu.overrideAttrs (oldAttrs:
-  let
-    rev = "4924daef6cdafec26cbbfe82de8cf52736d745f8";
-  in
-  {
-    version = "1.8.11-${rev}";
-    src = fetchFromGitHub {
-      inherit rev;
-      owner = "djcb";
-      repo = "mu";
-      sha256 = "sha256-IEfwAAUqEGtN4vww0pfW7iuIY/U3eqzC+MJsqtossCw=";
-    };
-    emacs = my-emacs;
-  }))
-#+end_src
 
 **** Shorthand to emacsclient
 

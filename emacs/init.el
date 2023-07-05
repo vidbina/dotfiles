@@ -356,6 +356,13 @@
      (prose-todo red-intense)))
   )
 
+(use-package theme-magic
+  :straight (theme-magic :type git
+                         :host github
+                         :repo "jcaw/theme-magic")
+  :config
+  (theme-magic-export-theme-mode))
+
 ;; https://github.com/domtronn/all-the-icons.el
 (use-package all-the-icons
   :straight (all-the-icons :type git
@@ -392,7 +399,10 @@
                           `((slot . 6) ,@sidebar)))
               (cons (regexp-opt-group '("*Warnings*"))
                     (cons #'display-buffer-in-side-window
-                          `((slot . 10) ,@sidebar))))))
+                          `((slot . 10) ,@sidebar)))
+              (cons (regexp-opt-group '("*dotfile-helpers*"))
+                    (cons #'display-buffer-no-window
+                          `())))))
 
 (customize-set-variable 'display-warning-minimum-level :error
                         "Pop up buffer for error-level or more severe warnings")
