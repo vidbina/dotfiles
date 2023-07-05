@@ -235,6 +235,17 @@
   :custom
   (js-indent-level 2))
 
+;; https://github.com/emacs-typescript/typescript.el
+(use-package typescript-mode
+  :straight
+  (typescript-mode :type git
+                   :host github
+                   :repo "emacs-typescript/typescript.el")
+  :delight
+  (typescript-mode "ts")
+  :custom
+  (typescript-indent-level 2))
+
 ;; https://github.com/clojure-emacs/clojure-mode
 (use-package clojure-mode
   :straight (clojure-mode :type git

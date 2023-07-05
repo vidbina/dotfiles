@@ -6133,8 +6133,10 @@ Superset of JavaScript that folks really should be using instead of just vanilla
          '(tsx-ts-mode . ("typescript-language-server" "--stdio")))))
 #+end_src
 
-**** CANCELED COMMENT Typescript-mode
+**** PROTOTYPE Typescript-mode
 :LOGBOOK:
+- State "PROTOTYPE"  from "CANCELED"   [2023-07-04 Tue 20:44] \\
+  Reopening typescript-mode as there seems to be a bit of a disconnect between major modes and the tree-sitter major modes that I really need to understand.
 - State "CANCELED"   from              [2023-07-04 Tue 14:15] \\
   Just got eglot in tsx-ts-mode working again so cordially fuck this.
 :END:
@@ -6154,7 +6156,7 @@ Development of this package has been halted, so we're stopping our use of this.
   (typescript-indent-level 2))
 #+end_src
 
-***** Tide
+***** COMMENT Tide
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/ananthakumaran/tide
@@ -6233,7 +6235,7 @@ Development of this package has been halted, so we're stopping our use of this.
             :repo "orzechowskid/tsx-mode.el"))
 #+end_src
 
-**** Deno
+**** COMMENT Deno
 
 #+begin_src elisp
 (with-eval-after-load 'eglot
