@@ -6428,7 +6428,9 @@ See https://github.com/editorconfig/editorconfig-emacs/issues/264 regarding =ind
 
 *** Tree-Sitter
 
-Loosely based on the [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/][TypeScript development with Emacs, tree-sitter and LSP in 2022]] article by vxlabs.
+Read https://www.masteringemacs.org/article/how-to-get-started-tree-sitter for a good intro into using Tree-Sitter.
+
+Also see [[https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/][TypeScript development with Emacs, tree-sitter and LSP in 2022]] article by vxlabs and [[https://www.nathanfurnal.xyz/posts/building-tree-sitter-langs-emacs/][Nathan's write-up on building tree-sitter-langs]] which I all cherry-picked insights from.
 
 See if treesitter is available in a buffer by running:
 
@@ -6440,9 +6442,9 @@ See if treesitter is available in a buffer by running:
 
 ***** Use built-in tree-sitter
 
-- ⚠️ I initally thought of test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]] but am realising that my current build of Emacs may not have tree-sitter bundled into it. 😅
+- ⚠️ [2023-07-04 Tue 20:40] +I initally thought of test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]] but am realising that my current build of Emacs may not have tree-sitter bundled into it. 😅+ Don't use bleeding edge Emacs but just use the stable-ish version 29 if you don't want to screw around.
 
-Fiddled around with this for a bit and stumbled into a variety of errors, so I tried [[https://www.nathanfurnal.xyz/posts/building-tree-sitter-langs-emacs/][Nathan's write-up on building tree-sitter-langs]] which led to the the explicit definition of variable =treesit-language-source-alist= which treesit-auto needs to get the job done. While playing around, I noticed that I misunderstood how tree-sitter-langs and treesit-auto factor into the picture. My current understanding as per [2023-07-04 Tue 15:19] is that:
+Fiddled around with this for a bit and stumbled into a variety of errors, so I triehich led to the the explicit definition of variable =treesit-language-source-alist= which treesit-auto needs to get the job done. While playing around, I noticed that I misunderstood how tree-sitter-langs and treesit-auto factor into the picture. My current understanding as per [2023-07-04 Tue 15:19] is that:
 - tree-sitter-langs provides lang bundles *that need to be installed*
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
@@ -6455,6 +6457,7 @@ Fiddled around with this for a bit and stumbled into a variety of errors, so I t
         <<treesit-languages>>
         )
   :config
+  <<treesit-config>>
   (defun nf/treesit-install-all-languages ()
     "Install all languages specified by `treesit-language-source-alist'."
     (interactive)
@@ -6489,6 +6492,25 @@ https://emacs-tree-sitter.github.io/installation/#installing-with-straight-dot-e
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
   :delight
   (tree-sitter-mode "🌲"))
+#+end_src
+
+**** tree-sitter major mode mappings
+
+#+begin_src elisp :noweb-ref treesit-config
+(setq major-mode-remap-alist
+      '((yaml-mode . yaml-ts-mode)
+        (bash-mode . bash-ts-mode)
+        (js2-mode . js-ts-mode)
+        (typescript-mode . typescript-ts-mode)
+        (json-mode . json-ts-mode)
+        (css-mode . css-ts-mode)
+        (python-mode . python-ts-mode)))
+#+end_src
+
+**** tree-sitter extension mappings
+
+#+begin_src elisp :noweb-ref treesit-config
+(add-to-list 'auto-mode-alist '("\\.[tj]sx?\\'" . tsx-ts-mode))
 #+end_src
 
 **** tree-sitter Grammars
