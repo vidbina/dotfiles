@@ -5092,7 +5092,7 @@ My special bindings are typically prefixed with =C-c v= (for vidbina) and also b
 (global-set-key (kbd "C-c v \\") 'visual-fill-column-mode)
 (global-set-key (kbd "C-c v SPC") 'whitespace-mode)
 (global-set-key (kbd "C-c v c") 'copilot-complete)
-(global-set-key (kbd "C-c v t") 'gptel-send-menu)
+(global-set-key (kbd "C-c v t") 'gptel-menu)
 (global-set-key (kbd "C-c v i") 'completion-at-point)
 (global-set-key (kbd "C-c v O") 'vidbina/orui-node-zoom-padding-set)
 (global-set-key (kbd "C-c v _") 'vidbina/tail-buffer)
