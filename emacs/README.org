@@ -3101,7 +3101,7 @@ I've been using diff-hl in /margin mode/ for a while, but with the latest update
   (diff-hl-margin-mode nil "Use the fringe"))
 #+end_src
 
-** 📁 Navigation
+** Navigation
 
 *** Deft
 
