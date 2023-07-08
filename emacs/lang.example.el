@@ -241,6 +241,7 @@
   (typescript-mode :type git
                    :host github
                    :repo "emacs-typescript/typescript.el")
+  :after flyspell
   :delight
   (typescript-mode "ts")
   :custom
