@@ -3887,18 +3887,23 @@ Sometimes the auto-save file has the following content:
             t nil nil))
 #+end_src
 
-** Password Store
+** Secrets management with auth-source
 
-I use [[https://www.passwordstore.org/][pass]] to manage passwords on my system.
-
-The following configuration, demonstrates how to set up the =auth-source= package to use the password-store backend. You can confirm the backend by verifying that the =auth-sources= customizable variable is set to ~(password-store)~.
-
-#+begin_src elisp
+#+begin_src elisp :noweb yes
 (use-package auth-source
   :straight (:type built-in)
 
   :config
-  (auth-source-pass-enable))
+  <<auth-source-config>>)
+#+end_src
+
+*** Using the Linux password store (pass) with auth-source
+
+I use [[https://www.passwordstore.org/][pass]] to manage passwords on my system.
+The following configuration, demonstrates how to set up the =auth-source= package to use the password-store backend. You can confirm the backend by verifying that the =auth-sources= customizable variable is set to ~(password-store)~.
+
+#+begin_src elisp :noweb-ref auth-source-config
+(auth-source-pass-enable)
 #+end_src
 
 The following is an example of how we access a password in a password store keystore.
