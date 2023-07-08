@@ -413,11 +413,51 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
 (org-format-latex-options '(
                             :foreground default
                             :background default
-                            :scale 2.0
+                            :scale 4.0
                             :html-foreground "Black"
                             :html-background "Transparent"
                             :html-scale 1.0
                             :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
+#+end_src
+
+
+**** Zoom LaTeX formulas by adjusting the scale
+
+Variable =org-format-latex-options= has the =:scale= attribute which informs how large LaTeX is rendered.
+
+$$f(g(x))$$
+
+#+begin_src elisp :noweb yes :tangle personal-example.el
+(defcustom vidbina/latex-formula-zoom-step 1.2
+  "The zoom increment to apply at very latex-formula-zoom step")
+
+(defun vidbina/latex-formula-zoom-increase ()
+  (interactive)
+  (vidbina/latex-formula-zoom vidbina/latex-formula-zoom-step))
+
+(defun vidbina/latex-formula-zoom-decrease ()
+  (interactive)
+  (if (eq 0 vidbina/latex-formula-zoom-step)
+      (error "🔍 Can not zoom LaTeX with factor zero")
+    (vidbina/latex-formula-zoom (/ vidbina/latex-formula-zoom-step))
+    ))
+
+(defun vidbina/latex-formula-zoom-reset (scale)
+  (interactive (list (read-number "Reset to which scale? " 1 1)))
+  (if (eq 0 vidbina/latex-formula-zoom-step)
+      (error "🔍 Can not zoom LaTeX with factor zero")
+    (setq org-format-latex-options
+          (plist-put org-format-latex-options :scale scale))
+    ))
+
+(defun vidbina/latex-formula-zoom (factor)
+  (setq org-format-latex-options
+        (plist-put org-format-latex-options
+                   :scale (* (plist-get org-format-latex-options :scale) factor))))
+
+(advice-add 'default-text-scale-increase :after (lambda () (vidbina/latex-formula-zoom-increase)))
+
+(advice-add 'default-text-scale-decrease :after (lambda () (vidbina/latex-formula-zoom-decrease)))
 #+end_src
 
 *** Default workflow states
