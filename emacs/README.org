@@ -3568,6 +3568,20 @@ Result: triggers a case change.
   (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
 #+end_src
 
+** Comms
+
+*** request
+
+https://github.com/tkf/emacs-request
+
+#+begin_src elisp :tangle personal-example.el
+;; https://github.com/tkf/emacs-request
+(use-package request
+  :straight (request :type git
+              :host github
+              :repo "tkf/emacs-request"))
+#+end_src
+
 ** PDF
 
 *** PDF-Tools
@@ -3580,6 +3594,45 @@ Result: triggers a case change.
   (pdf-tools-install nil t nil nil)
   (setq-default pdf-view-display-size 'fit-width))
 #+end_src
+
+*** reMarkable
+
+I use the reMarkable 2 as my paper/PDF reading on-the-go. The following helpers allow me to connect to my reMarkable over a USB connection and upload files into my device.
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/upload-pdf-to-remarkable (file)
+  (message "📚 reMarkable: Attempt to upload %s" file)
+  (request "http://10.11.99.1/upload"
+    :headers '(("Origin: http://10.11.99.1'")
+               ("Accept" . "*/*")
+               ("Referer" . "http://10.11.99.1/")
+               ("Connection" . "keep-alive"))
+    :files `(("file" . ,file))))
+
+(defun vidbina/from-buffer-upload-pdf-to-remarkable ()
+  (interactive)
+  (vidbina/upload-pdf-to-remarkable buffer-file-name))
+
+;; Write function to upload file at point to a directory obtained through prompt
+(defun vidbina/from-dired-upload-pdf-to-remarkable ()
+  (interactive)
+  (let* ((file (dired-get-file-for-visit))
+         ;; (cmd-long (format "curl \'http://10.11.99.1/upload\' -H 'Origin: http://10.11.99.1' -H 'Accept: */*' -H 'Referer: http://10.11.99.1/' -H 'Connection: keep-alive' -F \"file=@%s;filename=%s;type=application/pdf\"" (file-name-nondirectory file) (file-name-nondirectory file)))
+         ;;(cmd-short (format "curl -v -F filename=%s -F upload=@%s http://10.11.99.1/upload" (file-name-nondirectory file) (file-name-nondirectory file)))
+         ;;(cmd cmd-short)
+         )
+    (message (format "Looking at file %s" file))
+    ;; (message (format "Will run: %s" cmd)) ;
+    ;; (message (format "Quoted: %s" (combine-and-quote-strings (list cmd))))
+
+    ;;(with-temp-buffer
+    ;;  (cd (file-name-directory file))
+    ;;  (shell-command cmd))
+
+    (vidbina/upload-pdf-to-remarkable file)))
+#+end_src
+
+**** TODO Fix undefined =request= issue
 
 ** Project Management
 
