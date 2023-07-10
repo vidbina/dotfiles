@@ -550,6 +550,13 @@
    "Open in same window or (when secondary) split at bottom")
   (magit-diff-refine-hunk t "Show fine differences (word-granularity) for current hunk only"))
 
+;; https://github.com/magit/forge
+(use-package forge
+  :straight (forge :type git
+                   :host github
+                   :repo "magit/forge")
+  :after magit)
+
 ;; https://github.com/dgutov/diff-hl
 (use-package diff-hl
   :straight (diff-hl :type git

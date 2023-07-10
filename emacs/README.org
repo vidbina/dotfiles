@@ -3073,6 +3073,39 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
   (magit-diff-refine-hunk t "Show fine differences (word-granularity) for current hunk only"))
 #+end_src
 
+**** WIP Forge
+
+The [[https://github.com/magit/forge][forge]] package allows us to interact with different forges like GitHub, GitLab and more from the comfort of Emacs. Updating this while in the Uber and happy to think of me shipping PRs without having to context switch between Emacs and browser and dicking around with a /shitty touchpad on Linux/ (which is the pain of the day for me these days 😭).
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/magit/forge
+(use-package forge
+  :straight (forge :type git
+                   :host github
+                   :repo "magit/forge")
+  :after magit)
+#+end_src
+
+Consult [[https://magit.vc/manual/forge.html#Getting-Started][Forge Getting Started]] for instructions. 
+
+***** Secret management
+
+Forge uses [[https://magit.vc/manual/ghub/][ghub]] to access the APIs of different forges. Consult [[https://magit.vc/manual/ghub/Getting-Started.html][Getting Started]] in case you want to know how under-the-hood forge access happens.
+
+Effectively we need to define the following access details:
+
+| Forge  | machine        | user                  |
+|--------+----------------+-----------------------|
+| GitHub | api.github.com | vidbina^EMACS_PACKAGE |
+
+https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+
+In case you rely on [[*Using the Linux password store (pass) with auth-source][auth-source through pass]] to retrieve passwords/secrets, you will need to create the following pass entry for forge to work:
+
+#+begin_src bash
+pass edit api.github.com/vidbina^forge
+#+end_src
+
 **** TODO Fix incompatible recipes issues
 
 #+begin_quote
