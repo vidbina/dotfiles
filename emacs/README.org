@@ -2058,6 +2058,21 @@ Display a border at the position to indicate where the right margin is drawn. Th
 💡 Even if we have extremely wide displays, reading is a lot easier if the text is width-constrained so do yourself a favor and use something like [[visual-fill-column]] mode.
 #+end_quote
 
+** Comint mode
+
+During development, using the ~projectile-compile-project~ and ~projectile-test-project~ produces output in a comint buffer which we always want to be color coded. Emacs now has a builtin way to handle ANSI colors correctly according to [[https://stackoverflow.com/a/71785402][this SO thread]].
+
+#+begin_src elisp :tangle init.el
+(use-package ansi-color
+    :hook (compilation-filter . ansi-color-compilation-filter)) 
+#+end_src
+
+Furthermore, we want the content of the comint buffers to always be scrolled to the bottom such that I don't need to manually scroll to the relevant section.
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable 'compilation-scroll-output t "auto-scroll to bottom")
+#+end_src
+
 ** Line Numbers
 
 Let's hide line numbers and For the sake of ease of navigation and spatial orientation we display line numbers in the left margin.

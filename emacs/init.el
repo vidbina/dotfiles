@@ -252,6 +252,11 @@
 ;; https://www.emacswiki.org/emacs/ShowParenMode
 (show-paren-mode 1)
 
+(use-package ansi-color
+    :hook (compilation-filter . ansi-color-compilation-filter))
+
+(customize-set-variable 'compilation-scroll-output t "auto-scroll to bottom")
+
 ;; https://www.emacswiki.org/emacs/LineNumbers
 (use-package display-line-numbers
   :straight (:type built-in)
