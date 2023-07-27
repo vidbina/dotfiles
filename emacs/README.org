@@ -6793,6 +6793,22 @@ The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored
                          :repo "mickeynp/combobulate"))
 #+end_src
 
+
+*** Formatting
+
+**** Apheleia
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/radian-software/apheleia
+(use-package apheleia
+  :straight (apheleia :type git
+                         :host github
+                         :repo "radian-software/apheleia")
+  :ensure t
+  :config
+  (apheleia-global-mode +1))
+#+end_src
+
 *** <<highlight-indent-guides>> Highlight Indent Guides
 
 #+begin_src elisp :tangle lang.example.el

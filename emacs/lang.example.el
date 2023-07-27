@@ -379,6 +379,15 @@
                                :repo "emacs-tree-sitter/tree-sitter-langs")
   :after tree-sitter)
 
+;; https://github.com/radian-software/apheleia
+(use-package apheleia
+  :straight (apheleia :type git
+                         :host github
+                         :repo "radian-software/apheleia")
+  :ensure t
+  :config
+  (apheleia-global-mode +1))
+
 ;; https://github.com/DarthFennec/highlight-indent-guides
 (use-package highlight-indent-guides
   :straight (highlight-indent-guides :type git
