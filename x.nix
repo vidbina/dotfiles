@@ -115,7 +115,7 @@
     size = 64;
     x11 = {
       enable = true;
-      defaultCursor = "X_cursor";
+      defaultCursor = "tcross";
     };
   };
 
