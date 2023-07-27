@@ -379,6 +379,12 @@
                                :repo "emacs-tree-sitter/tree-sitter-langs")
   :after tree-sitter)
 
+;; https://github.com/mickeynp/combobulate
+(use-package combobulate
+  :straight (combobulate :type git
+                         :host github
+                         :repo "mickeynp/combobulate"))
+
 ;; https://github.com/radian-software/apheleia
 (use-package apheleia
   :straight (apheleia :type git

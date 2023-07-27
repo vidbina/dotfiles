@@ -6781,7 +6781,7 @@ Failing with =void-variable treesit-language-source-alist=
 
 Structural editing allows us to treat structural units of code with specific actions like movement, splicing and selection.
 
-**** COMMENT Combobulate
+**** Combobulate
 
 The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored by the same Mickey who brought us /[[https://www.masteringemacs.org/][Mastering Emacs]]/. 
 
