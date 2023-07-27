@@ -12,6 +12,8 @@ let
 in
 {
   imports = [
+    ./rofi/default.nix
+
     ./dev.nix
     ./vim.nix
   ]

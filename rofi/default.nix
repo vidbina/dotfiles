@@ -13,6 +13,5 @@
       modi = "run,emoji,calc";
       font = "mono 20";
     };
-    theme = ./theme-vidbina.rasi;
   };
 }
