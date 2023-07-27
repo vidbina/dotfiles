@@ -6,7 +6,7 @@
 
 These dotfiles make my life slightly more convenient. Not promising they'll do the same for yours though. 😉
 
-* TODO [2/19] Convert home-manager config to literate config
+* TODO [3/19] Convert home-manager config to literate config
 
 Refer to [[file:emacs/README.org]] for an example of a literate config that tangles into multiple output files.
 
@@ -18,7 +18,7 @@ Refer to [[file:emacs/README.org]] for an example of a literate config that tang
 - [ ] Neovim
 - [ ] Termite
 - [ ] Starship
-- [ ] Rofi (handled through Pywal since [2023-07-03 Mon])
+- [X] Rofi (handled through Pywal since [2023-07-03 Mon])
 - [ ] Redshift (or Gammastep)
 - [ ] Ghorg
 - [ ] Asciinema
@@ -555,7 +555,7 @@ programs.pywal = {
     size = 64;
     x11 = {
       enable = true;
-      defaultCursor = "X_cursor";
+      defaultCursor = "tcross";
     };
   };
 
@@ -797,6 +797,18 @@ darkman
 #+end_src
 
 Run =darkman set light= or =darkman set dark= or just run =darkman toggle=.
+
+****** rofi
+
+We import the previous rofi configuration and have removed the =programs.rofi.theme= option because Pywal is currently managing this.
+
+#+begin_src nix :noweb-ref common-imports
+./rofi/default.nix
+#+end_src
+
+******* TODO Fix the buggy theme setup
+
+When producing the Rofi modals/prompts, we have some readability issues are some bits are not legible (dark text on dark bg).
 
 ***** Applets
 

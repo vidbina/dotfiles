@@ -2058,6 +2058,21 @@ Display a border at the position to indicate where the right margin is drawn. Th
 💡 Even if we have extremely wide displays, reading is a lot easier if the text is width-constrained so do yourself a favor and use something like [[visual-fill-column]] mode.
 #+end_quote
 
+** Comint mode
+
+During development, using the ~projectile-compile-project~ and ~projectile-test-project~ produces output in a comint buffer which we always want to be color coded. Emacs now has a builtin way to handle ANSI colors correctly according to [[https://stackoverflow.com/a/71785402][this SO thread]].
+
+#+begin_src elisp :tangle init.el
+(use-package ansi-color
+    :hook (compilation-filter . ansi-color-compilation-filter)) 
+#+end_src
+
+Furthermore, we want the content of the comint buffers to always be scrolled to the bottom such that I don't need to manually scroll to the relevant section.
+
+#+begin_src elisp :tangle init.el
+(customize-set-variable 'compilation-scroll-output t "auto-scroll to bottom")
+#+end_src
+
 ** Line Numbers
 
 Let's hide line numbers and For the sake of ease of navigation and spatial orientation we display line numbers in the left margin.
@@ -2861,14 +2876,6 @@ In order to provide point-specific behavior, we use the [[https://www.gnu.org/so
       (find-file-at-point likely-directory))))
 #+end_src
 
-**  Magit status =magic-status= in vterm
-
-Running =magic-status= in vterm doesn't work because variable =magit-repository-directory=.
-
-#+begin_src elisp
-(message magit-repository-directories)
-#+end_src
-
 ** Indentation
 
 Turn of tab-indentation and opt for space-based indentation such that whitespace is a bit more controllable.
@@ -3073,6 +3080,39 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
   (magit-diff-refine-hunk t "Show fine differences (word-granularity) for current hunk only"))
 #+end_src
 
+**** WIP Forge
+
+The [[https://github.com/magit/forge][forge]] package allows us to interact with different forges like GitHub, GitLab and more from the comfort of Emacs. Updating this while in the Uber and happy to think of me shipping PRs without having to context switch between Emacs and browser and dicking around with a /shitty touchpad on Linux/ (which is the pain of the day for me these days 😭).
+
+#+begin_src elisp :tangle init.el
+;; https://github.com/magit/forge
+(use-package forge
+  :straight (forge :type git
+                   :host github
+                   :repo "magit/forge")
+  :after magit)
+#+end_src
+
+Consult [[https://magit.vc/manual/forge.html#Getting-Started][Forge Getting Started]] for instructions. 
+
+***** Secret management
+
+Forge uses [[https://magit.vc/manual/ghub/][ghub]] to access the APIs of different forges. Consult [[https://magit.vc/manual/ghub/Getting-Started.html][Getting Started]] in case you want to know how under-the-hood forge access happens.
+
+Effectively we need to define the following access details:
+
+| Forge  | machine        | user                  |
+|--------+----------------+-----------------------|
+| GitHub | api.github.com | vidbina^EMACS_PACKAGE |
+
+https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+
+In case you rely on [[*Using the Linux password store (pass) with auth-source][auth-source through pass]] to retrieve passwords/secrets, you will need to create the following pass entry for forge to work:
+
+#+begin_src bash
+pass edit api.github.com/vidbina^forge
+#+end_src
+
 **** TODO Fix incompatible recipes issues
 
 #+begin_quote
@@ -3101,7 +3141,7 @@ I've been using diff-hl in /margin mode/ for a while, but with the latest update
   (diff-hl-margin-mode nil "Use the fringe"))
 #+end_src
 
-** 📁 Navigation
+** Navigation
 
 *** Deft
 
@@ -3145,14 +3185,67 @@ In order to have a vim NERDTree-like experience where we get to explore director
 
 Use [[https://github.com/alexluigit/dirvish][Dirvish]] to supercharge your dired experience. It is closer to offering a [[https://ranger.github.io/][ranger]]-like experience inside of Emacs.
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 ;; https://github.com/alexluigit/dirvish
 (use-package dirvish
   :straight (dirvish :type git
                      :host github
                      :repo "alexluigit/dirvish")
+  :init
+  (dirvish-override-dired-mode)
+  :custom
+  <<dirvish-custom>>
   :config
-  (dirvish-override-dired-mode))
+  <<dirvish-config>>
+  :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
+  (("C-c f" . dirvish-fd)
+   :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
+   ("a"   . dirvish-quick-access)
+   ("f"   . dirvish-file-info-menu)
+   ("y"   . dirvish-yank-menu)
+   ("N"   . dirvish-narrow)
+   ("^"   . dirvish-history-last)
+   ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+   ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+   ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+   ("TAB" . dirvish-subtree-toggle)
+   ("M-f" . dirvish-history-go-forward)
+   ("M-b" . dirvish-history-go-backward)
+   ("M-l" . dirvish-ls-switches-menu)
+   ("M-m" . dirvish-mark-menu)
+   ("M-t" . dirvish-layout-toggle)
+   ("M-s" . dirvish-setup-menu)
+   ("M-e" . dirvish-emerge-menu)
+   ("M-j" . dirvish-fd-jump)))
+#+end_src
+
+**** Set quick access entries
+
+#+begin_src elisp :noweb-ref dirvish-custom
+(dirvish-quick-access-entries ; It's a custom option, `setq' won't work
+ '(("h" "~/"                          "Home")
+   ("d" "~/Downloads/"                "Downloads")
+   ("m" "/mnt/"                       "Drives")
+   ("t" "~/.local/share/Trash/files/" "TrashCan")))
+#+end_src
+
+**** Format modeline
+
+#+begin_src elisp :noweb-ref dirvish-config
+;; (dirvish-peek-mode) ; Preview files in minibuffer
+;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+(setq dirvish-mode-line-format
+      '(:left (sort symlink) :right (omit yank index)))
+(setq dirvish-attributes
+      '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
+;;(setq delete-by-moving-to-trash t)
+(setq dired-listing-switches
+      "-l --almost-all --human-readable --group-directories-first --no-group")
+#+end_src
+
+**** Bindings
+
+#+begin_src elisp :noweb-ref dirvish-config
 #+end_src
 
 ** Completion
@@ -3517,6 +3610,14 @@ Make magit aware of the correct directory when invoked from a vterm.
                    (customize-set-value 'magit-repository-directories target "Set through vidbina/get-likely-current-directory"))))
 #+end_src
 
+**** TODO Magit status =magic-status= in vterm
+
+Running =magic-status= in vterm doesn't work because variable =magit-repository-directory=.
+
+#+begin_src elisp
+(message magit-repository-directories)
+#+end_src
+
 *** TODO Debug =evil-collection-vterm-delete=
 
 In vterm:
@@ -3568,6 +3669,20 @@ Result: triggers a case change.
   (evil-define-key 'normal vterm-mode-map (kbd "<return>") #'evil-insert-resume))
 #+end_src
 
+** Comms
+
+*** request
+
+https://github.com/tkf/emacs-request
+
+#+begin_src elisp :tangle personal-example.el
+;; https://github.com/tkf/emacs-request
+(use-package request
+  :straight (request :type git
+              :host github
+              :repo "tkf/emacs-request"))
+#+end_src
+
 ** PDF
 
 *** PDF-Tools
@@ -3580,6 +3695,45 @@ Result: triggers a case change.
   (pdf-tools-install nil t nil nil)
   (setq-default pdf-view-display-size 'fit-width))
 #+end_src
+
+*** reMarkable
+
+I use the reMarkable 2 as my paper/PDF reading on-the-go. The following helpers allow me to connect to my reMarkable over a USB connection and upload files into my device.
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/upload-pdf-to-remarkable (file)
+  (message "📚 reMarkable: Attempt to upload %s" file)
+  (request "http://10.11.99.1/upload"
+    :headers '(("Origin: http://10.11.99.1'")
+               ("Accept" . "*/*")
+               ("Referer" . "http://10.11.99.1/")
+               ("Connection" . "keep-alive"))
+    :files `(("file" . ,file))))
+
+(defun vidbina/from-buffer-upload-pdf-to-remarkable ()
+  (interactive)
+  (vidbina/upload-pdf-to-remarkable buffer-file-name))
+
+;; Write function to upload file at point to a directory obtained through prompt
+(defun vidbina/from-dired-upload-pdf-to-remarkable ()
+  (interactive)
+  (let* ((file (dired-get-file-for-visit))
+         ;; (cmd-long (format "curl \'http://10.11.99.1/upload\' -H 'Origin: http://10.11.99.1' -H 'Accept: */*' -H 'Referer: http://10.11.99.1/' -H 'Connection: keep-alive' -F \"file=@%s;filename=%s;type=application/pdf\"" (file-name-nondirectory file) (file-name-nondirectory file)))
+         ;;(cmd-short (format "curl -v -F filename=%s -F upload=@%s http://10.11.99.1/upload" (file-name-nondirectory file) (file-name-nondirectory file)))
+         ;;(cmd cmd-short)
+         )
+    (message (format "Looking at file %s" file))
+    ;; (message (format "Will run: %s" cmd)) ;
+    ;; (message (format "Quoted: %s" (combine-and-quote-strings (list cmd))))
+
+    ;;(with-temp-buffer
+    ;;  (cd (file-name-directory file))
+    ;;  (shell-command cmd))
+
+    (vidbina/upload-pdf-to-remarkable file)))
+#+end_src
+
+**** TODO Fix undefined =request= issue
 
 ** Project Management
 
@@ -3887,18 +4041,23 @@ Sometimes the auto-save file has the following content:
             t nil nil))
 #+end_src
 
-** Password Store
+** Secrets management with auth-source
 
-I use [[https://www.passwordstore.org/][pass]] to manage passwords on my system.
-
-The following configuration, demonstrates how to set up the =auth-source= package to use the password-store backend. You can confirm the backend by verifying that the =auth-sources= customizable variable is set to ~(password-store)~.
-
-#+begin_src elisp
+#+begin_src elisp :noweb yes
 (use-package auth-source
   :straight (:type built-in)
 
   :config
-  (auth-source-pass-enable))
+  <<auth-source-config>>)
+#+end_src
+
+*** Using the Linux password store (pass) with auth-source
+
+I use [[https://www.passwordstore.org/][pass]] to manage passwords on my system.
+The following configuration, demonstrates how to set up the =auth-source= package to use the password-store backend. You can confirm the backend by verifying that the =auth-sources= customizable variable is set to ~(password-store)~.
+
+#+begin_src elisp :noweb-ref auth-source-config
+(auth-source-pass-enable)
 #+end_src
 
 The following is an example of how we access a password in a password store keystore.
@@ -6190,6 +6349,7 @@ Development of this package has been halted, so we're stopping our use of this.
   (typescript-mode :type git
                    :host github
                    :repo "emacs-typescript/typescript.el")
+  :after flyspell
   :delight
   (typescript-mode "ts")
   :custom
@@ -6621,7 +6781,7 @@ Failing with =void-variable treesit-language-source-alist=
 
 Structural editing allows us to treat structural units of code with specific actions like movement, splicing and selection.
 
-**** COMMENT Combobulate
+**** Combobulate
 
 The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored by the same Mickey who brought us /[[https://www.masteringemacs.org/][Mastering Emacs]]/. 
 
@@ -6631,6 +6791,22 @@ The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored
   :straight (combobulate :type git
                          :host github
                          :repo "mickeynp/combobulate"))
+#+end_src
+
+
+*** Formatting
+
+**** Apheleia
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/radian-software/apheleia
+(use-package apheleia
+  :straight (apheleia :type git
+                         :host github
+                         :repo "radian-software/apheleia")
+  :ensure t
+  :config
+  (apheleia-global-mode +1))
 #+end_src
 
 *** <<highlight-indent-guides>> Highlight Indent Guides

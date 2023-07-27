@@ -241,6 +241,7 @@
   (typescript-mode :type git
                    :host github
                    :repo "emacs-typescript/typescript.el")
+  :after flyspell
   :delight
   (typescript-mode "ts")
   :custom
@@ -377,6 +378,21 @@
                                :host github
                                :repo "emacs-tree-sitter/tree-sitter-langs")
   :after tree-sitter)
+
+;; https://github.com/mickeynp/combobulate
+(use-package combobulate
+  :straight (combobulate :type git
+                         :host github
+                         :repo "mickeynp/combobulate"))
+
+;; https://github.com/radian-software/apheleia
+(use-package apheleia
+  :straight (apheleia :type git
+                         :host github
+                         :repo "radian-software/apheleia")
+  :ensure t
+  :config
+  (apheleia-global-mode +1))
 
 ;; https://github.com/DarthFennec/highlight-indent-guides
 (use-package highlight-indent-guides
