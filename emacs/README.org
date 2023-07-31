@@ -6798,6 +6798,8 @@ The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored
 
 **** Apheleia
 
+Apheleia helps to auto-format code upon saving. With this in place, we don't need to bother too much about editor-level indentation since we know it'll get fixed once we save anyways.
+
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/radian-software/apheleia
 (use-package apheleia
@@ -6806,7 +6808,9 @@ The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored
                          :repo "radian-software/apheleia")
   :ensure t
   :config
-  (apheleia-global-mode +1))
+  (apheleia-global-mode +1)
+  :delight
+  (apheleia-mode "👨🏿‍🏭"))
 #+end_src
 
 *** <<highlight-indent-guides>> Highlight Indent Guides

@@ -392,7 +392,9 @@
                          :repo "radian-software/apheleia")
   :ensure t
   :config
-  (apheleia-global-mode +1))
+  (apheleia-global-mode +1)
+  :delight
+  (apheleia-mode "👨🏿‍🏭"))
 
 ;; https://github.com/DarthFennec/highlight-indent-guides
 (use-package highlight-indent-guides
