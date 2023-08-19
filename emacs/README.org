@@ -5238,6 +5238,24 @@ Writing to the kill ring is done on a buffer-basis. Sometimes one just want to y
     (kill-region (point-min) (point-max))))
 #+end_src
 
+**** WIP Store code block into kill-ring
+
+#+begin_src txt
+Here is an example text that we can just copy
+#+end_src
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/copy-block ()
+  "Copies or yanks (vi) the contents of code block at point"
+  (interactive)
+  (if (org-in-src-block-p)
+      (progn (org-babel-mark-block)
+             (let ((start-pos (region-beginning))
+                   (end-pos (region-end)))
+               (copy-region-as-kill start-pos end-pos)))
+    (error "Not in code-block")))
+#+end_src
+
 **** WIP Open process buffer below active buffer
 
 #+begin_src elisp :tangle personal-example.el
