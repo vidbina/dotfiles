@@ -241,11 +241,24 @@
   (typescript-mode :type git
                    :host github
                    :repo "emacs-typescript/typescript.el")
-  :after flyspell
+  :after flyspell tree-sitter
   :delight
   (typescript-mode "ts")
   :custom
-  (typescript-indent-level 2))
+  (typescript-indent-level 2)
+
+  ;; https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/#ensure-for-tsx-configure-for-tree-sitter-based-indentation
+  :config
+  ;; we choose this instead of tsx-mode so that eglot can automatically figure out language for server
+  ;; see https://github.com/joaotavora/eglot/issues/624 and https://github.com/joaotavora/eglot#handling-quirky-servers
+  (define-derived-mode typescriptreact-mode typescript-mode
+    "TypeScript TSX")
+
+  ;; use our derived mode for tsx files
+  (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . typescriptreact-mode))
+  ;; by default, typescript-mode is mapped to the treesitter typescript parser
+  ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
+  (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx)))
 
 ;; https://github.com/clojure-emacs/clojure-mode
 (use-package clojure-mode
@@ -392,7 +405,9 @@
                          :repo "radian-software/apheleia")
   :ensure t
   :config
-  (apheleia-global-mode +1))
+  (apheleia-global-mode +1)
+  :delight
+  (apheleia-mode "👨🏿‍🏭"))
 
 ;; https://github.com/DarthFennec/highlight-indent-guides
 (use-package highlight-indent-guides
@@ -504,7 +519,17 @@ PROMPT is the prompt string we send to the API."
   :config
   (setq gptel-default-mode 'org-mode)
   (setq gptel-api-key (lambda ()
-                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina")))
+
+  :custom
+  (gptel-directives
+   '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
+     (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+     (writing . "You are a large language model and a writing assistant. Respond concisely.")
+     (chat . "You are a large language model and a conversation partner. Respond concisely.")
+     (vid . "You are a technical analyst with a strong background in EE an CS. Respond concisely and assume that the reader has the same background which warrants the avoidance of explanation of technical concepts unless explicitly asked for.")
+     ))
+  )
 
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el"

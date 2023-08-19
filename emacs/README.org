@@ -2854,16 +2854,19 @@ In order to provide point-specific behavior, we use the [[https://www.gnu.org/so
 #+begin_src elisp :tangle personal-example.el
 (defun vidbina/get-likely-current-directory ()
   (interactive)
-  (let* ((other-buffer (persp-get-scratch-buffer))
-         (other-directory (with-current-buffer other-buffer default-directory))
-         (file-name buffer-file-name))
-    (if (eq major-mode 'vterm-mode)
-        (progn
-          (message (format "📁 Finding Folder: in buffer %s directory %s" other-buffer other-directory))
-          other-directory)
-      (unless (eq file-name nil)
-        (message "📁 Not in vterm-mode, so just returning dir of buffer file")
-        (file-name-directory buffer-file-name)))))
+
+  (let ((file-buffers (seq-filter (lambda (x) (buffer-file-name x)) (persp-get-buffers))))
+    (cond
+     ;; If buffer has filename, use its directory
+     ((not (eq (buffer-file-name) nil))
+      (progn
+        (message "📁 Buffer has file name so, returning dir of buffer file")
+        (file-name-directory buffer-file-name)))
+     ;; If file buffers exist, pick the directory of the first one
+     ((> (length file-buffers) 0)
+      (file-name-directory (buffer-file-name (car file-buffers))))
+     ;; Otherwise, homedir
+     (t "~/"))))
 
 (defun vidbina/ffap-vterm-in-persp-mode ()
   "Handle FFAP within persp-mode"
@@ -5235,6 +5238,24 @@ Writing to the kill ring is done on a buffer-basis. Sometimes one just want to y
     (kill-region (point-min) (point-max))))
 #+end_src
 
+**** WIP Store code block into kill-ring
+
+#+begin_src txt
+Here is an example text that we can just copy
+#+end_src
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/copy-block ()
+  "Copies or yanks (vi) the contents of code block at point"
+  (interactive)
+  (if (org-in-src-block-p)
+      (progn (org-babel-mark-block)
+             (let ((start-pos (region-beginning))
+                   (end-pos (region-end)))
+               (copy-region-as-kill start-pos end-pos)))
+    (error "Not in code-block")))
+#+end_src
+
 **** WIP Open process buffer below active buffer
 
 #+begin_src elisp :tangle personal-example.el
@@ -6321,6 +6342,27 @@ Since JavaScript is everywhere, let's make sure we can at least read it with eas
 
 Superset of JavaScript that folks really should be using instead of just vanilla JS but we're not here to judge. 🤷🏿‍♂️
 
+***** TSI
+
+https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/#ensure-for-tsx-configure-for-tree-sitter-based-indentation
+
+#+begin_src elisp
+;; https://github.com/orzechowskid/tsi.el/
+;; great tree-sitter-based indentation for typescript/tsx, css, json
+(use-package tsi
+  :after tree-sitter
+  :straight (tsi :type git
+                 :host github
+                 :repo "orzechowskid/tsi.el")
+  ;; define autoload definitions which when actually invoked will cause package to be loaded
+  :commands (tsi-typescript-mode tsi-json-mode tsi-css-mode)
+  :init
+  (add-hook 'typescript-mode-hook (lambda () (tsi-typescript-mode 1)))
+  (add-hook 'json-mode-hook (lambda () (tsi-json-mode 1)))
+  (add-hook 'css-mode-hook (lambda () (tsi-css-mode 1)))
+  (add-hook 'scss-mode-hook (lambda () (tsi-scss-mode 1))))
+#+end_src
+
 ***** COMMENT Configure default LSP for TypeScript
 
 #+begin_src elisp :tangle lang.example.el
@@ -6349,11 +6391,24 @@ Development of this package has been halted, so we're stopping our use of this.
   (typescript-mode :type git
                    :host github
                    :repo "emacs-typescript/typescript.el")
-  :after flyspell
+  :after flyspell tree-sitter
   :delight
   (typescript-mode "ts")
   :custom
-  (typescript-indent-level 2))
+  (typescript-indent-level 2)
+
+  ;; https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/#ensure-for-tsx-configure-for-tree-sitter-based-indentation
+  :config
+  ;; we choose this instead of tsx-mode so that eglot can automatically figure out language for server
+  ;; see https://github.com/joaotavora/eglot/issues/624 and https://github.com/joaotavora/eglot#handling-quirky-servers
+  (define-derived-mode typescriptreact-mode typescript-mode
+    "TypeScript TSX")
+
+  ;; use our derived mode for tsx files
+  (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . typescriptreact-mode))
+  ;; by default, typescript-mode is mapped to the treesitter typescript parser
+  ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
+  (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx)))
 #+end_src
 
 ***** COMMENT Tide
@@ -6798,6 +6853,8 @@ The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored
 
 **** Apheleia
 
+Apheleia helps to auto-format code upon saving. With this in place, we don't need to bother too much about editor-level indentation since we know it'll get fixed once we save anyways.
+
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/radian-software/apheleia
 (use-package apheleia
@@ -6806,7 +6863,9 @@ The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored
                          :repo "radian-software/apheleia")
   :ensure t
   :config
-  (apheleia-global-mode +1))
+  (apheleia-global-mode +1)
+  :delight
+  (apheleia-mode "👨🏿‍🏭"))
 #+end_src
 
 *** <<highlight-indent-guides>> Highlight Indent Guides
@@ -7190,7 +7249,7 @@ CODE
 
 **** GPTel
 
-#+begin_src elisp :tangle lang.example.el
+#+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/karthink/gptel
 (use-package gptel
   :straight (gptel :type git
@@ -7199,7 +7258,23 @@ CODE
   :config
   (setq gptel-default-mode 'org-mode)
   (setq gptel-api-key (lambda ()
-                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina")))
+
+  :custom
+  <<gptel-custom>>
+  )
+#+end_src
+
+***** Custom directives
+
+#+begin_src elisp :noweb-ref gptel-custom
+(gptel-directives
+ '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
+   (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+   (writing . "You are a large language model and a writing assistant. Respond concisely.")
+   (chat . "You are a large language model and a conversation partner. Respond concisely.")
+   (vid . "You are a technical analyst with a strong background in EE an CS. Respond concisely and assume that the reader has the same background which warrants the avoidance of explanation of technical concepts unless explicitly asked for.")
+   ))
 #+end_src
 
 **** Copilot
