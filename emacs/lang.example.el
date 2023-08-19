@@ -519,7 +519,17 @@ PROMPT is the prompt string we send to the API."
   :config
   (setq gptel-default-mode 'org-mode)
   (setq gptel-api-key (lambda ()
-                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina")))
+
+  :custom
+  (gptel-directives
+   '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
+     (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+     (writing . "You are a large language model and a writing assistant. Respond concisely.")
+     (chat . "You are a large language model and a conversation partner. Respond concisely.")
+     (vid . "You are a technical analyst with a strong background in EE an CS. Respond concisely and assume that the reader has the same background which warrants the avoidance of explanation of technical concepts unless explicitly asked for.")
+     ))
+  )
 
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el"
