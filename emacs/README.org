@@ -6988,7 +6988,7 @@ When using changes to the path may go unnoticed to Emacs which results to shell 
 
 https://emacs.stackexchange.com/questions/53773/best-way-to-make-org-babel-blocks-aware-of-my-path-and-other-environment-variab
 
-**** Example Usage
+**** COMMENT Example Usage
 
 As a Nix ❄️ user, there are a few [[https://github.com/direnv/direnv/wiki/Nix][options]] available for managing direnv environments of which [[https://github.com/nix-community/nix-direnv][nix-direnv]] happened to be an easier and faster option. As an example, observe the following shell.nix:
 
