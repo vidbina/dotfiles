@@ -6,4 +6,10 @@
     ./common.nix
     ./emacs/default-darwin.nix
   ];
+
+  programs.zsh.initExtra = ''
+    if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+      . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+    fi;
+  '';
 }
