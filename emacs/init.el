@@ -933,8 +933,8 @@
 
 (message "💥 Debug on error is %s" debug-on-error)
 
-(load "~/.emacs.d/lang.el")
-(load "~/.emacs.d/personal.el")
+(load "~/.emacs.d/lang.el" t)
+(load "~/.emacs.d/personal.el" t)
 
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
