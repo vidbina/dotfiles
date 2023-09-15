@@ -56,7 +56,7 @@ in
             pkgs.coreutils
             pkgs.fd
             pkgs.multimarkdown
-            jupyter-for-emacs
+            # jupyter-for-emacs
             ripgrep-for-doom-emacs
 
             # for Emacs
