@@ -52,14 +52,15 @@ The use of home-manager is pretty straightforward especially with the convenient
 
 Typical use will be as follows:
 1. Enter the nix-shell using =nix-shell --pure=
-2. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]]), as demonstrated below:
+2. Configure your personal.nix to specify =home.username=, =home.homeDirectory= and =home.stateVersion= for your system
+3. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]]), as demonstrated below:
    #+begin_src bash
 niv update home-manager
 niv update nixpkgs
    #+end_src
-3. Run =make test= to test the home-manager configuration or =make= to install the configuration
-4. Optionally, if package update step was completed (step 2 above), commit the changes made to the niv sources files
-5. Profit 💰
+4. Run =make test= to test the home-manager configuration or =make= to install the configuration
+5. Optionally, if package update step was completed (step 2 above), commit the changes made to the niv sources files
+6. Profit 💰
 
 #+begin_quote
 💡 Note that home-manager generated configuration files will be written somewhere to ~~/.config~, e.g.: ~~/.config/git/config~ for git.
@@ -1169,6 +1170,8 @@ Observe the snippet below for an example of a valid personal.nix file.
   home.packages = [ ];
 }
 #+end_src
+
+Note that the same configuration above is adapted for macOS by setting =home.homeDirectory= to a valid macOS home path like =/Users/vidbina=.
 
 * Developer Tooling
 
