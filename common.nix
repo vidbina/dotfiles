@@ -12,8 +12,6 @@ let
 in
 {
   imports = [
-    ./rofi/default.nix
-
     ./dev.nix
     ./vim.nix
   ]
@@ -49,9 +47,7 @@ in
 
   nixpkgs = {
     overlays = [
-      (self: super: {
-
-      })
+      (self: super: { })
     ];
 
     config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
