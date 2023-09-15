@@ -52,6 +52,7 @@
     #pkgs.cmakeCurses
     pkgs.gnumake
     pkgs.rnix-lsp
+    pkgs.nodejs
     pkgs.nodePackages.typescript-language-server
     pkgs.tree-sitter
     pkgs.jq
