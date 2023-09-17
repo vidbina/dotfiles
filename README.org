@@ -41,7 +41,23 @@ application/octet-stream=emacsclient.desktop;
 
 My configuration is currently managed with [[https://github.com/nix-community/home-manager][home-manager]] for the better DX or UX. Before using home-manager, I manually managed symlinks from my config directory to this dotfiles repo. The use of [[https://www.gnu.org/software//stow/][GNU Stow]] was considered for a brief moment until I realized that Stow was written in Perl and I came to terms with my unwillingness to have a critical part of my stack based on tooling that brings me no joy 🙊 (on account of my troubled personal history with Perl).
 
-** The easy way: with home-manager
+** The easy way for macOS: with nix-darwin
+
+1. Setup nix-darwin and install shell (as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin)
+
+   #+begin_src bash
+nix run nix-darwin -- switch --flake ./nix-darwin/
+   #+end_src
+
+2. In order to debug the config enter a Nix REPL and inspecting inputs and outputs
+   #+begin_src bash
+cd nix-darwin
+nix repl
+:lf .
+   #+end_src
+
+
+** The easy way for Linux: with home-manager
 :PROPERTIES:
 :CUSTOM_ID: home-manager
 :END:
