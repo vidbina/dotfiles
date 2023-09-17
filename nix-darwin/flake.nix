@@ -5,10 +5,13 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager }:
   let
+    # TODO: Isolate into separate file
     configuration = { pkgs, ... }: {
       # List packages installed in system profile. To search by name, run:
       # $ nix-env -qaP | grep wget
@@ -43,6 +46,10 @@
     # $ darwin-rebuild build --flake .#simple
     darwinConfigurations."simple" = nix-darwin.lib.darwinSystem {
       modules = [ configuration ];
+    };
+
+    darwinConfigurations."Davids-MacBook-Pro" = nix-darwin.lib.darwinSystem {
+      modules = [ home-manager.darwinModules.home-manager configuration ];
     };
 
     # Expose the package set, including overlays, for convenience.
