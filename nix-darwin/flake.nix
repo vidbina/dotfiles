@@ -1,3 +1,4 @@
+# TODO: Tangle parts of the copied bits from source
 {
   description = "Example Darwin system flake";
 
@@ -110,7 +111,53 @@
         nix.settings.experimental-features = "nix-command flakes";
 
         # Create /etc/zshrc that loads the nix-darwin environment.
-        programs.zsh.enable = true; # default shell on catalina
+        # NOTE: Copied from common.nix
+        programs.zsh = {
+          enable = true; # default shell on catalina
+          enableSyntaxHighlighting = true;
+          # Used to be initExtraBeforeCompInit
+          # in nix-darwin, interactiveShellInit is called before compinit
+          # see https://github.com/LnL7/nix-darwin/blob/80bb201f4925cdda5a7a3c7b1900fb26bb2af2e8/modules/programs/zsh/default.nix#L168-L176
+          promptInit = ''
+            setopt histignorespace # keeps lines preceded with SPACE out of history
+
+            setopt INTERACTIVE_COMMENTS  # allow inline comments like this one
+            # https://github.com/akermu/emacs-libvterm#directory-tracking-and-prompt-tracking
+            vterm_printf(){
+                if [ -n "$TMUX" ] && ([ "''${TERM%%-*}" = "tmux" ] || [ "''${TERM%%-*}" = "screen" ] ); then
+                    # Tell tmux to pass the escape sequences through
+                    printf "\ePtmux;\e\e]%s\007\e\\" "$1"
+                elif [ "''${TERM%%-*}" = "screen" ]; then
+                    # GNU screen (screen, screen-256color, screen-256color-bce)
+                    printf "\eP\e]%s\007\e\\" "$1"
+                else
+                    printf "\e]%s\e\\" "$1"
+                fi
+            }
+            if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+                alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
+            fi
+            vterm_prompt_end() {
+                vterm_printf "51;A";
+            }
+            setopt PROMPT_SUBST
+            PROMPT="↪ %(?.%F{green}√.%F{red}%?)%f" # error state
+            PROMPT="$PROMPT → %F{yellow}%~%f" # pwd
+            PROMPT="$PROMPT @ %F{magenta}%D{%Y.%m.%d} %B%F{blue}%T%f%b" # date/time
+            PROMPT="$PROMPT"$'\n'
+            PROMPT="$PROMPT%F{green}>%f " # prompt
+            PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
+            vterm_cmd() {
+                local vterm_elisp
+                vterm_elisp=""
+                while [ $# -gt 0 ]; do
+                    vterm_elisp="$vterm_elisp""$(printf '"%s" ' "$(printf "%s" "$1" | sed -e 's|\\|\\\\|g' -e 's|"|\\"|g')")"
+                    shift
+                done
+                vterm_printf "51;E$vterm_elisp"
+            }
+          '';
+        };
         # programs.fish.enable = true;
 
         # Set Git commit hash for darwin-version.
