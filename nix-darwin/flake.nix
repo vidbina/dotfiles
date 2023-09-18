@@ -56,30 +56,30 @@
         # $ nix-env -qaP | grep wget
         environment.systemPackages =
           [
-            pkgs.vim
-            pkgs.gh
-            pkgs.xxd
-            pkgs.hexyl
-            pkgs.ghidra-bin
-            pkgs.kakoune
-            pkgs.shellcheck
-            pkgs.shfmt
             pkgs.asciinema
+            pkgs.checkmake
             pkgs.exercism
+            pkgs.gdb
+            pkgs.gh
+            pkgs.ghidra-bin
+            pkgs.gnumake
+            pkgs.hexyl
             pkgs.html-tidy
             pkgs.httpie
             pkgs.httplab
-            pkgs.gdb
-            pkgs.checkmake
-            pkgs.gnumake
-            pkgs.rnix-lsp
-            pkgs.nodejs
-            pkgs.nodePackages.typescript-language-server
-            pkgs.tree-sitter
             pkgs.jq
-            pkgs.yq
-            pkgs.sqlite-interactive
+            pkgs.kakoune
+            pkgs.nodePackages.typescript-language-server
+            pkgs.nodejs
             pkgs.redis
+            pkgs.rnix-lsp
+            pkgs.shellcheck
+            pkgs.shfmt
+            pkgs.sqlite-interactive
+            pkgs.tree-sitter
+            pkgs.vim
+            pkgs.xxd
+            pkgs.yq
           ];
 
         # Auto upgrade nix package and the daemon service.
