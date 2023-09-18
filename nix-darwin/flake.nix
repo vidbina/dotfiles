@@ -19,6 +19,8 @@
           home.username = "vidbina";
           home.stateVersion = "23.05";
 
+          home.packages = [ ];
+
           # NOTE: Copied from dev.nix
           # No corresponding option in nix-darwin, so we config this with hm
           programs.git = {
