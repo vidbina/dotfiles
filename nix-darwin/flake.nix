@@ -133,7 +133,11 @@
       };
 
       darwinConfigurations."Davids-MacBook-Pro" = nix-darwin.lib.darwinSystem {
-        modules = [ home-manager.darwinModules.home-manager configuration ];
+        modules = [
+          configuration
+          home-manager.darwinModules.home-manager
+          hmConfig
+        ];
       };
 
       # Expose the package set, including overlays, for convenience.
