@@ -47,6 +47,17 @@
         services.nix-daemon.enable = true;
         # nix.package = pkgs.nix;
 
+        services.emacs = {
+          enable = true;
+          package = pkgs.emacs.pkgs.withPackages (epkgs: (
+            with epkgs; [
+              notmuch
+              vterm
+              pdf-tools
+            ]
+          ));
+        };
+
         # Necessary for using flakes on this system.
         nix.settings.experimental-features = "nix-command flakes";
 
