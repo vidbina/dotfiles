@@ -16,7 +16,6 @@
         home-manager.useUserPackages = true;
         home-manager.users.vidbina = {
           home.username = "vidbina";
-          #home.homeDirectory = "/Users/vidbina";
           home.stateVersion = "23.05";
 
           # NOTE: Copied from dev.nix
@@ -120,6 +119,10 @@
 
         # The platform the configuration will be used on.
         nixpkgs.hostPlatform = "x86_64-darwin";
+
+        users.users.vidbina = {
+          home = "/Users/vidbina";
+        };
       };
     in
     {
