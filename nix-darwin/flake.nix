@@ -18,6 +18,29 @@
         environment.systemPackages =
           [
             pkgs.vim
+            pkgs.gh
+            pkgs.xxd
+            pkgs.hexyl
+            pkgs.ghidra-bin
+            pkgs.kakoune
+            pkgs.shellcheck
+            pkgs.shfmt
+            pkgs.asciinema
+            pkgs.exercism
+            pkgs.html-tidy
+            pkgs.httpie
+            pkgs.httplab
+            pkgs.gdb
+            pkgs.checkmake
+            pkgs.gnumake
+            pkgs.rnix-lsp
+            pkgs.nodejs
+            pkgs.nodePackages.typescript-language-server
+            pkgs.tree-sitter
+            pkgs.jq
+            pkgs.yq
+            pkgs.sqlite-interactive
+            pkgs.redis
           ];
 
         # Auto upgrade nix package and the daemon service.
