@@ -80,6 +80,7 @@
             pkgs.shellcheck
             pkgs.shfmt
             pkgs.sqlite-interactive
+            pkgs.tree
             pkgs.tree-sitter
             pkgs.vim
             pkgs.xxd
