@@ -11,6 +11,16 @@
 
   outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager }:
     let
+      hmConfig = {
+        home-manager.useGlobalPkgs = true;
+        home-manager.useUserPackages = true;
+        home-manager.users.vidbina = {
+          home.username = "vidbina";
+          #home.homeDirectory = "/Users/vidbina";
+          home.stateVersion = "23.05";
+        }; # // import ../home-darwin.nix { inherit pkgs; lib = {}; };
+      };
+
       # TODO: Isolate into separate file
       configuration = { pkgs, ... }: {
         # List packages installed in system profile. To search by name, run:
