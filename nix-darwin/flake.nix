@@ -64,8 +64,10 @@
             pkgs.ghidra-bin
             pkgs.gnumake
             pkgs.gnupg
+            pkgs.gotop
             pkgs.hexyl
             pkgs.html-tidy
+            pkgs.htop
             pkgs.httpie
             pkgs.httplab
             pkgs.jq
