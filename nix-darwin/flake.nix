@@ -63,6 +63,7 @@
             pkgs.gh
             pkgs.ghidra-bin
             pkgs.gnumake
+            pkgs.gnupg
             pkgs.hexyl
             pkgs.html-tidy
             pkgs.httpie
