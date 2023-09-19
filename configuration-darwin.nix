@@ -103,6 +103,20 @@
           done
           vterm_printf "51;E$vterm_elisp"
       }
+
+      # Workaround to open new tab at pwd
+      # See https://apple.stackexchange.com/a/340778
+      # http://superuser.com/a/315029/4952
+      # Set Apple Terminal.app to resume directory... still necessary 2018-10-26
+      if [[ $TERM_PROGRAM == "Apple_Terminal" ]] && [[ -z "$INSIDE_EMACS" ]] {
+        function chpwd {
+          local SEARCH=' '
+          local REPLACE='%20'
+          local PWD_URL="file://$HOSTNAME''${PWD//$SEARCH/$REPLACE}"
+          printf '\e]7;%s\a' "$PWD_URL"
+        }
+        chpwd
+      }
     '';
   };
   # programs.fish.enable = true;
