@@ -17,12 +17,12 @@
       # See https://github.com/LnL7/nix-darwin#using-flake-inputs
       specialArgs = { inherit inputs; };
       modules = [
-        ./configuration.nix
+        ./configuration-darwin.nix
         home-manager.darwinModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.vidbina = import ./home.nix;
+          home-manager.users.vidbina = import ./home-darwin.nix;
         }
       ];
     };
