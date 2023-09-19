@@ -48,7 +48,6 @@
       nvim-treesitter
       orgmode
       plantuml-syntax
-      sentinel-vim
       tabular
       tagbar
       typescript-vim
