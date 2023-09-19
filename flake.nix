@@ -1,4 +1,7 @@
 # TODO: Tangle parts of the copied bits from source
+# The idea is that my dotfiles becomes the one-stop shop for my entire config
+# setup. No more will I work with separate nixos-configuration and home-manager
+# setups.
 {
   description = "David's Darwin (macOS) system flake";
 
@@ -26,5 +29,9 @@
         }
       ];
     };
+
+    # TODO: Bring Linux configuration into scope
+    # See https://github.com/vidbina/nixos-configuration
+    # nixosConfigurations.""
   };
 }
