@@ -144,12 +144,7 @@
       };
     in
     {
-      # Build darwin flake using:
-      # $ darwin-rebuild build --flake .#simple
-      darwinConfigurations."simple" = nix-darwin.lib.darwinSystem {
-        modules = [ configuration ];
-      };
-
+      # Build with: nix run nix-darwin -- switch --flake ./nix-darwin/ --show-trace
       darwinConfigurations."Davids-MacBook-Pro" = nix-darwin.lib.darwinSystem {
         modules = [
           configuration
@@ -157,8 +152,5 @@
           hmConfig
         ];
       };
-
-      # Expose the package set, including overlays, for convenience.
-      darwinPackages = self.darwinConfigurations."simple".pkgs;
     };
 }
