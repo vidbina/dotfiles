@@ -4770,7 +4770,7 @@ Furthermore we load customization since some configurations and changes to our E
 #+begin_src elisp :tangle init.el
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
+(load custom-file t)
 #+end_src
 
 * Personal Details
