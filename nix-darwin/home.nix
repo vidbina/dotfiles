@@ -1,7 +1,6 @@
 { config, pkgs, lib, ... }:
 
 {
-  home.username = "vidbina";
   home.stateVersion = "23.05";
 
   home.packages = [ ];
