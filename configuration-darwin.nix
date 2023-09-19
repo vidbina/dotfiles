@@ -1,37 +1,37 @@
 { pkgs, lib, inputs, ... }: {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
-  environment.systemPackages =
-    [
-      pkgs.asciinema
-      pkgs.checkmake
-      pkgs.exercism
-      pkgs.gdb
-      pkgs.gh
-      pkgs.ghidra-bin
-      pkgs.gnumake
-      pkgs.gnupg
-      pkgs.gotop
-      pkgs.hexyl
-      pkgs.html-tidy
-      pkgs.htop
-      pkgs.httpie
-      pkgs.httplab
-      pkgs.jq
-      pkgs.kakoune
-      pkgs.nodePackages.typescript-language-server
-      pkgs.nodejs
-      pkgs.redis
-      pkgs.rnix-lsp
-      pkgs.shellcheck
-      pkgs.shfmt
-      pkgs.sqlite-interactive
-      pkgs.tree
-      pkgs.tree-sitter
-      pkgs.vim
-      pkgs.xxd
-      pkgs.yq
-    ];
+  environment.systemPackages = [
+    pkgs.asciinema
+    pkgs.checkmake
+    pkgs.exercism
+    pkgs.gdb
+    pkgs.gh
+    pkgs.ghidra-bin
+    pkgs.gnumake
+    pkgs.gnupg
+    pkgs.gotop
+    pkgs.hexyl
+    pkgs.html-tidy
+    pkgs.htop
+    pkgs.httpie
+    pkgs.httplab
+    pkgs.jq
+    pkgs.kakoune
+    pkgs.nodePackages.typescript-language-server
+    pkgs.nodejs
+    pkgs.nixpkgs-fmt
+    pkgs.redis
+    pkgs.rnix-lsp
+    pkgs.shellcheck
+    pkgs.shfmt
+    pkgs.sqlite-interactive
+    pkgs.tree
+    pkgs.tree-sitter
+    pkgs.vim
+    pkgs.xxd
+    pkgs.yq
+  ];
 
   # Auto upgrade nix package and the daemon service.
   services.nix-daemon.enable = true;

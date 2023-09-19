@@ -65,5 +65,4 @@
     vimdiffAlias = true;
     withRuby = true;
   };
-
 }
