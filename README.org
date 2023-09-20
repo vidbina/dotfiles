@@ -43,17 +43,42 @@ My configuration is currently managed with [[https://github.com/nix-community/ho
 
 ** The easy way for macOS: with nix-darwin
 
-1. Setup nix-darwin and install shell (as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin)
+1. Ensure nix is installed as outlined in https://github.com/NixOS/nix#installation
 
    #+begin_src bash
-nix run nix-darwin -- switch --flake ./nix-darwin/
+curl -L https://nixos.org/nix/install | sh
    #+end_src
 
-2. In order to debug the config enter a Nix REPL and inspecting inputs and outputs
+2. Setup nix-darwin and install shell (as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin)
+
    #+begin_src bash
-cd nix-darwin
+nix run nix-darwin -- switch --flake . --show-trace
+   #+end_src
+
+   In case of =error: experimental Nix feature 'nix-command' is disabled; use '--extra-experimental-features nix-command' to override= errors, try to run:
+
+   #+begin_src bash
+nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin -- switch --flake . --show-trace
+   #+end_src
+
+2. In order to debug the config enter a Nix REPL and inspecting the inputs and outputs.
+
+   Enter the REPL with the following command:
+
+   #+begin_src bash
 nix repl
+   #+end_src
+
+   Bring the input and output variables into the REPL scope as follows:
+
+   #+begin_src text
 :lf .
+   #+end_src
+
+   See relevant help information by running:
+
+   #+begin_src text
+:?
    #+end_src
 
 

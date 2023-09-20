@@ -1,3 +1,4 @@
+# This is a nix-darwin config
 { pkgs, lib, inputs, ... }: {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget

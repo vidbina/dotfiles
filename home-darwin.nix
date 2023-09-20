@@ -1,3 +1,4 @@
+# This is the home-manager setup used in a nix-darwin config
 { config, pkgs, lib, ... }:
 
 {
