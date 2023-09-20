@@ -6,9 +6,7 @@
     pkgs.asciinema
     pkgs.checkmake
     pkgs.exercism
-    pkgs.gdb
     pkgs.gh
-    pkgs.ghidra-bin
     pkgs.gnumake
     pkgs.gnupg
     pkgs.gotop
@@ -32,7 +30,11 @@
     pkgs.vim
     pkgs.xxd
     pkgs.yq
-  ];
+  ] ++ (if pkgs.system == "aarch64-darwin" then [ ] else [
+    # Drop non Apple Silicon compatible packages
+    pkgs.gdb
+    pkgs.ghidra-bin
+  ]);
 
   # Auto upgrade nix package and the daemon service.
   services.nix-daemon.enable = true;
