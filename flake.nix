@@ -16,6 +16,25 @@
   outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager }: {
     # Build with: nix run nix-darwin -- switch --flake ./nix-darwin/ --show-trace
     darwinConfigurations."Davids-MacBook-Pro" = nix-darwin.lib.darwinSystem {
+      system = "x86_64-darwin";
+
+      # Specify ./configuration.nix as module and pass inputs as arg
+      # See https://github.com/LnL7/nix-darwin#using-flake-inputs
+      specialArgs = { inherit inputs; };
+      modules = [
+        ./configuration-darwin.nix
+        home-manager.darwinModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.vidbina = import ./home-darwin.nix;
+        }
+      ];
+    };
+
+    darwinConfigurations."tokyo23" = nix-darwin.lib.darwinSystem {
+      system = "aarch64-darwin";
+
       # Specify ./configuration.nix as module and pass inputs as arg
       # See https://github.com/LnL7/nix-darwin#using-flake-inputs
       specialArgs = { inherit inputs; };
