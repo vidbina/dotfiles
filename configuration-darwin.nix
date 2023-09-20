@@ -37,16 +37,6 @@
   services.nix-daemon.enable = true;
   # nix.package = pkgs.nix;
 
-  services.emacs = {
-    enable = true;
-    package = pkgs.emacs.pkgs.withPackages (epkgs: (
-      with epkgs; [
-        notmuch
-        vterm
-        pdf-tools
-      ]
-    ));
-  };
 
   # NOTE: Copied from home-linux.nix
   programs.gnupg.agent = {
