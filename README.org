@@ -82,6 +82,14 @@ nix repl
    #+end_src
 
 
+*** Handling =ls: .: Operation not permitted= errors
+
+On a completely fresh macOS machine you may encounter =ls: .: Operation not permitted= errors if Terminal has not been granted prior access to the full disk.
+
+Navigate to the "Full Disk Access" setting and enable access for the Terminal.
+
+[[file:doc/macOS.settings.EnableFullDiskAccess.png]]
+
 ** The easy way for Linux: with home-manager
 :PROPERTIES:
 :CUSTOM_ID: home-manager
