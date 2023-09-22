@@ -99,6 +99,28 @@ and then rebuilding the config.
 
 With this, I believe I messed up my config even more, so I had to uninstall nix-darwin altogether https://github.com/LnL7/nix-darwin#uninstalling and then remove all nix-related folders as outlined in https://nixos.org/manual/nix/stable/installation/uninstall#macos.
 
+Pay attention to trigger the correct disk identifier (note that the numbers in the first column and the IDENTIFIER column may not be similar in terms of numbers.
+
+#+begin_src bash
+/dev/disk0 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                        *1.0 TB     disk0
+   1:                        EFI EFI                     314.6 MB   disk0s1
+   2:                 Apple_APFS Container disk1         1.0 TB     disk0s2
+
+/dev/disk1 (synthesized):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      APFS Container Scheme -                      +1.0 TB     disk1
+                                 Physical Store disk0s2
+   1:                APFS Volume Macintosh HD - Data     354.1 GB   disk1s1
+   2:                APFS Volume Preboot                 1.9 GB     disk1s2
+   3:                APFS Volume Recovery                1.2 GB     disk1s3
+   4:                APFS Volume VM                      20.5 KB    disk1s4
+   5:                APFS Volume Macintosh HD            9.2 GB     disk1s5
+   6:              APFS Snapshot com.apple.os.update-... 9.2 GB     disk1s5s1
+   7:                APFS Volume Nix Store               11.0 GB    disk1s6
+#+end_src
+
 #+begin_src bash
 sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels
 #+end_src bash
