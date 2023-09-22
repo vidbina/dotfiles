@@ -10,7 +10,7 @@ let
 in
 {
   environment.systemPackages = [
-    # pkgs.emacs
+    my-emacs
   ];
 
   # See https://itecnote.com/tecnote/why-emacsclient-cant-find-socket-after-executing-emacs-daemon/
