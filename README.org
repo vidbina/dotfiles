@@ -41,7 +41,95 @@ application/octet-stream=emacsclient.desktop;
 
 My configuration is currently managed with [[https://github.com/nix-community/home-manager][home-manager]] for the better DX or UX. Before using home-manager, I manually managed symlinks from my config directory to this dotfiles repo. The use of [[https://www.gnu.org/software//stow/][GNU Stow]] was considered for a brief moment until I realized that Stow was written in Perl and I came to terms with my unwillingness to have a critical part of my stack based on tooling that brings me no joy 🙊 (on account of my troubled personal history with Perl).
 
-** The easy way: with home-manager
+** The easy way for macOS: with nix-darwin
+
+1. Ensure nix is installed as outlined in https://github.com/NixOS/nix#installation
+
+   #+begin_src bash
+curl -L https://nixos.org/nix/install | sh
+   #+end_src
+
+2. Setup nix-darwin and install shell (as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin)
+
+   #+begin_src bash
+nix run nix-darwin -- switch --flake . --show-trace
+   #+end_src
+
+   In case of =error: experimental Nix feature 'nix-command' is disabled; use '--extra-experimental-features nix-command' to override= errors, try to run:
+
+   #+begin_src bash
+nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin -- switch --flake . --show-trace
+   #+end_src
+
+2. In order to debug the config enter a Nix REPL and inspecting the inputs and outputs.
+
+   Enter the REPL with the following command:
+
+   #+begin_src bash
+nix repl
+   #+end_src
+
+   Bring the input and output variables into the REPL scope as follows:
+
+   #+begin_src text
+:lf .
+   #+end_src
+
+   See relevant help information by running:
+
+   #+begin_src text
+:?
+   #+end_src
+
+*** WIP Remove latent packages
+
+On my old MacBook Pro, I started by installing and using home-manager first before deciding to use nix-darwin. This has created some nix-related configuration on my machine that nix-darwin did not fully overwrite when I applied that change. Because of this imperative change nonesense, I had latent QEMU and Emacs packages in my nix path (observeable through running =tree -L 2 ~/.nix-profile=).
+
+I attempted to resolve this by removing the home-manager package from my profile:
+
+#+begin_src bash
+> nix profile list
+0 - - /nix/store/8s1b5c5w06yxxqba1zkv8yvlcyjhr6y6-password-store-1.7.4
+1 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
+2 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
+3 - - /nix/store/7z9x0izk35yzggjhlnvsmv3y4sahijmh-home-manager-path
+#+end_src
+
+and then rebuilding the config.
+
+With this, I believe I messed up my config even more, so I had to uninstall nix-darwin altogether https://github.com/LnL7/nix-darwin#uninstalling and then remove all nix-related folders as outlined in https://nixos.org/manual/nix/stable/installation/uninstall#macos.
+
+Pay attention to trigger the correct disk identifier (note that the numbers in the first column and the IDENTIFIER column may not be similar in terms of numbers.
+
+#+begin_src bash
+/dev/disk0 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                        *1.0 TB     disk0
+   1:                        EFI EFI                     314.6 MB   disk0s1
+   2:                 Apple_APFS Container disk1         1.0 TB     disk0s2
+
+/dev/disk1 (synthesized):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      APFS Container Scheme -                      +1.0 TB     disk1
+                                 Physical Store disk0s2
+   1:                APFS Volume Macintosh HD - Data     354.1 GB   disk1s1
+   2:                APFS Volume Preboot                 1.9 GB     disk1s2
+   3:                APFS Volume Recovery                1.2 GB     disk1s3
+   4:                APFS Volume VM                      20.5 KB    disk1s4
+   5:                APFS Volume Macintosh HD            9.2 GB     disk1s5
+   6:              APFS Snapshot com.apple.os.update-... 9.2 GB     disk1s5s1
+   7:                APFS Volume Nix Store               11.0 GB    disk1s6
+#+end_src
+
+#+begin_src bash
+sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels
+#+end_src bash
+
+After this, I restart the installation process.
+
+Reading [[a comment on jmatsushita's config][https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4054744#gistcomment-4054744]] led me to believe that the removal of ~/.nix-profile may have broken my system further but then it seems that nix-darwin uses global profiles instead of user-based profiles, which suggests that the existence of ~/.nix-profile may have been a remnant of my pre-nix-darwin use of home-manager. For now it seems that enabling the emacs service in nix-darwin does not immediately expose a CLI-accessible command. I've resorted to enabling the service along with installing emacs as a systemPackage but I have to first confirm if the emacs service alone yields a system that exposes the emacs command in a standard shell.
+
+** The easy way for Linux: with home-manager
 :PROPERTIES:
 :CUSTOM_ID: home-manager
 :END:
