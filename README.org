@@ -127,6 +127,8 @@ sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.ni
 
 After this, I restart the installation process.
 
+Reading [[a comment on jmatsushita's config][https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4054744#gistcomment-4054744]] led me to believe that the removal of ~/.nix-profile may have broken my system further but then it seems that nix-darwin uses global profiles instead of user-based profiles, which suggests that the existence of ~/.nix-profile may have been a remnant of my pre-nix-darwin use of home-manager. For now it seems that enabling the emacs service in nix-darwin does not immediately expose a CLI-accessible command. I've resorted to enabling the service along with installing emacs as a systemPackage but I have to first confirm if the emacs service alone yields a system that exposes the emacs command in a standard shell.
+
 ** The easy way for Linux: with home-manager
 :PROPERTIES:
 :CUSTOM_ID: home-manager
