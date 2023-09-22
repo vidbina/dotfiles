@@ -16,7 +16,6 @@
   outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager }: {
     # Build with: nix run nix-darwin -- switch --flake ./nix-darwin/ --show-trace
     darwinConfigurations."Davids-MacBook-Pro" = nix-darwin.lib.darwinSystem {
-      # Specify ./configuration.nix as module and pass inputs as arg
       # See https://github.com/LnL7/nix-darwin#using-flake-inputs
       specialArgs = { inherit inputs; };
       modules = [
