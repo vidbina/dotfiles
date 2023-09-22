@@ -38,6 +38,17 @@
   services.nix-daemon.enable = true;
   # nix.package = pkgs.nix;
 
+  # See https://itecnote.com/tecnote/why-emacsclient-cant-find-socket-after-executing-emacs-daemon/
+  services.emacs = {
+    enable = true;
+    package = pkgs.emacs29-macport.pkgs.withPackages (epkgs: (
+      with epkgs; [
+        notmuch
+        vterm
+        pdf-tools
+      ]
+    ));
+  };
 
   # NOTE: Copied from home-linux.nix
   programs.gnupg.agent = {
