@@ -81,6 +81,29 @@ nix repl
 :?
    #+end_src
 
+*** WIP Remove latent packages
+
+On my old MacBook Pro, I started by installing and using home-manager first before deciding to use nix-darwin. This has created some nix-related configuration on my machine that nix-darwin did not fully overwrite when I applied that change. Because of this imperative change nonesense, I had latent QEMU and Emacs packages in my nix path (observeable through running =tree -L 2 ~/.nix-profile=).
+
+I attempted to resolve this by removing the home-manager package from my profile:
+
+#+begin_src bash
+> nix profile list
+0 - - /nix/store/8s1b5c5w06yxxqba1zkv8yvlcyjhr6y6-password-store-1.7.4
+1 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
+2 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
+3 - - /nix/store/7z9x0izk35yzggjhlnvsmv3y4sahijmh-home-manager-path
+#+end_src
+
+and then rebuilding the config.
+
+With this, I believe I messed up my config even more, so I had to uninstall nix-darwin altogether https://github.com/LnL7/nix-darwin#uninstalling and then remove all nix-related folders as outlined in https://nixos.org/manual/nix/stable/installation/uninstall#macos.
+
+#+begin_src bash
+sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels
+#+end_src bash
+
+After this, I restart the installation process.
 
 ** The easy way for Linux: with home-manager
 :PROPERTIES:
