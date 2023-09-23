@@ -4,7 +4,8 @@
 {
   home.stateVersion = "23.05";
 
-  home.packages = with pkgs; [ qemu ];
+  home.packages = with pkgs; [
+  ];
 
 
   # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
