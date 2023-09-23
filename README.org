@@ -55,6 +55,12 @@ curl -L https://nixos.org/nix/install | sh
 nix run nix-darwin -- switch --flake . --show-trace
    #+end_src
 
+   On systems, where =darwin-rebuild= has already been installed, run the following command instead:
+
+   #+begin_src bash
+darwin-rebuild switch --flake .
+   #+end_src
+
    In case of =error: experimental Nix feature 'nix-command' is disabled; use '--extra-experimental-features nix-command' to override= errors, try to run:
 
    #+begin_src bash
