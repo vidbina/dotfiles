@@ -21,7 +21,11 @@
       system = "x86_64-darwin";
 
       # See https://github.com/LnL7/nix-darwin#using-flake-inputs
-      specialArgs = { inherit inputs; };
+      specialArgs = {
+        inherit inputs;
+        # TODO: Refactor to DRY-up shared specialArgs use across configs
+        username = "vidbina";
+      };
       modules = [
         ./configuration-darwin.nix
         home-manager.darwinModules.home-manager
@@ -37,7 +41,7 @@
       system = "aarch64-darwin";
 
       # See https://github.com/LnL7/nix-darwin#using-flake-inputs
-      specialArgs = { inherit inputs; };
+      specialArgs = { inherit inputs; username = "vidbina"; };
       modules = [
         ./configuration-darwin.nix
         home-manager.darwinModules.home-manager
