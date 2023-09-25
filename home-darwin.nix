@@ -18,6 +18,12 @@
   home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
 
   # NOTE: Copied from dev.nix
+  # TODO: Figure out how to re-use dev.nix config for Darwin and Linux
+  home.file = {
+    ".config/git/ignore".source = ./git/ignore;
+  };
+
+  # NOTE: Copied from dev.nix
   # No corresponding option in nix-darwin, so we config this with hm
   programs.git = {
     enable = true;
