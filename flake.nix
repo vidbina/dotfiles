@@ -13,9 +13,11 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     linsk.url = "github:vidbina/linsk/vid/init-nix-flake";
     linsk.inputs.nixpkgs.follows = "nixpkgs";
+    devenv.url = "github:cachix/devenv";
+    devenv.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, linsk }: {
+  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, linsk, devenv }: {
     # Build with: nix run nix-darwin -- switch --flake ./nix-darwin/ --show-trace
     darwinConfigurations."Davids-MacBook-Pro" = nix-darwin.lib.darwinSystem {
       system = "x86_64-darwin";

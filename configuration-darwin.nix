@@ -33,6 +33,7 @@
     pkgs.xxd
     pkgs.yq
     inputs.linsk.packages.${pkgs.system}.default
+    inputs.devenv.packages.${pkgs.system}.default
   ] ++ (if pkgs.system == "aarch64-darwin" then [ ] else [
     # Drop non Apple Silicon compatible packages
     pkgs.gdb
