@@ -43,13 +43,15 @@ My configuration is currently managed with [[https://github.com/nix-community/ho
 
 ** The easy way for macOS: with nix-darwin
 
-1. Ensure nix is installed as outlined in https://github.com/NixOS/nix#installation
+1. Ensure Nix is installed as outlined in https://github.com/NixOS/nix#installation
 
    #+begin_src bash
 curl -L https://nixos.org/nix/install | sh
    #+end_src
 
-2. Setup nix-darwin and install shell (as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin)
+2. Optionally install homebrew as outlined on https://brew.sh in case you want to manage some of your brew packages with Nix as well. Note that you may not need to manually add homebrew to your path if you use nix-darwin as the [[https://github.com/LnL7/nix-darwin/blob/0625792671837155708eed2af4cad43dc9c9d825/modules/homebrew.nix#L785-L793][homebrew activationScript]] will take care of it.
+
+3. Setup nix-darwin and apply the configuration as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin
 
    #+begin_src bash
 nix run nix-darwin -- switch --flake . --show-trace
@@ -67,7 +69,7 @@ darwin-rebuild switch --flake .
 nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin -- switch --flake . --show-trace
    #+end_src
 
-2. In order to debug the config enter a Nix REPL and inspecting the inputs and outputs.
+4. In order to debug the config enter a Nix REPL and inspect the inputs and outputs by using tab-completion on the variables =inputs= and =outputs= after loading the Flake.
 
    Enter the REPL with the following command:
 
@@ -75,7 +77,7 @@ nix --extra-experimental-features nix-command --extra-experimental-features flak
 nix repl
    #+end_src
 
-   Bring the input and output variables into the REPL scope as follows:
+   Bring the input and output variables into the REPL scope by loading the Flake as follows:
 
    #+begin_src text
 :lf .
