@@ -51,7 +51,13 @@ curl -L https://nixos.org/nix/install | sh
 
 2. Optionally install homebrew as outlined on https://brew.sh in case you want to manage some of your brew packages with Nix as well. Note that you may not need to manually add homebrew to your path if you use nix-darwin as the [[https://github.com/LnL7/nix-darwin/blob/0625792671837155708eed2af4cad43dc9c9d825/modules/homebrew.nix#L785-L793][homebrew activationScript]] will take care of it.
 
-3. Setup nix-darwin and apply the configuration as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin
+3. Optionally install Rosetta 2 for the case where it may be necessary since tools like Docker may rely on for some of their capability.
+
+   #+begin_src bash
+softwareupdate --install-rosetta
+   #+end_src
+
+4. Setup nix-darwin and apply the configuration as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin
 
    #+begin_src bash
 nix run nix-darwin -- switch --flake . --show-trace
