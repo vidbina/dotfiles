@@ -164,4 +164,14 @@
             " 1>/dev/null
         done
   '';
+
+  homebrew = {
+    enable = true;
+    global = {
+      autoUpdate = false;
+    };
+    casks = [
+      "iterm2"
+    ];
+  };
 }
