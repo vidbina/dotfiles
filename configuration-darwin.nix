@@ -176,6 +176,14 @@
         done
   '';
 
+  system.defaults.CustomUserPreferences = {
+    "org.gpgtools.common" = {
+      # Disable "Save in Keychain" in pinentry-mac
+      # as documented in pinentry-touchid setup instructions
+      "DisableKeyChain" = true;
+    };
+  };
+
   homebrew = {
     enable = true;
     global = {
