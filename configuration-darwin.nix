@@ -42,6 +42,10 @@
     pkgs.ghidra-bin
   ]);
 
+  environment.shellAliases = {
+    pinentry = "pinentry-mac";
+  };
+
   environment.interactiveShellInit = ''
     eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
   '';
@@ -177,6 +181,11 @@
     global = {
       autoUpdate = false;
     };
+    brews = [
+      # Security
+      "pinentry-mac"
+      "pinentry-touchid" # from tap: jorgelbg/tap
+    ];
     casks = [
       # Software Development
       "iterm2"
@@ -200,6 +209,9 @@
       "slack"
       "telegram"
       "whatsapp"
+    ];
+    taps = [
+      "jorgelbg/tap"
     ];
   };
 }
