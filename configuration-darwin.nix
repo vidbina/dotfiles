@@ -173,7 +173,28 @@
       autoUpdate = false;
     };
     casks = [
+      # Software Development
       "iterm2"
+      "visual-studio-code"
+
+      # Containerization & Virtualization
+      "docker"
+      "utm"
+
+      # Productivity
+      "google-drive"
+      "raycast"
+
+      # Entertainment
+      "steam"
+      "tidal"
+
+      # Social
+      "caprine"
+      "signal"
+      "slack"
+      "telegram"
+      "whatsapp"
     ];
   };
 }
