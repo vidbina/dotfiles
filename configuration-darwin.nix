@@ -6,6 +6,7 @@
   # $ nix-env -qaP | grep wget
   environment.systemPackages = [
     pkgs.asciinema
+    pkgs.bat
     pkgs.checkmake
     pkgs.exercism
     pkgs.gh
