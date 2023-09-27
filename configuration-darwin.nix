@@ -42,6 +42,10 @@
     pkgs.ghidra-bin
   ]);
 
+  environment.interactiveShellInit = ''
+    eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
+  '';
+
   # Auto upgrade nix package and the daemon service.
   services.nix-daemon.enable = true;
   # nix.package = pkgs.nix;
@@ -63,6 +67,7 @@
     # Used to be initExtraBeforeCompInit
     # in nix-darwin, interactiveShellInit is called before compinit
     # see https://github.com/LnL7/nix-darwin/blob/80bb201f4925cdda5a7a3c7b1900fb26bb2af2e8/modules/programs/zsh/default.nix#L168-L176
+
     promptInit = ''
       setopt histignorespace # keeps lines preceded with SPACE out of history
 
