@@ -22,6 +22,7 @@
     pkgs.kakoune
     pkgs.nodePackages.typescript-language-server
     pkgs.nodejs
+    pkgs.pass
     pkgs.nixpkgs-fmt
     pkgs.redis
     pkgs.rnix-lsp
