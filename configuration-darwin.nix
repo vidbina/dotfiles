@@ -181,6 +181,10 @@
     global = {
       autoUpdate = false;
     };
+    onActivation = {
+      autoUpdate = false;
+      cleanup = "uninstall";
+    };
     brews = [
       # Security
       "pinentry-mac"
