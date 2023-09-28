@@ -180,7 +180,8 @@
     "org.gpgtools.common" = {
       # Disable "Save in Keychain" in pinentry-mac
       # as documented in pinentry-touchid setup instructions
-      "DisableKeyChain" = true;
+      "DisableKeychain" = true;
+      "UseKeychain" = false;
     };
   };
 
