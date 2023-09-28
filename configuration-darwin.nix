@@ -214,6 +214,7 @@
       # Productivity
       "google-drive"
       "raycast"
+      "notion"
 
       # Entertainment
       "steam"
