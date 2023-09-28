@@ -193,6 +193,9 @@
     onActivation = {
       autoUpdate = false;
       cleanup = "uninstall";
+      extraFlags = [
+        "--verbose"
+      ];
     };
     brews = [
       # Security
