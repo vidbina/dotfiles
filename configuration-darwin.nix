@@ -205,7 +205,6 @@
     casks = [
       # Software Development
       "iterm2"
-      "visual-studio-code"
 
       # Containerization & Virtualization
       "docker"
@@ -231,4 +230,8 @@
       "jorgelbg/tap"
     ];
   };
+
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "vscode"
+  ];
 }

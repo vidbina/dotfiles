@@ -95,4 +95,8 @@
     vimdiffAlias = true;
     withRuby = true;
   };
+
+  programs.vscode = {
+    enable = true;
+  };
 }
