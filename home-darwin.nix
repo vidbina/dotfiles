@@ -102,6 +102,7 @@
       extensions = with t.vscode-marketplace; [
         bbenoist.nix
         github.copilot
+        mkhl.direnv
         ms-azuretools.vscode-docker
         ms-python.python
         vscode-org-mode.org-mode
