@@ -67,7 +67,6 @@
   # NOTE: Copied from vim.nix
   programs.neovim = {
     enable = true;
-    # Warning: Just bailed on init.vim and opted for nix so, WIP!
     plugins = with pkgs.vimPlugins; [
       coc-nvim
       deoplete-notmuch
