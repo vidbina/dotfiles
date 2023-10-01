@@ -96,7 +96,17 @@
     withRuby = true;
   };
 
-  programs.vscode = {
-    enable = true;
-  };
+  programs.vscode =
+    let t = pkgs.my-vscode-extensions;
+    in {
+      enable = true;
+      extensions = with t.vscode-marketplace; [
+        bbenoist.nix
+        github.copilot
+        #github.heygithub
+        ms-python.python
+        ms-azuretools.vscode-docker
+        vscode-org-mode.org-mode
+      ];
+    };
 }
