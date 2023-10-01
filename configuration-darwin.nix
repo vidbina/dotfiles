@@ -224,6 +224,7 @@
       "tidal"
 
       # Social
+      "discord"
       "signal"
       "slack"
       "telegram"
