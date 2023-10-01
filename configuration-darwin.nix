@@ -234,4 +234,10 @@
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
     "vscode"
   ];
+
+  nixpkgs.overlays = [
+    (self: super: {
+      my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
+    })
+  ];
 }

@@ -67,7 +67,6 @@
   # NOTE: Copied from vim.nix
   programs.neovim = {
     enable = true;
-    # Warning: Just bailed on init.vim and opted for nix so, WIP!
     plugins = with pkgs.vimPlugins; [
       coc-nvim
       deoplete-notmuch
@@ -96,7 +95,33 @@
     withRuby = true;
   };
 
-  programs.vscode = {
-    enable = true;
-  };
+  programs.vscode =
+    let t = pkgs.my-vscode-extensions;
+    in {
+      enable = true;
+      extensions = with t.vscode-marketplace; [
+        bbenoist.nix
+        github.copilot
+        mkhl.direnv
+        ms-azuretools.vscode-docker
+        ms-python.python
+        ms-vscode-remote.remote-containers
+        vscode-org-mode.org-mode
+        vscodevim.vim
+      ];
+      userSettings = {
+        "editor.cursorSurroundingLines" = 8;
+
+        # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+        "extensions.ignoreRecommendations" = true;
+        "extensions.showRecommendationsOnlyOnDemand" = true;
+
+        # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+        "telemetry.telemetryLevel" = "off";
+
+        "vim.highlightedyank.enable" = true;
+
+        "window.autoDetectColorScheme" = true;
+      };
+    };
 }

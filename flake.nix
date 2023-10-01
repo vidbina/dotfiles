@@ -15,9 +15,11 @@
     linsk.inputs.nixpkgs.follows = "nixpkgs";
     devenv.url = "github:cachix/devenv";
     devenv.inputs.nixpkgs.follows = "nixpkgs";
+    vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
+    vscode-extensions.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, linsk, devenv }: {
+  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, linsk, devenv, vscode-extensions }: {
     # Build with: nix run nix-darwin -- switch --flake ./nix-darwin/ --show-trace
     darwinConfigurations."Davids-MacBook-Pro" = nix-darwin.lib.darwinSystem {
       system = "x86_64-darwin";
