@@ -105,6 +105,7 @@
         mkhl.direnv
         ms-azuretools.vscode-docker
         ms-python.python
+        ms-vscode-remote.remote-containers
         vscode-org-mode.org-mode
         vscodevim.vim
       ];
