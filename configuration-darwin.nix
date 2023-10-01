@@ -217,6 +217,7 @@
       "google-drive"
       "raycast"
       "notion"
+      "linear-linear"
 
       # Entertainment
       "steam"
