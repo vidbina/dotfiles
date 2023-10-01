@@ -224,7 +224,6 @@
       "tidal"
 
       # Social
-      "caprine"
       "signal"
       "slack"
       "telegram"
