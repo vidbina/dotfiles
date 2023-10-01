@@ -1,6 +1,9 @@
 # This is a nix-darwin config
 { pkgs, lib, inputs, config, username, ... }: {
-  imports = [ ./emacs/nix-darwin.nix ];
+  imports = [
+    ./emacs/nix-darwin.nix
+    ./system/darwin
+  ];
 
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
@@ -41,10 +44,6 @@
     pkgs.gdb
     pkgs.ghidra-bin
   ]);
-
-  environment.shellAliases = {
-    pinentry = "pinentry-mac";
-  };
 
   environment.interactiveShellInit = ''
     eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
@@ -176,15 +175,6 @@
         done
   '';
 
-  system.defaults.CustomUserPreferences = {
-    "org.gpgtools.common" = {
-      # Disable "Save in Keychain" in pinentry-mac
-      # as documented in pinentry-touchid setup instructions
-      "DisableKeychain" = true;
-      "UseKeychain" = false;
-    };
-  };
-
   homebrew = {
     enable = true;
     global = {
@@ -197,11 +187,6 @@
         "--verbose"
       ];
     };
-    brews = [
-      # Security
-      "pinentry-mac"
-      "pinentry-touchid" # from tap: jorgelbg/tap
-    ];
     casks = [
       # Software Development
       "iterm2"
@@ -229,9 +214,6 @@
       "slack"
       "telegram"
       "whatsapp"
-    ];
-    taps = [
-      "jorgelbg/tap"
     ];
   };
 
