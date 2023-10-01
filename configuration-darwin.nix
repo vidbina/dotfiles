@@ -206,6 +206,9 @@
       # Software Development
       "iterm2"
 
+      # Design
+      "figma"
+
       # Containerization & Virtualization
       "docker"
       "utm"
