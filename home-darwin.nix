@@ -103,9 +103,8 @@
       extensions = with t.vscode-marketplace; [
         bbenoist.nix
         github.copilot
-        #github.heygithub
-        ms-python.python
         ms-azuretools.vscode-docker
+        ms-python.python
         vscode-org-mode.org-mode
       ];
     };
