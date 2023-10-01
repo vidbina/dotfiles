@@ -106,6 +106,7 @@
         ms-azuretools.vscode-docker
         ms-python.python
         vscode-org-mode.org-mode
+        vscodevim.vim
       ];
     };
 }
