@@ -2,6 +2,10 @@
 { config, pkgs, lib, ... }:
 
 {
+  imports = [
+    ./vim.nix
+  ];
+
   home.stateVersion = "23.05";
 
   home.packages = with pkgs; [
@@ -63,37 +67,6 @@
   # NOTE: Enabling zsh also in hm in order to bring direnv bootstrap into scope
   # See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
   programs.zsh.enable = true;
-
-  # NOTE: Copied from vim.nix
-  programs.neovim = {
-    enable = true;
-    plugins = with pkgs.vimPlugins; [
-      coc-nvim
-      deoplete-notmuch
-      elm-vim
-      goyo-vim
-      neoformat
-      nerdtree
-      nvim-treesitter
-      orgmode
-      plantuml-syntax
-      tabular
-      tagbar
-      typescript-vim
-      vim-airline
-      vim-fugitive
-      vim-gitgutter
-      vim-graphql
-      vim-markdown
-      vim-nix
-      vim-prettier
-      vim-solidity
-      vim-terraform
-      wmgraphviz-vim
-    ];
-    vimdiffAlias = true;
-    withRuby = true;
-  };
 
   programs.vscode =
     let t = pkgs.my-vscode-extensions;

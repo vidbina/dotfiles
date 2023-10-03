@@ -2,6 +2,8 @@
 { config, pkgs, ... }:
 
 {
+  home.sessionVariables.EDITOR = "nvim";
+
   programs.neovim = {
     enable = true;
     # Warning: Just bailed on init.vim and opted for nix so, WIP!

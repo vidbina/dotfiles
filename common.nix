@@ -79,8 +79,6 @@ in
     enable = true;
     extraConfig = builtins.readFile (./. + "/tmux.conf");
   };
-
-  home.sessionVariables.EDITOR = "nvim";
   manual = {
     # Use `home-manager-help`
     html.enable = false;
