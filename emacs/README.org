@@ -509,6 +509,10 @@ state_done -> [*]
 #+RESULTS:
 [[file:images/org-default-workflow-states.png]]
 
+*** TODO Use GMT/UTC as timestamp TZ
+
+When travelling, the default Emacs config allows for timestamps to just be framed in the current system timezone which dynamically changes on macOS. Just to keep thing from breaking, we want to lock our system such that times are always framed in the same TZ.
+
 ** <<org-babel>> Org-Babel
 
 *** <<org-babel-tangle>> Asynchronous Tangle
