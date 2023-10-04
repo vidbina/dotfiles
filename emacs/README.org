@@ -7652,7 +7652,7 @@ On GNU/Linux 🐧, [[https://github.com/nix-community/home-manager][home-manager
 
 On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd), so we bring in nix-darwin to reintroduce the capability to manage system services through launchd (as opposed to systemd in the GNU/Linux setup).
 
-** Nix Sources
+** COMMENT Nix Sources
 
 The Nix configuration will be importing the sources managed through [[https://github.com/nmattia/niv][niv]] and captured in the [[file:../nix/sources.nix]] file.
 
@@ -7664,7 +7664,7 @@ sources = import ../nix/sources.nix;
 💡 I don't manage my home-configuration through [[https://nix-community.github.io/home-manager/index.html#ch-nix-flakes][Nix Flakes]] because parts of my home-manager  configuration depends on files that I can't track in Git for privacy reasons. Nix Flakes doesn't play ball well when files are in play that aren't tracked, so I opted out of Flake-based usage and opted for managing versions with niv.
 #+end_center
 
-** <<nix-overlays-source>> Overlays
+*** <<nix-overlays-source>> Overlays
 
 The [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] project is used to build the bundles of Emacs that we want on our systems.
 

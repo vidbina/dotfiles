@@ -2,8 +2,6 @@
 { config, pkgs, lib, options, ... }:
 
 let
-  sources = import ../nix/sources.nix;
-  emacs-overlay-src = sources."emacs-overlay";
   baseCommand = windowName:
     builtins.concatStringsSep " " [
       "emacsclient -a emacs"
@@ -112,7 +110,6 @@ in
   };
 
   nixpkgs.overlays = [
-    (import emacs-overlay-src)
 
     (self: super:
       let
