@@ -352,14 +352,6 @@ in
 }
 #+end_src
 
-**** Default editor
-
-I'm a bit of an emacs nut, but I still prefer nvim for one-off quick-edits, so let's set it as the system default for "all things text".
-
-#+begin_src nix :noweb-ref common-programs
-home.sessionVariables.EDITOR = "nvim";
-#+end_src
-
 **** Manual
 
 Disabled because of validation errors.
@@ -627,6 +619,10 @@ programs.pywal = {
 { config, pkgs, lib, options, ... }:
 
 {
+  imports = [
+    <<x-imports>>
+  ];
+
   home.packages = with pkgs; [
     <<x-packages>>
   ];
@@ -909,11 +905,14 @@ darkman
 
 Run =darkman set light= or =darkman set dark= or just run =darkman toggle=.
 
-****** rofi
+****** TODO rofi
+
+- State "TODO"       from              [2023-10-03 Tue 17:30] \\
+  Update config to work for Linux. common.nix is no used between darwin and linux and rofi is no relevant for darwin systems.
 
 We import the previous rofi configuration and have removed the =programs.rofi.theme= option because Pywal is currently managing this.
 
-#+begin_src nix :noweb-ref common-imports
+#+begin_src nix :noweb-ref x-imports
 ./rofi/default.nix
 #+end_src
 
@@ -1004,16 +1003,137 @@ services.trayer = {
 
 *** Darwin
 
-#+begin_src nix :tangle home-darwin.nix
+#+begin_src nix :noweb yes :tangle home-darwin.nix
 # Tangled from README.org
-{ lib, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports = [
-    ./common.nix
-    ./emacs/default-darwin.nix
+    <<common-imports-darwin>>
   ];
+
+  <<home-darwin>>
 }
+#+end_src
+
+**** TODO Darwin Home-manager Config
+
+- State "TODO"       from              [2023-10-04 Wed 14:20] \\
+  Refactor to reuse the shared hm and programs configurations that we've used for the Linux config earlier. We want to DRY the overal config up.
+
+#+begin_src nix :noweb-ref home-darwin
+home.stateVersion = "23.05";
+
+home.packages = with pkgs; [
+];
+
+# home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
+# TODO: Fix hack of hardcoded dotfiles path
+# NOTE: This repo must be checked out to ~/Code/vidbina/dotfiles
+# A hardcoded .emacs.d source is used because mkOutOfStoreSymlink ./emacs
+# does not seem to work on macOS.
+# See https://discourse.nixos.org/t/accessing-home-manager-config-in-flakes/19864/8
+# See https://github.com/nix-community/home-manager/issues/2085#issuecomment-861427318
+home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
+
+# NOTE: Copied from dev.nix
+# TODO: Figure out how to re-use dev.nix config for Darwin and Linux
+home.file = {
+  ".config/git/ignore".source = ./git/ignore;
+};
+
+# NOTE: Copied from dev.nix
+# No corresponding option in nix-darwin, so we config this with hm
+programs.git = {
+  enable = true;
+  userName = "David Asabina";
+  userEmail = "vid@bina.me";
+  lfs.enable = true;
+  extraConfig = {
+    init = {
+      defaultBranch = "main";
+    };
+
+    core = {
+      editor = "nvim";
+    };
+
+    gpg = {
+      program = "gpg2";
+    };
+
+    # NOTE: Commenting out to test if `git config -l` changes
+    # sendemail = {
+    #   annotate = true;
+    #   smtpServer = "msmtp";
+    #   smtpServerOption = "-a vidbina";
+    # };
+  };
+};
+
+# NOTE: Copied from common.nix
+programs.direnv = {
+  enable = true;
+  nix-direnv = {
+    enable = true;
+  };
+};
+
+# NOTE: Enabling zsh also in hm in order to bring direnv bootstrap into scope
+# See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
+programs.zsh.enable = true;
+
+programs.vscode =
+  let t = pkgs.my-vscode-extensions;
+  in {
+    enable = true;
+    extensions = with t.vscode-marketplace; [
+      bbenoist.nix
+      github.copilot
+      mkhl.direnv
+      ms-azuretools.vscode-docker
+      ms-python.python
+      ms-vscode-remote.remote-containers
+      vscode-org-mode.org-mode
+      vscodevim.vim
+    ];
+    userSettings = {
+      "editor.cursorSurroundingLines" = 8;
+
+      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+      "extensions.ignoreRecommendations" = true;
+      "extensions.showRecommendationsOnlyOnDemand" = true;
+
+      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+      "telemetry.telemetryLevel" = "off";
+
+      "vim.highlightedyank.enable" = true;
+
+      "window.autoDetectColorScheme" = true;
+    };
+  };
+#+end_src
+
+**** Imports
+
+***** COMMENT Import common
+
+#+begin_src nix :noweb-ref common-imports-darwin
+./common.nix
+#+end_src
+
+***** Import vim into Darwin config
+
+#+begin_src nix :noweb-ref common-imports-darwin
+./vim.nix
+#+end_src
+
+***** TODO COMMENT Import Darwin variant of Emacs
+
+- State "TODO"       from              [2023-10-04 Wed 15:35] \\
+  Update default-darwin.nix and import this instead of the emacsnix-darwin.nix
+#+begin_src nix :noweb-ref common-imports-darwin
+./emacs/default-darwin.nix
 #+end_src
 
 ** The more tedious and manual way: without home-manager
@@ -1303,7 +1423,9 @@ For starters, we stub the general structure of the nix file and define the =<<ni
 
   home.packages = [
     <<dev-packages>>
-  ];
+  ] ++ (if pkgs.stdenv.isLinux then [
+    <<dev-packages-linux>>
+  ] else [ ]);
 }
 #+end_src
 
@@ -1468,13 +1590,20 @@ pkgs.httpie
 pkgs.httplab
 #+end_src
 
-*** GCC
+*** TODO GCC
 
+- State "TODO"       from              [2023-10-03 Tue 18:17] \\
+  Verify that glibc is not available for Darwin and merge the separated configs or provide explanation.
 #+begin_src nix :noweb-ref dev-packages
 pkgs.gdb
 pkgs.checkmake
 #pkgs.cmakeCurses
 pkgs.gnumake
+#+end_src
+
+For now, isolate the Linux-specific dev packages from the more general dev packages but we *should be able to install glibc on macOS*.
+
+#+begin_src nix :noweb-ref dev-packages-linux
 pkgs.glibc
 #+end_src
 
@@ -1561,7 +1690,7 @@ xinput show-props ID
 https://www.freedesktop.org/wiki/Evemu/
 https://wiki.ubuntu.com/Multitouch/Testing/Evemu
 
-#+begin_src nix :noweb-ref dev-packages
+#+begin_src nix :noweb-ref dev-packages-linux
 pkgs.evemu
 #+end_src
 
@@ -1752,69 +1881,54 @@ For Neovim, remember that CoC completions basically work through use of the =C-n
 
 https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
 
-#+begin_src nix :tangle vim.nix
+#+begin_src nix :noweb yes :tangle vim.nix
 # Tangled from  README.org
 { config, pkgs, ... }:
 
 {
+  home.sessionVariables.EDITOR = "nvim";
+
   programs.neovim = {
     enable = true;
-    # Warning: Just bailed on init.vim and opted for nix so, WIP!
 
-    #extraConfig = builtins.readFile (./. + "/nvim/init.vim");
-    plugins = with pkgs.vimPlugins; let
-      #sentinel-vim = pkgs.vimUtils.buildVimPlugin {
-      #  name = "sentinel-vim";
-      #  src = pkgs.fetchFromGitHub {
-      #    owner = "hashicorp";
-      #    repo = "sentinel.vim";
-      #    rev = "main";
-      #    sha256 = pkgs.lib.fakeSha256;
-      #  };
-      #};
-    in
-    [
-      #{
-      #  plugin = vim-plug;
-      #  optional = false;
-      #}
-
-      #'https://github.com/hrother/offlineimaprc.vim.git'
-      #'isRuslan/vim-es6'
-      #'jeffkreeftmeijer/vim-dim', { 'branch': 'main' }
-      #'sigmike/vim-taskjuggler'
-      #'vim-scripts/openvpn'
-      #ale
-      #vim-scala
-      coc-nvim
-      deoplete-notmuch
-      elm-vim
-      goyo-vim
-      neoformat
-      nerdtree
-      nvim-treesitter
-      #orgmode
-      plantuml-syntax
-      #sentinel-vim
-      tabular
-      tagbar
-      typescript-vim
-      vim-airline
-      vim-fugitive
-      vim-gitgutter
-      vim-graphql
-      vim-markdown
-      vim-nix
-      vim-prettier
-      vim-solidity
-      vim-terraform
-      wmgraphviz-vim
+    plugins = with pkgs.vimPlugins; [
+      <<nvim-packages>>
     ];
     vimdiffAlias = true;
     withRuby = true;
   };
 }
 #+end_src
+
+** Neovim packages
+
+#+begin_src nix :noweb-ref nvim-packages
+coc-nvim
+deoplete-notmuch
+elm-vim
+goyo-vim
+neoformat
+nerdtree
+nvim-treesitter
+orgmode
+plantuml-syntax
+tabular
+tagbar
+typescript-vim
+vim-airline
+vim-fugitive
+vim-gitgutter
+vim-graphql
+vim-markdown
+vim-nix
+vim-prettier
+vim-solidity
+vim-terraform
+wmgraphviz-vim
+#+end_src
+
+
+** Make Neovim default editor
 
 * TODO Bring in XMonad configuration
 
@@ -2620,22 +2734,22 @@ programs.chromium = {
   enable = true;
   package = pkgs-bleeding.chromium;
   commandLineArgs = [
-   # https://www.linuxuprising.com/2018/08/how-to-enable-hardware-accelerated.html 
-   "--enable-accelerated-video-decode"
-   "--enable-logging=stderr"
-   "--ignore-gpu-blocklist"
-   "--use-gl=desktop"
-   "--enable-features=VaapiVideoEncoder,VaapiVideoDecoder"
-   "--disable-features=UseChromeOSDirectVideoDecoder"
+    # https://www.linuxuprising.com/2018/08/how-to-enable-hardware-accelerated.html
+    "--enable-accelerated-video-decode"
+    "--enable-logging=stderr"
+    "--ignore-gpu-blocklist"
+    "--use-gl=desktop"
+    "--enable-features=VaapiVideoEncoder,VaapiVideoDecoder"
+    "--disable-features=UseChromeOSDirectVideoDecoder"
 
-   # https://github.com/NixOS/nixpkgs/issues/209101
-   "--disable-gpu-vsync"
-   "--disable-frame-rate-limit"
+    # https://github.com/NixOS/nixpkgs/issues/209101
+    "--disable-gpu-vsync"
+    "--disable-frame-rate-limit"
 
-   # https://wiki.archlinux.org/title/chromium
-   "--ignore-gpu-blocklist"
-   "--enable-gpu-rasterization"
-   "--enable-zero-copy"
+    # https://wiki.archlinux.org/title/chromium
+    "--ignore-gpu-blocklist"
+    "--enable-gpu-rasterization"
+    "--enable-zero-copy"
   ];
 
   extensions = [

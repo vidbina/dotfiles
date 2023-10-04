@@ -26,7 +26,6 @@ pkgs.mkShell rec {
     git
     ncurses # to resolve tput issue
     which
-    nixpkgs-fmt
   ];
 
   shellHook = with pkgs; let

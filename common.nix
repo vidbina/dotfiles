@@ -47,7 +47,9 @@ in
 
   nixpkgs = {
     overlays = [
-      (self: super: { })
+      (self: super: {
+
+      })
     ];
 
     config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
@@ -79,6 +81,7 @@ in
     enable = true;
     extraConfig = builtins.readFile (./. + "/tmux.conf");
   };
+
   manual = {
     # Use `home-manager-help`
     html.enable = false;
