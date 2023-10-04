@@ -7657,87 +7657,9 @@ https://github.com/nnicandro/emacs-zmq
 (zmq-bind zmq-PUB "tcp://127.0.0.1:5555")
 #+end_src
 
-* <<nix-config>> Nix Configuration
+* <<nix-config>> [0%] Nix Configuration
 
 We use Nix (the language) to define our Emacs builds for GNU/Linux and Darwin (macOS) systems. For both systems, we need to build and install Emacs and then setup the emacs configuration directory.
-
-On GNU/Linux 🐧, [[https://github.com/nix-community/home-manager][home-manager]] allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
-
-On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd), so we bring in nix-darwin to reintroduce the capability to manage system services through launchd (as opposed to systemd in the GNU/Linux setup).
-
-** COMMENT Nix Sources
-
-The Nix configuration will be importing the sources managed through [[https://github.com/nmattia/niv][niv]] and captured in the [[file:../nix/sources.nix]] file.
-
-#+begin_src nix :noweb-ref nix-let-bindings
-sources = import ../nix/sources.nix;
-#+end_src
-
-#+begin_center
-💡 I don't manage my home-configuration through [[https://nix-community.github.io/home-manager/index.html#ch-nix-flakes][Nix Flakes]] because parts of my home-manager  configuration depends on files that I can't track in Git for privacy reasons. Nix Flakes doesn't play ball well when files are in play that aren't tracked, so I opted out of Flake-based usage and opted for managing versions with niv.
-#+end_center
-
-*** <<nix-overlays-source>> Overlays
-
-The [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] project is used to build the bundles of Emacs that we want on our systems.
-
-#+begin_src nix :noweb-ref nix-let-bindings
-emacs-overlay-src = sources."emacs-overlay";
-#+end_src
-
-#+begin_src nix :noweb-ref nix-linux-overlay-imports
-(import emacs-overlay-src)
-#+end_src
-
-Refer to the definitions for the [[nix-overlays-linux][Linux]] and [[nix-overlays-darwin][Darwin (macOS)]] overlays to understand what we're bundling into our Emacs builds.
-
-** Install Emacs
-
-Home-manager enables the installation of Emacs through the =programs= facility. For the different systems that we use, we will define custom packages through [[nix-overlays-source][overlays]].
-
-#+begin_src nix :noweb-ref nix-home-programs
-programs.emacs = {
-  enable = true;
-  package = pkgs.my-emacs;
-};
-#+end_src
-
-*** Helpers
-
-#+begin_src nix :noweb-ref nix-let-bindings
-baseCommand = windowName:
-  builtins.concatStringsSep " " [
-    "emacsclient -a emacs"
-    ''-F "((name . \\\"${windowName}\\\"))"''
-    "-c"
-  ];
-#+end_src
-
-** TODO Configure the Emacs Service
-- State "TODO"       from              [2023-10-04 Wed 16:02] \\
-  Reduce base config to a single config and use and use pkgs.stdenv.isLinux to handle conditional config between Linux and Darwin.
-
-For GNU/Linux, we can use the home-manager =services.emacs= attribute to enable the Emacs service:
-
-#+begin_src nix :noweb-ref nix-linux-services
-services.emacs = {
-  # Restart using `systemctl --user restart emacs`
-  enable = true;
-  package = pkgs.my-emacs;
-
-  client.enable = true;
-};
-#+end_src
-
-For Darwin, we use the nix-darwin =services.emacs= attribute to accomplish the same:
-
-#+begin_src nix :noweb-ref nix-darwin-services
-# See https://itecnote.com/tecnote/why-emacsclient-cant-find-socket-after-executing-emacs-daemon/
-services.emacs = {
-  enable = true;
-  package = pkgs.my-emacs;
-};
-#+end_src
 
 ** TODO <<nix-emacs-build>> Build Emacs
 - State "TODO"       from              [2023-10-04 Wed 21:28] \\
@@ -7779,7 +7701,7 @@ in
 }
 #+end_src
 
-*** Darwin
+*** Darwin (macOS)
 
 #+begin_src nix :noweb yes :tangle nix-darwin.nix
 # Tangled from README.org
@@ -7798,6 +7720,14 @@ in
   <<nix-darwin-services>>
 }
 #+end_src
+
+**** TODO Experiment with the brew-based MacPorts variant
+
+See https://www.aidanscannell.com/post/setting-up-an-emacs-playground-on-mac/ which outlines some perks of the Emacs MacPorts build:
+- better WM handling, perhaps moot now that I'm not using Yabai but Amethyst
+- better Spotlight visibility of Emacs.
+
+Note how https://github.com/railwaycat/homebrew-emacsmacport/issues/52 outlines that services can be managed with brew which would be the reason to explore the brew approach because I'm disliking launchctl a lot atm.
 
 *** Package overlays
 **** <<nix-overlays-linux>> GNU/Linux Overlays
@@ -7948,6 +7878,15 @@ The overriden package may no longer be necessary at this point. Tried to build p
 
 https://orgmode.org/worg/org-contrib/org-protocol.html
 
+#+begin_src nix :noweb-ref nix-let-bindings
+baseCommand = windowName:
+  builtins.concatStringsSep " " [
+    "emacsclient -a emacs"
+    ''-F "((name . \\\"${windowName}\\\"))"''
+    "-c"
+  ];
+#+end_src
+
 #+begin_src nix :noweb-ref nix-linux-packages
 (makeDesktopItem {
   name = "emacs-org-protocol";
@@ -8079,6 +8018,70 @@ xdg.mimeApps.defaultApplications = {
   "x-scheme-handler/org-protocol" = [ "emacs-org-protocol.desktop" ];
 };
 #+end_src
+
+** Service configuration
+*** GNU/Linux
+
+On GNU/Linux 🐧, [[https://github.com/nix-community/home-manager][home-manager]] allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
+
+#+begin_src nix :noweb-ref nix-home-programs
+programs.emacs = {
+  enable = true;
+  package = pkgs.my-emacs;
+};
+#+end_src
+
+For GNU/Linux, we can use the home-manager =services.emacs= attribute to enable the Emacs service:
+
+#+begin_src nix :noweb-ref nix-linux-services
+services.emacs = {
+  # Restart using `systemctl --user restart emacs`
+  enable = true;
+  package = pkgs.my-emacs;
+
+  client.enable = true;
+};
+#+end_src
+
+*** Darwin (macOS)
+
+On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd), so we bring in nix-darwin to reintroduce the capability to manage system services through launchd (as opposed to systemd in the GNU/Linux setup).
+
+We use the nix-darwin =services.emacs= attribute to accomplish the same:
+
+#+begin_src nix :noweb-ref nix-darwin-services
+# See https://itecnote.com/tecnote/why-emacsclient-cant-find-socket-after-executing-emacs-daemon/
+services.emacs = {
+  enable = true;
+  package = pkgs.my-emacs;
+};
+#+end_src
+
+** COMMENT Nix Sources
+
+The Nix configuration will be importing the sources managed through [[https://github.com/nmattia/niv][niv]] and captured in the [[file:../nix/sources.nix]] file.
+
+#+begin_src nix :noweb-ref nix-let-bindings
+sources = import ../nix/sources.nix;
+#+end_src
+
+#+begin_center
+💡 I don't manage my home-configuration through [[https://nix-community.github.io/home-manager/index.html#ch-nix-flakes][Nix Flakes]] because parts of my home-manager  configuration depends on files that I can't track in Git for privacy reasons. Nix Flakes doesn't play ball well when files are in play that aren't tracked, so I opted out of Flake-based usage and opted for managing versions with niv.
+#+end_center
+
+*** <<nix-overlays-source>> Overlays
+
+The [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] project is used to build the bundles of Emacs that we want on our systems.
+
+#+begin_src nix :noweb-ref nix-let-bindings
+emacs-overlay-src = sources."emacs-overlay";
+#+end_src
+
+#+begin_src nix :noweb-ref nix-linux-overlay-imports
+(import emacs-overlay-src)
+#+end_src
+
+Refer to the definitions for the [[nix-overlays-linux][Linux]] and [[nix-overlays-darwin][Darwin (macOS)]] overlays to understand what we're bundling into our Emacs builds.
 
 ** TODO Setup Emacs configuration directory
 
