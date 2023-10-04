@@ -7704,9 +7704,11 @@ baseCommand = windowName:
   ];
 #+end_src
 
-** <<nix-config-linux>> GNU/Linux
+** TODO Base Config
+- State "TODO"       from              [2023-10-04 Wed 16:02] \\
+  Reduce base config to a single config and use and use pkgs.stdenv.isLinux to handle conditional config between Linux and Darwin.
 
-On GNU/Linux 🐧, home-manager allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
+*** GNU/Linux
 
 #+begin_src nix :noweb yes :tangle default.nix
 # Tangled from README.org
@@ -7728,33 +7730,57 @@ in
 
   <<nix-linux-services>>
 
-  <<nix-linux-overlays>>
+  nixpkgs.overlays = [
+    <<nix-linux-overlays>>
+  ];
 
   <<nix-linux-mime>>
 }
 #+end_src
+
+*** Darwin
+
+#+begin_src nix :noweb yes :tangle default-darwin.nix
+# Tangled from README.org
+{ config, pkgs, lib, options, ... }:
+
+let
+  <<nix-let-bindings>>
+in
+{
+  <<nix-home-emacsdir-source>>
+
+  <<nix-home-programs>>
+
+  nixpkgs.overlays = [
+    <<nix-darwin-overlays>>
+  ];
+}
+#+end_src
+
+** <<nix-config-linux>> GNU/Linux
+
+On GNU/Linux 🐧, home-manager allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
 
 *** <<nix-overlays-linux>> Overlays
 
 Using [[https://github.com/nix-community/emacs-overlay][emacs-overlay]], we define an Emacs build that bundles packages that are difficult to install just with straight on account of non-elisp dependencies such as system dependencies that may require special privileges of a specialized build process.
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlays
-nixpkgs.overlays = [
-  (import emacs-overlay-src)
+(import emacs-overlay-src)
 
-  (self: super:
-    let
-      <<nix-linux-overlay-defs>>
-    in
-    {
-      my-emacs = (pkgs.buildEnv {
-        name = "my-emacs";
-        paths = [
-          <<nix-linux-overlay-emacs-paths>>
-        ];
-      });
-    })
-];
+(self: super:
+  let
+    <<nix-linux-overlay-defs>>
+  in
+  {
+    my-emacs = (pkgs.buildEnv {
+      name = "my-emacs";
+      paths = [
+        <<nix-linux-overlay-emacs-paths>>
+      ];
+    });
+  })
 #+end_src
 
 **** emacs
@@ -8001,22 +8027,6 @@ xdg.mimeApps.defaultApplications = {
 
 On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd).
 
-#+begin_src nix :noweb yes :tangle default-darwin.nix
-# Tangled from README.org
-{ config, pkgs, lib, options, ... }:
-
-let
-  <<nix-let-bindings>>
-in
-{
-  <<nix-home-emacsdir-source>>
-
-  <<nix-home-programs>>
-
-  <<nix-darwin-overlays>>
-}
-#+end_src
-
 *** <<nix-overlays-darwin>> Overlays
 
 #+begin_center
@@ -8030,78 +8040,75 @@ Using [[https://github.com/nix-community/emacs-overlay][emacs-overlay]], we comp
 #+end_center
 
 #+begin_src nix :noweb-ref nix-darwin-overlays
-nixpkgs.overlays = [
-  (import emacs-overlay-src)
+(import emacs-overlay-src)
 
-  (self: super: {
-    my-emacs =
-      let
-        emacs = pkgs.emacs-pgtk;
-        emacsWithPackages = (pkgs.emacsPackagesFor emacs).emacsWithPackages;
-        bundled-emacs = emacsWithPackages (epkgs: (
-          with epkgs; [
-            notmuch
-            vterm
-            pdf-tools
-          ]
-        ) ++ (
-          with epkgs.melpaStablePackages; [
-          ]
-        ) ++ (
-          with epkgs.melpaPackages; [
-          ]
-        ));
-        ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-          withPCRE2 = true;
-        });
-        jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
-          jupyter
-        ]));
-      in
-      (pkgs.buildEnv {
-        name = "my-emacs";
-        paths = [
-          bundled-emacs
-          pkgs.clang
-          pkgs.cmake
-          pkgs.coreutils
-          pkgs.fd
-          pkgs.multimarkdown
-          jupyter-for-emacs
-          ripgrep-for-doom-emacs
-
-          # for Emacs
-          (pkgs.makeDesktopItem {
-            name = "org-protocol";
-            exec = "${bundled-emacs}/bin/emacsclient --create-frame %u";
-            comment = "Org Protocol";
-            desktopName = "org-protocol";
-            type = "Application";
-            mimeTypes = [ "x-scheme-handler/org-protocol" ];
-          })
-
-          # for Emacs
-          # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.5.html
-          # https://www.emacswiki.org/emacs/MailtoHandler
-          # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
-          (pkgs.makeDesktopItem {
-            name = "emacs-mu4e";
-            exec = ''
-              ${bundled-emacs}/bin/emacsclient --create-frame --eval "(browse-url-mail \"%u\")"
-            '';
-            comment = "Emacs mu4e";
-            desktopName = "emacs-mu4e";
-            type = "Application";
-            mimeTypes = [
-              # Email
-              "x-scheme-handler/mailto"
-              "message/rfc822"
-            ];
-          })
-        ];
+(self: super: {
+  my-emacs =
+    let
+      emacs = pkgs.emacs-pgtk;
+      emacsWithPackages = (pkgs.emacsPackagesFor emacs).emacsWithPackages;
+      bundled-emacs = emacsWithPackages (epkgs: (
+        with epkgs; [
+          notmuch
+          vterm
+          pdf-tools
+        ]
+      ) ++ (
+        with epkgs.melpaStablePackages; [
+        ]
+      ) ++ (
+        with epkgs.melpaPackages; [
+        ]
+      ));
+      ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+        withPCRE2 = true;
       });
-  })
-];
+      jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
+        jupyter
+      ]));
+    in
+    (pkgs.buildEnv {
+      name = "my-emacs";
+      paths = [
+        bundled-emacs
+        pkgs.clang
+        pkgs.cmake
+        pkgs.coreutils
+        pkgs.fd
+        pkgs.multimarkdown
+        ripgrep-for-doom-emacs
+
+        # for Emacs
+        (pkgs.makeDesktopItem {
+          name = "org-protocol";
+          exec = "${bundled-emacs}/bin/emacsclient --create-frame %u";
+          comment = "Org Protocol";
+          desktopName = "org-protocol";
+          type = "Application";
+          mimeTypes = [ "x-scheme-handler/org-protocol" ];
+        })
+
+        # for Emacs
+        # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.5.html
+        # https://www.emacswiki.org/emacs/MailtoHandler
+        # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
+        (pkgs.makeDesktopItem {
+          name = "emacs-mu4e";
+          exec = ''
+            ${bundled-emacs}/bin/emacsclient --create-frame --eval "(browse-url-mail \"%u\")"
+          '';
+          comment = "Emacs mu4e";
+          desktopName = "emacs-mu4e";
+          type = "Application";
+          mimeTypes = [
+            # Email
+            "x-scheme-handler/mailto"
+            "message/rfc822"
+          ];
+        })
+      ];
+    });
+})
 #+end_src
 
 * Footnotes
