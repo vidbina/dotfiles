@@ -62,7 +62,7 @@ Disable the tangle helper by running the following snippet with ~(org-ctrl-c-ctr
 
 ** <<install-hm>> Install with Home-Manager
 
-My Emacs version is pretty up-to-date as per [2023-07-04 Tue 17:35] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to [[nix-config-linux][rebuild Emacs from scratch]] whenever needed.
+My Emacs version is pretty up-to-date as per [2023-10-04 Wed 22:39] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to [[nix-emacs-build][rebuild Emacs from scratch]] whenever needed.
 
 #+begin_src elisp :results verbatim :exports both
 (emacs-version)
@@ -81,6 +81,13 @@ The good bit about home-manager is that is will go as far as setting up home dir
    2. or just my Emacs-related config:
       1. borrow ideas from [[file:default.nix]] (or [[file:default-darwin.nix]] for macOS users) and place them into your own home-manager configuration
 3. profit 💰
+
+For myself: Run the following shell commands in order to set up symlinks for the personal.el and lang.el files (to my example files).
+
+#+begin_src bash :results none
+ln -s personal-example.el personal.el
+ln -s lang.example.el lang.el
+#+end_src
 
 ** <<install-manual>> Install manually
 
@@ -163,7 +170,7 @@ For convenience's sake, let's start stubbing some of the files that we will be t
 
 *** lang.el
 
-⚠️ We only populate into an example file.
+⚠️ We only populate into an example file, named [[file:lang.example.el]].
 
 #+begin_src elisp :tangle lang.example.el :noweb yes
 <<tangle-providence>>
@@ -171,7 +178,7 @@ For convenience's sake, let's start stubbing some of the files that we will be t
 
 *** personal.el
 
-⚠️ We only populate into an example file.
+⚠️ We only populate into an example file, named [[file:personal-example.el]].
 
 #+begin_src elisp :tangle personal-example.el :noweb yes
 <<tangle-providence>>
@@ -5909,8 +5916,10 @@ hello
 
 The following example should fail because the shebang helper checks that the supplied argument is a valid string that can be expanded into a path:
 
-#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang (list "a")) :results verbatim
+#+begin_src org
+,#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang (list "a")) :results none
 hello
+,#+end_src
 #+end_src
 
 ****** CANCELED COMMENT nix-develop ob-shell shebang generator
