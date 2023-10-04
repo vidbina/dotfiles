@@ -3,10 +3,14 @@
 
 {
   environment.systemPackages = with pkgs; [
+    yamllint
+    nodePackages.yaml-language-server
+    mu
     my-emacs
   ];
 
   nixpkgs.overlays = [
+    # Overlay custom Emacs build into pkgs
     (self: super: {
       my-emacs = pkgs.emacs29-macport.pkgs.withPackages (epkgs: (
         with epkgs; [

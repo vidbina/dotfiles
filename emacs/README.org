@@ -5691,7 +5691,7 @@ Some of the relevant keybindings are:
 
 **** YAML Formatter
 
-#+begin_src nix :noweb-ref nix-linux-packages
+#+begin_src nix :noweb-ref nix-packages
 yamllint
 #+end_src
 
@@ -5699,7 +5699,7 @@ yamllint
 
 We install the [[https://github.com/redhat-developer/yaml-language-server][YAML language server]] to offer LSP support for YAML files.
 
-#+begin_src nix :noweb-ref nix-linux-packages
+#+begin_src nix :noweb-ref nix-packages
 nodePackages.yaml-language-server
 #+end_src
 
@@ -7730,8 +7730,10 @@ services.emacs = {
 - State "TODO"       from              [2023-10-04 Wed 21:28] \\
   Refactor in order to DRY this up since we're having some conflicting information here and also some broken shit.
 
-*** GNU/Linux
+*** TODO GNU/Linux
 
+- State "TODO"       from              [2023-10-04 Wed 22:15] \\
+  Fix the GNU/Linux config since we haven't used this for a minute. Just spin up a VM in UTM or VirtualBox to quickly test this out.
 #+begin_src nix :noweb yes :tangle default.nix
 # Tangled from README.org
 { config, pkgs, lib, options, ... }:
@@ -7745,6 +7747,10 @@ in
   home.packages = with pkgs; [
     cask
 
+    # General packages
+    <<nix-packages>>
+
+    # Linux packages
     <<nix-linux-packages>>
   ];
 
@@ -7768,6 +7774,7 @@ in
 
 {
   environment.systemPackages = with pkgs; [
+    <<nix-packages>>
     <<nix-darwin-system-packages>>
   ];
 
@@ -7785,8 +7792,10 @@ in
 Using [[https://github.com/nix-community/emacs-overlay][emacs-overlay]], we define an Emacs build that bundles packages that are difficult to install just with straight on account of non-elisp dependencies such as system dependencies that may require special privileges of a specialized build process.
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlays
+# Imports before overlaying
 <<nix-linux-overlay-imports>>
 
+# Overlay custom Emacs build into pkgs
 (self: super:
   let
     <<nix-linux-overlay-defs>>
@@ -7877,6 +7886,7 @@ jupyter-for-emacs
 For simplicity's sake, we're just assigning the standard v29 MacPort of Emacs in order to get things started.
 
 #+begin_src nix :noweb-ref nix-darwin-overlays
+# Overlay custom Emacs build into pkgs
 (self: super: {
   my-emacs = pkgs.emacs29-macport.pkgs.withPackages (epkgs: (
     with epkgs; [
@@ -7905,7 +7915,7 @@ When using home-manager, the =runPersonalMuInit= activation executes =mu init= w
 
 ***** mu: basic package
 
-#+begin_src nix :noweb-ref nix-linux-packages
+#+begin_src nix :noweb-ref nix-packages
 mu
 #+end_src
 
