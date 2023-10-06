@@ -209,6 +209,7 @@
       "raycast"
       "notion"
       "linear-linear"
+      "zoom"
 
       # Entertainment
       "steam"
