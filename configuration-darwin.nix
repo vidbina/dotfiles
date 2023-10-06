@@ -123,6 +123,9 @@
         }
         chpwd
       }
+
+      # Use vim bindings in zsh
+      bindkey -v
     '';
   };
   # programs.fish.enable = true;
