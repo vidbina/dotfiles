@@ -6,25 +6,18 @@
     yamllint
     nodePackages.yaml-language-server
     mu
-    my-emacs
   ];
 
-  nixpkgs.overlays = [
-    # Overlay custom Emacs build into pkgs
-    (self: super: {
-      my-emacs = pkgs.emacs29-macport.pkgs.withPackages (epkgs: (
-        with epkgs; [
-          notmuch
-          vterm
-          pdf-tools
-        ]
-      ));
-    })
-  ];
+  # https://www.aidanscannell.com/post/setting-up-an-emacs-playground-on-mac/
 
-  # See https://itecnote.com/tecnote/why-emacsclient-cant-find-socket-after-executing-emacs-daemon/
-  services.emacs = {
-    enable = true;
-    package = pkgs.my-emacs;
+  homebrew = {
+    taps = [ "railwaycat/emacsmacport" ];
+    brews = [
+      {
+        name = "emacs-mac";
+        args = [ "with-no-title-bars" ];
+        link = true;
+      }
+    ];
   };
 }
