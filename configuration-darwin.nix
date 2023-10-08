@@ -126,6 +126,8 @@
 
       # Use vim bindings in zsh
       bindkey -v
+      # https://unix.stackexchange.com/a/30169
+      bindkey '^R' history-incremental-search-backward
     '';
   };
   # programs.fish.enable = true;
