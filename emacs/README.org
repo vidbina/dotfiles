@@ -7710,14 +7710,13 @@ in
 {
   environment.systemPackages = with pkgs; [
     <<nix-packages>>
-    <<nix-darwin-system-packages>>
   ];
 
   nixpkgs.overlays = [
     <<nix-darwin-overlays>>
   ];
 
-  <<nix-darwin-services>>
+  <<nix-darwin>>
 }
 #+end_src
 
@@ -7843,7 +7842,7 @@ For simplicity's sake, we're just assigning the standard v29 MacPort of Emacs in
 
 In order to resolve an issue with Spotlight's ability to find Emacs, we also install Emacs as a system package in order to set up the links in the macOS Application directory.
 
-#+begin_src nix :noweb-ref nix-darwin-system-packages
+#+begin_src nix :noweb-ref nix-packages
 my-emacs
 #+end_src
 
@@ -8049,7 +8048,7 @@ On Darwin 🍏, the home-manager configuration is simpler (and more restricted) 
 
 We use the nix-darwin =services.emacs= attribute to accomplish the same:
 
-#+begin_src nix :noweb-ref nix-darwin-services
+#+begin_src nix :noweb-ref nix-darwin
 # See https://itecnote.com/tecnote/why-emacsclient-cant-find-socket-after-executing-emacs-daemon/
 services.emacs = {
   enable = true;
