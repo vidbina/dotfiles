@@ -7720,11 +7720,24 @@ in
 }
 #+end_src
 
-**** TODO Experiment with the brew-based MacPorts variant
+**** DONE Experiment with the brew-based MacPorts variant
 
 See https://www.aidanscannell.com/post/setting-up-an-emacs-playground-on-mac/ which outlines some perks of the Emacs MacPorts build:
 - better WM handling, perhaps moot now that I'm not using Yabai but Amethyst
 - better Spotlight visibility of Emacs.
+
+#+begin_src nix :noweb-ref nix-darwin
+homebrew = {
+  taps = [ "railwaycat/emacsmacport" ];
+  brews = [
+    {
+      name = "emacs-mac";
+      args = [ "with-no-title-bars" ];
+      link = true;
+    }
+  ];
+};
+#+end_src
 
 Note how https://github.com/railwaycat/homebrew-emacsmacport/issues/52 outlines that services can be managed with brew which would be the reason to explore the brew approach because I'm disliking launchctl a lot atm.
 
@@ -7819,7 +7832,7 @@ We also add the custom Jupyter package to our Emacs paths to factor it into the 
 jupyter-for-emacs
 #+end_src
 
-**** Darwin overlay <<nix-overlays-darwin>>
+**** COMMENT Darwin overlay <<nix-overlays-darwin>>
 
 #+begin_center
 🐉 This has not been sufficiently tested so use with caution. I'm using NixOS mainly, so anything Darwin-related has probably been run once on a MacBook that I haven't touched for a good 4 months at the time of writing (being [2022-06-30 Thu 18:31]).
@@ -8019,7 +8032,7 @@ xdg.mimeApps.defaultApplications = {
 #+end_src
 
 ** Service configuration
-*** GNU/Linux
+*** GNU/Linux systemd Emacs service
 
 On GNU/Linux 🐧, [[https://github.com/nix-community/home-manager][home-manager]] allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
 
@@ -8042,7 +8055,7 @@ services.emacs = {
 };
 #+end_src
 
-*** Darwin (macOS)
+*** COMMENT Darwin (macOS) launchd Emacs service
 
 On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd), so we bring in nix-darwin to reintroduce the capability to manage system services through launchd (as opposed to systemd in the GNU/Linux setup).
 

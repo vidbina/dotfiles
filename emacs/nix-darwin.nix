@@ -8,7 +8,9 @@
     mu
   ];
 
-  # https://www.aidanscannell.com/post/setting-up-an-emacs-playground-on-mac/
+  nixpkgs.overlays = [
+
+  ];
 
   homebrew = {
     taps = [ "railwaycat/emacsmacport" ];
