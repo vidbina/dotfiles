@@ -21,5 +21,7 @@
 
     # NOTE: Amethyst does support changing of window order, so use Mod1+Enter
     "amethyst"
+
+    "hammerspoon"
   ];
 }
