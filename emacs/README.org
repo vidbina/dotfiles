@@ -7741,6 +7741,8 @@ homebrew = {
 
 Note how https://github.com/railwaycat/homebrew-emacsmacport/issues/52 outlines that services can be managed with brew which would be the reason to explore the brew approach because I'm disliking launchctl a lot atm.
 
+⚠️ Note that reinstalling Emacs through different methods may break Magit in the sense that =with-editor-emacsclient-executable= may be set to a emacsclient within the nix-store path which will be broken when the nix-version of Emacs is uninstalled and exchanged for the homebrew-managed version. You can customize this veriable by resetting it through the /Customize/ interface in order to trigger Emacs to repopulate this value.
+
 *** Package overlays
 **** <<nix-overlays-linux>> GNU/Linux Overlays
 
