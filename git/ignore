@@ -77,3 +77,10 @@ tags
 [._]*.un~
 
 # End of https://www.toptal.com/developers/gitignore/api/emacs,vim,direnv
+
+# .DS_Store (Desktop Services Store) stores custom attributes for parent folder:
+# - folder view options
+# - icon positions
+# - other visual information
+# This file is a container for personal preferences, so no need to ever track.
+.DS_Store

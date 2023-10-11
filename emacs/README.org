@@ -62,7 +62,7 @@ Disable the tangle helper by running the following snippet with ~(org-ctrl-c-ctr
 
 ** <<install-hm>> Install with Home-Manager
 
-My Emacs version is pretty up-to-date as per [2023-07-04 Tue 17:35] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to [[nix-config-linux][rebuild Emacs from scratch]] whenever needed.
+My Emacs version is pretty up-to-date as per [2023-10-04 Wed 22:39] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to [[nix-emacs-build][rebuild Emacs from scratch]] whenever needed.
 
 #+begin_src elisp :results verbatim :exports both
 (emacs-version)
@@ -81,6 +81,13 @@ The good bit about home-manager is that is will go as far as setting up home dir
    2. or just my Emacs-related config:
       1. borrow ideas from [[file:default.nix]] (or [[file:default-darwin.nix]] for macOS users) and place them into your own home-manager configuration
 3. profit 💰
+
+For myself: Run the following shell commands in order to set up symlinks for the personal.el and lang.el files (to my example files).
+
+#+begin_src bash :results none
+ln -s personal-example.el personal.el
+ln -s lang.example.el lang.el
+#+end_src
 
 ** <<install-manual>> Install manually
 
@@ -163,7 +170,7 @@ For convenience's sake, let's start stubbing some of the files that we will be t
 
 *** lang.el
 
-⚠️ We only populate into an example file.
+⚠️ We only populate into an example file, named [[file:lang.example.el]].
 
 #+begin_src elisp :tangle lang.example.el :noweb yes
 <<tangle-providence>>
@@ -171,7 +178,7 @@ For convenience's sake, let's start stubbing some of the files that we will be t
 
 *** personal.el
 
-⚠️ We only populate into an example file.
+⚠️ We only populate into an example file, named [[file:personal-example.el]].
 
 #+begin_src elisp :tangle personal-example.el :noweb yes
 <<tangle-providence>>
@@ -501,6 +508,10 @@ state_done -> [*]
 
 #+RESULTS:
 [[file:images/org-default-workflow-states.png]]
+
+*** TODO Use GMT/UTC as timestamp TZ
+
+When travelling, the default Emacs config allows for timestamps to just be framed in the current system timezone which dynamically changes on macOS. Just to keep thing from breaking, we want to lock our system such that times are always framed in the same TZ.
 
 ** <<org-babel>> Org-Babel
 
@@ -4759,8 +4770,8 @@ To keep our init as general as possible we store private information and languag
 #+begin_src elisp :tangle init.el
 (message "💥 Debug on error is %s" debug-on-error)
 
-(load "~/.emacs.d/lang.el")
-(load "~/.emacs.d/personal.el")
+(load "~/.emacs.d/lang.el" t)
+(load "~/.emacs.d/personal.el" t)
 #+end_src
 
 ** Customizations
@@ -4770,7 +4781,7 @@ Furthermore we load customization since some configurations and changes to our E
 #+begin_src elisp :tangle init.el
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
+(load custom-file t)
 #+end_src
 
 * Personal Details
@@ -5691,7 +5702,7 @@ Some of the relevant keybindings are:
 
 **** YAML Formatter
 
-#+begin_src nix :noweb-ref nix-linux-packages
+#+begin_src nix :noweb-ref nix-packages
 yamllint
 #+end_src
 
@@ -5699,7 +5710,7 @@ yamllint
 
 We install the [[https://github.com/redhat-developer/yaml-language-server][YAML language server]] to offer LSP support for YAML files.
 
-#+begin_src nix :noweb-ref nix-linux-packages
+#+begin_src nix :noweb-ref nix-packages
 nodePackages.yaml-language-server
 #+end_src
 
@@ -5909,8 +5920,10 @@ hello
 
 The following example should fail because the shebang helper checks that the supplied argument is a valid string that can be expanded into a path:
 
-#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang (list "a")) :results verbatim
+#+begin_src org
+,#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang (list "a")) :results none
 hello
+,#+end_src
 #+end_src
 
 ****** CANCELED COMMENT nix-develop ob-shell shebang generator
@@ -6988,7 +7001,7 @@ When using changes to the path may go unnoticed to Emacs which results to shell 
 
 https://emacs.stackexchange.com/questions/53773/best-way-to-make-org-babel-blocks-aware-of-my-path-and-other-environment-variab
 
-**** Example Usage
+**** COMMENT Example Usage
 
 As a Nix ❄️ user, there are a few [[https://github.com/direnv/direnv/wiki/Nix][options]] available for managing direnv environments of which [[https://github.com/nix-community/nix-direnv][nix-direnv]] happened to be an easier and faster option. As an example, observe the following shell.nix:
 
@@ -7644,70 +7657,18 @@ https://github.com/nnicandro/emacs-zmq
 (zmq-bind zmq-PUB "tcp://127.0.0.1:5555")
 #+end_src
 
-* <<nix-config>> Nix Home-manager Configuration
+* <<nix-config>> [0%] Nix Configuration
 
-[[https://github.com/nix-community/home-manager][Home-manager]] allows management of a user environment through Nix ❄️ -- the package-manager and language.
+We use Nix (the language) to define our Emacs builds for GNU/Linux and Darwin (macOS) systems. For both systems, we need to build and install Emacs and then setup the emacs configuration directory.
 
-** General
+** TODO <<nix-emacs-build>> Build Emacs
+- State "TODO"       from              [2023-10-04 Wed 21:28] \\
+  Refactor in order to DRY this up since we're having some conflicting information here and also some broken shit.
 
-We use Nix (the language) to define our Emacs builds for GNU/Linux and Darwin (macOS) systems. For both systems, we need to specify the inputs (sources), setup the emacs configuration directory and build and install Emacs.
+*** TODO GNU/Linux
 
-*** Nix Sources
-
-The Nix configuration will be importing the sources managed through [[https://github.com/nmattia/niv][niv]] and captured in the [[file:../nix/sources.nix]] file.
-
-#+begin_src nix :noweb-ref nix-let-bindings
-sources = import ../nix/sources.nix;
-#+end_src
-
-#+begin_center
-💡 I don't manage my home-configuration through [[https://nix-community.github.io/home-manager/index.html#ch-nix-flakes][Nix Flakes]] because parts of my home-manager  configuration depends on files that I can't track in Git for privacy reasons. Nix Flakes doesn't play ball well when files are in play that aren't tracked, so I opted out of Flake-based usage and opted for managing versions with niv.
-#+end_center
-
-*** Setup Emacs configuration directory
-
-We instruct home-manager to symlink the current directory into the [[file:~/.emacs.d]] destination.
-
-#+begin_src nix :noweb-ref nix-home-emacsdir-source
-home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
-#+end_src
-
-*** <<nix-overlays-source>> Overlays
-
-The [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] project is used to build the bundles of Emacs that we want on our systems.
-
-#+begin_src nix :noweb-ref nix-let-bindings
-emacs-overlay-src = sources."emacs-overlay";
-#+end_src
-
-Refer to the definitions for the [[nix-overlays-linux][Linux]] and [[nix-overlays-darwin][Darwin (macOS)]] overlays to understand what we're bundling into our Emacs builds.
-
-*** Install Emacs
-
-Home-manager enables the installation of Emacs through the =programs= facility. For the different systems that we use, we will define custom packages through [[nix-overlays-source][overlays]].
-
-#+begin_src nix :noweb-ref nix-home-programs
-programs.emacs = {
-  enable = true;
-  package = pkgs.my-emacs;
-};
-#+end_src
-
-**** Helpers
-
-#+begin_src nix :noweb-ref nix-let-bindings
-baseCommand = windowName:
-  builtins.concatStringsSep " " [
-    "emacsclient -a emacs"
-    ''-F "((name . \\\"${windowName}\\\"))"''
-    "-c"
-  ];
-#+end_src
-
-** <<nix-config-linux>> GNU/Linux
-
-On GNU/Linux 🐧, home-manager allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
-
+- State "TODO"       from              [2023-10-04 Wed 22:15] \\
+  Fix the GNU/Linux config since we haven't used this for a minute. Just spin up a VM in UTM or VirtualBox to quickly test this out.
 #+begin_src nix :noweb yes :tangle default.nix
 # Tangled from README.org
 { config, pkgs, lib, options, ... }:
@@ -7721,6 +7682,10 @@ in
   home.packages = with pkgs; [
     cask
 
+    # General packages
+    <<nix-packages>>
+
+    # Linux packages
     <<nix-linux-packages>>
   ];
 
@@ -7728,38 +7693,85 @@ in
 
   <<nix-linux-services>>
 
-  <<nix-linux-overlays>>
+  nixpkgs.overlays = [
+    <<nix-linux-overlays>>
+  ];
 
   <<nix-linux-mime>>
 }
 #+end_src
 
-*** <<nix-overlays-linux>> Overlays
+*** Darwin (macOS)
+
+#+begin_src nix :noweb yes :tangle nix-darwin.nix
+# Tangled from README.org
+{ pkgs, ... }:
+
+{
+  environment.systemPackages = with pkgs; [
+    <<nix-packages>>
+  ];
+
+  nixpkgs.overlays = [
+    <<nix-darwin-overlays>>
+  ];
+
+  <<nix-darwin>>
+}
+#+end_src
+
+**** DONE Experiment with the brew-based MacPorts variant
+
+See https://www.aidanscannell.com/post/setting-up-an-emacs-playground-on-mac/ which outlines some perks of the Emacs MacPorts build:
+- better WM handling, perhaps moot now that I'm not using Yabai but Amethyst
+- better Spotlight visibility of Emacs.
+
+#+begin_src nix :noweb-ref nix-darwin
+homebrew = {
+  taps = [ "railwaycat/emacsmacport" ];
+  brews = [
+    {
+      name = "emacs-mac";
+      args = [ "with-no-title-bars" ];
+      link = true;
+    }
+  ];
+};
+#+end_src
+
+Note how https://github.com/railwaycat/homebrew-emacsmacport/issues/52 outlines that services can be managed with brew which would be the reason to explore the brew approach because I'm disliking launchctl a lot atm.
+
+⚠️ Note that reinstalling Emacs through different methods may break Magit in the sense that =with-editor-emacsclient-executable= may be set to a emacsclient within the nix-store path which will be broken when the nix-version of Emacs is uninstalled and exchanged for the homebrew-managed version. You can customize this veriable by resetting it through the /Customize/ interface in order to trigger Emacs to repopulate this value.
+
+*** Package overlays
+**** <<nix-overlays-linux>> GNU/Linux Overlays
 
 Using [[https://github.com/nix-community/emacs-overlay][emacs-overlay]], we define an Emacs build that bundles packages that are difficult to install just with straight on account of non-elisp dependencies such as system dependencies that may require special privileges of a specialized build process.
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlays
-nixpkgs.overlays = [
-  (import emacs-overlay-src)
+# Imports before overlaying
+<<nix-linux-overlay-imports>>
 
-  (self: super:
-    let
-      <<nix-linux-overlay-defs>>
-    in
-    {
-      my-emacs = (pkgs.buildEnv {
-        name = "my-emacs";
-        paths = [
-          <<nix-linux-overlay-emacs-paths>>
-        ];
-      });
-    })
-];
+# Overlay custom Emacs build into pkgs
+(self: super:
+  let
+    <<nix-linux-overlay-defs>>
+  in
+  {
+    my-emacs = (pkgs.buildEnv {
+      name = "my-emacs";
+      paths = [
+        <<nix-linux-overlay-emacs-paths>>
+      ];
+    });
+  })
 #+end_src
 
-**** emacs
-
 We bundle emacs through a bunch of helpers that set whatever flags we need set and also take case of factoring our wanted package repositories into the mix.
+
+#+begin_center
+🤔 Looking at the [[https://nixos.wiki/wiki/Emacs][NixOS Emacs wiki entry]], it may be worthwhile to revaluate what the difference between =emacsGit=, used in my GNU/Linux config, and =emacsPgtkGcc= (now known as =emacsPgtkNativeComp=) really is.
+#+end_center
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
 emacs = (pkgs.emacs-unstable.override {
@@ -7790,7 +7802,7 @@ pkgs.multimarkdown
 pkgs.python39
 #+end_src
 
-***** ripgrep
+****** ripgrep
 
 We build ripgrep for Doom Emacs. I haven't even used Doom Emacs for a long time but the setting is still here and perhaps I can rely on this again for a faster grepping experience:
 
@@ -7806,7 +7818,7 @@ We also add the custom ripgrep to our Emacs paths to factor it into the build:
 ripgrep-for-doom-emacs
 #+end_src
 
-***** COMMENT Jupyter
+****** COMMENT Jupyter
 
 Jupyter for Emacs is probably here to allow me to run Python code from my buffers.
 
@@ -7822,6 +7834,33 @@ We also add the custom Jupyter package to our Emacs paths to factor it into the 
 jupyter-for-emacs
 #+end_src
 
+**** COMMENT Darwin overlay <<nix-overlays-darwin>>
+
+#+begin_center
+🐉 This has not been sufficiently tested so use with caution. I'm using NixOS mainly, so anything Darwin-related has probably been run once on a MacBook that I haven't touched for a good 4 months at the time of writing (being [2022-06-30 Thu 18:31]).
+#+end_center
+
+For simplicity's sake, we're just assigning the standard v29 MacPort of Emacs in order to get things started.
+
+#+begin_src nix :noweb-ref nix-darwin-overlays
+# Overlay custom Emacs build into pkgs
+(self: super: {
+  my-emacs = pkgs.emacs29-macport.pkgs.withPackages (epkgs: (
+    with epkgs; [
+      notmuch
+      vterm
+      pdf-tools
+    ]
+  ));
+})
+#+end_src
+
+In order to resolve an issue with Spotlight's ability to find Emacs, we also install Emacs as a system package in order to set up the links in the macOS Application directory.
+
+#+begin_src nix :noweb-ref nix-packages
+my-emacs
+#+end_src
+
 *** Packages
 :PROPERTIES:
 :header-args: :noweb-sep "\n\n"
@@ -7833,7 +7872,7 @@ When using home-manager, the =runPersonalMuInit= activation executes =mu init= w
 
 ***** mu: basic package
 
-#+begin_src nix :noweb-ref nix-linux-packages
+#+begin_src nix :noweb-ref nix-packages
 mu
 #+end_src
 
@@ -7852,6 +7891,15 @@ The overriden package may no longer be necessary at this point. Tried to build p
 **** Emacs Org-Protocol
 
 https://orgmode.org/worg/org-contrib/org-protocol.html
+
+#+begin_src nix :noweb-ref nix-let-bindings
+baseCommand = windowName:
+  builtins.concatStringsSep " " [
+    "emacsclient -a emacs"
+    ''-F "((name . \\\"${windowName}\\\"))"''
+    "-c"
+  ];
+#+end_src
 
 #+begin_src nix :noweb-ref nix-linux-packages
 (makeDesktopItem {
@@ -7971,18 +8019,6 @@ javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(loca
 '')
 #+end_src
 
-*** Service
-
-#+begin_src nix :noweb-ref nix-linux-services
-services.emacs = {
-  # Restart using `systemctl --user restart emacs`
-  enable = true;
-  package = pkgs.my-emacs;
-
-  client.enable = true;
-};
-#+end_src
-
 *** XDG mimeApps
 
 #+begin_src nix :noweb-ref nix-linux-mime
@@ -7997,111 +8033,78 @@ xdg.mimeApps.defaultApplications = {
 };
 #+end_src
 
-** PROTOTYPE <<nix-config-darwin>> Darwin
+** Service configuration
+*** GNU/Linux systemd Emacs service
 
-On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd).
+On GNU/Linux 🐧, [[https://github.com/nix-community/home-manager][home-manager]] allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
 
-#+begin_src nix :noweb yes :tangle default-darwin.nix
-# Tangled from README.org
-{ config, pkgs, lib, options, ... }:
-
-let
-  <<nix-let-bindings>>
-in
-{
-  <<nix-home-emacsdir-source>>
-
-  <<nix-home-programs>>
-
-  <<nix-darwin-overlays>>
-}
+#+begin_src nix :noweb-ref nix-home-programs
+programs.emacs = {
+  enable = true;
+  package = pkgs.my-emacs;
+};
 #+end_src
 
-*** <<nix-overlays-darwin>> Overlays
+For GNU/Linux, we can use the home-manager =services.emacs= attribute to enable the Emacs service:
+
+#+begin_src nix :noweb-ref nix-linux-services
+services.emacs = {
+  # Restart using `systemctl --user restart emacs`
+  enable = true;
+  package = pkgs.my-emacs;
+
+  client.enable = true;
+};
+#+end_src
+
+*** COMMENT Darwin (macOS) launchd Emacs service
+
+On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd), so we bring in nix-darwin to reintroduce the capability to manage system services through launchd (as opposed to systemd in the GNU/Linux setup).
+
+We use the nix-darwin =services.emacs= attribute to accomplish the same:
+
+#+begin_src nix :noweb-ref nix-darwin
+# See https://itecnote.com/tecnote/why-emacsclient-cant-find-socket-after-executing-emacs-daemon/
+services.emacs = {
+  enable = true;
+  package = pkgs.my-emacs;
+};
+#+end_src
+
+** COMMENT Nix Sources
+
+The Nix configuration will be importing the sources managed through [[https://github.com/nmattia/niv][niv]] and captured in the [[file:../nix/sources.nix]] file.
+
+#+begin_src nix :noweb-ref nix-let-bindings
+sources = import ../nix/sources.nix;
+#+end_src
 
 #+begin_center
-🐉 This has not been sufficiently tested so use with caution. I'm using NixOS mainly, so anything Darwin-related has probably been run once on a MacBook that I haven't touched for a good 4 months at the time of writing (being [2022-06-30 Thu 18:31]).
+💡 I don't manage my home-configuration through [[https://nix-community.github.io/home-manager/index.html#ch-nix-flakes][Nix Flakes]] because parts of my home-manager  configuration depends on files that I can't track in Git for privacy reasons. Nix Flakes doesn't play ball well when files are in play that aren't tracked, so I opted out of Flake-based usage and opted for managing versions with niv.
 #+end_center
 
-Using [[https://github.com/nix-community/emacs-overlay][emacs-overlay]], we compose a custom Emacs build that looks quite similar to the GNU/Linux configuration sans the graphical facilities and native compilation capabilities. Furthermore, the Darwin configuration has some =makeDesktopItem= packages bundled within it.
+*** <<nix-overlays-source>> Overlays
 
-#+begin_center
-🤔 Looking at the [[https://nixos.wiki/wiki/Emacs][NixOS Emacs wiki entry]], it may be worthwhile to revaluate what the difference between =emacsGit=, used in my GNU/Linux config, and =emacsPgtkGcc= (now known as =emacsPgtkNativeComp=) really is.
-#+end_center
+The [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] project is used to build the bundles of Emacs that we want on our systems.
 
-#+begin_src nix :noweb-ref nix-darwin-overlays
-nixpkgs.overlays = [
-  (import emacs-overlay-src)
+#+begin_src nix :noweb-ref nix-let-bindings
+emacs-overlay-src = sources."emacs-overlay";
+#+end_src
 
-  (self: super: {
-    my-emacs =
-      let
-        emacs = pkgs.emacs-pgtk;
-        emacsWithPackages = (pkgs.emacsPackagesFor emacs).emacsWithPackages;
-        bundled-emacs = emacsWithPackages (epkgs: (
-          with epkgs; [
-            notmuch
-            vterm
-            pdf-tools
-          ]
-        ) ++ (
-          with epkgs.melpaStablePackages; [
-          ]
-        ) ++ (
-          with epkgs.melpaPackages; [
-          ]
-        ));
-        ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-          withPCRE2 = true;
-        });
-        jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
-          jupyter
-        ]));
-      in
-      (pkgs.buildEnv {
-        name = "my-emacs";
-        paths = [
-          bundled-emacs
-          pkgs.clang
-          pkgs.cmake
-          pkgs.coreutils
-          pkgs.fd
-          pkgs.multimarkdown
-          jupyter-for-emacs
-          ripgrep-for-doom-emacs
+#+begin_src nix :noweb-ref nix-linux-overlay-imports
+(import emacs-overlay-src)
+#+end_src
 
-          # for Emacs
-          (pkgs.makeDesktopItem {
-            name = "org-protocol";
-            exec = "${bundled-emacs}/bin/emacsclient --create-frame %u";
-            comment = "Org Protocol";
-            desktopName = "org-protocol";
-            type = "Application";
-            mimeTypes = [ "x-scheme-handler/org-protocol" ];
-          })
+Refer to the definitions for the [[nix-overlays-linux][Linux]] and [[nix-overlays-darwin][Darwin (macOS)]] overlays to understand what we're bundling into our Emacs builds.
 
-          # for Emacs
-          # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.5.html
-          # https://www.emacswiki.org/emacs/MailtoHandler
-          # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
-          (pkgs.makeDesktopItem {
-            name = "emacs-mu4e";
-            exec = ''
-              ${bundled-emacs}/bin/emacsclient --create-frame --eval "(browse-url-mail \"%u\")"
-            '';
-            comment = "Emacs mu4e";
-            desktopName = "emacs-mu4e";
-            type = "Application";
-            mimeTypes = [
-              # Email
-              "x-scheme-handler/mailto"
-              "message/rfc822"
-            ];
-          })
-        ];
-      });
-  })
-];
+** TODO Setup Emacs configuration directory
+
+- State "TODO"       from              [2023-10-04 Wed 16:07] \\
+  Fix mkOutOfStoreSymlink usage as the relative link used to work in my pre-Flake setup but is broken now.
+We instruct home-manager to symlink the current directory into the [[file:~/.emacs.d]] destination.
+
+#+begin_src nix :noweb-ref nix-home-emacsdir-source
+home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
 #+end_src
 
 * Footnotes

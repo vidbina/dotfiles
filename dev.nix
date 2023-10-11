@@ -51,7 +51,6 @@
     pkgs.checkmake
     #pkgs.cmakeCurses
     pkgs.gnumake
-    pkgs.glibc
     pkgs.rnix-lsp
     pkgs.nodePackages.typescript-language-server
     pkgs.tree-sitter
@@ -59,6 +58,8 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
+  ] ++ (if pkgs.stdenv.isLinux then [
+    pkgs.glibc
     pkgs.evemu
-  ];
+  ] else [ ]);
 }

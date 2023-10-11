@@ -2,8 +2,6 @@
 { config, pkgs, lib, options, ... }:
 
 let
-  sources = import ../nix/sources.nix;
-  emacs-overlay-src = sources."emacs-overlay";
   baseCommand = windowName:
     builtins.concatStringsSep " " [
       "emacsclient -a emacs"
@@ -17,10 +15,12 @@ in
   home.packages = with pkgs; [
     cask
 
+    # General packages
     yamllint
     nodePackages.yaml-language-server
     mu
 
+    # Linux packages
     (writeScriptBin "e" ''
       exec emacsclient -a emacs -c "$@"
     '')
@@ -112,8 +112,10 @@ in
   };
 
   nixpkgs.overlays = [
-    (import emacs-overlay-src)
+    # Imports before overlaying
 
+
+    # Overlay custom Emacs build into pkgs
     (self: super:
       let
         emacs = (pkgs.emacs-unstable.override {
