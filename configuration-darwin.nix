@@ -142,6 +142,14 @@
   # $ darwin-rebuild changelog
   system.stateVersion = 4;
 
+  system = {
+    defaults.CustomUserPreferences = {
+      "com.microsoft.VSCode" = {
+        "ApplePressAndHoldEnabled" = false;
+      };
+    };
+  };
+
   users.users.vidbina = {
     home = "/Users/vidbina";
   };
