@@ -86,7 +86,6 @@
 
         # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
         "extensions.ignoreRecommendations" = true;
-        "extensions.showRecommendationsOnlyOnDemand" = true;
 
         # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
         "telemetry.telemetryLevel" = "off";
