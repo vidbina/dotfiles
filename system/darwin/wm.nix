@@ -31,5 +31,9 @@
     mru-spaces = false;
   };
 
+  # Hide all icons from the desktop to keep things clean
+  system.defaults.finder.CreateDesktop = false;
+
+  # Treat spaces as work-scopes, regardless of how many screens they involve
   system.defaults.spaces.spans-displays = true;
 }
