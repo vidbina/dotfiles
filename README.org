@@ -1021,7 +1021,7 @@ services.trayer = {
 - State "TODO"       from              [2023-10-04 Wed 14:20] \\
   Refactor to reuse the shared hm and programs configurations that we've used for the Linux config earlier. We want to DRY the overal config up.
 
-#+begin_src nix :noweb-ref home-darwin
+#+begin_src nix :noweb yes :noweb-ref home-darwin
 home.stateVersion = "23.05";
 
 home.packages = with pkgs; [
@@ -1083,34 +1083,7 @@ programs.direnv = {
 # See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
 programs.zsh.enable = true;
 
-programs.vscode =
-  let t = pkgs.my-vscode-extensions;
-  in {
-    enable = true;
-    extensions = with t.vscode-marketplace; [
-      bbenoist.nix
-      github.copilot
-      mkhl.direnv
-      ms-azuretools.vscode-docker
-      ms-python.python
-      ms-vscode-remote.remote-containers
-      vscode-org-mode.org-mode
-      vscodevim.vim
-    ];
-    userSettings = {
-      "editor.cursorSurroundingLines" = 8;
-
-      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
-      "extensions.ignoreRecommendations" = true;
-
-      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
-      "telemetry.telemetryLevel" = "off";
-
-      "vim.highlightedyank.enable" = true;
-
-      "window.autoDetectColorScheme" = true;
-    };
-  };
+<<home-darwin-config>>
 #+end_src
 
 **** Imports
@@ -1799,6 +1772,38 @@ https://github.com/traviscross/mtr
 pkgs.mtr
 #+end_src
 
+** VsCode
+
+#+begin_src nix :noweb-ref home-darwin-config
+programs.vscode =
+  let t = pkgs.my-vscode-extensions;
+  in {
+    enable = true;
+    extensions = with t.vscode-marketplace; [
+      bbenoist.nix
+      github.copilot
+      mkhl.direnv
+      ms-azuretools.vscode-docker
+      ms-python.python
+      ms-vscode-remote.remote-containers
+      vscode-org-mode.org-mode
+      vscodevim.vim
+    ];
+    userSettings = {
+      "editor.cursorSurroundingLines" = 8;
+
+      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+      "extensions.ignoreRecommendations" = true;
+
+      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+      "telemetry.telemetryLevel" = "off";
+
+      "vim.highlightedyank.enable" = true;
+
+      "window.autoDetectColorScheme" = true;
+    };
+  };
+#+end_src
 * COMMENT E-mail
 
 We configure file:mail.nix as our mail-related config file.
