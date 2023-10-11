@@ -138,14 +138,6 @@
   system.keyboard.enableKeyMapping = true;
   system.keyboard.remapCapsLockToControl = true;
 
-  system.defaults.dock = {
-    autohide = true;
-    # https://macos-defaults.com/mission-control/mru-spaces.html
-    mru-spaces = false;
-  };
-
-  system.defaults.spaces.spans-displays = true;
-
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
   system.stateVersion = 4;

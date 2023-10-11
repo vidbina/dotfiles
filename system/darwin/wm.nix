@@ -24,4 +24,12 @@
 
     "hammerspoon"
   ];
+
+  system.defaults.dock = {
+    autohide = true;
+    # https://macos-defaults.com/mission-control/mru-spaces.html
+    mru-spaces = false;
+  };
+
+  system.defaults.spaces.spans-displays = true;
 }
