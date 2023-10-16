@@ -2027,7 +2027,7 @@ my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
 #+end_src
 
 
-#+begin_src nix :noweb-ref home-darwin-config
+#+begin_src nix :noweb yes :noweb-ref home-darwin-config
 programs.vscode =
   let t = pkgs.my-vscode-extensions;
   in {
@@ -2043,17 +2043,7 @@ programs.vscode =
       vscodevim.vim
     ];
     userSettings = {
-      "editor.cursorSurroundingLines" = 8;
-
-      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
-      "extensions.ignoreRecommendations" = true;
-
-      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
-      "telemetry.telemetryLevel" = "off";
-
-      "vim.highlightedyank.enable" = true;
-
-      "window.autoDetectColorScheme" = true;
+      <<vscode-settings>>
     };
   };
 #+end_src
@@ -2066,6 +2056,21 @@ defaults.CustomUserPreferences = {
 };
 #+end_src
 
+*** Settings
+
+#+begin_src nix :noweb-ref vscode-settings
+"editor.cursorSurroundingLines" = 8;
+
+# https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+"extensions.ignoreRecommendations" = true;
+
+# https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+"telemetry.telemetryLevel" = "off";
+
+"vim.highlightedyank.enable" = true;
+
+"window.autoDetectColorScheme" = true;
+#+end_src
 * COMMENT E-mail
 
 We configure file:mail.nix as our mail-related config file.
