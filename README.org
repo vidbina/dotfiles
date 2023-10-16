@@ -2071,6 +2071,15 @@ defaults.CustomUserPreferences = {
 
 "window.autoDetectColorScheme" = true;
 #+end_src
+
+**** Colored guides in VSCode
+
+#+begin_src nix :noweb-ref vscode-settings
+# https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
+"editor.guides.bracketPairs" = true;
+"editor.guides.highlightActiveIndentation" = true;
+#+end_src
+
 * COMMENT E-mail
 
 We configure file:mail.nix as our mail-related config file.

@@ -93,6 +93,9 @@
         "vim.highlightedyank.enable" = true;
 
         "window.autoDetectColorScheme" = true;
+        # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
+        "editor.guides.bracketPairs" = true;
+        "editor.guides.highlightActiveIndentation" = true;
       };
     };
 }
