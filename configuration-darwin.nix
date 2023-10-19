@@ -213,9 +213,10 @@
 
       # Productivity
       "google-drive"
-      "raycast"
-      "notion"
       "linear-linear"
+      "microsoft-teams"
+      "notion"
+      "raycast"
       "zoom"
 
       # Entertainment
