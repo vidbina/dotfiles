@@ -86,7 +86,6 @@
 
         # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
         "extensions.ignoreRecommendations" = true;
-        "extensions.showRecommendationsOnlyOnDemand" = true;
 
         # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
         "telemetry.telemetryLevel" = "off";
@@ -94,6 +93,9 @@
         "vim.highlightedyank.enable" = true;
 
         "window.autoDetectColorScheme" = true;
+        # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
+        "editor.guides.bracketPairs" = true;
+        "editor.guides.highlightActiveIndentation" = true;
       };
     };
 }
