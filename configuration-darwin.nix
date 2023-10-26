@@ -219,6 +219,9 @@
       "raycast"
       "zoom"
 
+      # Devtools
+      "cursor"
+
       # Entertainment
       "steam"
       "tidal"
