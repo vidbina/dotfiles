@@ -21,9 +21,15 @@
 
     # NOTE: Amethyst does support changing of window order, so use Mod1+Enter
     "amethyst"
-
+    "bluesnooze"
     "hammerspoon"
   ];
+
+  system.defaults.CustomUserPreferences = {
+    "com.oliverpeate.Bluesnooze" = {
+      hideIcon = true;
+    };
+  };
 
   system.defaults.dock = {
     autohide = true;
