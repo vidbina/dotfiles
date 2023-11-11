@@ -1,6 +1,7 @@
 { pkgs, lib, ... }: {
   homebrew.casks = [
-    # NOTE: Mod1 is: Option + Shift
+    # Mod1 = Option + Shift
+    # Mod2 = Control + Mod1
     # - Mod1 + Space = Cycle layout (use Mod2 to reverse order)
     # - Mod1 + Enter = Promote focused window to main window
     # - Mod1 + T = Toggle float for focused window
@@ -15,13 +16,14 @@
     # - Mod1 + W = Focus Screen 1
     # - Mod1 + E = Focus Screen 2
     # - Mod1 + R = Focus Screen 3
-    # NOTE: Mod2 is: Control + Option + Shift
     # - Mod2 + Z = Relaunch Amethyst
     # - Mod2 + Number = Throw focused window to space matching number
 
     # NOTE: Amethyst does support changing of window order, so use Mod1+Enter
     "amethyst"
     "bluesnooze"
+
+    # NOTE: Enable Hammerspoon in Notification Center of System Settings
     "hammerspoon"
   ];
 
