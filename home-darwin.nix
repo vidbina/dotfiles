@@ -73,6 +73,7 @@
       enable = true;
       extensions = with t.vscode-marketplace; [
         bbenoist.nix
+        be5invis.toml
         github.copilot
         mkhl.direnv
         ms-azuretools.vscode-docker
