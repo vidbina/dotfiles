@@ -315,6 +315,10 @@ The macOS configuration is as follows:
       "raycast"
       "zoom"
 
+      # Devtools
+      # Go to top-right Settings gear > VSCode Import > Start Import
+      "cursor"
+
       # Entertainment
       "steam"
       "tidal"
@@ -2035,6 +2039,7 @@ programs.vscode =
     enable = true;
     extensions = with t.vscode-marketplace; [
       bbenoist.nix
+      be5invis.toml
       github.copilot
       mkhl.direnv
       ms-azuretools.vscode-docker
@@ -2042,6 +2047,16 @@ programs.vscode =
       ms-vscode-remote.remote-containers
       vscode-org-mode.org-mode
       vscodevim.vim
+    ];
+    keybindings = [
+      {
+        "key" = "ctrl+tab";
+        "command" = "workbench.action.nextEditorInGroup";
+      }
+      {
+        "key" = "ctrl+shift+tab";
+        "command" = "workbench.action.previousEditorInGroup";
+      }
     ];
     userSettings = {
       <<vscode-settings>>
