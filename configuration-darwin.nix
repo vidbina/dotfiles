@@ -220,6 +220,7 @@
       "zoom"
 
       # Devtools
+      # Go to top-right Settings gear > VSCode Import > Start Import
       "cursor"
 
       # Entertainment

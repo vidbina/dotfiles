@@ -81,6 +81,16 @@
         vscode-org-mode.org-mode
         vscodevim.vim
       ];
+      keybindings = [
+        {
+          "key" = "ctrl+tab";
+          "command" = "workbench.action.nextEditorInGroup";
+        }
+        {
+          "key" = "ctrl+shift+tab";
+          "command" = "workbench.action.previousEditorInGroup";
+        }
+      ];
       userSettings = {
         "editor.cursorSurroundingLines" = 8;
 
