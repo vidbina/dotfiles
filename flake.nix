@@ -32,11 +32,14 @@
       };
       modules = [
         ./configuration-darwin.nix
+        # https://nix-community.github.io/home-manager/nix-darwin-options.html
         home-manager.darwinModules.home-manager
         {
+          home-manager.backupFileExtension = "backup";
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.users.vidbina = import ./home-darwin.nix;
+          home-manager.verbose = true;
         }
       ];
     };
