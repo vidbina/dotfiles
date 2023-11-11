@@ -821,6 +821,13 @@ fatal error: mallocgc called without a P or outside bootstrapping
 runtime: panic before malloc heap initialized
 #+end_src
 
+****** gh completions
+
+#+begin_src sh :noweb-ref zsh-init-extra
+# enable gh completion
+eval "$(gh completion -s zsh)"
+#+end_src
+
 **** Pywal: 🎨 Generate and change color-schemes on the fly
 
 #+begin_src nix :noweb yes :noweb-ref common-programs

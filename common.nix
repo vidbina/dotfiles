@@ -144,6 +144,8 @@ in
       #source ${./zsh/zstyle.zsh}
       source ${pkgs.fzf}/share/fzf/completion.zsh
       source ${pkgs.fzf}/share/fzf/key-bindings.zsh
+      # enable gh completion
+      eval "$(gh completion -s zsh)"
     '';
   };
   programs.pywal = {
