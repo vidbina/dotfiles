@@ -17,7 +17,7 @@
     brews = [
       {
         name = "emacs-mac";
-        args = [ "with-no-title-bars" ];
+        # args = [ "with-no-title-bars" ];
         link = true;
       }
     ];
