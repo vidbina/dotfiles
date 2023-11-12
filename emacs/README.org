@@ -7720,6 +7720,17 @@ in
 }
 #+end_src
 
+**** TODO Experiment with standard Emacs
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin
+homebrew = {
+  casks = [
+    {
+      name = "emacs";
+    }
+  ];
+};
+#+end_src
 **** DONE COMMENT Experiment with the brew-based MacPorts variant
 
 See https://www.aidanscannell.com/post/setting-up-an-emacs-playground-on-mac/ which outlines some perks of the Emacs MacPorts build:
