@@ -14,14 +14,5 @@
 
   ];
 
-  homebrew = {
-    taps = [ "railwaycat/emacsmacport" ];
-    brews = [
-      {
-        name = "emacs-mac";
-        # args = [ "with-no-title-bars" ];
-        link = true;
-      }
-    ];
-  };
+
 }

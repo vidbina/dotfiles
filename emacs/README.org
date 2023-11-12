@@ -7720,19 +7720,21 @@ in
 }
 #+end_src
 
-**** DONE Experiment with the brew-based MacPorts variant
+**** DONE COMMENT Experiment with the brew-based MacPorts variant
 
 See https://www.aidanscannell.com/post/setting-up-an-emacs-playground-on-mac/ which outlines some perks of the Emacs MacPorts build:
 - better WM handling, perhaps moot now that I'm not using Yabai but Amethyst
 - better Spotlight visibility of Emacs.
 
-#+begin_src nix :noweb-ref nix-darwin
+#+begin_src nix :noweb yes :noweb-ref nix-darwin
 homebrew = {
   taps = [ "railwaycat/emacsmacport" ];
   brews = [
     {
       name = "emacs-mac";
-      args = [ "with-no-title-bars" ];
+      args = [
+        <<nix-darwin-emacs-mac-args>>
+      ];
       link = true;
     }
   ];
@@ -7742,6 +7744,14 @@ homebrew = {
 Note how https://github.com/railwaycat/homebrew-emacsmacport/issues/52 outlines that services can be managed with brew which would be the reason to explore the brew approach because I'm disliking launchctl a lot atm.
 
 ⚠️ Note that reinstalling Emacs through different methods may break Magit in the sense that =with-editor-emacsclient-executable= may be set to a emacsclient within the nix-store path which will be broken when the nix-version of Emacs is uninstalled and exchanged for the homebrew-managed version. You can customize this veriable by resetting it through the /Customize/ interface in order to trigger Emacs to repopulate this value.
+
+***** Disable Emacs titlebars
+
+Note that the =with-no-title-bars= arg resulted in unhandleable windows.
+
+#+begin_src :nix :noweb-ref nix-darwin-emacs-mac-args
+"with-no-title-bars" 
+#+end_src
 
 *** Package overlays
 **** <<nix-overlays-linux>> GNU/Linux Overlays
