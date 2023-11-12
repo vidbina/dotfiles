@@ -8019,6 +8019,12 @@ javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(loca
 '')
 #+end_src
 
+**** Python
+
+#+begin_src nix :noweb-ref nix-packages
+python312
+#+end_src
+
 *** XDG mimeApps
 
 #+begin_src nix :noweb-ref nix-linux-mime

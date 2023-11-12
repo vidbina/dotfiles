@@ -6,6 +6,8 @@
     yamllint
     nodePackages.yaml-language-server
     mu
+
+    python312
   ];
 
   nixpkgs.overlays = [
