@@ -14,11 +14,5 @@
 
   ];
 
-  homebrew = {
-    casks = [
-      {
-        name = "emacs";
-      }
-    ];
-  };
+
 }
