@@ -20,6 +20,8 @@ in
     nodePackages.yaml-language-server
     mu
 
+    python312
+
     # Linux packages
     (writeScriptBin "e" ''
       exec emacsclient -a emacs -c "$@"
