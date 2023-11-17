@@ -217,6 +217,7 @@
       "microsoft-teams"
       "notion"
       "raycast"
+      "remarkable"
       "zoom"
 
       # Android
