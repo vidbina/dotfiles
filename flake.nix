@@ -21,7 +21,7 @@
 
   outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, linsk, devenv, vscode-extensions }: {
     # Build with: nix run nix-darwin -- switch --flake ./nix-darwin/ --show-trace
-    darwinConfigurations."Davids-MacBook-Pro" = nix-darwin.lib.darwinSystem {
+    darwinConfigurations."berlin-4corei7" = nix-darwin.lib.darwinSystem {
       system = "x86_64-darwin";
 
       # See https://github.com/LnL7/nix-darwin#using-flake-inputs
