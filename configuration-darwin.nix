@@ -206,6 +206,7 @@
 
       # Design
       "figma"
+      "drawio"
 
       # Containerization & Virtualization
       "docker"
