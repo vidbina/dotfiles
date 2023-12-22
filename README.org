@@ -75,7 +75,20 @@ darwin-rebuild switch --flake .
 nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin -- switch --flake . --show-trace
    #+end_src
 
-4. In order to debug the config enter a Nix REPL and inspect the inputs and outputs by using tab-completion on the variables =inputs= and =outputs= after loading the Flake.
+5. Update the nix flakes using
+
+   #+begin_src bash
+nix flake update
+   #+end_src
+
+   and if you just want to upgrade packages managed by brew, run:
+
+   #+begin_src bash
+brew upgrade
+   #+end_src
+
+
+6. In order to debug the config enter a Nix REPL and inspect the inputs and outputs by using tab-completion on the variables =inputs= and =outputs= after loading the Flake.
 
    Enter the REPL with the following command:
 
