@@ -7,6 +7,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
@@ -19,7 +20,7 @@
     vscode-extensions.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, linsk, devenv, vscode-extensions }: {
+  outputs = inputs@{ self, flake-utils, nix-darwin, nixpkgs, home-manager, linsk, devenv, vscode-extensions }: {
     # Build with: nix run nix-darwin -- switch --flake ./nix-darwin/ --show-trace
     darwinConfigurations."Davids-MacBook-Pro" = nix-darwin.lib.darwinSystem {
       system = "x86_64-darwin";
