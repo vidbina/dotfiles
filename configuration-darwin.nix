@@ -29,6 +29,7 @@
     pkgs.nixpkgs-fmt
     pkgs.redis
     pkgs.rnix-lsp
+    pkgs.shell_gpt
     pkgs.shellcheck
     pkgs.shfmt
     pkgs.sqlite-interactive
