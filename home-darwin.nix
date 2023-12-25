@@ -4,21 +4,13 @@
 {
   imports = [
     ./vim.nix
+    ./emacs/home.nix
   ];
 
   home.stateVersion = "23.05";
 
   home.packages = with pkgs; [
   ];
-
-  # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
-  # TODO: Fix hack of hardcoded dotfiles path
-  # NOTE: This repo must be checked out to ~/Code/vidbina/dotfiles
-  # A hardcoded .emacs.d source is used because mkOutOfStoreSymlink ./emacs
-  # does not seem to work on macOS.
-  # See https://discourse.nixos.org/t/accessing-home-manager-config-in-flakes/19864/8
-  # See https://github.com/nix-community/home-manager/issues/2085#issuecomment-861427318
-  home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
 
   # NOTE: Copied from dev.nix
   # TODO: Figure out how to re-use dev.nix config for Darwin and Linux
@@ -73,13 +65,26 @@
       enable = true;
       extensions = with t.vscode-marketplace; [
         bbenoist.nix
+        be5invis.toml
         github.copilot
+        hediet.vscode-drawio
         mkhl.direnv
         ms-azuretools.vscode-docker
         ms-python.python
         ms-vscode-remote.remote-containers
+        tomoki1207.pdf
         vscode-org-mode.org-mode
         vscodevim.vim
+      ];
+      keybindings = [
+        {
+          "key" = "ctrl+tab";
+          "command" = "workbench.action.nextEditorInGroup";
+        }
+        {
+          "key" = "ctrl+shift+tab";
+          "command" = "workbench.action.previousEditorInGroup";
+        }
       ];
       userSettings = {
         "editor.cursorSurroundingLines" = 8;
@@ -96,6 +101,10 @@
         # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
         "editor.guides.bracketPairs" = true;
         "editor.guides.highlightActiveIndentation" = true;
+
+        "workbench.colorTheme" = "Default High Contrast Light";
+        "workbench.preferredDarkColorTheme" = "Default High Contrast";
+        "workbench.preferredLightColorTheme" = "Default High Contrast Light";
       };
     };
 }

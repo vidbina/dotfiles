@@ -6,20 +6,13 @@
     yamllint
     nodePackages.yaml-language-server
     mu
+
+    python312
   ];
 
   nixpkgs.overlays = [
 
   ];
 
-  homebrew = {
-    taps = [ "railwaycat/emacsmacport" ];
-    brews = [
-      {
-        name = "emacs-mac";
-        args = [ "with-no-title-bars" ];
-        link = true;
-      }
-    ];
-  };
+
 }

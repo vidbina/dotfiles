@@ -7,6 +7,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
@@ -19,46 +20,48 @@
     vscode-extensions.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, linsk, devenv, vscode-extensions }: {
-    # Build with: nix run nix-darwin -- switch --flake ./nix-darwin/ --show-trace
-    darwinConfigurations."Davids-MacBook-Pro" = nix-darwin.lib.darwinSystem {
-      system = "x86_64-darwin";
+  outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, ... }:
+    let
+      machines = [
+        { name = "tokyo23"; system = "aarch64-darwin"; username = "vidbina"; }
+        { name = "berlin-4corei7"; system = "x86_64-darwin"; username = "vidbina"; }
+      ];
 
-      # See https://github.com/LnL7/nix-darwin#using-flake-inputs
-      specialArgs = {
-        inherit inputs;
-        # TODO: Refactor to DRY-up shared specialArgs use across configs
-        username = "vidbina";
+      darwinConfigurationFor = machine: nix-darwin.lib.darwinSystem {
+        inherit (machine) system;
+
+        # See https://github.com/LnL7/nix-darwin#using-flake-inputs
+        specialArgs = {
+          inherit inputs;
+          # TODO: Refactor to DRY-up shared specialArgs use across configs
+          inherit (machine) username;
+        };
+
+        modules = [
+          ./configuration-darwin.nix
+          # https://nix-community.github.io/home-manager/nix-darwin-options.html
+          home-manager.darwinModules.home-manager
+          {
+            home-manager.backupFileExtension = "backup";
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.${machine.username} = import ./home-darwin.nix;
+            home-manager.verbose = true;
+          }
+        ];
       };
-      modules = [
-        ./configuration-darwin.nix
-        home-manager.darwinModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.vidbina = import ./home-darwin.nix;
-        }
-      ];
+    in
+    {
+      darwinConfigurations =
+        builtins.listToAttrs (map
+          (machine: {
+            inherit (machine) name;
+            value = darwinConfigurationFor machine;
+          })
+          machines);
+
+      # TODO: Bring Linux configuration into scope
+      # See https://github.com/vidbina/nixos-configuration
+      # nixosConfigurations.""
     };
-
-    darwinConfigurations."tokyo23" = nix-darwin.lib.darwinSystem {
-      system = "aarch64-darwin";
-
-      # See https://github.com/LnL7/nix-darwin#using-flake-inputs
-      specialArgs = { inherit inputs; username = "vidbina"; };
-      modules = [
-        ./configuration-darwin.nix
-        home-manager.darwinModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.vidbina = import ./home-darwin.nix;
-        }
-      ];
-    };
-
-    # TODO: Bring Linux configuration into scope
-    # See https://github.com/vidbina/nixos-configuration
-    # nixosConfigurations.""
-  };
 }

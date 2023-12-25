@@ -29,6 +29,7 @@
     pkgs.nixpkgs-fmt
     pkgs.redis
     pkgs.rnix-lsp
+    pkgs.shell_gpt
     pkgs.shellcheck
     pkgs.shfmt
     pkgs.sqlite-interactive
@@ -206,6 +207,7 @@
 
       # Design
       "figma"
+      "drawio"
 
       # Containerization & Virtualization
       "docker"
@@ -217,7 +219,16 @@
       "microsoft-teams"
       "notion"
       "raycast"
+      "remarkable"
       "zoom"
+
+      # Android
+      "android-file-transfer"
+
+      # Devtools
+      # Go to top-right Settings gear > VSCode Import > Start Import
+      "cursor"
+      "warp"
 
       # Entertainment
       "steam"
