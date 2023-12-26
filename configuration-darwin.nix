@@ -214,6 +214,7 @@
       "utm"
 
       # Productivity
+      "anytype"
       "google-drive"
       "linear-linear"
       "microsoft-teams"
