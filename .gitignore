@@ -1,5 +1,4 @@
 *.html
-*.md
 *.pdf
 *.tex
 emacs/**/*-conflict-*
