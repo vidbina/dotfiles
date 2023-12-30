@@ -207,6 +207,7 @@
     casks = [
       # Software Development
       "iterm2"
+      "kitty"
 
       # Design
       "figma"
