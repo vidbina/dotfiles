@@ -214,11 +214,12 @@
       "utm"
 
       # Productivity
-      "anytype"
+      "anytype" # in beta, not very feature-complete imo
       "google-drive"
       "linear-linear"
       "microsoft-teams"
       "notion"
+      "obsidian" # best-in-class with mobile app support
       "raycast"
       "remarkable"
       "zoom"
