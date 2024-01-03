@@ -10,6 +10,7 @@
   home.stateVersion = "23.05";
 
   home.packages = with pkgs; [
+    alacritty
   ];
 
   # NOTE: Copied from dev.nix
