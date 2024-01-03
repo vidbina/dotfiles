@@ -7,43 +7,45 @@
 
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
-  environment.systemPackages = [
-    pkgs.asciinema
-    pkgs.bat
-    pkgs.checkmake
-    pkgs.exercism
-    pkgs.gh
-    pkgs.gnumake
-    pkgs.gnupg
-    pkgs.gotop
-    pkgs.hexyl
-    pkgs.html-tidy
-    pkgs.htop
-    pkgs.httpie
-    pkgs.httplab
-    pkgs.jq
-    pkgs.kakoune
-    pkgs.nodePackages.typescript-language-server
-    pkgs.nodejs
-    pkgs.pass
-    pkgs.nixpkgs-fmt
-    pkgs.redis
-    pkgs.rnix-lsp
-    pkgs.shell_gpt
-    pkgs.shellcheck
-    pkgs.shfmt
-    pkgs.sqlite-interactive
-    pkgs.tree
-    pkgs.tree-sitter
-    pkgs.vim
-    pkgs.xxd
-    pkgs.yq
-    inputs.linsk.packages.${pkgs.system}.default
-    inputs.devenv.packages.${pkgs.system}.default
-  ] ++ (if pkgs.system == "aarch64-darwin" then [ ] else [
-    # Drop non Apple Silicon compatible packages
-    pkgs.gdb
-    pkgs.ghidra-bin
+  environment.systemPackages = with pkgs; [
+    asciinema
+    bat
+    checkmake
+    exercism
+    gh
+    gnumake
+    gnupg
+    gotop
+    hexyl
+    html-tidy
+    htop
+    httpie
+    httplab
+    jq
+    kakoune
+    nodePackages.typescript-language-server
+    nodejs
+    pass
+    nixpkgs-fmt
+    redis
+    rnix-lsp
+    shell_gpt
+    shellcheck
+    shfmt
+    sqlite-interactive
+    tree
+    tree-sitter
+    vim
+    xxd
+    yq
+    inputs.linsk.packages.${system}.default
+    inputs.devenv.packages.${system}.default
+  ] ++ (if system == "aarch64-darwin" then [
+    # ARM-only packages
+  ] else [
+    # Intel-only packages
+    gdb
+    ghidra-bin
   ]);
 
   environment.interactiveShellInit = ''
