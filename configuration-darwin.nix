@@ -201,6 +201,9 @@
         "--verbose"
       ];
     };
+    brews = [
+      "smudge/smudge/nightlight"
+    ];
     casks = [
       # Software Development
       "iterm2"
@@ -219,7 +222,6 @@
       "linear-linear"
       "logseq" # FLOSS (compared to Obsidian) but no mobile app
       "microsoft-teams"
-      "smudge/smudge/nightlight"
       "notion"
       "obsidian" # best-in-class with mobile app support
       "raycast"
