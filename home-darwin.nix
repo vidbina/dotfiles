@@ -107,4 +107,8 @@
         "workbench.preferredLightColorTheme" = "Default High Contrast Light";
       };
     };
+
+  services.syncthing = {
+    enable = true;
+  };
 }
