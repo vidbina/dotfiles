@@ -259,6 +259,7 @@
   nixpkgs.overlays = [
     (self: super: {
       my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
+      my-emacs = pkgs.emacs-macport;
     })
   ];
 }
