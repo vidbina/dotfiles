@@ -7,7 +7,7 @@
   # does not seem to work on macOS.
   # See https://discourse.nixos.org/t/accessing-home-manager-config-in-flakes/19864/8
   # See https://github.com/nix-community/home-manager/issues/2085#issuecomment-861427318
-  # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
+  home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
 
   home.packages = with pkgs; [
     my-emacs
