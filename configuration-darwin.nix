@@ -206,6 +206,7 @@
     };
     brews = [
       "smudge/smudge/nightlight"
+      "pidof"
     ];
     casks = [
       # Software Development
