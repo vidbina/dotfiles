@@ -2381,7 +2381,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 
 *** Theme Magic
 
-Use [[https://github.com/jcaw/theme-magic][theme-magic]] to use pywal to update your system theme based on your current Emacs theme.
+The [[https://github.com/jcaw/theme-magic][theme-magic]] package uses [[https://github.com/dylanaraps/pywal][pywal]] to update terminal emulator color schemes or themes. Using theme-magic allows one to syncs the terminal themes to the current Emacs theme.
 
 #+begin_src elisp :tangle init.el
 (use-package theme-magic
@@ -2391,6 +2391,19 @@ Use [[https://github.com/jcaw/theme-magic][theme-magic]] to use pywal to update 
   :config
   (theme-magic-export-theme-mode))
 #+end_src
+
+Run the =theme-magic-from-emacs= command to update your system theme to match your Emacs theme.
+
+#+begin_aside
+Note that on macOS, theme-magic works with iTerm2 out of the box. Other terminal emulators like Alacritty and Kitty may take additional configuration to set up.
+#+end_aside
+
+Pywal provides instructions on the [[https://github.com/dylanaraps/pywal/wiki/Installation#terminal-emulator][terminal emulators]] that are compatible and how to test them, note that the following terminals are known to not work well with pywal:
+- Konsole (the KDE standard)
+- Hyper (the web-based Vercel)
+- Terminal.app (the macOS standard)
+- Terminology (the Enlightenment EFL standard)
+- st (the suckless standard)
 
 ** COMMENT NΛNO: NANO Theme by Rougier
 
