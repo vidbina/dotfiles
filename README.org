@@ -2247,6 +2247,11 @@ wmgraphviz-vim
 
 ** Make Neovim default editor
 
+* Emacs
+
+** TODO Look into emacs-builds for macOS
+
+https://github.com/jimeh/emacs-builds
 * TODO Bring in XMonad configuration
 
 For now, I symlink ~/.xmonad to ~/src/vidbina/xmonad-config and run =xmonad --recompile= to produce the Xmonad binary.
