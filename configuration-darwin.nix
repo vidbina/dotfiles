@@ -1,6 +1,8 @@
 # This is a nix-darwin config
 { pkgs, lib, inputs, config, username, ... }: {
   imports = [
+    # import modules into our nix-darwin config
+
     ./emacs/nix-darwin.nix
     ./system/darwin
   ];
@@ -42,28 +44,32 @@
     inputs.devenv.packages.${system}.default
   ] ++ (if system == "aarch64-darwin" then [
     # ARM-only packages
+
   ] else [
     # Intel-only packages
     gdb
     ghidra-bin
   ]);
 
-  environment.interactiveShellInit = ''
-    eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
-  '';
+  environment.interactiveShellInit = lib.strings.concatStrings [
+    ''
+      eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
+    ''
+  ];
 
+  # General nix-darwin settings
   # Auto upgrade nix package and the daemon service.
   services.nix-daemon.enable = true;
   # nix.package = pkgs.nix;
+
+  # Necessary for using flakes on this system.
+  nix.settings.experimental-features = "nix-command flakes";
 
   # NOTE: Copied from home-linux.nix
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
   };
-
-  # Necessary for using flakes on this system.
-  nix.settings.experimental-features = "nix-command flakes";
 
   # Create /etc/zshrc that loads the nix-darwin environment.
   # NOTE: Copied from common.nix
@@ -133,7 +139,6 @@
       bindkey '^R' history-incremental-search-backward
     '';
   };
-  # programs.fish.enable = true;
 
   # Set Git commit hash for darwin-version.
   system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
@@ -156,41 +161,6 @@
   users.users.vidbina = {
     home = "/Users/vidbina";
   };
-
-  # # Use activation scripts to set up Spotlight visibility of nix-darwin apps
-  # # - https://github.com/LnL7/nix-darwin/issues/214#issuecomment-1230730292
-  # # - https://github.com/nix-community/home-manager/issues/1341
-  # system.activationScripts.applications.text = lib.mkForce ''
-  #   echo "setting up ~/Applications..." >&2
-  #   applications="$HOME/Applications"
-  #   nix_apps="$applications/Nix Apps"
-
-  #   # Needs to be writable by the user so that home-manager can symlink into it
-  #   if ! test -d "$applications"; then
-  #       mkdir -p "$applications"
-  #       chown ${username}: "$applications"
-  #       chmod u+w "$applications"
-  #   fi
-
-  #   # Delete the directory to remove old links
-  #   rm -rf "$nix_apps"
-  #   mkdir -p "$nix_apps"
-  #   find ${config.system.build.applications}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
-  #       while read src; do
-  #           # Spotlight does not recognize symlinks, it will ignore directory we link to the applications folder.
-  #           # It does understand MacOS aliases though, a unique filesystem feature. Sadly they cannot be created
-  #           # from bash (as far as I know), so we use the oh-so-great Apple Script instead.
-  #           /usr/bin/osascript -e "
-  #               set fileToAlias to POSIX file \"$src\"
-  #               set applicationsFolder to POSIX file \"$nix_apps\"
-  #               tell application \"Finder\"
-  #                   make alias file to fileToAlias at applicationsFolder
-  #                   # This renames the alias; 'mpv.app alias' -> 'mpv.app'
-  #                   set name of result to \"$(rev <<< "$src" | cut -d'/' -f1 | rev)\"
-  #               end tell
-  #           " 1>/dev/null
-  #       done
-  # '';
 
   homebrew = {
     enable = true;
@@ -260,6 +230,7 @@
 
   nixpkgs.overlays = [
     (self: super: {
+      # nix-darwin overlays
       my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
       my-emacs = pkgs.emacs-macport;
     })
