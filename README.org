@@ -1350,7 +1350,9 @@ ln -s ${PATH_TO_DOTFILE}/conky.conf ${HOME}/.conkyrc
 ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 #+end_src
 
-* Personal Details
+* Configuration
+
+** Personal Details
 
 For developer tooling, we define our =userName= and =userEmail= which we will rely on in configuring git, for example.
 
@@ -1392,7 +1394,7 @@ Observe the snippet below for an example of a valid personal.nix file.
 
 Note that the same configuration above is adapted for macOS by setting =home.homeDirectory= to a valid macOS home path like =/Users/vidbina=.
 
-* nix-darwin
+** nix-darwin
 :PROPERTIES:
 :header-args: :noweb-sep "\n\n"
 :END:
@@ -1430,7 +1432,7 @@ On macOS, nix-darwin provides the most batteries included nix experience. We can
 }
 #+end_src
 
-** Packages
+*** Packages
 
 All packages that are architecture agnostic are installed in all of our macOS machines.
 
@@ -1484,7 +1486,7 @@ ghidra-bin
 It follows that the amount of Intel-only packages will decrease as developers make their applications more readily available.
 #+end_quote
 
-** Setup homebrew
+*** Setup homebrew
 
 #+begin_src nix :noweb-ref nix-darwin-interactive-shellinit
 ''
@@ -1492,7 +1494,7 @@ It follows that the amount of Intel-only packages will decrease as developers ma
 ''
 #+end_src
 
-** Setup nix
+*** Setup nix
 
 #+begin_src nix :noweb-ref nix-darwin
 # Auto upgrade nix package and the daemon service.
@@ -1503,7 +1505,7 @@ services.nix-daemon.enable = true;
 nix.settings.experimental-features = "nix-command flakes";
 #+end_src
 
-** Use gpg-agent
+*** Use gpg-agent
 
 #+begin_src nix :noweb-ref nix-darwin
 # NOTE: Copied from home-linux.nix
@@ -1513,7 +1515,7 @@ programs.gnupg.agent = {
 };
 #+end_src
 
-** Setup zsh
+*** Setup zsh
 
 #+begin_src nix :noweb-ref nix-darwin
 # Create /etc/zshrc that loads the nix-darwin environment.
@@ -1586,7 +1588,7 @@ programs.zsh = {
 };
 #+end_src
 
-** Configure system
+*** Configure system
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 # Set Git commit hash for darwin-version.
@@ -1604,7 +1606,7 @@ system = {
 };
 #+end_src
 
-*** COMMENT Configure system activation scripts
+**** COMMENT Configure system activation scripts
 
 #+begin_src nix :noweb-ref nix-darwin
 # Use activation scripts to set up Spotlight visibility of nix-darwin apps
@@ -1642,7 +1644,7 @@ system.activationScripts.applications.text = lib.mkForce ''
 '';
 #+end_src
 
-** Configure user
+*** Configure user
 
 #+begin_src nix :noweb-ref nix-darwin
 users.users.vidbina = {
@@ -1650,7 +1652,7 @@ users.users.vidbina = {
 };
 #+end_src
 
-** Setup homebrew
+*** Setup homebrew
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 homebrew = {
@@ -1716,8 +1718,8 @@ homebrew = {
 };
 #+end_src
 
-** nix-darwin nixpkgs
-*** Allow some unfree packages
+*** nix-darwin nixpkgs
+**** Allow some unfree packages
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
@@ -1725,7 +1727,7 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
 ];
 #+end_src
 
-*** Allow some nixpkgs overlays
+**** Allow some nixpkgs overlays
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 nixpkgs.overlays = [
@@ -1736,12 +1738,12 @@ nixpkgs.overlays = [
 ];
 #+end_src
 
-** COMMENT Next
+*** COMMENT Next
 
 #+begin_src nix :noweb-ref nix-darwin
 #+end_src
 
-* Developer Tooling
+** Developer Tooling
 
 We will be tangling this literate configuration into the needed dev.nix file.
 
@@ -1773,7 +1775,7 @@ As an example, you can observe how we direct some comments into the previously d
 # Tangling individual dev tools through nix-devtools noweb reference
 #+end_src
 
-** Git
+*** Git
 
 We tangle the git-related configuration into [[file:dev.nix]] but if you want to manually set things up, check out the [[manual-git][manual git instructions]].
 
@@ -1799,7 +1801,7 @@ programs.git = {
 };
 #+end_src
 
-*** Global Gitignore
+**** Global Gitignore
 
 For convenience we define [[file:git/ignore]] which we want to automatically want to honor in every repo. Based on the instructions in =man gitignore= we stub the =XDG_HOME_CONFIG/.config/git/ignore= and the =~/.gitignore= files to reflect the content of [[file:git/ignore]].
 
@@ -1814,7 +1816,7 @@ home.file = {
 Note that the =programs.git.ignores= setting in home manager can not coexist with the =home.file.".config/git/ignore"= home-manager option. I'm opting for the =home-file= approach since this simplifies updates to merely copying the output of the [[https://www.toptal.com/developers/gitignore][Toptal gitignore generator]]. 😉
 #+end_comment
 
-*** Git LFS
+**** Git LFS
 
 We want LFS enabled.
 
@@ -1822,7 +1824,7 @@ We want LFS enabled.
 lfs.enable = true;
 #+end_src
 
-*** Git Extra Configuration
+**** Git Extra Configuration
 
 Let's opt for naming our default branch "main", using nvim as our editor, using gpg2 are our GPG tool and setting git up to [[https://git-scm.com/docs/git-send-email][send patches by mail]].
 
@@ -1848,7 +1850,7 @@ extraConfig = {
 };
 #+end_src
 
-*** TODO COMMENT Diff: Look into delta or difftastic
+**** TODO COMMENT Diff: Look into delta or difftastic
 
 #+begin_src nix :noweb-ref nix-devtools-git
 delta = {
@@ -1862,73 +1864,73 @@ difftastic = {
 };
 #+end_src
 
-*** GitHub
+**** GitHub
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.gh
 #+end_src
 
-** Utils
+*** Utils
 
-*** Hex editors/viewers
+**** Hex editors/viewers
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.xxd
 pkgs.hexyl
 #+end_src
 
-*** Reverse engineering
+**** Reverse engineering
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.ghidra-bin
 #+end_src
 
-*** Editors
+**** Editors
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.kakoune
 #+end_src
 
-*** Shell
+**** Shell
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.shellcheck
 pkgs.shfmt
 #+end_src
 
-***** Asciinema
+****** Asciinema
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.asciinema
 #+end_src
 
-*** Study
-**** Exercism
+**** Study
+***** Exercism
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.exercism
 #+end_src
 
-*** HTML, Web
+**** HTML, Web
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.html-tidy
 #+end_src
 
-**** COMMENT Inspector
+***** COMMENT Inspector
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.wuzz # cURL-like TUI HTTP request inspection tool
 #+end_src
 
-**** Web Servers
+***** Web Servers
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.httpie
 pkgs.httplab
 #+end_src
 
-*** TODO GCC
+**** TODO GCC
 
 - State "TODO"       from              [2023-10-03 Tue 18:17] \\
   Verify that glibc is not available for Darwin and merge the separated configs or provide explanation.
@@ -1945,63 +1947,63 @@ For now, isolate the Linux-specific dev packages from the more general dev packa
 pkgs.glibc
 #+end_src
 
-*** COMMENT Haskell
+**** COMMENT Haskell
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.ghc
 pkgs.ghcid
 #+end_src
 
-*** LSP
-**** Nix
+**** LSP
+***** Nix
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.rnix-lsp
 #+end_src
 
-**** Typescript Language Server
+***** Typescript Language Server
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.nodePackages.typescript-language-server
 #+end_src
 
-*** Tree-sitter
+**** Tree-sitter
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.tree-sitter
 #+end_src
 
-*** DSL
-**** jq, yq
+**** DSL
+***** jq, yq
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.jq
 pkgs.yq
 #+end_src
 
-*** DB
+**** DB
 
-**** SQLite
+***** SQLite
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.sqlite-interactive
 #+end_src
 
-**** Redis
+***** Redis
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.redis
 #+end_src
 
-*** Linux Hacking
+**** Linux Hacking
 
 I have issues with my touchpad often enough and also have issues with Chromium hanging here and there. It's time that I learned to dig into some of the Linux innards and do some good kernel watching.
 
-**** Linux Input Debugging/Kernel Watching
+***** Linux Input Debugging/Kernel Watching
 
 See https://lwn.net/Articles/658948/
 
-***** COMMENT libinput
+****** COMMENT libinput
 
 https://wayland.freedesktop.org/libinput/doc/latest/index.html
 
@@ -2009,7 +2011,7 @@ https://wayland.freedesktop.org/libinput/doc/latest/index.html
 pkgs.libinput
 #+end_src
 
-***** xinput
+****** xinput
 
 1. List xinputs
 
@@ -2023,7 +2025,7 @@ xinput --list
 xinput show-props ID
    #+end_src
 
-***** evemu
+****** evemu
 
 https://www.freedesktop.org/wiki/Evemu/
 https://wiki.ubuntu.com/Multitouch/Testing/Evemu
@@ -2042,7 +2044,7 @@ pkgs.evemu
 evemu-record /dev/input/event13 touchpad-debug.evemu
   #+end_src
 
-***** TODO Debug laggy/choppy touchpad
+****** TODO Debug laggy/choppy touchpad
 
 Recorded some data while I was observing the choppy behavior
 
@@ -2122,15 +2124,15 @@ I can also reproduce that this is related to the palm rejection on the side of t
 I also tried out the mtouch drivers instead of libinput but the problem persists. so I suppose that the problem is related to the firmware of the touchpad.
 #+end_quote
 
-***** TODO mtdiag-qt
+****** TODO mtdiag-qt
 
 https://github.com/bentiss/mtdiag-qt
 
-***** TODO mtview
+****** TODO mtview
 
 https://github.com/whot/mtview
 
-***** COMMENT mtr
+****** COMMENT mtr
 
 https://github.com/traviscross/mtr
 
@@ -2138,7 +2140,7 @@ https://github.com/traviscross/mtr
 pkgs.mtr
 #+end_src
 
-** VsCode
+*** VsCode
 
 #+begin_src nix :noweb-ref darwin-unfree
 "vscode"
@@ -2191,7 +2193,7 @@ defaults.CustomUserPreferences = {
 };
 #+end_src
 
-*** Settings
+**** Settings
 
 #+begin_src nix :noweb-ref vscode-settings
 "editor.cursorSurroundingLines" = 8;
@@ -2207,7 +2209,7 @@ defaults.CustomUserPreferences = {
 "window.autoDetectColorScheme" = true;
 #+end_src
 
-**** Colored guides in VSCode
+***** Colored guides in VSCode
 
 #+begin_src nix :noweb-ref vscode-settings
 # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
@@ -2215,7 +2217,7 @@ defaults.CustomUserPreferences = {
 "editor.guides.highlightActiveIndentation" = true;
 #+end_src
 
-**** Theme configuration in VSCode
+***** Theme configuration in VSCode
 
 #+begin_src nix :noweb-ref vscode-settings
 "workbench.colorTheme" = "Default High Contrast Light";
@@ -2223,7 +2225,7 @@ defaults.CustomUserPreferences = {
 "workbench.preferredLightColorTheme" = "Default High Contrast Light";
 #+end_src
 
-* COMMENT E-mail
+** COMMENT E-mail
 
 We configure file:mail.nix as our mail-related config file.
 
@@ -2246,7 +2248,7 @@ I have used neomutt in combination with Neovim and mu4e in Emacs for nearly half
 }
 #+end_src
 
-** Packages
+*** Packages
 
 The following packages were part of my config before and are just seperated to help me break this down into subordinate chapters:
 
@@ -2257,23 +2259,23 @@ neomutt
 urlview
 #+end_src
 
-*** COMMENT offlineimap
+**** COMMENT offlineimap
 
 #+begin_src nix :noweb-ref mail-packages
 offlineimap
 #+end_src
 
-*** TODO Split out packages into subordinate chapters
+**** TODO Split out packages into subordinate chapters
 
 This is only necessary if I don't end up moving this part of my config entirely into home-manager instead.
 
-** msmtp
+*** msmtp
 
 #+begin_src nix :noweb-ref mail-packages
 msmtp
 #+end_src
 
-** Notmuch
+*** Notmuch
 
 Much of my work-related comms transpires over e-mail. In order to obtain [[https://tongfamily.com/2022/01/22/superhuman-hidden-commands-to-top-and-bottom-are-gg-and-g/][superhuman-level-like-or-better]] 🙊 convenience, I am using [[https://notmuchmail.org/][notmuch]] which has [[https://notmuchmail.org/frontends/][plenty of frontends]] available.
 
@@ -2282,11 +2284,11 @@ notmuch
 notmuch-mutt
 #+end_src
 
-** DONE Workers
+*** DONE Workers
 
 See my private dotfiles where I have defined a mbsync service to handle synchronization of mail. Indexing could be handled through as a =PostExec= hook in the mail retrieval service but this will cause problems with mu4e spinning up mu/server to reindex the maildir and obtaining the read/write lock on the Xapian store.
 
-** COMMENT Issues
+*** COMMENT Issues
 
 #+begin_src text
 sendmail: authentication failed (method PLAIN)
@@ -2294,7 +2296,7 @@ sendmail: server message: 454 4.7.0 Temporary authentication failure:
 sendmail: could not send mail (account work-asabina-gmbh from /home/vidbina/.config/msmtp/config)
 #+end_src
 
-* Neovim
+** Neovim
 
 For Neovim, remember that CoC completions basically work through use of the =C-n= and =C-p= binding to cycle through next and previous items in the completion listing.
 
@@ -2323,7 +2325,7 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
 }
 #+end_src
 
-** Neovim packages
+*** Neovim packages
 
 #+begin_src nix :noweb-ref nvim-packages
 coc-nvim
@@ -2351,23 +2353,23 @@ wmgraphviz-vim
 #+end_src
 
 
-** Make Neovim default editor
+*** Make Neovim default editor
 
-* Emacs
+** Emacs
 
-** Define =my-emacs= as MacPorts build
+*** Define =my-emacs= as MacPorts build
 
 #+begin_src nix :noweb-ref darwin-overlays
 my-emacs = pkgs.emacs-macport;
 #+end_src
 
-** Install Emacs with home-manager
+*** Install Emacs with home-manager
 
 #+begin_src nix :noweb-ref common-imports-darwin
 ./emacs/home.nix
 #+end_src
 
-** Link .emacs.d from dotfiles into home directory
+*** Link .emacs.d from dotfiles into home directory
 
 #+begin_src nix :noweb-ref home-darwin-config
 # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
@@ -2380,15 +2382,15 @@ my-emacs = pkgs.emacs-macport;
 home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
 #+end_src
 
-** TODO Look into emacs-builds for macOS
+*** TODO Look into emacs-builds for macOS
 
 https://github.com/jimeh/emacs-builds
-* TODO Bring in XMonad configuration
+** TODO Bring in XMonad configuration
 
 For now, I symlink ~/.xmonad to ~/src/vidbina/xmonad-config and run =xmonad --recompile= to produce the Xmonad binary.
 
-* Bars
-** COMMENT TODO Bring in xmobar configuration
+** Bars
+*** COMMENT TODO Bring in xmobar configuration
 
 For now, I symlinked ~/.config/xmobar to ~/src/vidbina/xmobar-configuration.
 
@@ -2399,7 +2401,7 @@ programs.xmobar = {
 };
 #+end_src
 
-** COMMENT polybar
+*** COMMENT polybar
 
 #+begin_src nix
 # TODO: https://gvolpe.com/blog/xmonad-polybar-nixos/
@@ -2410,7 +2412,7 @@ services.taffybar = {
 };
 #+end_src
 
-* Syncthing
+** Syncthing
 
 Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup. As per [2022-05-05 Thu 12:08], the syncthing service in home-manager is only declarative to the extend of turning it on and providing extra CLI options to start the service with.
 
@@ -2422,7 +2424,7 @@ services.syncthing = {
 };
 #+end_src
 
-** TODO Set ignore file for Syncthing or move some sensitive stuff out of synced folders
+*** TODO Set ignore file for Syncthing or move some sensitive stuff out of synced folders
 
 Especially for things link mail indices and Org-roam databases, I may need to do this.
 
@@ -2430,7 +2432,7 @@ Especially for things link mail indices and Org-roam databases, I may need to do
 - https://github.com/org-roam/org-roam/issues/977
 - https://github.com/org-roam/org-roam/issues/550
 
-* Multimedia
+** Multimedia
 
 #+begin_src nix :noweb yes :tangle multimedia.nix
 # Tangled from README.org
@@ -2443,7 +2445,7 @@ Especially for things link mail indices and Org-roam databases, I may need to do
 }
 #+end_src
 
-** COMMENT OBS
+*** COMMENT OBS
 
 https://obsproject.com/wiki/install-instructions
 
@@ -2454,7 +2456,7 @@ https://obsproject.com/wiki/install-instructions
 obs-studio
 #+end_src
 
-*** TODO Figure out OpenGL configuration
+**** TODO Figure out OpenGL configuration
 
 We had this binding nixgl into the multimedia.nix block but we are temporariliy ripping this out.
 
@@ -2473,7 +2475,7 @@ This bit we were trying to use to trick OBS into finding OpenGL-related paths. D
 #nixgl {}
 #+end_src
 
-** GTK+ UVC Viewer (GUVCView)
+*** GTK+ UVC Viewer (GUVCView)
 
 https://guvcview.sourceforge.net/
 
@@ -2481,7 +2483,7 @@ https://guvcview.sourceforge.net/
 guvcview
 #+end_src
 
-** V4l utils
+*** V4l utils
 
 https://linuxtv.org/projects.php
 
@@ -2489,7 +2491,7 @@ https://linuxtv.org/projects.php
 v4l-utils
 #+end_src
 
-* Browsers
+** Browsers
 
 #+begin_src nix :noweb yes :tangle browser.nix
 # Tangled from README.org
@@ -2514,7 +2516,7 @@ in
 }
 #+end_src
 
-** COMMENT Chrome
+*** COMMENT Chrome
 
 We just want to try the unfree Google Chrome, to test whether this works with Twitch:
 
@@ -2535,7 +2537,7 @@ chromium --disable-gpu-vsync --disable-frame-rate-limit
 - chrome://gpu
 - chrome://flags/
 
-** DONE Debug Chrome freeze-ups (possibly accelleration-related)
+*** DONE Debug Chrome freeze-ups (possibly accelleration-related)
 
 Output of starting chromium on [2023-03-04 Sat 16:51]
 
@@ -3164,7 +3166,7 @@ https://www.lifewire.com/hardware-acceleration-in-chrome-4125122
 
 Somehow resolved after disabling offloading. Also running chrome as =DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1=1 chromium=.
 
-** DONE Debug Chrome
+*** DONE Debug Chrome
 
 See https://github.com/NixOS/nixpkgs/issues/216361
 
@@ -3186,7 +3188,7 @@ ERR: Display.cpp:1014 (initialize): ANGLE Display::initialize error 12289: Could
 
 Resolved by disabling offloading.
 
-** Chromium
+*** Chromium
 
 #+begin_src nix :noweb yes :noweb-ref browser-chromium
 programs.chromium = {
@@ -3219,7 +3221,7 @@ programs.chromium = {
 
 See https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/common/chrome_switches.cc and https://source.chromium.org/search?q=file:switches.cc&amp;ss=chromium%2Fchromium%2Fsrc for some switches that we can use according to the =commandLineArgs= option in [[https://github.com/nix-community/home-manager/blob/master/modules/programs/chromium.nix][programs/chromium.nix]].
 
-*** Setting environment variable to disable switching
+**** Setting environment variable to disable switching
 
 Note how https://github.com/NixOS/nixpkgs/issues/211408 outlines a fix regarding graphics switching/offloading:
 
@@ -3233,7 +3235,7 @@ We set this through the =home.sessionVariables= option, so we can just run =chro
 home.sessionVariables.DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 = 1;
 #+end_src
 
-*** Debugging
+**** Debugging
 
 https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
 
@@ -3241,7 +3243,7 @@ chrome://version
 chrome://flags
 chrome://gpu
 
-*** COMMENT Chromium Overlay
+**** COMMENT Chromium Overlay
 
 See https://discourse.nixos.org/t/failed-vaapi-init/23317/3
 
@@ -3251,9 +3253,9 @@ chromium = super.chromium.override {
 };
 #+end_src
 
-*** Extensions
+**** Extensions
 
-**** COMMENT Metamask
+***** COMMENT Metamask
 
 #+begin_src nix :noweb-ref browser-chromium-extensions
   {
@@ -3263,7 +3265,7 @@ chromium = super.chromium.override {
   }
 #+end_src
 
-**** Vimium
+***** Vimium
 
 vi-like navigation of the browser
 
@@ -3277,7 +3279,7 @@ vi-like navigation of the browser
 
 - =c= :: enter caret mode from either of the visual modes (=v= visual mode, =V= visual line mode)
 
-**** Wasavi
+***** Wasavi
 
 vi-editor for input controls
 - enter with =C-RET=, exit with =:q= (typical vi exit command)
@@ -3291,7 +3293,7 @@ vi-editor for input controls
 }
 #+end_src
 
-** Firefox
+*** Firefox
 
 #+begin_quote
 ⚠️ In order to get the extensions in Firefox to work, you may have to first manually enable the extensions.
@@ -3305,7 +3307,7 @@ programs.firefox = {
 };
 #+end_src
 
-*** Extensions
+**** Extensions
 
 #+begin_src nix :noweb yes :noweb-ref browser-firefox-profiles
 # NOTE: Extensions need firefox.profiles to be defined
@@ -3316,7 +3318,7 @@ profiles.personal.extensions =
   ];
 #+end_src
 
-**** Tridactyl
+***** Tridactyl
 
 Tridactyl is the extension introducing the vim bindings into Firefox. It will hijack the body of your new tabs which can bit a bit disruptive to your workflow as it will present a Tridactyl start page which is visually quite busy therefore running =:set newtab about:blank= to clear the body of the new tab can improve the UX and run =:set theme dark= to switch to a dark theme if new tabs are blasting you with white light.
 
@@ -3325,26 +3327,26 @@ multi-account-containers # needed by tridactyl
 tridactyl
 #+end_src
 
-***** Escape Hatch
+****** Escape Hatch
 
 Remember that =<C-,>= (as described in the Tridactyl documentation which would be =C-,= in Emacs bindings notation or more simply but =Ctrl= + =,​=) is the Tridactyl /escape hatch/ that gets you into a part within the page view of the browser where you can use the vi-like bindings to navigate or do this.
 
 💡 This is convenient because loading some pages will leave the focus on the URL bar or the search bar and tabbing through may be a tedious way to get to the page view.
 
-***** Ignore mode
+****** Ignore mode
 
 Remember that =Shift= + =Insert= (or =Ctrl= + =Alt= + =Escape= but I'm refusing to learn that one because it is quite a dragon of a maneuver to efficiently pull of) will toggle to ignore mode in which all keypresses are passed-through to the web application.
 
 💡 This is convenient for applications that have their own bindings that may conflict with Tridactyl.
 
-***** Search
+****** Search
 
 Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle through search results.
 
 💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
 
-** Shared Extensions
-*** WIP GhostText
+*** Shared Extensions
+**** WIP GhostText
 
 Use GhostText to edit text in the browser through a text editor.
 
@@ -3361,7 +3363,7 @@ https://chrome.google.com/webstore/detail/ghosttext/godiecgffnchndlihlpaajjcpleh
 }
 #+end_src
 
-*** Darkreader
+**** Darkreader
 
 #+begin_src nix :noweb-ref browser-chromium-extensions
 {
@@ -3375,7 +3377,7 @@ https://chrome.google.com/webstore/detail/ghosttext/godiecgffnchndlihlpaajjcpleh
 darkreader
 #+end_src
 
-**** Override for mermaid on GitHub
+***** Override for mermaid on GitHub
 
 /html/body/div[1]/div/div/svg/g[2]/rect
 #entity-Document-5b2ba057-c937-56df-837d-8bac67f835ce > rect
@@ -3456,7 +3458,7 @@ div.mermaid .sequenceNumber {
 
 Filed into https://github.com/darkreader/darkreader/pull/11108
 
-**** DXOS Overides
+***** DXOS Overides
 
 #+begin_src css :noweb-ref darkreader-mermaid
 .sidebar {
@@ -3464,8 +3466,8 @@ Filed into https://github.com/darkreader/darkreader/pull/11108
 }
 #+end_src
 
-* Chat
-** Slack
+** Chat
+*** Slack
 
 Using Slack from the browser is a shitty experience because one has to keep so many tabs open for the different workspaces. I'm finally budging and installing the official client.
 
@@ -3477,7 +3479,7 @@ pkgs.slack
 "slack"
 #+end_src
 
-** Discord
+*** Discord
 
 #+begin_src nix :noweb-ref desktop-packages
 pkgs.discord
@@ -3489,7 +3491,7 @@ pkgs.discord
 "discord-canary"
 #+end_src
 
-*** COMMENT Skip Discord host update
+**** COMMENT Skip Discord host update
 
 Tangle single block in order to configure file:~/.config/discord/settings.json such that Discord skips the host update logic as host updates won't work well on NixOS.
 
@@ -3499,7 +3501,7 @@ Tangle single block in order to configure file:~/.config/discord/settings.json s
 }
 #+end_src
 
-* Docs
+** Docs
 
 #+begin_src nix :tangle doc.nix :noweb yes
 # Tangled from README.org
@@ -3514,7 +3516,7 @@ in
 }
 #+end_src
 
-** $LaTeX$
+*** $LaTeX$
 
 #+begin_src nix :noweb yes :noweb-ref doc-let-bindings
 texlive-asabina = with pkgs; (texlive.combine {
@@ -3570,49 +3572,49 @@ bibtex2html
 texlive-asabina
 #+end_src
 
-** PDF
+*** PDF
 
-*** Utilities
+**** Utilities
 
-**** pdftk
+***** pdftk
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 pdftk
 #+end_src
 
-**** pandoc
+***** pandoc
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 pandoc
 #+end_src
 
-*** Readers
-**** Evince
+**** Readers
+***** Evince
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 evince
 #+end_src
 
-**** Okular
+***** Okular
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 okular
 #+end_src
 
-**** Xournal
+***** Xournal
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 xournal
 #+end_src
 
-**** Zathura
+***** Zathura
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 zathura
 #+end_src
 
-** Dictionaries
+*** Dictionaries
 
-*** Aspell
+**** Aspell
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 aspell
@@ -3621,7 +3623,7 @@ aspellDicts.en
 aspellDicts.nl
 #+end_src
 
-*** COMMENT Hunspell
+**** COMMENT Hunspell
 
 #+begin_src nix :noweb yes :noweb-ref doc-let-bindings
 hunspell-personal = with prev;
@@ -3674,27 +3676,27 @@ hunspell-personal = with prev;
 hunspell
 #+end_src
 
-** Spreadsheets
+*** Spreadsheets
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 sc-im
 visidata
 #+end_src
 
-** COMMENT Completions
+*** COMMENT Completions
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 
 #+end_src
 
-** Misc
-*** QR
+*** Misc
+**** QR
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 qrencode
 #+end_src
 
-*** Office
+**** Office
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 libreoffice
