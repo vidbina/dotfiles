@@ -4,7 +4,6 @@
 {
   imports = [
     ./vim.nix
-    ./emacs/home.nix
   ];
 
   home.stateVersion = "23.05";

@@ -7733,7 +7733,7 @@ in
 }
 #+end_src
 
-**** Emacs (launchd) service through nix-darwin and package through (home-manager)
+**** COMMENT Install Emacs (launchd) service through nix-darwin and package through (home-manager)
 
 In order to avoid having to figure out the mess with activation scripts, we can install the Emacs service through nix-darwin such that we have the long-running daemon available and simultaneously install the same Emacs as a home-manager package, such that we have the Spotlight-visible reference created for us (in the ~/Applications/Home Manager Apps directory). It is important to install the exact same version of Emacs in nix-darwin as well as home-manager to avoid version incompatibility issues.
 
@@ -7744,7 +7744,7 @@ services.emacs = {
 };
 #+end_src
 
-**** TODO COMMENT Experiment with Emacs plus
+**** Install Emacs plus
 
 https://github.com/d12frosted/homebrew-emacs-plus#options
 
@@ -7763,7 +7763,11 @@ homebrew = {
 };
 #+end_src
 
-**** TODO COMMENT Experiment with standard Emacs
+**** TODO COMMENT Install emacs-builds for macOS
+
+https://github.com/jimeh/emacs-builds
+
+**** TODO COMMENT Install standard Emacs
 
 #+begin_src nix :noweb yes :noweb-ref nix-darwin
 homebrew = {
@@ -8146,6 +8150,10 @@ services.emacs = {
 #+end_src
 
 *** COMMENT Darwin (macOS) launchd Emacs service
+
+#+begin_quote
+⚠️ [2024-01-09 Tue]: On Darwin, I haven't been able to get the Emacs daemon to work reliably. The =emacs --fd-daemon= doesn't spin up the server.
+#+end_quote
 
 On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd), so we bring in nix-darwin to reintroduce the capability to manage system services through launchd (as opposed to systemd in the GNU/Linux setup).
 

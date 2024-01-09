@@ -2335,18 +2335,6 @@ wmgraphviz-vim
 
 ** Emacs
 
-*** Define =my-emacs= as MacPorts build
-
-#+begin_src nix :noweb-ref darwin-overlays
-my-emacs = pkgs.emacs-macport;
-#+end_src
-
-*** Install Emacs with home-manager
-
-#+begin_src nix :noweb-ref common-imports-darwin
-./emacs/home.nix
-#+end_src
-
 *** Link .emacs.d from dotfiles into home directory
 
 #+begin_src nix :noweb-ref home-darwin-config
@@ -2360,9 +2348,6 @@ my-emacs = pkgs.emacs-macport;
 home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
 #+end_src
 
-*** TODO Look into emacs-builds for macOS
-
-https://github.com/jimeh/emacs-builds
 ** TODO Bring in XMonad configuration
 
 For now, I symlink ~/.xmonad to ~/src/vidbina/xmonad-config and run =xmonad --recompile= to produce the Xmonad binary.
