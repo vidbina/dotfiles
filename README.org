@@ -1634,54 +1634,66 @@ homebrew = {
     ];
   };
   brews = [
-    "smudge/smudge/nightlight"
-    "pidof"
+    <<homebrew-brews>>
   ];
   casks = [
-    # Software Development
-    "iterm2"
-    "kitty"
-
-    # Design
-    "figma"
-    "drawio"
-
-    # Containerization & Virtualization
-    "docker"
-    "utm"
-
-    # Productivity
-    "anytype" # in beta, not very feature-complete imo
-    "google-drive"
-    "linear-linear"
-    "logseq" # FLOSS (compared to Obsidian) but no mobile app
-    "microsoft-teams"
-    "notion"
-    "obsidian" # best-in-class with mobile app support
-    "raycast"
-    "remarkable"
-    "zoom"
-
-    # Android
-    "android-file-transfer"
-
-    # Devtools
-    # Go to top-right Settings gear > VSCode Import > Start Import
-    "cursor"
-    "warp"
-
-    # Entertainment
-    "steam"
-    "tidal"
-
-    # Social
-    "discord"
-    "signal"
-    "slack"
-    "telegram"
-    "whatsapp"
+    <<homebrew-casks>>
   ];
 };
+#+end_src
+
+As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefer pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"smudge/smudge/nightlight"
+"pidof"
+#+end_src
+
+Graphical tools which are typically installed through the /drag icon to Applications/ mess, can be installed in a more automated fashion through the use of the homebrew casks extension.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+# Software Development
+"iterm2"
+"kitty"
+
+# Design
+"figma"
+"drawio"
+
+# Containerization & Virtualization
+"docker"
+"utm"
+
+# Productivity
+"anytype" # in beta, not very feature-complete imo
+"google-drive"
+"linear-linear"
+"logseq" # FLOSS (compared to Obsidian) but no mobile app
+"microsoft-teams"
+"notion"
+"obsidian" # best-in-class with mobile app support
+"raycast"
+"remarkable"
+"zoom"
+
+# Android
+"android-file-transfer"
+
+# Devtools
+# Go to top-right Settings gear > VSCode Import > Start Import
+"cursor"
+"warp"
+
+# Entertainment
+"steam"
+"tidal"
+
+# Social
+"discord"
+"signal"
+"slack"
+"telegram"
+"whatsapp"
 #+end_src
 
 *** nix-darwin nixpkgs
