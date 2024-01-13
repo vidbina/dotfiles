@@ -565,10 +565,18 @@ eval "$(gh completion -s zsh)"
 
 **** Pywal: 🎨 Generate and change color-schemes on the fly
 
+For Linux, we install pywal through the =programs= attribute:
+
 #+begin_src nix :noweb yes :noweb-ref common-programs
 programs.pywal = {
   enable = true;
 };
+#+end_src
+
+For Darwin, we currently install Pywal with home-manager:
+
+#+begin_src nix :noweb-ref darwin-home-packages
+pywal
 #+end_src
 
 *** Linux
@@ -2329,7 +2337,6 @@ vim-solidity
 vim-terraform
 wmgraphviz-vim
 #+end_src
-
 
 *** Make Neovim default editor
 
