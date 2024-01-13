@@ -7754,7 +7754,7 @@ Because Spotlight doesn't see Emacs if it is only installed as a service, we als
 my-emacs
 #+end_src
 
-**** Install Emacs plus
+**** COMMENT Install Emacs plus
 
 https://github.com/d12frosted/homebrew-emacs-plus#options
 
