@@ -7733,6 +7733,10 @@ in
 }
 #+end_src
 
+**** TODO Cleanup config by specializing nix-packages in listing above and fixing emacs/default.nix for Linux
+
+Currently, I'm sloppily tangling package listing into the ref =nix-packages= which will break in Linux if I don't have a Linux-specific =my-emacs= overlay defined. In principle, the commenting of the following section, should not affect a Linux-specific config and now we tangle into both file:emacs/default.nix and file:emacs/nix-darwin.nix.x
+
 **** Install Emacs (launchd) service through nix-darwin and package through (home-manager)
 
 In order to avoid having to figure out the mess with activation scripts, we can install the Emacs service through nix-darwin such that we have the long-running daemon available and simultaneously install the same Emacs as a home-manager package, such that we have the Spotlight-visible reference created for us (in the ~/Applications/Home Manager Apps directory). It is important to install the exact same version of Emacs in nix-darwin as well as home-manager to avoid version incompatibility issues.
