@@ -2348,6 +2348,10 @@ wmgraphviz-vim
 home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
 #+end_src
 
+*** TODO Tangle nix import of emacs/*.nix
+
+At the moment we import our nix configs for Emacs into our configuration-darwin.nix file and for Linux we haven't really considered how to do this since we don't actively use Linux atm. We'll have to fix this at some point.
+
 ** TODO Bring in XMonad configuration
 
 For now, I symlink ~/.xmonad to ~/src/vidbina/xmonad-config and run =xmonad --recompile= to produce the Xmonad binary.
