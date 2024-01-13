@@ -5,6 +5,7 @@
   environment.systemPackages = with pkgs; [
     yamllint
     nodePackages.yaml-language-server
+    my-emacs
     mu
 
     python312
@@ -23,6 +24,10 @@
     })
   ];
 
+  services.emacs = {
+    enable = true;
+    package = pkgs.my-emacs;
+  };
   homebrew = {
     taps = [ "d12frosted/emacs-plus" ];
     brews = [

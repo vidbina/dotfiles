@@ -18,6 +18,7 @@ in
     # General packages
     yamllint
     nodePackages.yaml-language-server
+    my-emacs
     mu
 
     python312
