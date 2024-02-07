@@ -972,15 +972,6 @@ services.gpg-agent = {
 };
 #+end_src
 
-***** COMMENT Syncthing
-
-#+begin_src nix :noweb-ref home-linux-services
-services.syncthing = {
-  enable = true;
-  tray = { enable = true; };
-};
-#+end_src
-
 ***** Trayer
 
 #+begin_src nix :noweb-ref home-linux-services
@@ -2392,9 +2383,20 @@ Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup
 
 Consult the [[https://docs.syncthing.net/intro/getting-started.html][Getting Started]] guide to learn how to set it up "imperatively" (i.e.: setting up peers and generating their IDs and copying the needed information over to the other syncthing peers to establish connections) through the portal.
 
+*** Syncthing Daemon on Darwin
+
 #+begin_src nix :noweb-ref home-darwin-config
 services.syncthing = {
   enable = true;
+};
+#+end_src
+
+*** COMMENT Syncthing Service on Linux
+
+#+begin_src nix :noweb-ref home-linux-services
+services.syncthing = {
+  enable = true;
+  tray = { enable = true; };
 };
 #+end_src
 
