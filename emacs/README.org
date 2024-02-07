@@ -2381,7 +2381,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 
 *** Theme Magic
 
-Use [[https://github.com/jcaw/theme-magic][theme-magic]] to use pywal to update your system theme based on your current Emacs theme.
+The [[https://github.com/jcaw/theme-magic][theme-magic]] package uses [[https://github.com/dylanaraps/pywal][pywal]] to update terminal emulator color schemes or themes. Using theme-magic allows one to syncs the terminal themes to the current Emacs theme.
 
 #+begin_src elisp :tangle init.el
 (use-package theme-magic
@@ -2391,6 +2391,19 @@ Use [[https://github.com/jcaw/theme-magic][theme-magic]] to use pywal to update 
   :config
   (theme-magic-export-theme-mode))
 #+end_src
+
+Run the =theme-magic-from-emacs= command to update your system theme to match your Emacs theme.
+
+#+begin_aside
+Note that on macOS, theme-magic works with iTerm2 out of the box. Other terminal emulators like Alacritty and Kitty may take additional configuration to set up.
+#+end_aside
+
+Pywal provides instructions on the [[https://github.com/dylanaraps/pywal/wiki/Installation#terminal-emulator][terminal emulators]] that are compatible and how to test them, note that the following terminals are known to not work well with pywal:
+- Konsole (the KDE standard)
+- Hyper (the web-based Vercel)
+- Terminal.app (the macOS standard)
+- Terminology (the Enlightenment EFL standard)
+- st (the suckless standard)
 
 ** COMMENT NΛNO: NANO Theme by Rougier
 
@@ -7720,7 +7733,28 @@ in
 }
 #+end_src
 
-**** TODO COMMENT Experiment with Emacs plus
+**** TODO Cleanup config by specializing nix-packages in listing above and fixing emacs/default.nix for Linux
+
+Currently, I'm sloppily tangling package listing into the ref =nix-packages= which will break in Linux if I don't have a Linux-specific =my-emacs= overlay defined. In principle, the commenting of the following section, should not affect a Linux-specific config and now we tangle into both file:emacs/default.nix and file:emacs/nix-darwin.nix.x
+
+**** Install Emacs (launchd) service through nix-darwin and package through (home-manager)
+
+In order to avoid having to figure out the mess with activation scripts, we can install the Emacs service through nix-darwin such that we have the long-running daemon available and simultaneously install the same Emacs as a home-manager package, such that we have the Spotlight-visible reference created for us (in the ~/Applications/Home Manager Apps directory). It is important to install the exact same version of Emacs in nix-darwin as well as home-manager to avoid version incompatibility issues.
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin
+services.emacs = {
+  enable = true;
+  package = pkgs.my-emacs;
+};
+#+end_src
+
+Because Spotlight doesn't see Emacs if it is only installed as a service, we also list it as a regularly-installed system package.
+
+#+begin_src nix :noweb-ref nix-packages
+my-emacs
+#+end_src
+
+**** COMMENT Install Emacs plus
 
 https://github.com/d12frosted/homebrew-emacs-plus#options
 
@@ -7739,7 +7773,11 @@ homebrew = {
 };
 #+end_src
 
-**** TODO COMMENT Experiment with standard Emacs
+**** TODO COMMENT Install emacs-builds for macOS
+
+https://github.com/jimeh/emacs-builds
+
+**** TODO COMMENT Install standard Emacs
 
 #+begin_src nix :noweb yes :noweb-ref nix-darwin
 homebrew = {
@@ -7892,7 +7930,7 @@ We also add the custom Jupyter package to our Emacs paths to factor it into the 
 jupyter-for-emacs
 #+end_src
 
-**** COMMENT Darwin overlay <<nix-overlays-darwin>>
+**** Darwin overlay <<nix-overlays-darwin>>
 
 #+begin_center
 🐉 This has not been sufficiently tested so use with caution. I'm using NixOS mainly, so anything Darwin-related has probably been run once on a MacBook that I haven't touched for a good 4 months at the time of writing (being [2022-06-30 Thu 18:31]).
@@ -7913,11 +7951,7 @@ For simplicity's sake, we're just assigning the standard v29 MacPort of Emacs in
 })
 #+end_src
 
-In order to resolve an issue with Spotlight's ability to find Emacs, we also install Emacs as a system package in order to set up the links in the macOS Application directory.
-
-#+begin_src nix :noweb-ref nix-packages
-my-emacs
-#+end_src
+In order to resolve an issue with Spotlight's ability to find Emacs, remember to also install Emacs as a system package in order to set up the links in the macOS Application directory.
 
 *** Packages
 :PROPERTIES:
@@ -8122,6 +8156,10 @@ services.emacs = {
 #+end_src
 
 *** COMMENT Darwin (macOS) launchd Emacs service
+
+#+begin_quote
+⚠️ [2024-01-09 Tue]: On Darwin, I haven't been able to get the Emacs daemon to work reliably. The =emacs --fd-daemon= doesn't spin up the server.
+#+end_quote
 
 On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd), so we bring in nix-darwin to reintroduce the capability to manage system services through launchd (as opposed to systemd in the GNU/Linux setup).
 

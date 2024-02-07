@@ -1,67 +1,75 @@
 # This is a nix-darwin config
 { pkgs, lib, inputs, config, username, ... }: {
   imports = [
+    # import modules into our nix-darwin config
+
     ./emacs/nix-darwin.nix
     ./system/darwin
   ];
 
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
-  environment.systemPackages = [
-    pkgs.asciinema
-    pkgs.bat
-    pkgs.checkmake
-    pkgs.exercism
-    pkgs.gh
-    pkgs.gnumake
-    pkgs.gnupg
-    pkgs.gotop
-    pkgs.hexyl
-    pkgs.html-tidy
-    pkgs.htop
-    pkgs.httpie
-    pkgs.httplab
-    pkgs.jq
-    pkgs.kakoune
-    pkgs.nodePackages.typescript-language-server
-    pkgs.nodejs
-    pkgs.pass
-    pkgs.nixpkgs-fmt
-    pkgs.redis
-    pkgs.rnix-lsp
-    pkgs.shell_gpt
-    pkgs.shellcheck
-    pkgs.shfmt
-    pkgs.sqlite-interactive
-    pkgs.tree
-    pkgs.tree-sitter
-    pkgs.vim
-    pkgs.xxd
-    pkgs.yq
-    inputs.linsk.packages.${pkgs.system}.default
-    inputs.devenv.packages.${pkgs.system}.default
-  ] ++ (if pkgs.system == "aarch64-darwin" then [ ] else [
-    # Drop non Apple Silicon compatible packages
-    pkgs.gdb
-    pkgs.ghidra-bin
+  environment.systemPackages = with pkgs; [
+    asciinema
+    bat
+    checkmake
+    exercism
+    gh
+    gnumake
+    gnupg
+    gotop
+    hexyl
+    html-tidy
+    htop
+    httpie
+    httplab
+    jq
+    kakoune
+    nodePackages.typescript-language-server
+    nodejs
+    pass
+    nixpkgs-fmt
+    redis
+    rnix-lsp
+    shell_gpt
+    shellcheck
+    shfmt
+    sqlite-interactive
+    tree
+    tree-sitter
+    vim
+    xxd
+    yq
+    inputs.linsk.packages.${system}.default
+    inputs.devenv.packages.${system}.default
+  ] ++ (if system == "aarch64-darwin" then [
+    # ARM-only packages
+
+  ] else [
+    # Intel-only packages
+    gdb
+    ghidra-bin
   ]);
 
-  environment.interactiveShellInit = ''
-    eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
-  '';
+  environment.interactiveShellInit = lib.strings.concatStrings [
+    ''
+      eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
+    ''
+  ];
 
+  # General nix-darwin settings
   # Auto upgrade nix package and the daemon service.
   services.nix-daemon.enable = true;
   # nix.package = pkgs.nix;
+
+  # Necessary for using flakes on this system.
+  nix.settings.experimental-features = "nix-command flakes";
 
   # NOTE: Copied from home-linux.nix
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
   };
-
-  # Necessary for using flakes on this system.
-  nix.settings.experimental-features = "nix-command flakes";
 
   # Create /etc/zshrc that loads the nix-darwin environment.
   # NOTE: Copied from common.nix
@@ -131,7 +139,6 @@
       bindkey '^R' history-incremental-search-backward
     '';
   };
-  # programs.fish.enable = true;
 
   # Set Git commit hash for darwin-version.
   system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
@@ -155,40 +162,6 @@
     home = "/Users/vidbina";
   };
 
-  # Use activation scripts to set up Spotlight visibility of nix-darwin apps
-  # See https://github.com/LnL7/nix-darwin/issues/214#issuecomment-1230730292
-  system.activationScripts.applications.text = lib.mkForce ''
-    echo "setting up ~/Applications..." >&2
-    applications="$HOME/Applications"
-    nix_apps="$applications/Nix Apps"
-
-    # Needs to be writable by the user so that home-manager can symlink into it
-    if ! test -d "$applications"; then
-        mkdir -p "$applications"
-        chown ${username}: "$applications"
-        chmod u+w "$applications"
-    fi
-
-    # Delete the directory to remove old links
-    rm -rf "$nix_apps"
-    mkdir -p "$nix_apps"
-    find ${config.system.build.applications}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
-        while read src; do
-            # Spotlight does not recognize symlinks, it will ignore directory we link to the applications folder.
-            # It does understand MacOS aliases though, a unique filesystem feature. Sadly they cannot be created
-            # from bash (as far as I know), so we use the oh-so-great Apple Script instead.
-            /usr/bin/osascript -e "
-                set fileToAlias to POSIX file \"$src\"
-                set applicationsFolder to POSIX file \"$nix_apps\"
-                tell application \"Finder\"
-                    make alias file to fileToAlias at applicationsFolder
-                    # This renames the alias; 'mpv.app alias' -> 'mpv.app'
-                    set name of result to \"$(rev <<< "$src" | cut -d'/' -f1 | rev)\"
-                end tell
-            " 1>/dev/null
-        done
-  '';
-
   homebrew = {
     enable = true;
     global = {
@@ -201,9 +174,14 @@
         "--verbose"
       ];
     };
+    brews = [
+      "smudge/smudge/nightlight"
+      "pidof"
+    ];
     casks = [
       # Software Development
       "iterm2"
+      "kitty"
 
       # Design
       "figma"
@@ -214,11 +192,13 @@
       "utm"
 
       # Productivity
-      "anytype"
+      "anytype" # in beta, not very feature-complete imo
       "google-drive"
       "linear-linear"
+      "logseq" # FLOSS (compared to Obsidian) but no mobile app
       "microsoft-teams"
       "notion"
+      "obsidian" # best-in-class with mobile app support
       "raycast"
       "remarkable"
       "zoom"
@@ -250,6 +230,7 @@
 
   nixpkgs.overlays = [
     (self: super: {
+      # nix-darwin overlays
       my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
     })
   ];
