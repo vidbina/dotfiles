@@ -2395,6 +2395,74 @@ services.syncthing = {
 };
 #+end_src
 
+**** TODO Issue: Syncthing not automatically started on macOS
+
+[2024-02-07 Wed] On macOS, the syncthing service isn't running which was confirmed by running:
+
+#+begin_src bash
+launchctl list org.nix-community.home.syncthing
+#+end_src
+
+where the output is
+
+#+begin_src text
+{
+	"LimitLoadToSessionType" = "Aqua";
+	"Label" = "org.nix-community.home.syncthing";
+	"OnDemand" = true;
+	"LastExitStatus" = 19968;
+	"Program" = "/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing";
+	"ProgramArguments" = (
+		"/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing";
+		"-no-browser";
+		"-no-restart";
+		"-logflags=0";
+	);
+};
+#+end_src
+
+which seems at odds with the nix definition for syncthing
+
+#+begin_src nix
+launchd.agents.syncthing = {
+  enable = true;
+  config = {
+    ProgramArguments = syncthingArgs;
+    KeepAlive = {
+      Crashed = true;
+      SuccessfulExit = false;
+    };
+    ProcessType = "Background";
+  };
+};
+#+end_src
+
+as =KeepAlive= is defined in the nix config, but missing in the observed launch output, furthermore =OnDemand= isn't mentioned at all in the nix config. 🤷🏿
+
+#+begin_quote
+It seems that the [[https://github.com/nix-community/home-manager/blob/f99eace7c167b8a6a0871849493b1c613d0f1b80/modules/launchd/launchd.nix#L167][OnDemand]] option is a pre macOS 10.5 key which has been superceded by KeepAlive.
+#+end_quote
+
+Just to confirm, Syncthing really isn't running, I have checked the process list for a corresponding entry:
+
+#+begin_src bash
+ps aux | grep syncthing
+#+end_src
+
+Trying to start syncthing through
+
+#+begin_src bash
+launchctl start org.nix-community.home.syncthing
+#+end_src
+
+yields status 134 (SIGABRT) and 139 (SIGSEGV).
+
+As a fallback, just start =syncthing= through a terminal with the temporary added benefit of having a log/trace of Syncthing's actions. This needs further exploration.
+
+#+begin_quote
+😕 I just ran the same commands on my personal MacBook and found that syncthing is running as a daemon there. Perhaps I need a system restart.
+#+end_quote
+
 *** COMMENT Syncthing Service on Linux
 
 #+begin_src nix :noweb-ref home-linux-services
