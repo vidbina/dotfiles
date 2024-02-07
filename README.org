@@ -1397,6 +1397,10 @@ On macOS, nix-darwin provides the most batteries included nix experience. We can
 }
 #+end_src
 
+*** Launchd
+
+Read the Apple [[https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html][Daemons and Service Programming Guide]] for some basic information on how to work with launchd. Keep in mind that launchd isn't systemd and sucks in the sense that starting/stopping services doesn't seem to do the obvious things that their names imply and as one has grown familiar to with systemd.
+
 *** Packages
 
 All packages that are architecture agnostic are installed in all of our macOS machines.
