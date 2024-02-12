@@ -68,6 +68,7 @@
         bbenoist.nix
         be5invis.toml
         github.copilot
+        github.copilot-chat
         hediet.vscode-drawio
         mkhl.direnv
         ms-azuretools.vscode-docker
