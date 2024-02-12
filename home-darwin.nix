@@ -60,55 +60,53 @@
   # See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
   programs.zsh.enable = true;
 
-  programs.vscode =
-    let t = pkgs.my-vscode-extensions;
-    in {
-      enable = true;
-      extensions = with t.vscode-marketplace; [
-        bbenoist.nix
-        be5invis.toml
-        github.copilot
-        github.copilot-chat
-        hediet.vscode-drawio
-        mkhl.direnv
-        ms-azuretools.vscode-docker
-        ms-python.python
-        ms-vscode-remote.remote-containers
-        tomoki1207.pdf
-        vscode-org-mode.org-mode
-        vscodevim.vim
-      ];
-      keybindings = [
-        {
-          "key" = "ctrl+tab";
-          "command" = "workbench.action.nextEditorInGroup";
-        }
-        {
-          "key" = "ctrl+shift+tab";
-          "command" = "workbench.action.previousEditorInGroup";
-        }
-      ];
-      userSettings = {
-        "editor.cursorSurroundingLines" = 8;
+  programs.vscode = {
+    enable = true;
+    extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
+      bbenoist.nix
+      be5invis.toml
+      github.copilot
+      github.copilot-chat
+      hediet.vscode-drawio
+      mkhl.direnv
+      ms-azuretools.vscode-docker
+      ms-python.python
+      ms-vscode-remote.remote-containers
+      tomoki1207.pdf
+      vscode-org-mode.org-mode
+      vscodevim.vim
+    ];
+    keybindings = [
+      {
+        "key" = "ctrl+tab";
+        "command" = "workbench.action.nextEditorInGroup";
+      }
+      {
+        "key" = "ctrl+shift+tab";
+        "command" = "workbench.action.previousEditorInGroup";
+      }
+    ];
+    userSettings = {
+      "editor.cursorSurroundingLines" = 8;
 
-        # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
-        "extensions.ignoreRecommendations" = true;
-        "extensions.showRecommendationsOnlyOnDemand" = true;
+      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+      "extensions.ignoreRecommendations" = true;
+      "extensions.showRecommendationsOnlyOnDemand" = true;
 
-        # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
-        "telemetry.telemetryLevel" = "off";
+      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+      "telemetry.telemetryLevel" = "off";
 
-        "vim.highlightedyank.enable" = true;
+      "vim.highlightedyank.enable" = true;
 
-        "window.autoDetectColorScheme" = true;
-        # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
-        "editor.guides.bracketPairs" = true;
-        "editor.guides.highlightActiveIndentation" = true;
-        "workbench.colorTheme" = "Default High Contrast Light";
-        "workbench.preferredDarkColorTheme" = "Default High Contrast";
-        "workbench.preferredLightColorTheme" = "Default High Contrast Light";
-      };
+      "window.autoDetectColorScheme" = true;
+      # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
+      "editor.guides.bracketPairs" = true;
+      "editor.guides.highlightActiveIndentation" = true;
+      "workbench.colorTheme" = "Default High Contrast Light";
+      "workbench.preferredDarkColorTheme" = "Default High Contrast";
+      "workbench.preferredLightColorTheme" = "Default High Contrast Light";
     };
+  };
   # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
   # TODO: Fix hack of hardcoded dotfiles path
   # NOTE: This repo must be checked out to ~/Code/vidbina/dotfiles
