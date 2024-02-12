@@ -2125,48 +2125,72 @@ pkgs.mtr
 
 *** VsCode
 
+Visual Studio Code is unfree software and needs to be added to the list of unfree packages that we want to tolerate:
+
 #+begin_src nix :noweb-ref darwin-unfree
 "vscode"
 #+end_src
+
+Our vscode configuration declaratively manages soem extensions, keybindings and user settings:
+
+#+begin_src nix :noweb yes :noweb-ref home-darwin-config
+programs.vscode = {
+  enable = true;
+  extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
+    <<vscode-extensions>>
+  ];
+  keybindings = [
+    <<vscode-keybindings>>
+  ];
+  userSettings = {
+    <<vscode-settings>>
+  };
+};
+#+end_src
+
+**** VsCode Extensions
+
+We get our vscode extensions from the nix-community nix-vscode-extensions package which we alias to the reference =my-vscode-extensions= for internal use:
 
 #+begin_src nix :noweb-ref darwin-overlays
 my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
 #+end_src
 
+The extensions that we are interested in are the following:
 
-#+begin_src nix :noweb yes :noweb-ref home-darwin-config
-programs.vscode =
-  let t = pkgs.my-vscode-extensions;
-  in {
-    enable = true;
-    extensions = with t.vscode-marketplace; [
-      bbenoist.nix
-      be5invis.toml
-      github.copilot
-      hediet.vscode-drawio
-      mkhl.direnv
-      ms-azuretools.vscode-docker
-      ms-python.python
-      ms-vscode-remote.remote-containers
-      tomoki1207.pdf
-      vscode-org-mode.org-mode
-      vscodevim.vim
-    ];
-    keybindings = [
-      {
-        "key" = "ctrl+tab";
-        "command" = "workbench.action.nextEditorInGroup";
-      }
-      {
-        "key" = "ctrl+shift+tab";
-        "command" = "workbench.action.previousEditorInGroup";
-      }
-    ];
-    userSettings = {
-      <<vscode-settings>>
-    };
-  };
+#+begin_src nix :noweb-ref vscode-extensions
+bbenoist.nix
+be5invis.toml
+github.copilot
+github.copilot-chat
+hediet.vscode-drawio
+mkhl.direnv
+ms-azuretools.vscode-docker
+ms-python.python
+ms-vscode-remote.remote-containers
+tomoki1207.pdf
+vscode-org-mode.org-mode
+vscodevim.vim
 #+end_src
+
+**** VsCode Keybindings
+
+The keybindings that we want are as follows:
+
+#+begin_src nix :noweb-ref vscode-keybindings
+{
+  "key" = "ctrl+tab";
+  "command" = "workbench.action.nextEditorInGroup";
+}
+{
+  "key" = "ctrl+shift+tab";
+  "command" = "workbench.action.previousEditorInGroup";
+}
+#+end_src
+
+**** Settings
+
+In order to enable long-presses to register multiple entries we need the =ApplePressAndHoldEnabled= OSX setting, otherwise, we have to manually depress a key multiple times in order to have multiple entries.
 
 #+begin_src nix :noweb-ref darwin-system
 defaults.CustomUserPreferences = {
@@ -2176,13 +2200,14 @@ defaults.CustomUserPreferences = {
 };
 #+end_src
 
-**** Settings
+Define parts of the VsCode-specific fields are defined in the JSON format as follows:
 
-#+begin_src nix :noweb-ref vscode-settings
+#+begin_src json :noweb-ref vscode-settings
 "editor.cursorSurroundingLines" = 8;
 
 # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
 "extensions.ignoreRecommendations" = true;
+"extensions.showRecommendationsOnlyOnDemand" = true;
 
 # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
 "telemetry.telemetryLevel" = "off";
