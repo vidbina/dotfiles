@@ -972,15 +972,6 @@ services.gpg-agent = {
 };
 #+end_src
 
-***** COMMENT Syncthing
-
-#+begin_src nix :noweb-ref home-linux-services
-services.syncthing = {
-  enable = true;
-  tray = { enable = true; };
-};
-#+end_src
-
 ***** Trayer
 
 #+begin_src nix :noweb-ref home-linux-services
@@ -1405,6 +1396,12 @@ On macOS, nix-darwin provides the most batteries included nix experience. We can
   <<nix-darwin>>
 }
 #+end_src
+
+*** Launchd
+
+Read the Apple [[https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html][Daemons and Service Programming Guide]] for some basic information on how to work with launchd. Keep in mind that launchd isn't systemd and sucks in the sense that starting/stopping services doesn't seem to do the obvious things that their names imply and as one has grown familiar to with systemd.
+
+Furthermore read https://www.launchd.info/ for more information on the launchd system. I have for a long time misunderstood it as an init system hut it is more of a job manager.
 
 *** Packages
 
@@ -2392,9 +2389,134 @@ Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup
 
 Consult the [[https://docs.syncthing.net/intro/getting-started.html][Getting Started]] guide to learn how to set it up "imperatively" (i.e.: setting up peers and generating their IDs and copying the needed information over to the other syncthing peers to establish connections) through the portal.
 
+*** Syncthing Daemon on Darwin
+
 #+begin_src nix :noweb-ref home-darwin-config
 services.syncthing = {
   enable = true;
+};
+#+end_src
+
+**** TODO Issue: Syncthing not automatically started on macOS
+
+[2024-02-07 Wed] On macOS, the syncthing service isn't running which was confirmed by running:
+
+#+begin_src bash
+launchctl list org.nix-community.home.syncthing
+#+end_src
+
+where the output is
+
+#+begin_src text
+{
+	"LimitLoadToSessionType" = "Aqua";
+	"Label" = "org.nix-community.home.syncthing";
+	"OnDemand" = true;
+	"LastExitStatus" = 19968;
+	"Program" = "/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing";
+	"ProgramArguments" = (
+		"/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing";
+		"-no-browser";
+		"-no-restart";
+		"-logflags=0";
+	);
+};
+#+end_src
+
+which seems at odds with the nix definition for syncthing
+
+#+begin_src nix
+launchd.agents.syncthing = {
+  enable = true;
+  config = {
+    ProgramArguments = syncthingArgs;
+    KeepAlive = {
+      Crashed = true;
+      SuccessfulExit = false;
+    };
+    ProcessType = "Background";
+  };
+};
+#+end_src
+
+as =KeepAlive= is defined in the nix config, but missing in the observed launch output, furthermore =OnDemand= isn't mentioned at all in the nix config. 🤷🏿
+
+#+begin_quote
+It seems that the [[https://github.com/nix-community/home-manager/blob/f99eace7c167b8a6a0871849493b1c613d0f1b80/modules/launchd/launchd.nix#L167][OnDemand]] option is a pre macOS 10.5 key which has been superceded by KeepAlive.
+#+end_quote
+
+Just to confirm, Syncthing really isn't running, I have checked the process list for a corresponding entry:
+
+#+begin_src bash
+ps aux | grep syncthing
+#+end_src
+
+Trying to start syncthing through
+
+#+begin_src bash
+launchctl start org.nix-community.home.syncthing
+#+end_src
+
+yields status 134 (SIGABRT) and 139 (SIGSEGV). Retrying with =sudo= fails with status 3.
+
+Attempts to kickstart with
+
+#+begin_src bash
+launchctl kickstart gui/501/org.nix-community.home.syncthing
+#+end_src
+
+also fail with =139: Service cannot presently execute= but of course I don't have any freaking logs.
+
+#+begin_quote
+😕 I just ran the =launchctl list= and =ps= commands on my personal MacBook and found that syncthing is running as a daemon there. Perhaps I need a system restart. I recall that starting/stopping logic with launchd is quite different in terms of UX to systemd and likely the start/stop commands just don't do the same thing.
+#+end_quote
+
+As a fallback, just start =syncthing= through a terminal with the temporary added benefit of having a log/trace of Syncthing's actions. This needs further exploration.
+
+A deeper dive, leads me through https://www.launchd.info/ which outlines where the different files for job definitions are stored. For me ~/Library/LaunchAgents/org.nix-community.home.syncthing.plist seems to match the definition in the home-manager codebase, unlike the output I was seeing from =launchctl list= earlier.
+
+#+begin_src xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>KeepAlive</key>
+	<dict>
+		<key>Crashed</key>
+		<true/>
+		<key>SuccessfulExit</key>
+		<false/>
+	</dict>
+	<key>Label</key>
+	<string>org.nix-community.home.syncthing</string>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing</string>
+		<string>-no-browser</string>
+		<string>-no-restart</string>
+		<string>-logflags=0</string>
+	</array>
+</dict>
+</plist>
+#+end_src
+
+Perhaps the new job definition has simply not been loaded, which would be a failing of the =darwin-rebuild switch= run we did earlier. So, for next time, I should remember to try the following:
+
+#+begin_src bash
+sudo launchctl load ~/Library/LaunchAgents/org.nix-community.home.syncthing.plist
+sudo launchctl enable gui/501/org.nix-community.home.syncthing
+#+end_src
+
+but for now, I just try a restart and see what happens. 🤞🏿
+
+*** COMMENT Syncthing Service on Linux
+
+#+begin_src nix :noweb-ref home-linux-services
+services.syncthing = {
+  enable = true;
+  tray = { enable = true; };
 };
 #+end_src
 
