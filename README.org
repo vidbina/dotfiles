@@ -1681,7 +1681,6 @@ Graphical tools which are typically installed through the /drag icon to Applicat
 "notion"
 "obsidian" # best-in-class with mobile app support
 "raycast"
-"remarkable"
 "zoom"
 
 # Android

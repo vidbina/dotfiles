@@ -200,7 +200,6 @@
       "notion"
       "obsidian" # best-in-class with mobile app support
       "raycast"
-      "remarkable"
       "zoom"
 
       # Android
