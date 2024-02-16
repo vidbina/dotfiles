@@ -222,7 +222,7 @@
       "whatsapp"
     ];
     masApps = {
-
+      "Remarkable Desktop" = 1276493162;
     };
   };
 

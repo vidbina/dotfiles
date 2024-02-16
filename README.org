@@ -3827,6 +3827,16 @@ qrencode
 libreoffice
 #+end_src
 
+**** Remarkable
+
+We previously installed the reMarkable app for OSX through homebrew casks but are now following the recommendation from the app itself to install it from the App Store.
+
+https://apps.apple.com/us/app/remarkable-desktop/id1276493162
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Remarkable Desktop" = 1276493162;
+#+end_src
+
 ** TODO [3/22] Convert home-manager config to literate config
 
 Refer to [[file:emacs/README.org]] for an example of a literate config that tangles into multiple output files.
