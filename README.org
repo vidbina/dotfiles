@@ -1705,6 +1705,19 @@ Graphical tools which are typically installed through the /drag icon to Applicat
 
 Install apps from the Apple App Store through the mas CLI tool for which the nix-darwin homebrew config provides the [[https://daiderd.com/nix-darwin/manual/index.html#opt-homebrew.masApps][=masApps= attribute]].
 
+*** DONE Resolve: Redownload Unavailable with This Apple ID: This redownload is not available for this Apple ID either because it was bought by a different user or the item was refunded or cancelled. 
+
+Apps need to already be in a user's Purchased list before mas can install them. For any new tools, just make sure that you install it on one machine at least manually in order to add it to your Purchased list as documented in [[https://github.com/mas-cli/mas/issues/85#issuecomment-305382347][GH mas-cli issue 85]]. In my case, I didn't even complete the installation, I just started it to add it to the list and then prematurely stopped it in order to continue the installation through nix-darwin.
+
+Keep in mind to authorize your device as documented in https://support.apple.com/en-us/HT201251 and which can be done through the following steps:
+- Open Apple Music
+- Navigate to Account > Authorisations > Authorise this computer
+- provide credentials to Apple account.
+
+You can review your current computer's authorisation status by opening the App Store app and opening the Account Settings modal.
+
+Computer authorisation status did not have any bearing on this issue but it seems a good practice to keep ocassionally verify that all the authorised devices in an account are still in your possession.
+
 *** nix-darwin nixpkgs
 **** Allow some unfree packages
 
