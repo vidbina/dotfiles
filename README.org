@@ -1644,6 +1644,9 @@ homebrew = {
   casks = [
     <<homebrew-casks>>
   ];
+  masApps = {
+    <<homebrew-masapps>>
+  };
 };
 #+end_src
 
@@ -1700,6 +1703,8 @@ Graphical tools which are typically installed through the /drag icon to Applicat
 "telegram"
 "whatsapp"
 #+end_src
+
+Install apps from the Apple App Store through the mas CLI tool for which the nix-darwin homebrew config provides the [[https://daiderd.com/nix-darwin/manual/index.html#opt-homebrew.masApps][=masApps= attribute]].
 
 *** nix-darwin nixpkgs
 **** Allow some unfree packages
