@@ -200,7 +200,6 @@
       "notion"
       "obsidian" # best-in-class with mobile app support
       "raycast"
-      "remarkable"
       "zoom"
 
       # Android
@@ -222,6 +221,9 @@
       "telegram"
       "whatsapp"
     ];
+    masApps = {
+      "Remarkable Desktop" = 1276493162;
+    };
   };
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
