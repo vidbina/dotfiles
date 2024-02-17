@@ -9,6 +9,7 @@
     mu
 
     python312
+    ripgrep
   ];
 
   nixpkgs.overlays = [

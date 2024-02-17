@@ -7723,6 +7723,7 @@ in
 {
   environment.systemPackages = with pkgs; [
     <<nix-packages>>
+    <<nix-darwin-packages>>
   ];
 
   nixpkgs.overlays = [
@@ -7896,22 +7897,6 @@ pkgs.coreutils
 pkgs.fd
 pkgs.multimarkdown
 pkgs.python39
-#+end_src
-
-****** ripgrep
-
-We build ripgrep for Doom Emacs. I haven't even used Doom Emacs for a long time but the setting is still here and perhaps I can rely on this again for a faster grepping experience:
-
-#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
-ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-  withPCRE2 = true;
-});
-#+end_src
-
-We also add the custom ripgrep to our Emacs paths to factor it into the build:
-
-#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-emacs-paths
-ripgrep-for-doom-emacs
 #+end_src
 
 ****** COMMENT Jupyter
@@ -8115,6 +8100,28 @@ javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(loca
 
 #+begin_src nix :noweb-ref nix-packages
 python312
+#+end_src
+
+**** ripgrep
+
+We build ripgrep for Doom Emacs. I haven't even used Doom Emacs for a long time but the setting is still here and perhaps I can rely on this again for a faster grepping experience:
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
+ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+  withPCRE2 = true;
+});
+#+end_src
+
+We also add the custom ripgrep to our Emacs paths to factor it into the build:
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-emacs-paths
+ripgrep-for-doom-emacs
+#+end_src
+
+only Darwin, the standard ripgrep is used until we find better reasons to invest in finding a different variant of ripgrep.
+
+#+begin_src nix :noweb-ref nix-darwin-packages
+ripgrep
 #+end_src
 
 *** XDG mimeApps
