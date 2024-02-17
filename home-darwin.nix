@@ -76,6 +76,7 @@
       tomoki1207.pdf
       vscode-org-mode.org-mode
       vscodevim.vim
+      gruntfuggly.todo-tree
     ];
     keybindings = [
       {

@@ -2191,6 +2191,14 @@ vscode-org-mode.org-mode
 vscodevim.vim
 #+end_src
 
+***** Show tree of TODO and FIXME comment
+
+Outline comment tags like =TODO= and =FIXME= in a todo tree for quick access.
+
+#+begin_src nix :noweb-ref vscode-extensions
+gruntfuggly.todo-tree
+#+end_src
+
 **** VsCode Keybindings
 
 The keybindings that we want are as follows:
