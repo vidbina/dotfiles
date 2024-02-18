@@ -2383,13 +2383,16 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 
 The [[https://github.com/jcaw/theme-magic][theme-magic]] package uses [[https://github.com/dylanaraps/pywal][pywal]] to update terminal emulator color schemes or themes. Using theme-magic allows one to syncs the terminal themes to the current Emacs theme.
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 (use-package theme-magic
   :straight (theme-magic :type git
                          :host github
                          :repo "jcaw/theme-magic")
   :config
-  (theme-magic-export-theme-mode))
+  (theme-magic-export-theme-mode)
+  :custom
+  <<theme-magic-custom>>
+)
 #+end_src
 
 Run the =theme-magic-from-emacs= command to update your system theme to match your Emacs theme.
@@ -2404,6 +2407,60 @@ Pywal provides instructions on the [[https://github.com/dylanaraps/pywal/wiki/In
 - Terminal.app (the macOS standard)
 - Terminology (the Enlightenment EFL standard)
 - st (the suckless standard)
+
+**** Improve theme output for Modus Themes
+
+See =theme-magic--preferred-extracted-colors= for an overview of the output.
+
+#+begin_src elisp :noweb-ref theme-magic-custom
+(theme-magic--preferred-extracted-colors
+ '(
+   ;; background
+   (0 . ((modus-themes-get-color-value 'bg-main)
+         (modus-themes-get-color-value 'bg-dim)))
+
+   ;; error (red)
+   (1 . ((modus-themes-get-color-value 'err)
+         (modus-themes-get-color-value 'red)
+         (modus-themes-get-color-value 'red-intense)))
+
+   ;; warning (yellow)
+   (3 . ((modus-themes-get-color-value 'warning)
+         (modus-themes-get-color-value 'yellow-warmer)
+         (modus-themes-get-color-value 'yellow-intense)
+         (modus-themes-get-color-value 'bg-yellow-intense)))
+
+   ;; cyan
+   (6 . ((modus-themes-get-color-value 'cyan)
+         (modus-themes-get-color-value 'cyan-intense)))
+
+   ;; foreground
+   (7 . ((modus-themes-get-color-value 'fg-main)))
+
+   ;; alt/faded
+   (8 . ((modus-themes-get-color-value 'fg-dim)
+         (modus-themes-get-color-value 'fg-alt)))
+
+   ;; additionals, non primaries
+
+   ;; (green)
+   (2 . ((modus-themes-get-color-value 'green)
+         (modus-themes-get-color-value 'green-intense)
+         (modus-themes-get-color-value 'green-faint)))
+
+   ;; (blue)
+   (4 . ((modus-themes-get-color-value 'blue)
+         (modus-themes-get-color-value 'blue-warmer)
+         (modus-themes-get-color-value 'blue-intense)))
+
+   ;; (purple)
+   (5 . ((modus-themes-get-color-value 'magenta)
+         (modus-themes-get-color-value 'magenta-warmer)
+         (modus-themes-get-color-value 'magenta-intense)))
+
+   )
+ )
+#+end_src
 
 ** COMMENT NΛNO: NANO Theme by Rougier
 

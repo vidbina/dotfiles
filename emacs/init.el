@@ -366,7 +366,56 @@
                          :host github
                          :repo "jcaw/theme-magic")
   :config
-  (theme-magic-export-theme-mode))
+  (theme-magic-export-theme-mode)
+  :custom
+  (theme-magic--preferred-extracted-colors
+   '(
+     ;; background
+     (0 . ((modus-themes-get-color-value 'bg-main)
+           (modus-themes-get-color-value 'bg-dim)))
+
+     ;; error (red)
+     (1 . ((modus-themes-get-color-value 'err)
+           (modus-themes-get-color-value 'red)
+           (modus-themes-get-color-value 'red-intense)))
+
+     ;; warning (yellow)
+     (3 . ((modus-themes-get-color-value 'warning)
+           (modus-themes-get-color-value 'yellow-warmer)
+           (modus-themes-get-color-value 'yellow-intense)
+           (modus-themes-get-color-value 'bg-yellow-intense)))
+
+     ;; cyan
+     (6 . ((modus-themes-get-color-value 'cyan)
+           (modus-themes-get-color-value 'cyan-intense)))
+
+     ;; foreground
+     (7 . ((modus-themes-get-color-value 'fg-main)))
+
+     ;; alt/faded
+     (8 . ((modus-themes-get-color-value 'fg-dim)
+           (modus-themes-get-color-value 'fg-alt)))
+
+     ;; additionals, non primaries
+
+     ;; (green)
+     (2 . ((modus-themes-get-color-value 'green)
+           (modus-themes-get-color-value 'green-intense)
+           (modus-themes-get-color-value 'green-faint)))
+
+     ;; (blue)
+     (4 . ((modus-themes-get-color-value 'blue)
+           (modus-themes-get-color-value 'blue-warmer)
+           (modus-themes-get-color-value 'blue-intense)))
+
+     ;; (purple)
+     (5 . ((modus-themes-get-color-value 'magenta)
+           (modus-themes-get-color-value 'magenta-warmer)
+           (modus-themes-get-color-value 'magenta-intense)))
+
+     )
+   )
+)
 
 ;; https://github.com/domtronn/all-the-icons.el
 (use-package all-the-icons
