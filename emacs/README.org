@@ -6976,6 +6976,17 @@ In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][pa
   <<paredit-config>>)
 #+end_src
 
+One of the killer features of paredit is command =transpose-sexp= (keybinding: =C-M-t=) which swaps left-hand and right-hand sexps. In the example of the cursor being represented as =_=, we can transpose from =(a_ b c)= to =(b_ a c)=. Especially when one has multi-line complex sexps where starting and ending parens may be complicating the ability to just swap sexps by moving lines, this comes in handy.
+
+#+begin_src elisp
+(do-something-useful 'dry-run
+                     ;; Note how neither of the following lines can be swapped
+                     ;; without breaking elisp syntax.
+                     '((get-value a)
+                       (get-value b)
+                       (get-value c)))
+#+end_src
+
 **** Set lighter
 
 #+begin_src elisp :noweb-ref paredit-config
