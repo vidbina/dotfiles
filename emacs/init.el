@@ -375,19 +375,19 @@
            (modus-themes-get-color-value 'bg-dim)))
 
      ;; error (red)
-     (1 . ((modus-themes-get-color-value 'err)
-           (modus-themes-get-color-value 'red)
-           (modus-themes-get-color-value 'red-intense)))
+     (1 . ((modus-themes-get-color-value 'red-intense)
+           (modus-themes-get-color-value 'err)
+           (modus-themes-get-color-value 'red)))
 
      ;; warning (yellow)
-     (3 . ((modus-themes-get-color-value 'warning)
-           (modus-themes-get-color-value 'yellow-warmer)
+     (3 . ((modus-themes-get-color-value 'yellow-warmer)
+           (modus-themes-get-color-value 'warning)
            (modus-themes-get-color-value 'yellow-intense)
            (modus-themes-get-color-value 'bg-yellow-intense)))
 
      ;; cyan
-     (6 . ((modus-themes-get-color-value 'cyan)
-           (modus-themes-get-color-value 'cyan-intense)))
+     (6 . ((modus-themes-get-color-value 'cyan-intense)
+           (modus-themes-get-color-value 'cyan)))
 
      ;; foreground
      (7 . ((modus-themes-get-color-value 'fg-main)))
@@ -399,19 +399,19 @@
      ;; additionals, non primaries
 
      ;; (green)
-     (2 . ((modus-themes-get-color-value 'green)
-           (modus-themes-get-color-value 'green-intense)
+     (2 . ((modus-themes-get-color-value 'green-intense)
+           (modus-themes-get-color-value 'green)
            (modus-themes-get-color-value 'green-faint)))
 
      ;; (blue)
-     (4 . ((modus-themes-get-color-value 'blue)
-           (modus-themes-get-color-value 'blue-warmer)
-           (modus-themes-get-color-value 'blue-intense)))
+     (4 . ((modus-themes-get-color-value 'blue-warmer)
+           (modus-themes-get-color-value 'blue-intense)
+           (modus-themes-get-color-value 'blue)))
 
      ;; (purple)
-     (5 . ((modus-themes-get-color-value 'magenta)
+     (5 . ((modus-themes-get-color-value 'magenta-intense)
            (modus-themes-get-color-value 'magenta-warmer)
-           (modus-themes-get-color-value 'magenta-intense)))
+           (modus-themes-get-color-value 'magenta)))
 
      )
    )
