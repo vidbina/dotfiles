@@ -6600,6 +6600,18 @@ Commenting this out since it bootstraps LSP-mode which we're avoiding as we're g
                       :repo "emacs-lsp/lsp-java"))
 #+end_src
 
+*** Lua
+
+In order to edit Lua code for our neovim configs, Hammerspoon and just good measure because Lua isn't that uncommon of a language to bump into, we install the [[https://github.com/immerrr/lua-mode][lua-mode package]].
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/immerrr/lua-mode
+(use-package lua-mode
+  :straight (lua-mode :type git
+                      :host github
+                      :repo "immerrr/lua-mode"))
+#+end_src
+
 *** Clojure
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
