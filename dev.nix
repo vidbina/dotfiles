@@ -27,6 +27,26 @@
         smtpServer = "msmtp";
         smtpServerOption = "-a vidbina";
       };
+
+      color = {
+        ui = true;
+        diff = {
+          meta = "yellow bold";
+          frag = "magenta bold";
+           old = "red";
+           new = "green";
+        };
+        grep = {
+          match = "yellow";
+          filename = "blue";
+          linenumber = "brightblack";
+        };
+        status = {
+          added = "yellow";
+          changed = "green";
+          untracked = "brightblack";
+        };
+      };
     };
   };
   # Set global gitignore

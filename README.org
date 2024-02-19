@@ -1050,6 +1050,8 @@ programs.git = {
     #   smtpServer = "msmtp";
     #   smtpServerOption = "-a vidbina";
     # };
+
+    <<nix-devtools-git-conf>>
   };
 };
 
@@ -1828,7 +1830,7 @@ lfs.enable = true;
 
 Let's opt for naming our default branch "main", using nvim as our editor, using gpg2 are our GPG tool and setting git up to [[https://git-scm.com/docs/git-send-email][send patches by mail]].
 
-#+begin_src nix :noweb-ref nix-devtools-git
+#+begin_src nix :noweb yes :noweb-ref nix-devtools-git
 extraConfig = {
   init = {
     defaultBranch = "main";
@@ -1847,8 +1849,38 @@ extraConfig = {
     smtpServer = "msmtp";
     smtpServerOption = "-a vidbina";
   };
+
+  <<nix-devtools-git-conf>>
 };
 #+end_src
+
+***** Colors in Git
+
+For readability's sake, we set the colors that we display git diffs, greps and status payloads in.
+
+#+begin_src nix :noweb-ref nix-devtools-git-conf
+color = {
+  ui = true;
+  diff = {
+    meta = "yellow bold";
+    frag = "magenta bold";
+     old = "red";
+     new = "green";
+  };
+  grep = {
+    match = "yellow";
+    filename = "blue";
+    linenumber = "brightblack";
+  };
+  status = {
+    added = "yellow";
+    changed = "green";
+    untracked = "brightblack";
+  };
+};
+#+end_src
+
+Since we are using pywal to sync terminal themes with Emacs, we set some baseline colors in git to harmonise these.
 
 **** TODO COMMENT Diff: Look into delta or difftastic
 
@@ -1857,6 +1889,8 @@ delta = {
   enable = true;
 };
 #+end_src
+
+[2024-02-19 Mon] Note that difftastic use in a devenv resulted in outputs where some code keywords were highlighted in the same color as the terminal background and thus rendered visually invisible. Use of difftastic would likely require some customization of the used colorscheme in order for this to work.
 
 #+begin_src nix :noweb-ref nix-devtools-git
 difftastic = {
