@@ -367,54 +367,50 @@
                          :repo "jcaw/theme-magic")
   :config
   (theme-magic-export-theme-mode)
-  :custom
-  (theme-magic--preferred-extracted-colors
-   '(
-     ;; background
-     (0 . ((modus-themes-get-color-value 'bg-main)
-           (modus-themes-get-color-value 'bg-dim)))
+  (setq theme-magic--preferred-extracted-colors
+        '(
+          ;; background
+          (0 . ((modus-themes-get-color-value 'bg-main)
+                (modus-themes-get-color-value 'bg-dim)))
 
-     ;; error (red)
-     (1 . ((modus-themes-get-color-value 'red-intense)
-           (modus-themes-get-color-value 'err)
-           (modus-themes-get-color-value 'red)))
+          ;; error (red)
+          (1 . ((modus-themes-get-color-value 'red-intense)
+                (modus-themes-get-color-value 'err)
+                (modus-themes-get-color-value 'red)))
 
-     ;; warning (yellow)
-     (3 . ((modus-themes-get-color-value 'yellow-warmer)
-           (modus-themes-get-color-value 'warning)
-           (modus-themes-get-color-value 'yellow-intense)
-           (modus-themes-get-color-value 'bg-yellow-intense)))
+          ;; warning (yellow)
+          (3 . ((modus-themes-get-color-value 'yellow-warmer)
+                (modus-themes-get-color-value 'warning)
+                (modus-themes-get-color-value 'yellow-intense)
+                (modus-themes-get-color-value 'bg-yellow-intense)))
 
-     ;; cyan
-     (6 . ((modus-themes-get-color-value 'cyan-intense)
-           (modus-themes-get-color-value 'cyan)))
+          ;; cyan
+          (6 . ((modus-themes-get-color-value 'cyan-intense)
+                (modus-themes-get-color-value 'cyan)))
 
-     ;; foreground
-     (7 . ((modus-themes-get-color-value 'fg-main)))
+          ;; foreground
+          (7 . ((modus-themes-get-color-value 'fg-main)))
 
-     ;; alt/faded
-     (8 . ((modus-themes-get-color-value 'fg-dim)
-           (modus-themes-get-color-value 'fg-alt)))
+          ;; alt/faded
+          (8 . ((modus-themes-get-color-value 'fg-dim)
+                (modus-themes-get-color-value 'fg-alt)))
 
-     ;; additionals, non primaries
+          ;; additionals, non primaries
 
-     ;; (green)
-     (2 . ((modus-themes-get-color-value 'green-intense)
-           (modus-themes-get-color-value 'green)
-           (modus-themes-get-color-value 'green-faint)))
+          ;; (green)
+          (2 . ((modus-themes-get-color-value 'green-intense)
+                (modus-themes-get-color-value 'green)
+                (modus-themes-get-color-value 'green-faint)))
 
-     ;; (blue)
-     (4 . ((modus-themes-get-color-value 'blue-warmer)
-           (modus-themes-get-color-value 'blue-intense)
-           (modus-themes-get-color-value 'blue)))
+          ;; (blue)
+          (4 . ((modus-themes-get-color-value 'blue-warmer)
+                (modus-themes-get-color-value 'blue-intense)
+                (modus-themes-get-color-value 'blue)))
 
-     ;; (purple)
-     (5 . ((modus-themes-get-color-value 'magenta-intense)
-           (modus-themes-get-color-value 'magenta-warmer)
-           (modus-themes-get-color-value 'magenta)))
-
-     )
-   )
+          ;; (purple)
+          (5 . ((modus-themes-get-color-value 'magenta-intense)
+                (modus-themes-get-color-value 'magenta-warmer)
+                (modus-themes-get-color-value 'magenta)))))
 )
 
 ;; https://github.com/domtronn/all-the-icons.el
