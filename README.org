@@ -1817,8 +1817,61 @@ nixpkgs.overlays = [
 
 I use [[https://www.hammerspoon.org/][Hammerspoon]] for some OSX-specific automations which can be scripted through Lua. Like mapping keybindings to open specific locations in Finder, opening specific apps within a workstation or rendering notification or alerts with some useful information and more.
 
+We link the hammerspoon directory into our homedir in order to set up the necessary Spoons and the init.lua:
+
 #+begin_src nix :noweb-ref home-darwin-config
 home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
+#+end_src
+
+We load the Spoons and define our own bindings and more in the init.lua file that we symlinked into our homedir previously:
+
+#+begin_src lua :tangle hammerspoon/init.lua
+-- Tangled from README.org
+
+cheatsheet = ""
+-- A dummy binding for Hammerspoon
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "H", function()
+    hs.alert.show(cheatsheet)
+    hs.notify.new({title="Hammerspoon", informativeText=cheatsheet}):send()
+end)
+cheatsheet = cheatsheet .. "\n⌃⌥⌘ H = help"
+
+-- https://www.hammerspoon.org/go/#simple-configuration-reloading
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "R", function()
+    hs.alert.show("Reloading Hammerspoon config")
+    hs.reload()
+end)
+cheatsheet = cheatsheet .."\n⌃⌥⌘ R = reload"
+
+-- https://www.hammerspoon.org/go/#drawing-on-the-screen
+mouseCircle = nil
+mouseCircleTimer = nil
+
+function mouseHighlight()
+    -- Delete an existing highlight if it exists
+    if mouseCircle then
+        mouseCircle:delete()
+        if mouseCircleTimer then
+            mouseCircleTimer:stop()
+        end
+    end
+    -- Get the current co-ordinates of the mouse pointer
+    mousepoint = hs.mouse.absolutePosition()
+    -- Prepare a big red circle around the mouse pointer
+    mouseCircle = hs.drawing.circle(hs.geometry.rect(mousepoint.x-40, mousepoint.y-40, 80, 80))
+    mouseCircle:setStrokeColor({["red"]=1,["blue"]=0,["green"]=0,["alpha"]=1})
+    mouseCircle:setFill(false)
+    mouseCircle:setStrokeWidth(5)
+    mouseCircle:show()
+
+    -- Set a timer to delete the circle after 3 seconds
+    mouseCircleTimer = hs.timer.doAfter(1, function()
+      mouseCircle:delete()
+      mouseCircle = nil
+    end)
+end
+hs.hotkey.bind({"cmd","alt","ctrl"}, "D", mouseHighlight)
+cheatsheet = cheatsheet .. "\n⌃⌥⌘ D = mouse highlight"
 #+end_src
 
 *** COMMENT Next

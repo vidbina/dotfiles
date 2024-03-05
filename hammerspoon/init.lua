@@ -1,3 +1,5 @@
+-- Tangled from README.org
+
 cheatsheet = ""
 -- A dummy binding for Hammerspoon
 hs.hotkey.bind({"cmd", "alt", "ctrl"}, "H", function()
