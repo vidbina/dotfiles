@@ -1879,6 +1879,11 @@ hs.loadSpoon("Caffeine")
 spoon.Caffeine:bindHotkeys({
   toggle = {hsBaseBinding, "Z"}
 })
+
+hs.loadSpoon("KSheet")
+spoon.Caffeine:bindHotkeys({
+  toggle = {hsBaseBinding, "K"}
+})
 #+end_src
 
 *** COMMENT Next
