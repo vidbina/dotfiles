@@ -4,14 +4,14 @@ hs.hotkey.bind({"cmd", "alt", "ctrl"}, "H", function()
     hs.alert.show(cheatsheet)
     hs.notify.new({title="Hammerspoon", informativeText=cheatsheet}):send()
 end)
-cheatsheet += "\n⌃⌥⌘ H = help"
+cheatsheet = cheatsheet .. "\n⌃⌥⌘ H = help"
 
 -- https://www.hammerspoon.org/go/#simple-configuration-reloading
 hs.hotkey.bind({"cmd", "alt", "ctrl"}, "R", function()
     hs.alert.show("Reloading Hammerspoon config")
     hs.reload()
 end)
-cheatsheet += "\n⌃⌥⌘ R = reload"
+cheatsheet = cheatsheet .."\n⌃⌥⌘ R = reload"
 
 -- https://www.hammerspoon.org/go/#drawing-on-the-screen
 mouseCircle = nil
@@ -41,4 +41,4 @@ function mouseHighlight()
     end)
 end
 hs.hotkey.bind({"cmd","alt","shift"}, "D", mouseHighlight)
-cheatsheet += "\n⌃⌥⌘ R = reload"
+cheatsheet = cheatsheet .. "\n⌃⌥⌘ D = mouse highlight"
