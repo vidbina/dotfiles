@@ -53,11 +53,13 @@ hs.loadSpoon("Caffeine")
 spoon.Caffeine:bindHotkeys({
   toggle = {hsBaseBinding, "Z"}
 })
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " Z = ☕"
 
 hs.loadSpoon("KSheet")
 spoon.Caffeine:bindHotkeys({
   toggle = {hsBaseBinding, "K"}
 })
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = KSheet"
 
 hs.loadSpoon("HSKeybindings")
 isShowingHSKeybindings = false
@@ -71,3 +73,4 @@ hs.hotkey.bind(hsBaseBinding, "/", function()
     end
     isShowingHSKeybindings = not isShowingHSKeybindings
 end)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = HSKeybindings"
