@@ -1899,6 +1899,13 @@ hs.hotkey.bind(hsBaseBinding, "/", function()
     isShowingHSKeybindings = not isShowingHSKeybindings
 end)
 cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = HSKeybindings"
+
+hs.hotkey.bind(hsBaseBinding, ".", function()
+    hs.alert.show("Inspecting Hammerspoon")
+    hs.alert.show("displayIdle: " .. hs.caffeinate.get("displayIdle") and "On" or "Off")
+    hs.alert.show("systemIdle: " .. hs.caffeinate.get("systemIdle") and "On" or "Off")
+    hs.alert.show("system: " .. hs.caffeinate.get("system") and "On" or "Off")
+end)
 #+end_src
 
 *** COMMENT Next
