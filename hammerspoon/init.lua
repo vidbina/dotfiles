@@ -56,7 +56,7 @@ spoon.Caffeine:bindHotkeys({
 cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " Z = ☕"
 
 hs.loadSpoon("KSheet")
-spoon.Caffeine:bindHotkeys({
+spoon.KSheet:bindHotkeys({
   toggle = {hsBaseBinding, "K"}
 })
 cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = KSheet"
