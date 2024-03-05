@@ -323,6 +323,12 @@
                        :host github
                        :repo "rust-lang/rust-mode"))
 
+;; https://github.com/emacsorphanage/applescript-mode
+(use-package applescript-mode
+  :straight (applescript-mode :type git
+                              :host github
+                              :repo "emacsorphanage/applescript-mode"))
+
 ;; https://github.com/editorconfig/editorconfig-emacs#readme
 (use-package editorconfig
   :straight (editorconfig :type git

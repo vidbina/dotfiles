@@ -6736,6 +6736,19 @@ To add another layer of convenience or complexity, depending on how you want to 
                        :repo "rust-lang/rust-mode"))
 #+end_src
 
+*** AppleScript
+
+At times, I may need to edit AppleScript code for some machine-side automations which I may trigger with Hammerspoon.
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacsorphanage/applescript-mode
+(use-package applescript-mode
+  :straight (applescript-mode :type git
+                              :host github
+                              :repo "emacsorphanage/applescript-mode"))
+#+end_src
+
+
 ** Misc
 
 Misc bells and whistles from formatting aids to LLM-enabled magic.
