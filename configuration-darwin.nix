@@ -221,8 +221,7 @@
       "telegram"
       "whatsapp"
 
-      # Streaming
-      "obs"
+      "obs" # for streaming
     ];
     masApps = {
       "Remarkable Desktop" = 1276493162;
