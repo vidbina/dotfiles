@@ -80,6 +80,8 @@
   # See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
   programs.zsh.enable = true;
 
+  home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
+
   programs.vscode = {
     enable = true;
     extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [

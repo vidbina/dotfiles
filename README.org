@@ -1813,6 +1813,14 @@ nixpkgs.overlays = [
 ];
 #+end_src
 
+*** Hammerspoon
+
+I use [[https://www.hammerspoon.org/][Hammerspoon]] for some OSX-specific automations which can be scripted through Lua. Like mapping keybindings to open specific locations in Finder, opening specific apps within a workstation or rendering notification or alerts with some useful information and more.
+
+#+begin_src nix :noweb-ref home-darwin-config
+home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
+#+end_src
+
 *** COMMENT Next
 
 #+begin_src nix :noweb-ref nix-darwin
