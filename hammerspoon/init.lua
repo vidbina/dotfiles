@@ -58,3 +58,16 @@ hs.loadSpoon("KSheet")
 spoon.Caffeine:bindHotkeys({
   toggle = {hsBaseBinding, "K"}
 })
+
+hs.loadSpoon("HSKeybindings")
+isShowingHSKeybindings = false
+hs.hotkey.bind(hsBaseBinding, "/", function()
+    if not isShowingHSKeybindings then
+        hs.alert.show("Showing HSKeybindings")
+        spoon.HSKeybindings:show()
+    else
+        hs.alert.show("Hiding HSKeybindings")
+        spoon.HSKeybindings:hide()
+    end
+    isShowingHSKeybindings = not isShowingHSKeybindings
+end)
