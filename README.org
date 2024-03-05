@@ -2633,6 +2633,14 @@ services.taffybar = {
 };
 #+end_src
 
+*** Hidden Bar
+
+On MacOS, we use [[https://github.com/dwarvesf/hidden/][hidden Bar]] to work around the issue that MacOS doesn't natively provide mechanisms for seeing the menubar items that are hidden when the icon count gets too large or when the focused application menu entries are too many (like with Emacs which has menu entries crossing the camera notch).
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"hiddenbar" # to manage when icons get too much in the OSX menubar
+#+end_src
+
 ** Syncthing
 
 Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup. As per [2022-05-05 Thu 12:08], the syncthing service in home-manager is only declarative to the extend of turning it on and providing extra CLI options to start the service with.
