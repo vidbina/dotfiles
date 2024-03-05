@@ -2633,12 +2633,12 @@ services.taffybar = {
 };
 #+end_src
 
-*** COMMENT Hidden Bar
+*** Hidden Bar
 
 On MacOS, we use [[https://github.com/dwarvesf/hidden/][hidden Bar]] to work around the issue that MacOS doesn't natively provide mechanisms for seeing the menubar items that are hidden when the icon count gets too large or when the focused application menu entries are too many (like with Emacs which has menu entries crossing the camera notch).
 
-#+begin_src nix :noweb-ref homebrew-casks :noweb yes
-"hiddenbar" # to manage when icons get too much in the OSX menubar
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Hidden Bar" = 1452453066;
 #+end_src
 
 ** Syncthing

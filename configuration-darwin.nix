@@ -224,6 +224,7 @@
       "obs" # for streaming
     ];
     masApps = {
+      "Hidden Bar" = 1452453066;
       "Remarkable Desktop" = 1276493162;
     };
   };
