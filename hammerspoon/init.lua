@@ -1,21 +1,23 @@
 -- Tangled from README.org
 
 hsBaseBinding = {"alt", "cmd", "ctrl"}
+strBaseBinding = "⌃⌥⌘"
 
 cheatsheet = ""
+
 -- A dummy binding for Hammerspoon
 hs.hotkey.bind(hsBaseBinding, "H", function()
     hs.alert.show(cheatsheet)
     hs.notify.new({title="Hammerspoon", informativeText=cheatsheet}):send()
 end)
-cheatsheet = cheatsheet .. "\n⌃⌥⌘ H = help"
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " H = help"
 
 -- https://www.hammerspoon.org/go/#simple-configuration-reloading
 hs.hotkey.bind(hsBaseBinding, "R", function()
     hs.alert.show("Reloading Hammerspoon config")
     hs.reload()
 end)
-cheatsheet = cheatsheet .."\n⌃⌥⌘ R = reload"
+cheatsheet = cheatsheet .."\n" .. strBaseBinding .. " R = reload"
 
 -- https://www.hammerspoon.org/go/#drawing-on-the-screen
 mouseCircle = nil
@@ -45,7 +47,7 @@ function mouseHighlight()
     end)
 end
 hs.hotkey.bind(hsBaseBinding, "D", mouseHighlight)
-cheatsheet = cheatsheet .. "\n⌃⌥⌘ D = mouse highlight"
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " D = mouse highlight"
 
 hs.loadSpoon("Caffeine")
 spoon.Caffeine:bindHotkeys({
