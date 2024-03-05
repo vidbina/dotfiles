@@ -220,6 +220,9 @@
       "slack"
       "telegram"
       "whatsapp"
+
+      # Streaming
+      "obs"
     ];
     masApps = {
       "Remarkable Desktop" = 1276493162;

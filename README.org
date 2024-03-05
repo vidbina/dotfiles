@@ -1773,6 +1773,9 @@ Graphical tools which are typically installed through the /drag icon to Applicat
 "slack"
 "telegram"
 "whatsapp"
+
+# Streaming
+"obs"
 #+end_src
 
 Install apps from the Apple App Store through the mas CLI tool for which the nix-darwin homebrew config provides the [[https://daiderd.com/nix-darwin/manual/index.html#opt-homebrew.masApps][=masApps= attribute]].
