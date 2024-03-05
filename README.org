@@ -1722,7 +1722,7 @@ homebrew = {
 };
 #+end_src
 
-As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefer pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility.
+As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefers pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility.
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "smudge/smudge/nightlight"
@@ -1777,6 +1777,8 @@ Graphical tools which are typically installed through the /drag icon to Applicat
 
 Install apps from the Apple App Store through the mas CLI tool for which the nix-darwin homebrew config provides the [[https://daiderd.com/nix-darwin/manual/index.html#opt-homebrew.masApps][=masApps= attribute]].
 
+💡 Remember to go through the list of all masApps in your file:configuration-darwin.nix and make sure to at least manually install them into your Apple account once to avoid the [[*Resolve: Redownload Unavailable with This Apple ID: This redownload is not available for this Apple ID either because it was bought by a different user or the item was refunded or cancelled.][this "Redownload Unavailable with this Apple ID" issue]].
+
 *** DONE Resolve: Redownload Unavailable with This Apple ID: This redownload is not available for this Apple ID either because it was bought by a different user or the item was refunded or cancelled. 
 
 Apps need to already be in a user's Purchased list before mas can install them. For any new tools, just make sure that you install it on one machine at least manually in order to add it to your Purchased list as documented in [[https://github.com/mas-cli/mas/issues/85#issuecomment-305382347][GH mas-cli issue 85]]. In my case, I didn't even complete the installation, I just started it to add it to the list and then prematurely stopped it in order to continue the installation through nix-darwin.
@@ -1788,7 +1790,7 @@ Keep in mind to authorize your device as documented in https://support.apple.com
 
 You can review your current computer's authorisation status by opening the App Store app and opening the Account Settings modal.
 
-Computer authorisation status did not have any bearing on this issue but it seems a good practice to keep ocassionally verify that all the authorised devices in an account are still in your possession.
+Computer authorisation status did not have any bearing on this issue but it seems a good practice to ocassionally verify that all the authorised devices in an account are still in your possession.
 
 *** nix-darwin nixpkgs
 **** Allow some unfree packages
