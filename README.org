@@ -1937,7 +1937,7 @@ hs.hotkey.bind(
    "return",
    function()
       if hs.application.find("iTerm") then
-         hs.osascript.applescriptFromFile([[
+         hs.osascript.applescript([[
             <<applescript-open-iterm>>
          ]])
       else

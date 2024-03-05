@@ -110,7 +110,7 @@ hs.hotkey.bind(
    "return",
    function()
       if hs.application.find("iTerm") then
-         hs.osascript.applescriptFromFile([[
+         hs.osascript.applescript([[
             tell application "iTerm"
             create window with default profile
             end tell
