@@ -221,7 +221,6 @@
       "telegram"
       "whatsapp"
 
-      "hiddenbar" # to manage when icons get too much in the OSX menubar
       "obs" # for streaming
     ];
     masApps = {

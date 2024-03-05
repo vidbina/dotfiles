@@ -2633,7 +2633,7 @@ services.taffybar = {
 };
 #+end_src
 
-*** Hidden Bar
+*** COMMENT Hidden Bar
 
 On MacOS, we use [[https://github.com/dwarvesf/hidden/][hidden Bar]] to work around the issue that MacOS doesn't natively provide mechanisms for seeing the menubar items that are hidden when the icon count gets too large or when the focused application menu entries are too many (like with Emacs which has menu entries crossing the camera notch).
 
