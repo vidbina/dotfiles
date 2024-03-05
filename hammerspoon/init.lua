@@ -46,3 +46,8 @@ function mouseHighlight()
 end
 hs.hotkey.bind(hsBaseBinding, "D", mouseHighlight)
 cheatsheet = cheatsheet .. "\n⌃⌥⌘ D = mouse highlight"
+
+hs.loadSpoon("Caffeine")
+spoon.Caffeine:bindHotkeys({
+  toggle = {hsBaseBinding, "Z"}
+})
