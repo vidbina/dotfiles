@@ -35,10 +35,10 @@ function mouseHighlight()
     mouseCircle:show()
 
     -- Set a timer to delete the circle after 3 seconds
-    mouseCircleTimer = hs.timer.doAfter(3, function()
+    mouseCircleTimer = hs.timer.doAfter(1, function()
       mouseCircle:delete()
       mouseCircle = nil
     end)
 end
-hs.hotkey.bind({"cmd","alt","shift"}, "D", mouseHighlight)
+hs.hotkey.bind({"cmd","alt","ctrl"}, "D", mouseHighlight)
 cheatsheet = cheatsheet .. "\n⌃⌥⌘ D = mouse highlight"
