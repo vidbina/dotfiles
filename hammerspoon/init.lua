@@ -104,3 +104,20 @@ hs.hotkey.bind(
       hs.alert.show("system: " .. hs.caffeinate.get("system") and "On" or "Off")
    end
 )
+
+hs.hotkey.bind(
+   hsBaseBinding,
+   "return",
+   function()
+      if hs.application.find("iTerm") then
+         hs.osascript.applescriptFromFile([[
+            tell application "iTerm"
+            create window with default profile
+            end tell
+         ]])
+      else
+         hs.application.open("iTerm")
+      end
+   end
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " ⏎ = iTerm2 👨🏿‍💻"

@@ -1822,7 +1822,7 @@ home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammersp
 
 We load the Spoons and define our own bindings and more in the init.lua file that we symlinked into our homedir previously:
 
-#+begin_src lua :tangle hammerspoon/init.lua
+#+begin_src lua :noweb yes :tangle hammerspoon/init.lua
 -- Tangled from README.org
 
 hsBaseBinding = {"alt", "cmd", "ctrl"}
@@ -1929,7 +1929,32 @@ hs.hotkey.bind(
       hs.alert.show("system: " .. hs.caffeinate.get("system") and "On" or "Off")
    end
 )
+
+hs.hotkey.bind(
+   hsBaseBinding,
+   "return",
+   function()
+      if hs.application.find("iTerm") then
+         hs.osascript.applescriptFromFile([[
+            <<applescript-open-iterm>>
+         ]])
+      else
+         hs.application.open("iTerm")
+      end
+   end
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " ⏎ = iTerm2 👨🏿‍💻"
 #+end_src
+
+For our iTerm2 function, we define the AppleScript separately:
+
+#+begin_src applescript :noweb-ref applescript-open-iterm
+tell application "iTerm"
+create window with default profile
+end tell
+#+end_src
+
+See [[https://zzamboni.org/post/my-hammerspoon-configuration-with-commentary/][zzamboni's config]] for inspiration.
 
 *** COMMENT Next
 
