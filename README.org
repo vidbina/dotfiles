@@ -1888,10 +1888,20 @@ hs.hotkey.bind(hsBaseBinding, "D", mouseHighlight)
 cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " D = mouse highlight"
 
 hs.loadSpoon("Caffeine")
-spoon.Caffeine:bindHotkeys(
-   {
-      toggle = {hsBaseBinding, "Z"}
-   }
+isCaffeinated = false
+hs.hotkey.bind(
+   hsBaseBinding,
+   "Z",
+   function()
+      if not isCaffeinated then
+         hs.alert.show("Buzzed! Flattie mode! ☕")
+         spoon.Caffeine:start()
+      else
+         hs.alert.show("Letting that buzz wear off. 🥱")
+         spoon.Caffeine:stop()
+      end
+      isCaffeinated = not isCaffeinated
+   end
 )
 cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " Z = ☕"
 
