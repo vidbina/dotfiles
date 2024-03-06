@@ -1926,9 +1926,9 @@ hs.hotkey.bind(
    ".",
    function()
       hs.alert.show("Inspecting Hammerspoon")
-      hs.alert.show("displayIdle: " .. hs.caffeinate.get("displayIdle") and "On" or "Off")
-      hs.alert.show("systemIdle: " .. hs.caffeinate.get("systemIdle") and "On" or "Off")
-      hs.alert.show("system: " .. hs.caffeinate.get("system") and "On" or "Off")
+      hs.alert.show("displayIdle: " .. (hs.caffeinate.get("displayIdle") and "On" or "Off"))
+      hs.alert.show("systemIdle: " .. (hs.caffeinate.get("systemIdle") and "On" or "Off"))
+      hs.alert.show("system: " .. (hs.caffeinate.get("system") and "On" or "Off"))
    end
 )
 
