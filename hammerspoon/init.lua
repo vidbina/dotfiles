@@ -3,7 +3,7 @@
 hsBaseBinding = {"alt", "cmd", "ctrl"}
 strBaseBinding = "⌃⌥⌘"
 
-cheatsheet = ""
+cheatsheet = "💡"
 
 -- A dummy binding for Hammerspoon
 hs.hotkey.bind(
