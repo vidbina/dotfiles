@@ -28,6 +28,7 @@
     nodePackages.typescript-language-server
     nodejs
     pass
+    pqrs
     nixpkgs-fmt
     redis
     rnix-lsp
