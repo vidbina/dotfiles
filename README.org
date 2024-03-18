@@ -69,30 +69,34 @@ in
     ];
   };
 
-  programs.bat = {
-    enable = true;
-    config = {
-      theme = "base16";
-    };
-  };
-
-  # Let Home Manager install and manage itself.
-  programs.home-manager.enable = true;
-
-  programs.direnv = {
-    enable = true;
-    nix-direnv = {
-      enable = true;
-    };
-  };
-
-  programs.tmux = {
-    enable = true;
-    extraConfig = builtins.readFile (./. + "/tmux.conf");
-  };
-
   <<common-programs>>
 }
+#+end_src
+
+**** Common Programs
+
+#+begin_src nix :noweb yes :noweb-ref common-programs
+programs.bat = {
+  enable = true;
+  config = {
+    theme = "base16";
+  };
+};
+
+# Let Home Manager install and manage itself.
+programs.home-manager.enable = true;
+
+programs.direnv = {
+  enable = true;
+  nix-direnv = {
+    enable = true;
+  };
+};
+
+programs.tmux = {
+  enable = true;
+  extraConfig = builtins.readFile (./. + "/tmux.conf");
+};
 #+end_src
 
 **** Manual
