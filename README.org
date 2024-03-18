@@ -10,248 +10,7 @@ These dotfiles make my life slightly more convenient. Not promising they'll do t
 
 My configuration is currently managed with [[https://github.com/nix-community/home-manager][home-manager]] for the better DX or UX. Before using home-manager, I manually managed symlinks from my config directory to this dotfiles repo. The use of [[https://www.gnu.org/software//stow/][GNU Stow]] was considered for a brief moment until I realized that Stow was written in Perl and I came to terms with my unwillingness to have a critical part of my stack based on tooling that brings me no joy 🙊 (on account of my troubled personal history with Perl).
 
-** The easy way for macOS: with nix-darwin
-
-1. Ensure Nix is installed as outlined in https://github.com/NixOS/nix#installation
-
-   #+begin_src bash
-curl -L https://nixos.org/nix/install | sh
-   #+end_src
-
-2. Optionally install homebrew as outlined on https://brew.sh in case you want to manage some of your brew packages with Nix as well. Note that you may not need to manually add homebrew to your path if you use nix-darwin as the [[https://github.com/LnL7/nix-darwin/blob/0625792671837155708eed2af4cad43dc9c9d825/modules/homebrew.nix#L785-L793][homebrew activationScript]] will take care of it.
-
-3. Optionally install Rosetta 2 for the case where it may be necessary since tools like Docker may rely on for some of their capability.
-
-   #+begin_src bash
-softwareupdate --install-rosetta
-   #+end_src
-
-4. Setup nix-darwin and apply the configuration as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin
-
-   #+begin_src bash
-nix run nix-darwin -- switch --flake . --show-trace
-   #+end_src
-
-   On systems, where =darwin-rebuild= has already been installed, run the following command instead:
-
-   #+begin_src bash
-darwin-rebuild switch --flake .
-   #+end_src
-
-   In case of =error: experimental Nix feature 'nix-command' is disabled; use '--extra-experimental-features nix-command' to override= errors, try to run:
-
-   #+begin_src bash
-nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin -- switch --flake . --show-trace
-   #+end_src
-
-5. Update the nix flakes using
-
-   #+begin_src bash
-nix flake update
-   #+end_src
-
-   and if you just want to upgrade packages managed by brew, run:
-
-   #+begin_src bash
-brew upgrade
-   #+end_src
-
-
-6. In order to debug the config enter a Nix REPL and inspect the inputs and outputs by using tab-completion on the variables =inputs= and =outputs= after loading the Flake.
-
-   Enter the REPL with the following command:
-
-   #+begin_src bash
-nix repl
-   #+end_src
-
-   Bring the input and output variables into the REPL scope by loading the Flake as follows:
-
-   #+begin_src text
-:lf .
-   #+end_src
-
-   See relevant help information by running:
-
-   #+begin_src text
-:?
-   #+end_src
-
-See the [[*nix-darwin][nix-darwin configuration]] section for configuration/implementation details.
-
-*** WIP Remove latent packages
-
-On my old MacBook Pro, I started by installing and using home-manager first before deciding to use nix-darwin. This has created some nix-related configuration on my machine that nix-darwin did not fully overwrite when I applied that change. Because of this imperative change nonesense, I had latent QEMU and Emacs packages in my nix path (observeable through running =tree -L 2 ~/.nix-profile=).
-
-I attempted to resolve this by removing the home-manager package from my profile:
-
-#+begin_src bash
-> nix profile list
-0 - - /nix/store/8s1b5c5w06yxxqba1zkv8yvlcyjhr6y6-password-store-1.7.4
-1 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
-2 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
-3 - - /nix/store/7z9x0izk35yzggjhlnvsmv3y4sahijmh-home-manager-path
-#+end_src
-
-and then rebuilding the config.
-
-With this, I believe I messed up my config even more, so I had to uninstall nix-darwin altogether https://github.com/LnL7/nix-darwin#uninstalling and then remove all nix-related folders as outlined in https://nixos.org/manual/nix/stable/installation/uninstall#macos.
-
-Pay attention to trigger the correct disk identifier (note that the numbers in the first column and the IDENTIFIER column may not be similar in terms of numbers.
-
-#+begin_src bash
-/dev/disk0 (internal, physical):
-   #:                       TYPE NAME                    SIZE       IDENTIFIER
-   0:      GUID_partition_scheme                        *1.0 TB     disk0
-   1:                        EFI EFI                     314.6 MB   disk0s1
-   2:                 Apple_APFS Container disk1         1.0 TB     disk0s2
-
-/dev/disk1 (synthesized):
-   #:                       TYPE NAME                    SIZE       IDENTIFIER
-   0:      APFS Container Scheme -                      +1.0 TB     disk1
-                                 Physical Store disk0s2
-   1:                APFS Volume Macintosh HD - Data     354.1 GB   disk1s1
-   2:                APFS Volume Preboot                 1.9 GB     disk1s2
-   3:                APFS Volume Recovery                1.2 GB     disk1s3
-   4:                APFS Volume VM                      20.5 KB    disk1s4
-   5:                APFS Volume Macintosh HD            9.2 GB     disk1s5
-   6:              APFS Snapshot com.apple.os.update-... 9.2 GB     disk1s5s1
-   7:                APFS Volume Nix Store               11.0 GB    disk1s6
-#+end_src
-
-#+begin_src bash
-sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels
-#+end_src bash
-
-After this, I restart the installation process.
-
-Reading [[a comment on jmatsushita's config][https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4054744#gistcomment-4054744]] led me to believe that the removal of ~/.nix-profile may have broken my system further but then it seems that nix-darwin uses global profiles instead of user-based profiles, which suggests that the existence of ~/.nix-profile may have been a remnant of my pre-nix-darwin use of home-manager. For now it seems that enabling the emacs service in nix-darwin does not immediately expose a CLI-accessible command. I've resorted to enabling the service along with installing emacs as a systemPackage but I have to first confirm if the emacs service alone yields a system that exposes the emacs command in a standard shell.
-
-*** Handling =ls: .: Operation not permitted= errors
-
-On a completely fresh macOS machine you may encounter =ls: .: Operation not permitted= errors if Terminal has not been granted prior access to the full disk.
-
-Navigate to the "Full Disk Access" setting and enable access for the Terminal.
-
-[[file:doc/macOS.settings.EnableFullDiskAccess.png]]
-
-** The easy way for Linux: with home-manager
-:PROPERTIES:
-:CUSTOM_ID: home-manager
-:END:
-
-The use of home-manager is pretty straightforward especially with the convenient *nix shell* and the *Makefile* that make usage even easier. The general idea is as follows:
-- [[file:shell.nix]] defines a shell environment that contains all packages needed to install or apply a configuration. The packages include *niv* which helps us manage versions of our packages, *home-manager* which actually manages our home environments (hence the name) and and some utils.
-- [[file:Makefile]] contains some rules to simplify how we call home-manager inside of the nix-shell since it effectively reduces the UX down to =make= or =make test= calls as opposed to =home-manager -f ./home.nix -v -n build= and =home-manager -f ./home.nix switch= respectively (which you don't want to have to remember 🤷🏿‍♂️).
-
-Typical use will be as follows:
-1. Enter the nix-shell using =nix-shell --pure=
-2. Configure your personal.nix to specify =home.username=, =home.homeDirectory= and =home.stateVersion= for your system
-3. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]]), as demonstrated below:
-   #+begin_src bash
-niv update home-manager
-niv update nixpkgs
-   #+end_src
-4. Run =make test= to test the home-manager configuration or =make= to install the configuration
-5. Optionally, if package update step was completed (step 2 above), commit the changes made to the niv sources files
-6. Profit 💰
-
-#+begin_quote
-💡 Note that home-manager generated configuration files will be written somewhere to ~~/.config~, e.g.: ~~/.config/git/config~ for git.
-#+end_quote
-
-*** Core packages
-
-We use niv to manage our dependencies and manage this throught the =pkgs-bleeding= which we set up in let blocks of shell.nix and common.nix:
-
-#+begin_src nix :noweb-ref common-packages-let
-nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
-pkgs-bleeding = import nixpkgs-bleeding-src { };
-#+end_src
-
-#+begin_src nix :noweb-ref common-packages
-pkgs-bleeding.niv
-pkgs-bleeding.nixVersions.nix_2_13
-#+end_src
-
-*** Shell
-
-For home-manager to work, we define a nix-shell that we creates a controlled environment for our Makefile to work.
-
-#+begin_src nix :noweb yes :tangle shell.nix
-# Tangled from README.org
-# From https://github.com/ryantm/home-manager-template
-
-let
-  sources = import ./nix/sources.nix;
-
-  nixpkgs-src = sources."nixpkgs";
-  pkgs = import nixpkgs-src { };
-
-  hm-src = sources."home-manager";
-  nur-src = sources."NUR";
-
-  <<common-packages-let>>
-
-in
-pkgs.mkShell rec {
-  name = "home-manager-shell";
-
-  buildInputs = with pkgs; [
-    <<shell-build-inputs>>
-  ];
-
-  <<shell-hook>>
-}
-#+end_src
-
-The build inputs for our shell are:
-
-#+begin_src nix :noweb yes :noweb-ref shell-build-inputs
-<<common-packages>>
-(import hm-src { inherit pkgs; }).home-manager
-cacert # to resolve CA cert issue
-hello
-git
-ncurses # to resolve tput issue
-which
-#+end_src
-
-For the shell environment to be portable enough to run on both Linux and Darwin (macOS) systems, we define a /shell hook/ that will export a few environment variables into existence depending on the system.
-
-#+begin_src bash :noweb-ref shell-hook-src
-export NIX_PATH="nixpkgs=${nixpkgs-src}:home-manager=${hm-src}:NUR=${nur-src}"
-export HOME_MANAGER_CONFIG=${system}
-#+end_src
-
-The above snippet is a bit of a cheat because we've formatted it as bash but some of the variable expansion work is being done by Nix and not Bash. 😅 We wrap the shell expressions into the following Nix statement to set =system= (see the cheat in the snippet above) and we basically pull in the sources through our niv sources file which is defined at the start of our [[file:shell.nix]] file.
-
-#+begin_src nix :noweb yes :noweb-ref shell-hook
-shellHook = with pkgs; let
-  system = (
-    if stdenv.isLinux
-    then "./home-linux.nix"
-    else
-      (if stdenv.isDarwin
-      then "./home-darwin.nix"
-      else "./home.nix")
-  );
-in
-''
-  <<shell-hook-src>>
-'';
-#+end_src
-
-With all of this out of the way, running =make= should just drop us into a Nix shell with everything preconfigured and then run some incantation of =home-manager switch= in order to switch our home-manager-managed, pun intended, environment.
-
-**** REPL
-
-Enter a REPL by entering the nix-shell first (to set up the env var =NIX_PATH=) and then run the following statement to obtain a reference to the home-manager configuration:
-
-#+begin_src nix
-hm = import <home-manager/modules> { inherit pkgs; configuration = ./home-linux.nix; }
-#+end_src
-
+** The easy way with home-manager
 *** TODO Common Configuration
 
 #+begin_src nix :noweb yes :tangle common.nix
@@ -579,7 +338,249 @@ For Darwin, we currently install Pywal with home-manager:
 pywal
 #+end_src
 
-*** Linux
+*** Configuring macOS with home-manager using nix-darwin
+
+1. Ensure Nix is installed as outlined in https://github.com/NixOS/nix#installation
+
+   #+begin_src bash
+curl -L https://nixos.org/nix/install | sh
+   #+end_src
+
+2. Optionally install homebrew as outlined on https://brew.sh in case you want to manage some of your brew packages with Nix as well. Note that you may not need to manually add homebrew to your path if you use nix-darwin as the [[https://github.com/LnL7/nix-darwin/blob/0625792671837155708eed2af4cad43dc9c9d825/modules/homebrew.nix#L785-L793][homebrew activationScript]] will take care of it.
+
+3. Optionally install Rosetta 2 for the case where it may be necessary since tools like Docker may rely on for some of their capability.
+
+   #+begin_src bash
+softwareupdate --install-rosetta
+   #+end_src
+
+4. Setup nix-darwin and apply the configuration as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin
+
+   #+begin_src bash
+nix run nix-darwin -- switch --flake . --show-trace
+   #+end_src
+
+   On systems, where =darwin-rebuild= has already been installed, run the following command instead:
+
+   #+begin_src bash
+darwin-rebuild switch --flake .
+   #+end_src
+
+   In case of =error: experimental Nix feature 'nix-command' is disabled; use '--extra-experimental-features nix-command' to override= errors, try to run:
+
+   #+begin_src bash
+nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin -- switch --flake . --show-trace
+   #+end_src
+
+5. Update the nix flakes using
+
+   #+begin_src bash
+nix flake update
+   #+end_src
+
+   and if you just want to upgrade packages managed by brew, run:
+
+   #+begin_src bash
+brew upgrade
+   #+end_src
+
+
+6. In order to debug the config enter a Nix REPL and inspect the inputs and outputs by using tab-completion on the variables =inputs= and =outputs= after loading the Flake.
+
+   Enter the REPL with the following command:
+
+   #+begin_src bash
+nix repl
+   #+end_src
+
+   Bring the input and output variables into the REPL scope by loading the Flake as follows:
+
+   #+begin_src text
+:lf .
+   #+end_src
+
+   See relevant help information by running:
+
+   #+begin_src text
+:?
+   #+end_src
+
+See the [[*nix-darwin][nix-darwin configuration]] section for configuration/implementation details.
+
+**** WIP Remove latent packages
+
+On my old MacBook Pro, I started by installing and using home-manager first before deciding to use nix-darwin. This has created some nix-related configuration on my machine that nix-darwin did not fully overwrite when I applied that change. Because of this imperative change nonesense, I had latent QEMU and Emacs packages in my nix path (observeable through running =tree -L 2 ~/.nix-profile=).
+
+I attempted to resolve this by removing the home-manager package from my profile:
+
+#+begin_src bash
+> nix profile list
+0 - - /nix/store/8s1b5c5w06yxxqba1zkv8yvlcyjhr6y6-password-store-1.7.4
+1 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
+2 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
+3 - - /nix/store/7z9x0izk35yzggjhlnvsmv3y4sahijmh-home-manager-path
+#+end_src
+
+and then rebuilding the config.
+
+With this, I believe I messed up my config even more, so I had to uninstall nix-darwin altogether https://github.com/LnL7/nix-darwin#uninstalling and then remove all nix-related folders as outlined in https://nixos.org/manual/nix/stable/installation/uninstall#macos.
+
+Pay attention to trigger the correct disk identifier (note that the numbers in the first column and the IDENTIFIER column may not be similar in terms of numbers.
+
+#+begin_src bash
+/dev/disk0 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                        *1.0 TB     disk0
+   1:                        EFI EFI                     314.6 MB   disk0s1
+   2:                 Apple_APFS Container disk1         1.0 TB     disk0s2
+
+/dev/disk1 (synthesized):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      APFS Container Scheme -                      +1.0 TB     disk1
+                                 Physical Store disk0s2
+   1:                APFS Volume Macintosh HD - Data     354.1 GB   disk1s1
+   2:                APFS Volume Preboot                 1.9 GB     disk1s2
+   3:                APFS Volume Recovery                1.2 GB     disk1s3
+   4:                APFS Volume VM                      20.5 KB    disk1s4
+   5:                APFS Volume Macintosh HD            9.2 GB     disk1s5
+   6:              APFS Snapshot com.apple.os.update-... 9.2 GB     disk1s5s1
+   7:                APFS Volume Nix Store               11.0 GB    disk1s6
+#+end_src
+
+#+begin_src bash
+sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels
+#+end_src bash
+
+After this, I restart the installation process.
+
+Reading [[a comment on jmatsushita's config][https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4054744#gistcomment-4054744]] led me to believe that the removal of ~/.nix-profile may have broken my system further but then it seems that nix-darwin uses global profiles instead of user-based profiles, which suggests that the existence of ~/.nix-profile may have been a remnant of my pre-nix-darwin use of home-manager. For now it seems that enabling the emacs service in nix-darwin does not immediately expose a CLI-accessible command. I've resorted to enabling the service along with installing emacs as a systemPackage but I have to first confirm if the emacs service alone yields a system that exposes the emacs command in a standard shell.
+
+**** Handling =ls: .: Operation not permitted= errors
+
+On a completely fresh macOS machine you may encounter =ls: .: Operation not permitted= errors if Terminal has not been granted prior access to the full disk.
+
+Navigate to the "Full Disk Access" setting and enable access for the Terminal.
+
+[[file:doc/macOS.settings.EnableFullDiskAccess.png]]
+
+*** Configuring Linux with home-manager
+:PROPERTIES:
+:CUSTOM_ID: home-manager
+:END:
+
+The use of home-manager is pretty straightforward especially with the convenient *nix shell* and the *Makefile* that make usage even easier. The general idea is as follows:
+- [[file:shell.nix]] defines a shell environment that contains all packages needed to install or apply a configuration. The packages include *niv* which helps us manage versions of our packages, *home-manager* which actually manages our home environments (hence the name) and and some utils.
+- [[file:Makefile]] contains some rules to simplify how we call home-manager inside of the nix-shell since it effectively reduces the UX down to =make= or =make test= calls as opposed to =home-manager -f ./home.nix -v -n build= and =home-manager -f ./home.nix switch= respectively (which you don't want to have to remember 🤷🏿‍♂️).
+
+Typical use will be as follows:
+1. Enter the nix-shell using =nix-shell --pure=
+2. Configure your personal.nix to specify =home.username=, =home.homeDirectory= and =home.stateVersion= for your system
+3. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]]), as demonstrated below:
+   #+begin_src bash
+niv update home-manager
+niv update nixpkgs
+   #+end_src
+4. Run =make test= to test the home-manager configuration or =make= to install the configuration
+5. Optionally, if package update step was completed (step 2 above), commit the changes made to the niv sources files
+6. Profit 💰
+
+#+begin_quote
+💡 Note that home-manager generated configuration files will be written somewhere to ~~/.config~, e.g.: ~~/.config/git/config~ for git.
+#+end_quote
+
+**** Core packages
+
+We use niv to manage our dependencies and manage this throught the =pkgs-bleeding= which we set up in let blocks of shell.nix and common.nix:
+
+#+begin_src nix :noweb-ref common-packages-let
+nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
+pkgs-bleeding = import nixpkgs-bleeding-src { };
+#+end_src
+
+#+begin_src nix :noweb-ref common-packages
+pkgs-bleeding.niv
+pkgs-bleeding.nixVersions.nix_2_13
+#+end_src
+
+**** Shell
+
+For home-manager to work, we define a nix-shell that we creates a controlled environment for our Makefile to work.
+
+#+begin_src nix :noweb yes :tangle shell.nix
+# Tangled from README.org
+# From https://github.com/ryantm/home-manager-template
+
+let
+  sources = import ./nix/sources.nix;
+
+  nixpkgs-src = sources."nixpkgs";
+  pkgs = import nixpkgs-src { };
+
+  hm-src = sources."home-manager";
+  nur-src = sources."NUR";
+
+  <<common-packages-let>>
+
+in
+pkgs.mkShell rec {
+  name = "home-manager-shell";
+
+  buildInputs = with pkgs; [
+    <<shell-build-inputs>>
+  ];
+
+  <<shell-hook>>
+}
+#+end_src
+
+The build inputs for our shell are:
+
+#+begin_src nix :noweb yes :noweb-ref shell-build-inputs
+<<common-packages>>
+(import hm-src { inherit pkgs; }).home-manager
+cacert # to resolve CA cert issue
+hello
+git
+ncurses # to resolve tput issue
+which
+#+end_src
+
+For the shell environment to be portable enough to run on both Linux and Darwin (macOS) systems, we define a /shell hook/ that will export a few environment variables into existence depending on the system.
+
+#+begin_src bash :noweb-ref shell-hook-src
+export NIX_PATH="nixpkgs=${nixpkgs-src}:home-manager=${hm-src}:NUR=${nur-src}"
+export HOME_MANAGER_CONFIG=${system}
+#+end_src
+
+The above snippet is a bit of a cheat because we've formatted it as bash but some of the variable expansion work is being done by Nix and not Bash. 😅 We wrap the shell expressions into the following Nix statement to set =system= (see the cheat in the snippet above) and we basically pull in the sources through our niv sources file which is defined at the start of our [[file:shell.nix]] file.
+
+#+begin_src nix :noweb yes :noweb-ref shell-hook
+shellHook = with pkgs; let
+  system = (
+    if stdenv.isLinux
+    then "./home-linux.nix"
+    else
+      (if stdenv.isDarwin
+      then "./home-darwin.nix"
+      else "./home.nix")
+  );
+in
+''
+  <<shell-hook-src>>
+'';
+#+end_src
+
+With all of this out of the way, running =make= should just drop us into a Nix shell with everything preconfigured and then run some incantation of =home-manager switch= in order to switch our home-manager-managed, pun intended, environment.
+
+***** REPL
+
+Enter a REPL by entering the nix-shell first (to set up the env var =NIX_PATH=) and then run the following statement to obtain a reference to the home-manager configuration:
+
+#+begin_src nix
+hm = import <home-manager/modules> { inherit pkgs; configuration = ./home-linux.nix; }
+#+end_src
+
+**** Linux
 :PROPERTIES:
 :header-args: :noweb-sep "\n\n"
 :END:
@@ -611,7 +612,7 @@ pywal
 }
 #+end_src
 
-***** X
+****** X
 
 #+begin_src nix :noweb yes :tangle x.nix
 # Tangled from README.org
@@ -682,7 +683,7 @@ xdotool
 btop
 #+end_src
 
-****** colors
+******* colors
 
 #+begin_src nix :noweb-ref x-packages
 (writeScriptBin "colors" ''
@@ -700,7 +701,7 @@ btop
 '')
 #+end_src
 
-****** xsel-copy-url
+******* xsel-copy-url
 
 We define an overlay in which we build an env that contains a script and the desktop item that our mimehandler can resolve to for the appropriate mimetypes.
 
@@ -749,7 +750,7 @@ We add our previously added =xsel-copy-url= "package" to our configuration:
 xsel-copy-url
 #+end_src
 
-****** URxvt
+******* URxvt
 
 #+begin_src nix :noweb yes :noweb-ref x-programs
 programs.urxvt = {
@@ -772,7 +773,7 @@ programs.urxvt = {
 };
 #+end_src
 
-******* Fonts
+******** Fonts
 
 #+begin_src nix :noweb-ref urxvt-fonts
 "xft:DejaVu Sans Mono:pixelsize=28:antialias=true"
@@ -780,19 +781,19 @@ programs.urxvt = {
 "xft:Iosevka:size=28:antialias=true"
 #+end_src
 
-******* ISO14755
+******** ISO14755
 
 #+begin_src nix :noweb-ref urxvt-config
 iso14755 = false;
 #+end_src
 
-******* COMMENT Remove border
+******** COMMENT Remove border
 
 #+begin_src nix :noweb-ref urxvt-config
 externalBorder = "0px";
 #+end_src
 
-******* Keybindings
+******** Keybindings
 
 #+begin_src nix :noweb-ref urxvt-keybindings
 "C-minus" = "perl:font-size:decrease";
@@ -805,13 +806,13 @@ externalBorder = "0px";
 "M-C-s" = "perl:color-themes:save-state";
 #+end_src
 
-******* Scrollbars
+******** Scrollbars
 
 #+begin_src nix :noweb-ref urxvt-scroll
 bar.enable = false;
 #+end_src
 
-******* Misc
+******** Misc
 
 #+begin_src nix :noweb-ref urxvt-extra
 "geometry" = "128x32";
@@ -831,7 +832,7 @@ bar.enable = false;
 "color-themes.autosave" = 1;
 #+end_src
 
-******* Themes
+******** Themes
 
 #+begin_src nix :noweb-ref linux-overlays
 vidbina-urxvt-themes =
@@ -851,7 +852,7 @@ vidbina-urxvt-themes =
   };
 #+end_src
 
-****** autorandr
+******* autorandr
 
 In order to simplify screen management, we can use the [[https://github.com/phillipberndt/autorandr/][autorandr]] utility.
 
@@ -877,7 +878,7 @@ programs.autorandr = {
 };
 #+end_src
 
-****** slock
+******* slock
 
 The [[https://tools.suckless.org/slock/][slock]] package is a simple X screen locker by the suckless.org team.
 
@@ -885,7 +886,7 @@ Installing slock through systemPackages causes the =unable to disable the OOM ki
 
 We therefore install slock in the nixos-configuration.
 
-******* Autolock
+******** Autolock
 
 #+begin_src nix :noweb-ref x-services
 screen-locker = {
@@ -894,7 +895,7 @@ screen-locker = {
 };
 #+end_src
 
-****** darkman
+******* darkman
 
 Use darkman to manage dark/light theme switching for GTK and Qt.
 
@@ -904,7 +905,7 @@ darkman
 
 Run =darkman set light= or =darkman set dark= or just run =darkman toggle=.
 
-****** TODO rofi
+******* TODO rofi
 
 - State "TODO"       from              [2023-10-03 Tue 17:30] \\
   Update config to work for Linux. common.nix is no used between darwin and linux and rofi is no relevant for darwin systems.
@@ -915,18 +916,18 @@ We import the previous rofi configuration and have removed the =programs.rofi.th
 ./rofi/default.nix
 #+end_src
 
-******* TODO Fix the buggy theme setup
+******** TODO Fix the buggy theme setup
 
 When producing the Rofi modals/prompts, we have some readability issues are some bits are not legible (dark text on dark bg).
 
-***** Applets
+****** Applets
 
 #+begin_src nix :noweb-ref home-linux-services
 services.blueman-applet.enable = true;
 services.network-manager-applet.enable = true;
 #+end_src
 
-***** Gammastep
+****** Gammastep
 
 The next thing after redshift.
 
@@ -945,7 +946,7 @@ services.gammastep = {
 };
 #+end_src
 
-****** Berlin
+******* Berlin
 
 #+begin_src nix :noweb-ref home-linux-services-gammastep
 dawnTime = "5:00-6:00";
@@ -954,7 +955,7 @@ latitude = 52.5;
 longitude = 13.4;
 #+end_src
 
-****** COMMENT Bangkok
+******* COMMENT Bangkok
 
 #+begin_src nix :noweb-ref home-linux-services-gammastep
 dawnTime = "5:00-6:00";
@@ -963,7 +964,7 @@ latitude = 13.7;
 longitude = 100.5;
 #+end_src
 
-***** GPG Agent
+****** GPG Agent
 
 #+begin_src nix :noweb-ref home-linux-services
 services.gpg-agent = {
@@ -972,7 +973,7 @@ services.gpg-agent = {
 };
 #+end_src
 
-***** Trayer
+****** Trayer
 
 #+begin_src nix :noweb-ref home-linux-services
 services.trayer = {
@@ -991,7 +992,7 @@ services.trayer = {
 };
 #+end_src
 
-*** Darwin
+**** Darwin
 
 #+begin_src nix :noweb yes :tangle home-darwin.nix
 # Tangled from README.org
@@ -1006,7 +1007,7 @@ services.trayer = {
 }
 #+end_src
 
-**** TODO Darwin Home-manager Config
+***** TODO Darwin Home-manager Config
 
 - State "TODO"       from              [2023-10-04 Wed 14:20] \\
   Refactor to reuse the shared hm and programs configurations that we've used for the Linux config earlier. We want to DRY the overal config up.
@@ -1070,21 +1071,21 @@ programs.zsh.enable = true;
 <<home-darwin-config>>
 #+end_src
 
-**** Imports
+***** Imports
 
-***** COMMENT Import common
+****** COMMENT Import common
 
 #+begin_src nix :noweb-ref common-imports-darwin
 ./common.nix
 #+end_src
 
-***** Import vim into Darwin config
+****** Import vim into Darwin config
 
 #+begin_src nix :noweb-ref common-imports-darwin
 ./vim.nix
 #+end_src
 
-***** TODO COMMENT Import Darwin variant of Emacs
+****** TODO COMMENT Import Darwin variant of Emacs
 
 - State "TODO"       from              [2023-10-04 Wed 15:35] \\
   Update default-darwin.nix and import this instead of the emacsnix-darwin.nix
