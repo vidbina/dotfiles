@@ -467,6 +467,107 @@ Navigate to the "Full Disk Access" setting and enable access for the Terminal.
 
 [[file:doc/macOS.settings.EnableFullDiskAccess.png]]
 
+**** Darwin
+
+#+begin_src nix :noweb yes :tangle home-darwin.nix
+# Tangled from README.org
+{ config, pkgs, lib, ... }:
+
+{
+  imports = [
+    <<common-imports-darwin>>
+  ];
+
+  <<home-darwin>>
+}
+#+end_src
+
+***** TODO Darwin Home-manager Config
+
+- State "TODO"       from              [2023-10-04 Wed 14:20] \\
+  Refactor to reuse the shared hm and programs configurations that we've used for the Linux config earlier. We want to DRY the overal config up.
+
+#+begin_src nix :noweb yes :noweb-ref home-darwin
+home.stateVersion = "23.05";
+
+home.packages = with pkgs; [
+  <<darwin-home-packages>>
+];
+
+# NOTE: Copied from dev.nix
+# TODO: Figure out how to re-use dev.nix config for Darwin and Linux
+home.file = {
+  ".config/git/ignore".source = ./git/ignore;
+};
+
+# NOTE: Copied from dev.nix
+# No corresponding option in nix-darwin, so we config this with hm
+programs.git = {
+  enable = true;
+  userName = "David Asabina";
+  userEmail = "vid@bina.me";
+  lfs.enable = true;
+  extraConfig = {
+    init = {
+      defaultBranch = "main";
+    };
+
+    core = {
+      editor = "nvim";
+    };
+
+    gpg = {
+      program = "gpg2";
+    };
+
+    # NOTE: Commenting out to test if `git config -l` changes
+    # sendemail = {
+    #   annotate = true;
+    #   smtpServer = "msmtp";
+    #   smtpServerOption = "-a vidbina";
+    # };
+
+    <<nix-devtools-git-conf>>
+  };
+};
+
+# NOTE: Copied from common.nix
+programs.direnv = {
+  enable = true;
+  nix-direnv = {
+    enable = true;
+  };
+};
+
+# NOTE: Enabling zsh also in hm in order to bring direnv bootstrap into scope
+# See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
+programs.zsh.enable = true;
+
+<<home-darwin-config>>
+#+end_src
+
+***** Imports
+
+****** COMMENT Import common
+
+#+begin_src nix :noweb-ref common-imports-darwin
+./common.nix
+#+end_src
+
+****** Import vim into Darwin config
+
+#+begin_src nix :noweb-ref common-imports-darwin
+./vim.nix
+#+end_src
+
+****** TODO COMMENT Import Darwin variant of Emacs
+
+- State "TODO"       from              [2023-10-04 Wed 15:35] \\
+  Update default-darwin.nix and import this instead of the emacsnix-darwin.nix
+#+begin_src nix :noweb-ref common-imports-darwin
+./emacs/default-darwin.nix
+#+end_src
+
 *** Configuring Linux with home-manager
 :PROPERTIES:
 :CUSTOM_ID: home-manager
@@ -994,107 +1095,6 @@ services.trayer = {
     widthtype = "pixel";
   };
 };
-#+end_src
-
-**** Darwin
-
-#+begin_src nix :noweb yes :tangle home-darwin.nix
-# Tangled from README.org
-{ config, pkgs, lib, ... }:
-
-{
-  imports = [
-    <<common-imports-darwin>>
-  ];
-
-  <<home-darwin>>
-}
-#+end_src
-
-***** TODO Darwin Home-manager Config
-
-- State "TODO"       from              [2023-10-04 Wed 14:20] \\
-  Refactor to reuse the shared hm and programs configurations that we've used for the Linux config earlier. We want to DRY the overal config up.
-
-#+begin_src nix :noweb yes :noweb-ref home-darwin
-home.stateVersion = "23.05";
-
-home.packages = with pkgs; [
-  <<darwin-home-packages>>
-];
-
-# NOTE: Copied from dev.nix
-# TODO: Figure out how to re-use dev.nix config for Darwin and Linux
-home.file = {
-  ".config/git/ignore".source = ./git/ignore;
-};
-
-# NOTE: Copied from dev.nix
-# No corresponding option in nix-darwin, so we config this with hm
-programs.git = {
-  enable = true;
-  userName = "David Asabina";
-  userEmail = "vid@bina.me";
-  lfs.enable = true;
-  extraConfig = {
-    init = {
-      defaultBranch = "main";
-    };
-
-    core = {
-      editor = "nvim";
-    };
-
-    gpg = {
-      program = "gpg2";
-    };
-
-    # NOTE: Commenting out to test if `git config -l` changes
-    # sendemail = {
-    #   annotate = true;
-    #   smtpServer = "msmtp";
-    #   smtpServerOption = "-a vidbina";
-    # };
-
-    <<nix-devtools-git-conf>>
-  };
-};
-
-# NOTE: Copied from common.nix
-programs.direnv = {
-  enable = true;
-  nix-direnv = {
-    enable = true;
-  };
-};
-
-# NOTE: Enabling zsh also in hm in order to bring direnv bootstrap into scope
-# See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
-programs.zsh.enable = true;
-
-<<home-darwin-config>>
-#+end_src
-
-***** Imports
-
-****** COMMENT Import common
-
-#+begin_src nix :noweb-ref common-imports-darwin
-./common.nix
-#+end_src
-
-****** Import vim into Darwin config
-
-#+begin_src nix :noweb-ref common-imports-darwin
-./vim.nix
-#+end_src
-
-****** TODO COMMENT Import Darwin variant of Emacs
-
-- State "TODO"       from              [2023-10-04 Wed 15:35] \\
-  Update default-darwin.nix and import this instead of the emacsnix-darwin.nix
-#+begin_src nix :noweb-ref common-imports-darwin
-./emacs/default-darwin.nix
 #+end_src
 
 ** The more tedious and manual way: without home-manager
