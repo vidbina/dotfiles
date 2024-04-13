@@ -2035,6 +2035,15 @@ We want LFS enabled.
 lfs.enable = true;
 #+end_src
 
+**** Git Aliases
+
+#+begin_src nix :noweb-ref nix-devtools-git
+aliases = {
+  wdiff = "diff --word-diff --word-diff-regex='\\w+'";
+  glog = "log --oneline --graph --all --decorate";
+};
+#+end_src
+
 **** Git Extra Configuration
 
 Let's opt for naming our default branch "main", using nvim as our editor, using gpg2 are our GPG tool and setting git up to [[https://git-scm.com/docs/git-send-email][send patches by mail]].

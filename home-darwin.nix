@@ -25,6 +25,10 @@
     userName = "David Asabina";
     userEmail = "vid@bina.me";
     lfs.enable = true;
+    aliases = {
+      wdiff = "diff --word-diff --word-diff-regex='\\w+'";
+      glog = "log --oneline --graph --all --decorate";
+    };
     extraConfig = {
       init = {
         defaultBranch = "main";
