@@ -19,7 +19,6 @@
     ".config/git/ignore".source = ./git/ignore;
   };
 
-  # NOTE: Copied from dev.nix
   # No corresponding option in nix-darwin, so we config this with hm
   programs.git = {
     enable = true;
@@ -39,12 +38,11 @@
         program = "gpg2";
       };
 
-      # NOTE: Commenting out to test if `git config -l` changes
-      # sendemail = {
-      #   annotate = true;
-      #   smtpServer = "msmtp";
-      #   smtpServerOption = "-a vidbina";
-      # };
+      sendemail = {
+        annotate = true;
+        smtpServer = "msmtp";
+        smtpServerOption = "-a vidbina";
+      };
 
       color = {
         ui = true;
