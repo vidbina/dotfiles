@@ -202,6 +202,7 @@
       "obsidian" # best-in-class with mobile app support
       "raycast"
       "zoom"
+      "lm-studio"
 
       # Android
       "android-file-transfer"
