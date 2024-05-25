@@ -202,6 +202,8 @@
       "obsidian" # best-in-class with mobile app support
       "raycast"
       "zoom"
+
+      # AI
       "lm-studio"
 
       # Android
