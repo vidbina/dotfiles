@@ -1708,6 +1708,7 @@ As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange an
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "smudge/smudge/nightlight"
 "pidof"
+"ollama"
 #+end_src
 
 Graphical tools which are typically installed through the /drag icon to Applications/ mess, can be installed in a more automated fashion through the use of the homebrew casks extension.

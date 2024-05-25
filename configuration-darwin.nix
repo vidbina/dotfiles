@@ -178,6 +178,7 @@
     brews = [
       "smudge/smudge/nightlight"
       "pidof"
+      "ollama"
     ];
     casks = [
       # Software Development
