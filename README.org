@@ -1736,9 +1736,6 @@ Graphical tools which are typically installed through the /drag icon to Applicat
 "raycast"
 "zoom"
 
-# AI
-"lm-studio"
-
 # Android
 "android-file-transfer"
 
@@ -2133,8 +2130,20 @@ pkgs.gh
 
 [[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
 
+On MacOS, we install Ollama using the [[https://formulae.brew.sh/formula/ollama][brew]]:
+
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "ollama"
+#+end_src
+
+***** LM Studio
+
+With [[https://lmstudio.ai/][LM Studio]], one can easily inference against LLMs, spin up an API to allow other tools to access locally-served LLMs and compute embeddings locally... all through a convenient GUI.
+
+On MacOS, we install LM Studio using the [[https://formulae.brew.sh/cask/lm-studio][cask]]:
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"lm-studio"
 #+end_src
 
 **** Hex editors/viewers

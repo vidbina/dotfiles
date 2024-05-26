@@ -206,9 +206,6 @@
       "raycast"
       "zoom"
 
-      # AI
-      "lm-studio"
-
       # Android
       "android-file-transfer"
 
@@ -228,6 +225,7 @@
       "telegram"
       "whatsapp"
 
+      "lm-studio"
       "obs" # for streaming
     ];
     masApps = {
