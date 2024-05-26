@@ -1707,9 +1707,7 @@ As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange an
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "smudge/smudge/nightlight"
-"pcalc"
 "pidof"
-"ollama"
 #+end_src
 
 Graphical tools which are typically installed through the /drag icon to Applications/ mess, can be installed in a more automated fashion through the use of the homebrew casks extension.
@@ -2129,6 +2127,16 @@ pkgs.gh
 
 *** Utils
 
+**** AI
+
+***** Ollama
+
+[[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"ollama"
+#+end_src
+
 **** Hex editors/viewers
 
 #+begin_src nix :noweb-ref dev-packages
@@ -2395,6 +2403,17 @@ https://github.com/traviscross/mtr
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.mtr
+#+end_src
+
+**** Calculators
+***** pcalc
+
+The [[https://github.com/alt-romes/programmer-calculator][pcalc]] util can come in handy when one needs to conduct conversions between bases (Like octal to binary, hex to binary, etc) and calculate operations (ADD, MOD, XOR, etc.) between different operands. I initially set out to install the PCalc calculation util https://pcalc.com/ to calculate logs and work with other advanced math functions, but somehow I hit a name collision here and ended up realising that the other pcalc may be useful to me too... someday, so, we're keeping it.
+
+For MacOS, we just install pcalc using the brew:
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"pcalc"
 #+end_src
 
 *** VsCode

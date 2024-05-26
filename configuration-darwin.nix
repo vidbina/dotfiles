@@ -177,9 +177,10 @@
     };
     brews = [
       "smudge/smudge/nightlight"
-      "pcalc"
       "pidof"
+
       "ollama"
+      "pcalc"
     ];
     casks = [
       # Software Development
