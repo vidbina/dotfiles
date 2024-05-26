@@ -1707,6 +1707,7 @@ As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange an
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "smudge/smudge/nightlight"
+"pcalc"
 "pidof"
 "ollama"
 #+end_src

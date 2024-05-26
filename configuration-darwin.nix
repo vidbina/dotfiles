@@ -177,6 +177,7 @@
     };
     brews = [
       "smudge/smudge/nightlight"
+      "pcalc"
       "pidof"
       "ollama"
     ];
