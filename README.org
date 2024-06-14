@@ -2124,6 +2124,16 @@ pkgs.gh
 
 *** Utils
 
+**** Terminals
+***** WezTerm
+
+[[https://wezfurlong.org/wezterm][WezTerm]] is a terminal emulator and multiplexer written in Rust, with hyperlink support, emoji support and since it's written in Rust... probably as blazingly fast as it gets.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"wezterm"
+#+end_src
+
+
 **** AI
 
 ***** Ollama

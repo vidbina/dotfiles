@@ -225,6 +225,7 @@
       "telegram"
       "whatsapp"
 
+      "wezterm"
       "lm-studio"
       "obs" # for streaming
     ];
