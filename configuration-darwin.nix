@@ -180,6 +180,7 @@
       "pidof"
 
       "ollama"
+      "wireguard-tools"
       "pcalc"
     ];
     casks = [

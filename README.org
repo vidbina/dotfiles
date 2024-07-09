@@ -2156,6 +2156,14 @@ On MacOS, we install LM Studio using the [[https://formulae.brew.sh/cask/lm-stud
 "lm-studio"
 #+end_src
 
+**** Networking
+
+Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your MacOS.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"wireguard-tools"
+#+end_src
+
 **** Hex editors/viewers
 
 #+begin_src nix :noweb-ref dev-packages
