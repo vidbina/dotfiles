@@ -1460,6 +1460,7 @@ Furthermore read https://www.launchd.info/ for more information on the launchd s
 All packages that are architecture agnostic are installed in all of our macOS machines.
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
+# common Darwin packages
 asciinema
 bat
 checkmake
@@ -1496,19 +1497,26 @@ inputs.devenv.packages.${system}.default
 #+end_src
 
 #+begin_src nix :noweb-ref darwin-home-packages
+# Darwin packages for home-manager (i.e.: nix-darwin)
 alacritty
 #+end_src
 
 Intel-only packages are listed separately such that we can use them on the macOS machine that still has a x86-based Intel chip but avoid trying to install them on ARM-based Apple machines.
 
 #+begin_src nix :noweb-ref nix-darwin-packages-intel
+# Darwin packages for Intel-only
 gdb
 ghidra-bin
 #+end_src
 
 #+begin_quote
-It follows that the amount of Intel-only packages will decrease as developers make their applications more readily available.
+It follows that the amount of Intel-only packages will decrease as developers make their applications more readily available (also for Apple Silicon).
 #+end_quote
+
+*** TODO Split up config into tooling section
+
+- [X] Make the first snippets comment snippets (for explanation)
+- [ ] move the code out to the tool-specific section.
 
 *** Setup homebrew
 

@@ -10,6 +10,7 @@
 
   home.packages = with pkgs; [
     pywal
+    # Darwin packages for home-manager (i.e.: nix-darwin)
     alacritty
   ];
 

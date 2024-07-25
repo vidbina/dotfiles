@@ -10,6 +10,7 @@
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
+    # common Darwin packages
     asciinema
     bat
     checkmake
@@ -48,6 +49,7 @@
 
   ] else [
     # Intel-only packages
+    # Darwin packages for Intel-only
     gdb
     ghidra-bin
   ]);
