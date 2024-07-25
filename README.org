@@ -2132,6 +2132,30 @@ pkgs.gh
 
 *** Utils
 
+**** Development Environments
+
+***** Devbox
+
+Use [[https://www.jetify.com/devbox/docs/][Devbox]] for isolated dev envs without having to write Nix. 🙊
+
+We install it by listing it in the nix-darwin config file:
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+devbox
+#+end_src
+
+# but eventually we want to use the dev.nix file and reuse it between platforms (not clear that this design goal should be prioritized since repetition is fine as long as we centrally manage this config by tangling it from this README where repetition is minimal 🤷🏿‍♂️).
+
+# #+begin_src nix :noweb-ref dev-packages
+# pkgs.devbox
+# #+end_src
+
+***** TODO Devenv
+
+Find out if the devenv install is moveable. The env.nix file does not have the =inputs= variable as an input so we'll either have to pass it along or find a different way to bring these packages into scope within dev.nix.
+
+See [[*Packages][Packages]] for the current installation of devenv.
+
 **** Terminals
 ***** WezTerm
 
@@ -2140,7 +2164,6 @@ pkgs.gh
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "wezterm"
 #+end_src
-
 
 **** AI
 

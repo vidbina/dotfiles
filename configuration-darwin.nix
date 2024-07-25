@@ -44,6 +44,8 @@
     yq
     inputs.linsk.packages.${system}.default
     inputs.devenv.packages.${system}.default
+
+    devbox
   ] ++ (if system == "aarch64-darwin" then [
     # ARM-only packages
 
