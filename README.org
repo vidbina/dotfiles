@@ -4079,9 +4079,19 @@ texlive-asabina
 
 ***** pdftk
 
+We install pdftk into our common config.
+
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 pdftk
 #+end_src
+
+And relist it for the Darwin config
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin-packages-common
+pdftk
+#+end_src
+
+until I've had some time to properly abstract this mess of a config. I have my Linux machine back, so high-time to test that tux config again.
 
 ***** pandoc
 

@@ -46,6 +46,7 @@
     inputs.devenv.packages.${system}.default
 
     devbox
+    pdftk
   ] ++ (if system == "aarch64-darwin" then [
     # ARM-only packages
 
