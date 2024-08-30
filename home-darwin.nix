@@ -90,8 +90,10 @@
     extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
       bbenoist.nix
       be5invis.toml
+      elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
       github.copilot
       github.copilot-chat
+      hbenl.vscode-test-explorer
       hediet.vscode-drawio
       mkhl.direnv
       ms-azuretools.vscode-docker
