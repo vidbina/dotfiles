@@ -81,7 +81,6 @@ in
     enable = true;
     extraConfig = builtins.readFile (./. + "/tmux.conf");
   };
-
   manual = {
     # Use `home-manager-help`
     html.enable = false;

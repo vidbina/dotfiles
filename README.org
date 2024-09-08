@@ -10,248 +10,7 @@ These dotfiles make my life slightly more convenient. Not promising they'll do t
 
 My configuration is currently managed with [[https://github.com/nix-community/home-manager][home-manager]] for the better DX or UX. Before using home-manager, I manually managed symlinks from my config directory to this dotfiles repo. The use of [[https://www.gnu.org/software//stow/][GNU Stow]] was considered for a brief moment until I realized that Stow was written in Perl and I came to terms with my unwillingness to have a critical part of my stack based on tooling that brings me no joy 🙊 (on account of my troubled personal history with Perl).
 
-** The easy way for macOS: with nix-darwin
-
-1. Ensure Nix is installed as outlined in https://github.com/NixOS/nix#installation
-
-   #+begin_src bash
-curl -L https://nixos.org/nix/install | sh
-   #+end_src
-
-2. Optionally install homebrew as outlined on https://brew.sh in case you want to manage some of your brew packages with Nix as well. Note that you may not need to manually add homebrew to your path if you use nix-darwin as the [[https://github.com/LnL7/nix-darwin/blob/0625792671837155708eed2af4cad43dc9c9d825/modules/homebrew.nix#L785-L793][homebrew activationScript]] will take care of it.
-
-3. Optionally install Rosetta 2 for the case where it may be necessary since tools like Docker may rely on for some of their capability.
-
-   #+begin_src bash
-softwareupdate --install-rosetta
-   #+end_src
-
-4. Setup nix-darwin and apply the configuration as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin
-
-   #+begin_src bash
-nix run nix-darwin -- switch --flake . --show-trace
-   #+end_src
-
-   On systems, where =darwin-rebuild= has already been installed, run the following command instead:
-
-   #+begin_src bash
-darwin-rebuild switch --flake .
-   #+end_src
-
-   In case of =error: experimental Nix feature 'nix-command' is disabled; use '--extra-experimental-features nix-command' to override= errors, try to run:
-
-   #+begin_src bash
-nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin -- switch --flake . --show-trace
-   #+end_src
-
-5. Update the nix flakes using
-
-   #+begin_src bash
-nix flake update
-   #+end_src
-
-   and if you just want to upgrade packages managed by brew, run:
-
-   #+begin_src bash
-brew upgrade
-   #+end_src
-
-
-6. In order to debug the config enter a Nix REPL and inspect the inputs and outputs by using tab-completion on the variables =inputs= and =outputs= after loading the Flake.
-
-   Enter the REPL with the following command:
-
-   #+begin_src bash
-nix repl
-   #+end_src
-
-   Bring the input and output variables into the REPL scope by loading the Flake as follows:
-
-   #+begin_src text
-:lf .
-   #+end_src
-
-   See relevant help information by running:
-
-   #+begin_src text
-:?
-   #+end_src
-
-See the [[*nix-darwin][nix-darwin configuration]] section for configuration/implementation details.
-
-*** WIP Remove latent packages
-
-On my old MacBook Pro, I started by installing and using home-manager first before deciding to use nix-darwin. This has created some nix-related configuration on my machine that nix-darwin did not fully overwrite when I applied that change. Because of this imperative change nonesense, I had latent QEMU and Emacs packages in my nix path (observeable through running =tree -L 2 ~/.nix-profile=).
-
-I attempted to resolve this by removing the home-manager package from my profile:
-
-#+begin_src bash
-> nix profile list
-0 - - /nix/store/8s1b5c5w06yxxqba1zkv8yvlcyjhr6y6-password-store-1.7.4
-1 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
-2 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
-3 - - /nix/store/7z9x0izk35yzggjhlnvsmv3y4sahijmh-home-manager-path
-#+end_src
-
-and then rebuilding the config.
-
-With this, I believe I messed up my config even more, so I had to uninstall nix-darwin altogether https://github.com/LnL7/nix-darwin#uninstalling and then remove all nix-related folders as outlined in https://nixos.org/manual/nix/stable/installation/uninstall#macos.
-
-Pay attention to trigger the correct disk identifier (note that the numbers in the first column and the IDENTIFIER column may not be similar in terms of numbers.
-
-#+begin_src bash
-/dev/disk0 (internal, physical):
-   #:                       TYPE NAME                    SIZE       IDENTIFIER
-   0:      GUID_partition_scheme                        *1.0 TB     disk0
-   1:                        EFI EFI                     314.6 MB   disk0s1
-   2:                 Apple_APFS Container disk1         1.0 TB     disk0s2
-
-/dev/disk1 (synthesized):
-   #:                       TYPE NAME                    SIZE       IDENTIFIER
-   0:      APFS Container Scheme -                      +1.0 TB     disk1
-                                 Physical Store disk0s2
-   1:                APFS Volume Macintosh HD - Data     354.1 GB   disk1s1
-   2:                APFS Volume Preboot                 1.9 GB     disk1s2
-   3:                APFS Volume Recovery                1.2 GB     disk1s3
-   4:                APFS Volume VM                      20.5 KB    disk1s4
-   5:                APFS Volume Macintosh HD            9.2 GB     disk1s5
-   6:              APFS Snapshot com.apple.os.update-... 9.2 GB     disk1s5s1
-   7:                APFS Volume Nix Store               11.0 GB    disk1s6
-#+end_src
-
-#+begin_src bash
-sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels
-#+end_src bash
-
-After this, I restart the installation process.
-
-Reading [[a comment on jmatsushita's config][https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4054744#gistcomment-4054744]] led me to believe that the removal of ~/.nix-profile may have broken my system further but then it seems that nix-darwin uses global profiles instead of user-based profiles, which suggests that the existence of ~/.nix-profile may have been a remnant of my pre-nix-darwin use of home-manager. For now it seems that enabling the emacs service in nix-darwin does not immediately expose a CLI-accessible command. I've resorted to enabling the service along with installing emacs as a systemPackage but I have to first confirm if the emacs service alone yields a system that exposes the emacs command in a standard shell.
-
-*** Handling =ls: .: Operation not permitted= errors
-
-On a completely fresh macOS machine you may encounter =ls: .: Operation not permitted= errors if Terminal has not been granted prior access to the full disk.
-
-Navigate to the "Full Disk Access" setting and enable access for the Terminal.
-
-[[file:doc/macOS.settings.EnableFullDiskAccess.png]]
-
-** The easy way for Linux: with home-manager
-:PROPERTIES:
-:CUSTOM_ID: home-manager
-:END:
-
-The use of home-manager is pretty straightforward especially with the convenient *nix shell* and the *Makefile* that make usage even easier. The general idea is as follows:
-- [[file:shell.nix]] defines a shell environment that contains all packages needed to install or apply a configuration. The packages include *niv* which helps us manage versions of our packages, *home-manager* which actually manages our home environments (hence the name) and and some utils.
-- [[file:Makefile]] contains some rules to simplify how we call home-manager inside of the nix-shell since it effectively reduces the UX down to =make= or =make test= calls as opposed to =home-manager -f ./home.nix -v -n build= and =home-manager -f ./home.nix switch= respectively (which you don't want to have to remember 🤷🏿‍♂️).
-
-Typical use will be as follows:
-1. Enter the nix-shell using =nix-shell --pure=
-2. Configure your personal.nix to specify =home.username=, =home.homeDirectory= and =home.stateVersion= for your system
-3. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]]), as demonstrated below:
-   #+begin_src bash
-niv update home-manager
-niv update nixpkgs
-   #+end_src
-4. Run =make test= to test the home-manager configuration or =make= to install the configuration
-5. Optionally, if package update step was completed (step 2 above), commit the changes made to the niv sources files
-6. Profit 💰
-
-#+begin_quote
-💡 Note that home-manager generated configuration files will be written somewhere to ~~/.config~, e.g.: ~~/.config/git/config~ for git.
-#+end_quote
-
-*** Core packages
-
-We use niv to manage our dependencies and manage this throught the =pkgs-bleeding= which we set up in let blocks of shell.nix and common.nix:
-
-#+begin_src nix :noweb-ref common-packages-let
-nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
-pkgs-bleeding = import nixpkgs-bleeding-src { };
-#+end_src
-
-#+begin_src nix :noweb-ref common-packages
-pkgs-bleeding.niv
-pkgs-bleeding.nixVersions.nix_2_13
-#+end_src
-
-*** Shell
-
-For home-manager to work, we define a nix-shell that we creates a controlled environment for our Makefile to work.
-
-#+begin_src nix :noweb yes :tangle shell.nix
-# Tangled from README.org
-# From https://github.com/ryantm/home-manager-template
-
-let
-  sources = import ./nix/sources.nix;
-
-  nixpkgs-src = sources."nixpkgs";
-  pkgs = import nixpkgs-src { };
-
-  hm-src = sources."home-manager";
-  nur-src = sources."NUR";
-
-  <<common-packages-let>>
-
-in
-pkgs.mkShell rec {
-  name = "home-manager-shell";
-
-  buildInputs = with pkgs; [
-    <<shell-build-inputs>>
-  ];
-
-  <<shell-hook>>
-}
-#+end_src
-
-The build inputs for our shell are:
-
-#+begin_src nix :noweb yes :noweb-ref shell-build-inputs
-<<common-packages>>
-(import hm-src { inherit pkgs; }).home-manager
-cacert # to resolve CA cert issue
-hello
-git
-ncurses # to resolve tput issue
-which
-#+end_src
-
-For the shell environment to be portable enough to run on both Linux and Darwin (macOS) systems, we define a /shell hook/ that will export a few environment variables into existence depending on the system.
-
-#+begin_src bash :noweb-ref shell-hook-src
-export NIX_PATH="nixpkgs=${nixpkgs-src}:home-manager=${hm-src}:NUR=${nur-src}"
-export HOME_MANAGER_CONFIG=${system}
-#+end_src
-
-The above snippet is a bit of a cheat because we've formatted it as bash but some of the variable expansion work is being done by Nix and not Bash. 😅 We wrap the shell expressions into the following Nix statement to set =system= (see the cheat in the snippet above) and we basically pull in the sources through our niv sources file which is defined at the start of our [[file:shell.nix]] file.
-
-#+begin_src nix :noweb yes :noweb-ref shell-hook
-shellHook = with pkgs; let
-  system = (
-    if stdenv.isLinux
-    then "./home-linux.nix"
-    else
-      (if stdenv.isDarwin
-      then "./home-darwin.nix"
-      else "./home.nix")
-  );
-in
-''
-  <<shell-hook-src>>
-'';
-#+end_src
-
-With all of this out of the way, running =make= should just drop us into a Nix shell with everything preconfigured and then run some incantation of =home-manager switch= in order to switch our home-manager-managed, pun intended, environment.
-
-**** REPL
-
-Enter a REPL by entering the nix-shell first (to set up the env var =NIX_PATH=) and then run the following statement to obtain a reference to the home-manager configuration:
-
-#+begin_src nix
-hm = import <home-manager/modules> { inherit pkgs; configuration = ./home-linux.nix; }
-#+end_src
-
+** The easy way with home-manager
 *** TODO Common Configuration
 
 #+begin_src nix :noweb yes :tangle common.nix
@@ -310,30 +69,34 @@ in
     ];
   };
 
-  programs.bat = {
-    enable = true;
-    config = {
-      theme = "base16";
-    };
-  };
-
-  # Let Home Manager install and manage itself.
-  programs.home-manager.enable = true;
-
-  programs.direnv = {
-    enable = true;
-    nix-direnv = {
-      enable = true;
-    };
-  };
-
-  programs.tmux = {
-    enable = true;
-    extraConfig = builtins.readFile (./. + "/tmux.conf");
-  };
-
   <<common-programs>>
 }
+#+end_src
+
+**** Common Programs
+
+#+begin_src nix :noweb yes :noweb-ref common-programs
+programs.bat = {
+  enable = true;
+  config = {
+    theme = "base16";
+  };
+};
+
+# Let Home Manager install and manage itself.
+programs.home-manager.enable = true;
+
+programs.direnv = {
+  enable = true;
+  nix-direnv = {
+    enable = true;
+  };
+};
+
+programs.tmux = {
+  enable = true;
+  extraConfig = builtins.readFile (./. + "/tmux.conf");
+};
 #+end_src
 
 **** Manual
@@ -579,7 +342,325 @@ For Darwin, we currently install Pywal with home-manager:
 pywal
 #+end_src
 
-*** Linux
+*** Configuring macOS with home-manager using nix-darwin
+
+1. Ensure Nix is installed as outlined in https://github.com/NixOS/nix#installation
+
+   #+begin_src bash
+curl -L https://nixos.org/nix/install | sh
+   #+end_src
+
+2. Optionally install homebrew as outlined on https://brew.sh in case you want to manage some of your brew packages with Nix as well. Note that you may not need to manually add homebrew to your path if you use nix-darwin as the [[https://github.com/LnL7/nix-darwin/blob/0625792671837155708eed2af4cad43dc9c9d825/modules/homebrew.nix#L785-L793][homebrew activationScript]] will take care of it.
+
+3. Optionally install Rosetta 2 for the case where it may be necessary since tools like Docker may rely on for some of their capability.
+
+   #+begin_src bash
+softwareupdate --install-rosetta
+   #+end_src
+
+4. Setup nix-darwin and apply the configuration as outlined in https://github.com/LnL7/nix-darwin/#step-2-installing-nix-darwin
+
+   #+begin_src bash
+nix run nix-darwin -- switch --flake . --show-trace
+   #+end_src
+
+   On systems, where =darwin-rebuild= has already been installed, run the following command instead:
+
+   #+begin_src bash
+darwin-rebuild switch --flake .
+   #+end_src
+
+   In case of =error: experimental Nix feature 'nix-command' is disabled; use '--extra-experimental-features nix-command' to override= errors, try to run:
+
+   #+begin_src bash
+nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin -- switch --flake . --show-trace
+   #+end_src
+
+5. Update the nix flakes using
+
+   #+begin_src bash
+nix flake update
+   #+end_src
+
+   and if you just want to upgrade packages managed by brew, run:
+
+   #+begin_src bash
+brew upgrade
+   #+end_src
+
+
+6. In order to debug the config enter a Nix REPL and inspect the inputs and outputs by using tab-completion on the variables =inputs= and =outputs= after loading the Flake.
+
+   Enter the REPL with the following command:
+
+   #+begin_src bash
+nix repl
+   #+end_src
+
+   Bring the input and output variables into the REPL scope by loading the Flake as follows:
+
+   #+begin_src text
+:lf .
+   #+end_src
+
+   See relevant help information by running:
+
+   #+begin_src text
+:?
+   #+end_src
+
+See the [[*nix-darwin][nix-darwin configuration]] section for configuration/implementation details.
+
+**** WIP Remove latent packages
+
+On my old MacBook Pro, I started by installing and using home-manager first before deciding to use nix-darwin. This has created some nix-related configuration on my machine that nix-darwin did not fully overwrite when I applied that change. Because of this imperative change nonesense, I had latent QEMU and Emacs packages in my nix path (observeable through running =tree -L 2 ~/.nix-profile=).
+
+I attempted to resolve this by removing the home-manager package from my profile:
+
+#+begin_src bash
+> nix profile list
+0 - - /nix/store/8s1b5c5w06yxxqba1zkv8yvlcyjhr6y6-password-store-1.7.4
+1 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
+2 flake:nixpkgs#legacyPackages.x86_64-darwin.cachix github:NixOS/nixpkgs/1697b7d480449b01111e352021f46e5879e47643#legacyPackages.x86_64-darwin.cachix /nix/store/7hmy1x2ca3gdfkvm029qg5074xby10pi-cachix-1.6
+3 - - /nix/store/7z9x0izk35yzggjhlnvsmv3y4sahijmh-home-manager-path
+#+end_src
+
+and then rebuilding the config.
+
+With this, I believe I messed up my config even more, so I had to uninstall nix-darwin altogether https://github.com/LnL7/nix-darwin#uninstalling and then remove all nix-related folders as outlined in https://nixos.org/manual/nix/stable/installation/uninstall#macos.
+
+Pay attention to trigger the correct disk identifier (note that the numbers in the first column and the IDENTIFIER column may not be similar in terms of numbers.
+
+#+begin_src bash
+/dev/disk0 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                        *1.0 TB     disk0
+   1:                        EFI EFI                     314.6 MB   disk0s1
+   2:                 Apple_APFS Container disk1         1.0 TB     disk0s2
+
+/dev/disk1 (synthesized):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      APFS Container Scheme -                      +1.0 TB     disk1
+                                 Physical Store disk0s2
+   1:                APFS Volume Macintosh HD - Data     354.1 GB   disk1s1
+   2:                APFS Volume Preboot                 1.9 GB     disk1s2
+   3:                APFS Volume Recovery                1.2 GB     disk1s3
+   4:                APFS Volume VM                      20.5 KB    disk1s4
+   5:                APFS Volume Macintosh HD            9.2 GB     disk1s5
+   6:              APFS Snapshot com.apple.os.update-... 9.2 GB     disk1s5s1
+   7:                APFS Volume Nix Store               11.0 GB    disk1s6
+#+end_src
+
+#+begin_src bash
+sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels
+#+end_src bash
+
+After this, I restart the installation process.
+
+Reading [[a comment on jmatsushita's config][https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4054744#gistcomment-4054744]] led me to believe that the removal of ~/.nix-profile may have broken my system further but then it seems that nix-darwin uses global profiles instead of user-based profiles, which suggests that the existence of ~/.nix-profile may have been a remnant of my pre-nix-darwin use of home-manager. For now it seems that enabling the emacs service in nix-darwin does not immediately expose a CLI-accessible command. I've resorted to enabling the service along with installing emacs as a systemPackage but I have to first confirm if the emacs service alone yields a system that exposes the emacs command in a standard shell.
+
+**** Handling =ls: .: Operation not permitted= errors
+
+On a completely fresh macOS machine you may encounter =ls: .: Operation not permitted= errors if Terminal has not been granted prior access to the full disk.
+
+Navigate to the "Full Disk Access" setting and enable access for the Terminal.
+
+[[file:doc/macOS.settings.EnableFullDiskAccess.png]]
+
+**** Darwin
+
+#+begin_src nix :noweb yes :tangle home-darwin.nix
+# Tangled from README.org
+{ config, pkgs, lib, ... }:
+
+{
+  imports = [
+    <<common-imports-darwin>>
+  ];
+
+  <<home-darwin>>
+}
+#+end_src
+
+***** TODO Darwin Home-manager Config
+
+- State "TODO"       from              [2023-10-04 Wed 14:20] \\
+  Refactor to reuse the shared hm and programs configurations that we've used for the Linux config earlier. We want to DRY the overal config up.
+
+#+begin_src nix :noweb yes :noweb-ref home-darwin
+home.stateVersion = "23.05";
+
+home.packages = with pkgs; [
+  <<darwin-home-packages>>
+];
+
+# NOTE: Copied from dev.nix
+# TODO: Figure out how to re-use dev.nix config for Darwin and Linux
+home.file = {
+  ".config/git/ignore".source = ./git/ignore;
+};
+
+# No corresponding option in nix-darwin, so we config this with hm
+programs.git = {
+  enable = true;
+  <<nix-devtools-git>>
+};
+
+# NOTE: Copied from common.nix
+programs.direnv = {
+  enable = true;
+  nix-direnv = {
+    enable = true;
+  };
+};
+
+# NOTE: Enabling zsh also in hm in order to bring direnv bootstrap into scope
+# See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
+programs.zsh.enable = true;
+
+<<home-darwin-config>>
+#+end_src
+
+***** Imports
+
+****** COMMENT Import common
+
+#+begin_src nix :noweb-ref common-imports-darwin
+./common.nix
+#+end_src
+
+****** Import vim into Darwin config
+
+#+begin_src nix :noweb-ref common-imports-darwin
+./vim.nix
+#+end_src
+
+****** TODO COMMENT Import Darwin variant of Emacs
+
+- State "TODO"       from              [2023-10-04 Wed 15:35] \\
+  Update default-darwin.nix and import this instead of the emacsnix-darwin.nix
+#+begin_src nix :noweb-ref common-imports-darwin
+./emacs/default-darwin.nix
+#+end_src
+
+*** Configuring Linux with home-manager
+:PROPERTIES:
+:CUSTOM_ID: home-manager
+:END:
+
+The use of home-manager is pretty straightforward especially with the convenient *nix shell* and the *Makefile* that make usage even easier. The general idea is as follows:
+- [[file:shell.nix]] defines a shell environment that contains all packages needed to install or apply a configuration. The packages include *niv* which helps us manage versions of our packages, *home-manager* which actually manages our home environments (hence the name) and and some utils.
+- [[file:Makefile]] contains some rules to simplify how we call home-manager inside of the nix-shell since it effectively reduces the UX down to =make= or =make test= calls as opposed to =home-manager -f ./home.nix -v -n build= and =home-manager -f ./home.nix switch= respectively (which you don't want to have to remember 🤷🏿‍♂️).
+
+Typical use will be as follows:
+1. Enter the nix-shell using =nix-shell --pure=
+2. Configure your personal.nix to specify =home.username=, =home.homeDirectory= and =home.stateVersion= for your system
+3. Optionally, update niv-managed packages by running =niv update= to update the sources files ([[file:nix/sources.json]] and [[file:nix/sources.nix]]), as demonstrated below:
+   #+begin_src bash
+niv update home-manager
+niv update nixpkgs
+   #+end_src
+4. Run =make test= to test the home-manager configuration or =make= to install the configuration
+5. Optionally, if package update step was completed (step 2 above), commit the changes made to the niv sources files
+6. Profit 💰
+
+#+begin_quote
+💡 Note that home-manager generated configuration files will be written somewhere to ~~/.config~, e.g.: ~~/.config/git/config~ for git.
+#+end_quote
+
+**** Core packages
+
+We use niv to manage our dependencies and manage this throught the =pkgs-bleeding= which we set up in let blocks of shell.nix and common.nix:
+
+#+begin_src nix :noweb-ref common-packages-let
+nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
+pkgs-bleeding = import nixpkgs-bleeding-src { };
+#+end_src
+
+#+begin_src nix :noweb-ref common-packages
+pkgs-bleeding.niv
+pkgs-bleeding.nixVersions.nix_2_13
+#+end_src
+
+**** Shell
+
+For home-manager to work, we define a nix-shell that we creates a controlled environment for our Makefile to work.
+
+#+begin_src nix :noweb yes :tangle shell.nix
+# Tangled from README.org
+# From https://github.com/ryantm/home-manager-template
+
+let
+  sources = import ./nix/sources.nix;
+
+  nixpkgs-src = sources."nixpkgs";
+  pkgs = import nixpkgs-src { };
+
+  hm-src = sources."home-manager";
+  nur-src = sources."NUR";
+
+  <<common-packages-let>>
+
+in
+pkgs.mkShell rec {
+  name = "home-manager-shell";
+
+  buildInputs = with pkgs; [
+    <<shell-build-inputs>>
+  ];
+
+  <<shell-hook>>
+}
+#+end_src
+
+The build inputs for our shell are:
+
+#+begin_src nix :noweb yes :noweb-ref shell-build-inputs
+<<common-packages>>
+(import hm-src { inherit pkgs; }).home-manager
+cacert # to resolve CA cert issue
+hello
+git
+ncurses # to resolve tput issue
+which
+#+end_src
+
+For the shell environment to be portable enough to run on both Linux and Darwin (macOS) systems, we define a /shell hook/ that will export a few environment variables into existence depending on the system.
+
+#+begin_src bash :noweb-ref shell-hook-src
+export NIX_PATH="nixpkgs=${nixpkgs-src}:home-manager=${hm-src}:NUR=${nur-src}"
+export HOME_MANAGER_CONFIG=${system}
+#+end_src
+
+The above snippet is a bit of a cheat because we've formatted it as bash but some of the variable expansion work is being done by Nix and not Bash. 😅 We wrap the shell expressions into the following Nix statement to set =system= (see the cheat in the snippet above) and we basically pull in the sources through our niv sources file which is defined at the start of our [[file:shell.nix]] file.
+
+#+begin_src nix :noweb yes :noweb-ref shell-hook
+shellHook = with pkgs; let
+  system = (
+    if stdenv.isLinux
+    then "./home-linux.nix"
+    else
+      (if stdenv.isDarwin
+      then "./home-darwin.nix"
+      else "./home.nix")
+  );
+in
+''
+  <<shell-hook-src>>
+'';
+#+end_src
+
+With all of this out of the way, running =make= should just drop us into a Nix shell with everything preconfigured and then run some incantation of =home-manager switch= in order to switch our home-manager-managed, pun intended, environment.
+
+***** REPL
+
+Enter a REPL by entering the nix-shell first (to set up the env var =NIX_PATH=) and then run the following statement to obtain a reference to the home-manager configuration:
+
+#+begin_src nix
+hm = import <home-manager/modules> { inherit pkgs; configuration = ./home-linux.nix; }
+#+end_src
+
+**** Linux
 :PROPERTIES:
 :header-args: :noweb-sep "\n\n"
 :END:
@@ -611,7 +692,7 @@ pywal
 }
 #+end_src
 
-***** X
+****** X
 
 #+begin_src nix :noweb yes :tangle x.nix
 # Tangled from README.org
@@ -682,7 +763,7 @@ xdotool
 btop
 #+end_src
 
-****** colors
+******* colors
 
 #+begin_src nix :noweb-ref x-packages
 (writeScriptBin "colors" ''
@@ -700,7 +781,7 @@ btop
 '')
 #+end_src
 
-****** xsel-copy-url
+******* xsel-copy-url
 
 We define an overlay in which we build an env that contains a script and the desktop item that our mimehandler can resolve to for the appropriate mimetypes.
 
@@ -749,7 +830,7 @@ We add our previously added =xsel-copy-url= "package" to our configuration:
 xsel-copy-url
 #+end_src
 
-****** URxvt
+******* URxvt
 
 #+begin_src nix :noweb yes :noweb-ref x-programs
 programs.urxvt = {
@@ -772,7 +853,7 @@ programs.urxvt = {
 };
 #+end_src
 
-******* Fonts
+******** Fonts
 
 #+begin_src nix :noweb-ref urxvt-fonts
 "xft:DejaVu Sans Mono:pixelsize=28:antialias=true"
@@ -780,19 +861,19 @@ programs.urxvt = {
 "xft:Iosevka:size=28:antialias=true"
 #+end_src
 
-******* ISO14755
+******** ISO14755
 
 #+begin_src nix :noweb-ref urxvt-config
 iso14755 = false;
 #+end_src
 
-******* COMMENT Remove border
+******** COMMENT Remove border
 
 #+begin_src nix :noweb-ref urxvt-config
 externalBorder = "0px";
 #+end_src
 
-******* Keybindings
+******** Keybindings
 
 #+begin_src nix :noweb-ref urxvt-keybindings
 "C-minus" = "perl:font-size:decrease";
@@ -805,13 +886,13 @@ externalBorder = "0px";
 "M-C-s" = "perl:color-themes:save-state";
 #+end_src
 
-******* Scrollbars
+******** Scrollbars
 
 #+begin_src nix :noweb-ref urxvt-scroll
 bar.enable = false;
 #+end_src
 
-******* Misc
+******** Misc
 
 #+begin_src nix :noweb-ref urxvt-extra
 "geometry" = "128x32";
@@ -831,7 +912,7 @@ bar.enable = false;
 "color-themes.autosave" = 1;
 #+end_src
 
-******* Themes
+******** Themes
 
 #+begin_src nix :noweb-ref linux-overlays
 vidbina-urxvt-themes =
@@ -851,7 +932,7 @@ vidbina-urxvt-themes =
   };
 #+end_src
 
-****** autorandr
+******* autorandr
 
 In order to simplify screen management, we can use the [[https://github.com/phillipberndt/autorandr/][autorandr]] utility.
 
@@ -877,7 +958,7 @@ programs.autorandr = {
 };
 #+end_src
 
-****** slock
+******* slock
 
 The [[https://tools.suckless.org/slock/][slock]] package is a simple X screen locker by the suckless.org team.
 
@@ -885,7 +966,7 @@ Installing slock through systemPackages causes the =unable to disable the OOM ki
 
 We therefore install slock in the nixos-configuration.
 
-******* Autolock
+******** Autolock
 
 #+begin_src nix :noweb-ref x-services
 screen-locker = {
@@ -894,7 +975,7 @@ screen-locker = {
 };
 #+end_src
 
-****** darkman
+******* darkman
 
 Use darkman to manage dark/light theme switching for GTK and Qt.
 
@@ -904,7 +985,7 @@ darkman
 
 Run =darkman set light= or =darkman set dark= or just run =darkman toggle=.
 
-****** TODO rofi
+******* TODO rofi
 
 - State "TODO"       from              [2023-10-03 Tue 17:30] \\
   Update config to work for Linux. common.nix is no used between darwin and linux and rofi is no relevant for darwin systems.
@@ -915,18 +996,18 @@ We import the previous rofi configuration and have removed the =programs.rofi.th
 ./rofi/default.nix
 #+end_src
 
-******* TODO Fix the buggy theme setup
+******** TODO Fix the buggy theme setup
 
 When producing the Rofi modals/prompts, we have some readability issues are some bits are not legible (dark text on dark bg).
 
-***** Applets
+****** Applets
 
 #+begin_src nix :noweb-ref home-linux-services
 services.blueman-applet.enable = true;
 services.network-manager-applet.enable = true;
 #+end_src
 
-***** Gammastep
+****** Gammastep
 
 The next thing after redshift.
 
@@ -945,7 +1026,7 @@ services.gammastep = {
 };
 #+end_src
 
-****** Berlin
+******* Berlin
 
 #+begin_src nix :noweb-ref home-linux-services-gammastep
 dawnTime = "5:00-6:00";
@@ -954,7 +1035,7 @@ latitude = 52.5;
 longitude = 13.4;
 #+end_src
 
-****** COMMENT Bangkok
+******* COMMENT Bangkok
 
 #+begin_src nix :noweb-ref home-linux-services-gammastep
 dawnTime = "5:00-6:00";
@@ -963,7 +1044,7 @@ latitude = 13.7;
 longitude = 100.5;
 #+end_src
 
-***** GPG Agent
+****** GPG Agent
 
 #+begin_src nix :noweb-ref home-linux-services
 services.gpg-agent = {
@@ -972,7 +1053,7 @@ services.gpg-agent = {
 };
 #+end_src
 
-***** Trayer
+****** Trayer
 
 #+begin_src nix :noweb-ref home-linux-services
 services.trayer = {
@@ -989,105 +1070,6 @@ services.trayer = {
     widthtype = "pixel";
   };
 };
-#+end_src
-
-*** Darwin
-
-#+begin_src nix :noweb yes :tangle home-darwin.nix
-# Tangled from README.org
-{ config, pkgs, lib, ... }:
-
-{
-  imports = [
-    <<common-imports-darwin>>
-  ];
-
-  <<home-darwin>>
-}
-#+end_src
-
-**** TODO Darwin Home-manager Config
-
-- State "TODO"       from              [2023-10-04 Wed 14:20] \\
-  Refactor to reuse the shared hm and programs configurations that we've used for the Linux config earlier. We want to DRY the overal config up.
-
-#+begin_src nix :noweb yes :noweb-ref home-darwin
-home.stateVersion = "23.05";
-
-home.packages = with pkgs; [
-  <<darwin-home-packages>>
-];
-
-# NOTE: Copied from dev.nix
-# TODO: Figure out how to re-use dev.nix config for Darwin and Linux
-home.file = {
-  ".config/git/ignore".source = ./git/ignore;
-};
-
-# NOTE: Copied from dev.nix
-# No corresponding option in nix-darwin, so we config this with hm
-programs.git = {
-  enable = true;
-  userName = "David Asabina";
-  userEmail = "vid@bina.me";
-  lfs.enable = true;
-  extraConfig = {
-    init = {
-      defaultBranch = "main";
-    };
-
-    core = {
-      editor = "nvim";
-    };
-
-    gpg = {
-      program = "gpg2";
-    };
-
-    # NOTE: Commenting out to test if `git config -l` changes
-    # sendemail = {
-    #   annotate = true;
-    #   smtpServer = "msmtp";
-    #   smtpServerOption = "-a vidbina";
-    # };
-  };
-};
-
-# NOTE: Copied from common.nix
-programs.direnv = {
-  enable = true;
-  nix-direnv = {
-    enable = true;
-  };
-};
-
-# NOTE: Enabling zsh also in hm in order to bring direnv bootstrap into scope
-# See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
-programs.zsh.enable = true;
-
-<<home-darwin-config>>
-#+end_src
-
-**** Imports
-
-***** COMMENT Import common
-
-#+begin_src nix :noweb-ref common-imports-darwin
-./common.nix
-#+end_src
-
-***** Import vim into Darwin config
-
-#+begin_src nix :noweb-ref common-imports-darwin
-./vim.nix
-#+end_src
-
-***** TODO COMMENT Import Darwin variant of Emacs
-
-- State "TODO"       from              [2023-10-04 Wed 15:35] \\
-  Update default-darwin.nix and import this instead of the emacsnix-darwin.nix
-#+begin_src nix :noweb-ref common-imports-darwin
-./emacs/default-darwin.nix
 #+end_src
 
 ** The more tedious and manual way: without home-manager
@@ -1180,15 +1162,85 @@ ln -s ${PATH_TO_DOTFILE}/tmux.conf ${HOME}/.config/tmux.conf
 
 #+begin_quote
 ⚠️ I haven't relied on init.nvim for a while since I broke my configuration a little while ago in my attempts to pull vim-plug with Nix and then manage all my other plugins through the init.nvim file. As a lazyperson's way out, I have simply given up and started managing my entire nvim configuration in nix.
+
+[2024-02-19 Mon]: Tangling init.vim from the same snippets that I use in nix. Only difference is that init.vim contains the packages that are being installed through Pathogen, while the nix config handles package management for vim itself.
 #+end_quote
 
 #+begin_src shell
 ln -s ${PATH_TO_DOTFILE}/nvim ${HOME}/.config/nvim
 #+end_src
 
-- set tabbing behavior (expand tabs to 2 spaces)
-- enable mouse in all modes
-- define Plug extensions
+- [X] set tabbing behavior (expand tabs to 2 spaces)
+  #+begin_src lua :noweb-ref neovim-config
+set tabstop=2    " tab stop to 2 spaces
+set shiftwidth=2 " shift width by 2 spaces
+set expandtab    " expand tabs to spaces
+  #+end_src
+- [X] enable mouse in all modes
+  #+begin_src lua :noweb-ref neovim-config
+set mouse=a
+set number
+":map <ScrollWheelUp> <C-Y>
+":map <ScrollWheelDown> <C-E>
+  #+end_src
+- [X] define Plug extensions
+  #+begin_src lua :noweb-ref neovim-plugged
+call plug#begin("~/.local/share/nvim/plugged")
+  Plug 'airblade/vim-gitgutter'
+  Plug 'aklt/plantuml-syntax'
+  Plug 'dense-analysis/ale'
+  Plug 'derekwyatt/vim-scala'
+  Plug 'ElmCast/elm-vim'
+  Plug 'godlygeek/tabular'
+  Plug 'hashicorp/sentinel.vim'
+  Plug 'hashivim/vim-terraform'
+  "Plug 'https://github.com/hrother/offlineimaprc.vim.git'
+  Plug 'https://github.com/junegunn/goyo.vim.git'
+  Plug 'https://github.com/plasticboy/vim-markdown.git'
+  Plug 'isRuslan/vim-es6'
+  Plug 'jparise/vim-graphql'
+  Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+  Plug 'LnL7/vim-nix'
+  Plug 'majutsushi/tagbar'
+  " https://github.com/neoclide/coc.nvim
+  " Load VSCode extensions and host language servers
+  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+  Plug 'preservim/nerdtree'
+  Plug 'prettier/vim-prettier'
+  Plug 'purescript-contrib/purescript-vim'
+  Plug 'saltstack/salt-vim'
+  "Plug 'sbdchd/neoformat'
+  Plug 'sigmike/vim-taskjuggler'
+  Plug 'tomlion/vim-solidity'
+  Plug 'tpope/vim-fugitive'
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-scripts/openvpn'
+  Plug 'wannesm/wmgraphviz.vim'
+  Plug 'jeffkreeftmeijer/vim-dim', { 'branch': 'main' }
+call plug#end()
+  #+end_src
+- [X] Set remaining vim settings
+  #+begin_src lua :noweb-ref neovim-config
+colorscheme dim
+
+let g:vim_markdown_frontmatter = 1
+let g:vim_markdown_math = 1
+let g:vim_markdown_fenced_languages = ['nix=nix', 'Dockerfile=dockerfile']
+let g:vim_markdown_new_list_item_indent = 2
+let g:vim_markdown_auto_insert_bullets = 0
+
+set wrap
+set ignorecase
+set nofoldenable
+  #+end_src
+
+We compose the different settings into init.vim and tangle the non-Pathogen-related stuff into our nix config (where we define vim packages through nix and therefore won't need Pathogen).
+
+#+begin_src lua :noweb yes :tangle nvim/init.vim
+" Tangled from README.org
+<<neovim-plugged>>
+<<neovim-config>>
+#+end_src
 
 *** Termite
 :PROPERTIES:
@@ -1408,6 +1460,7 @@ Furthermore read https://www.launchd.info/ for more information on the launchd s
 All packages that are architecture agnostic are installed in all of our macOS machines.
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
+# common Darwin packages
 asciinema
 bat
 checkmake
@@ -1426,6 +1479,7 @@ kakoune
 nodePackages.typescript-language-server
 nodejs
 pass
+pqrs
 nixpkgs-fmt
 redis
 rnix-lsp
@@ -1443,19 +1497,26 @@ inputs.devenv.packages.${system}.default
 #+end_src
 
 #+begin_src nix :noweb-ref darwin-home-packages
+# Darwin packages for home-manager (i.e.: nix-darwin)
 alacritty
 #+end_src
 
 Intel-only packages are listed separately such that we can use them on the macOS machine that still has a x86-based Intel chip but avoid trying to install them on ARM-based Apple machines.
 
 #+begin_src nix :noweb-ref nix-darwin-packages-intel
+# Darwin packages for Intel-only
 gdb
 ghidra-bin
 #+end_src
 
 #+begin_quote
-It follows that the amount of Intel-only packages will decrease as developers make their applications more readily available.
+It follows that the amount of Intel-only packages will decrease as developers make their applications more readily available (also for Apple Silicon).
 #+end_quote
+
+*** TODO Split up config into tooling section
+
+- [X] Make the first snippets comment snippets (for explanation)
+- [ ] move the code out to the tool-specific section.
 
 *** Setup homebrew
 
@@ -1644,10 +1705,13 @@ homebrew = {
   casks = [
     <<homebrew-casks>>
   ];
+  masApps = {
+    <<homebrew-masapps>>
+  };
 };
 #+end_src
 
-As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefer pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility.
+As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefers pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility.
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "smudge/smudge/nightlight"
@@ -1678,7 +1742,6 @@ Graphical tools which are typically installed through the /drag icon to Applicat
 "notion"
 "obsidian" # best-in-class with mobile app support
 "raycast"
-"remarkable"
 "zoom"
 
 # Android
@@ -1701,6 +1764,23 @@ Graphical tools which are typically installed through the /drag icon to Applicat
 "whatsapp"
 #+end_src
 
+Install apps from the Apple App Store through the mas CLI tool for which the nix-darwin homebrew config provides the [[https://daiderd.com/nix-darwin/manual/index.html#opt-homebrew.masApps][=masApps= attribute]].
+
+💡 Remember to go through the list of all masApps in your file:configuration-darwin.nix and make sure to at least manually install them into your Apple account once to avoid the [[*Resolve: Redownload Unavailable with This Apple ID: This redownload is not available for this Apple ID either because it was bought by a different user or the item was refunded or cancelled.][this "Redownload Unavailable with this Apple ID" issue]].
+
+*** DONE Resolve: Redownload Unavailable with This Apple ID: This redownload is not available for this Apple ID either because it was bought by a different user or the item was refunded or cancelled. 
+
+Apps need to already be in a user's Purchased list before mas can install them. For any new tools, just make sure that you install it on one machine at least manually in order to add it to your Purchased list as documented in [[https://github.com/mas-cli/mas/issues/85#issuecomment-305382347][GH mas-cli issue 85]]. In my case, I didn't even complete the installation, I just started it to add it to the list and then prematurely stopped it in order to continue the installation through nix-darwin.
+
+Keep in mind to authorize your device as documented in https://support.apple.com/en-us/HT201251 and which can be done through the following steps:
+- Open Apple Music
+- Navigate to Account > Authorisations > Authorise this computer
+- provide credentials to Apple account.
+
+You can review your current computer's authorisation status by opening the App Store app and opening the Account Settings modal.
+
+Computer authorisation status did not have any bearing on this issue but it seems a good practice to ocassionally verify that all the authorised devices in an account are still in your possession.
+
 *** nix-darwin nixpkgs
 **** Allow some unfree packages
 
@@ -1720,6 +1800,162 @@ nixpkgs.overlays = [
   })
 ];
 #+end_src
+
+*** Hammerspoon
+
+I use [[https://www.hammerspoon.org/][Hammerspoon]] for some OSX-specific automations which can be scripted through Lua. Like mapping keybindings to open specific locations in Finder, opening specific apps within a workstation or rendering notification or alerts with some useful information and more.
+
+We link the hammerspoon directory into our homedir in order to set up the necessary Spoons and the init.lua:
+
+#+begin_src nix :noweb-ref home-darwin-config
+home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
+#+end_src
+
+We load the Spoons and define our own bindings and more in the init.lua file that we symlinked into our homedir previously:
+
+#+begin_src lua :noweb yes :tangle hammerspoon/init.lua
+-- Tangled from README.org
+
+hsBaseBinding = {"alt", "cmd", "ctrl"}
+strBaseBinding = "⌃⌥⌘"
+
+cheatsheet = "💡"
+
+-- A dummy binding for Hammerspoon
+hs.hotkey.bind(
+   hsBaseBinding,
+   "H",
+   function()
+      hs.alert.show(cheatsheet)
+      hs.notify.new({title="Hammerspoon", informativeText=cheatsheet}):send()
+   end
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " H = help"
+
+-- https://www.hammerspoon.org/go/#simple-configuration-reloading
+hs.hotkey.bind(
+   hsBaseBinding,
+   "R",
+   function()
+      hs.alert.show("Reloading Hammerspoon config")
+      hs.reload()
+   end
+)
+cheatsheet = cheatsheet .."\n" .. strBaseBinding .. " R = reload"
+
+-- https://www.hammerspoon.org/go/#drawing-on-the-screen
+mouseCircle = nil
+mouseCircleTimer = nil
+
+function mouseHighlight()
+   -- Delete an existing highlight if it exists
+   if mouseCircle then
+      mouseCircle:delete()
+      if mouseCircleTimer then
+         mouseCircleTimer:stop()
+      end
+   end
+   -- Get the current co-ordinates of the mouse pointer
+   mousepoint = hs.mouse.absolutePosition()
+   -- Prepare a big red circle around the mouse pointer
+   mouseCircle = hs.drawing.circle(hs.geometry.rect(mousepoint.x-40, mousepoint.y-40, 80, 80))
+   mouseCircle:setStrokeColor({["red"]=1,["blue"]=0,["green"]=0,["alpha"]=1})
+   mouseCircle:setFill(false)
+   mouseCircle:setStrokeWidth(5)
+   mouseCircle:show()
+
+   -- Set a timer to delete the circle after 3 seconds
+   mouseCircleTimer = hs.timer.doAfter(
+      1,
+      function()
+         mouseCircle:delete()
+         mouseCircle = nil
+      end
+   )
+end
+hs.hotkey.bind(hsBaseBinding, "D", mouseHighlight)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " D = mouse highlight"
+
+hs.loadSpoon("Caffeine")
+isCaffeinated = false
+hs.hotkey.bind(
+   hsBaseBinding,
+   "Z",
+   function()
+      if not isCaffeinated then
+         hs.alert.show("Buzzed! Flattie mode! ☕")
+         spoon.Caffeine:start()
+      else
+         hs.alert.show("Letting that buzz wear off. 🥱")
+         spoon.Caffeine:stop()
+      end
+      isCaffeinated = not isCaffeinated
+   end
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " Z = ☕"
+
+hs.loadSpoon("KSheet")
+spoon.KSheet:bindHotkeys(
+   {
+      toggle = {hsBaseBinding, "K"}
+   }
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = KSheet"
+
+hs.loadSpoon("HSKeybindings")
+isShowingHSKeybindings = false
+hs.hotkey.bind(
+   hsBaseBinding,
+   "/",
+   function()
+      if not isShowingHSKeybindings then
+         hs.alert.show("Showing HSKeybindings")
+         spoon.HSKeybindings:show()
+      else
+         hs.alert.show("Hiding HSKeybindings")
+         spoon.HSKeybindings:hide()
+      end
+      isShowingHSKeybindings = not isShowingHSKeybindings
+   end
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = HSKeybindings"
+
+hs.hotkey.bind(
+   hsBaseBinding,
+   ".",
+   function()
+      hs.alert.show("Inspecting Hammerspoon")
+      hs.alert.show("displayIdle: " .. (hs.caffeinate.get("displayIdle") and "On" or "Off"))
+      hs.alert.show("systemIdle: " .. (hs.caffeinate.get("systemIdle") and "On" or "Off"))
+      hs.alert.show("system: " .. (hs.caffeinate.get("system") and "On" or "Off"))
+   end
+)
+
+hs.hotkey.bind(
+   hsBaseBinding,
+   "return",
+   function()
+      if hs.application.find("iTerm") then
+         hs.osascript.applescript([[
+            <<applescript-open-iterm>>
+         ]])
+      else
+         hs.application.open("iTerm")
+      end
+   end
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " ⏎ = iTerm2 👨🏿‍💻"
+#+end_src
+
+For our iTerm2 function, we define the AppleScript separately:
+
+#+begin_src applescript :noweb-ref applescript-open-iterm
+tell application "iTerm"
+create window with default profile
+end tell
+#+end_src
+
+See [[https://zzamboni.org/post/my-hammerspoon-configuration-with-commentary/][zzamboni's config]] for inspiration.
 
 *** COMMENT Next
 
@@ -1807,11 +2043,20 @@ We want LFS enabled.
 lfs.enable = true;
 #+end_src
 
+**** Git Aliases
+
+#+begin_src nix :noweb-ref nix-devtools-git
+aliases = {
+  wdiff = "diff --word-diff --word-diff-regex='\\w+'";
+  glog = "log --oneline --graph --all --decorate";
+};
+#+end_src
+
 **** Git Extra Configuration
 
 Let's opt for naming our default branch "main", using nvim as our editor, using gpg2 are our GPG tool and setting git up to [[https://git-scm.com/docs/git-send-email][send patches by mail]].
 
-#+begin_src nix :noweb-ref nix-devtools-git
+#+begin_src nix :noweb yes :noweb-ref nix-devtools-git
 extraConfig = {
   init = {
     defaultBranch = "main";
@@ -1830,8 +2075,38 @@ extraConfig = {
     smtpServer = "msmtp";
     smtpServerOption = "-a vidbina";
   };
+
+  <<nix-devtools-git-conf>>
 };
 #+end_src
+
+***** Colors in Git
+
+For readability's sake, we set the colors that we display git diffs, greps and status payloads in.
+
+#+begin_src nix :noweb-ref nix-devtools-git-conf
+color = {
+  ui = true;
+  diff = {
+    meta = "yellow bold";
+    frag = "magenta bold";
+     old = "red";
+     new = "green";
+  };
+  grep = {
+    match = "yellow";
+    filename = "blue";
+    linenumber = "brightblack";
+  };
+  status = {
+    added = "yellow";
+    changed = "green";
+    untracked = "brightblack";
+  };
+};
+#+end_src
+
+Since we are using pywal to sync terminal themes with Emacs, we set some baseline colors in git to harmonise these.
 
 **** TODO COMMENT Diff: Look into delta or difftastic
 
@@ -1840,6 +2115,8 @@ delta = {
   enable = true;
 };
 #+end_src
+
+[2024-02-19 Mon] Note that difftastic use in a devenv resulted in outputs where some code keywords were highlighted in the same color as the terminal background and thus rendered visually invisible. Use of difftastic would likely require some customization of the used colorscheme in order for this to work.
 
 #+begin_src nix :noweb-ref nix-devtools-git
 difftastic = {
@@ -1854,6 +2131,69 @@ pkgs.gh
 #+end_src
 
 *** Utils
+
+**** Development Environments
+
+***** Devbox
+
+Use [[https://www.jetify.com/devbox/docs/][Devbox]] for isolated dev envs without having to write Nix. 🙊
+
+We install it by listing it in the nix-darwin config file:
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+devbox
+#+end_src
+
+# but eventually we want to use the dev.nix file and reuse it between platforms (not clear that this design goal should be prioritized since repetition is fine as long as we centrally manage this config by tangling it from this README where repetition is minimal 🤷🏿‍♂️).
+
+# #+begin_src nix :noweb-ref dev-packages
+# pkgs.devbox
+# #+end_src
+
+***** TODO Devenv
+
+Find out if the devenv install is moveable. The env.nix file does not have the =inputs= variable as an input so we'll either have to pass it along or find a different way to bring these packages into scope within dev.nix.
+
+See [[*Packages][Packages]] for the current installation of devenv.
+
+**** Terminals
+***** WezTerm
+
+[[https://wezfurlong.org/wezterm][WezTerm]] is a terminal emulator and multiplexer written in Rust, with hyperlink support, emoji support and since it's written in Rust... probably as blazingly fast as it gets.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"wezterm"
+#+end_src
+
+**** AI
+
+***** Ollama
+
+[[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
+
+On MacOS, we install Ollama using the [[https://formulae.brew.sh/formula/ollama][brew]]:
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"ollama"
+#+end_src
+
+***** LM Studio
+
+With [[https://lmstudio.ai/][LM Studio]], one can easily inference against LLMs, spin up an API to allow other tools to access locally-served LLMs and compute embeddings locally... all through a convenient GUI.
+
+On MacOS, we install LM Studio using the [[https://formulae.brew.sh/cask/lm-studio][cask]]:
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"lm-studio"
+#+end_src
+
+**** Networking
+
+Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your MacOS.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"wireguard-tools"
+#+end_src
 
 **** Hex editors/viewers
 
@@ -2123,6 +2463,17 @@ https://github.com/traviscross/mtr
 pkgs.mtr
 #+end_src
 
+**** Calculators
+***** pcalc
+
+The [[https://github.com/alt-romes/programmer-calculator][pcalc]] util can come in handy when one needs to conduct conversions between bases (Like octal to binary, hex to binary, etc) and calculate operations (ADD, MOD, XOR, etc.) between different operands. I initially set out to install the PCalc calculation util https://pcalc.com/ to calculate logs and work with other advanced math functions, but somehow I hit a name collision here and ended up realising that the other pcalc may be useful to me too... someday, so, we're keeping it.
+
+For MacOS, we just install pcalc using the brew:
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"pcalc"
+#+end_src
+
 *** VsCode
 
 Visual Studio Code is unfree software and needs to be added to the list of unfree packages that we want to tolerate:
@@ -2161,16 +2512,27 @@ The extensions that we are interested in are the following:
 #+begin_src nix :noweb-ref vscode-extensions
 bbenoist.nix
 be5invis.toml
+elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
 github.copilot
 github.copilot-chat
+hbenl.vscode-test-explorer
 hediet.vscode-drawio
 mkhl.direnv
 ms-azuretools.vscode-docker
+ms-playwright.playwright
 ms-python.python
 ms-vscode-remote.remote-containers
 tomoki1207.pdf
 vscode-org-mode.org-mode
 vscodevim.vim
+#+end_src
+
+***** Show tree of TODO and FIXME comment
+
+Outline comment tags like =TODO= and =FIXME= in a todo tree for quick access.
+
+#+begin_src nix :noweb-ref vscode-extensions
+gruntfuggly.todo-tree
 #+end_src
 
 **** VsCode Keybindings
@@ -2329,6 +2691,9 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
     ];
     vimdiffAlias = true;
     withRuby = true;
+    extraConfig = ''
+      <<neovim-config>>
+    '';
   };
 }
 #+end_src
@@ -2349,6 +2714,7 @@ tabular
 tagbar
 typescript-vim
 vim-airline
+vim-dim
 vim-fugitive
 vim-gitgutter
 vim-graphql
@@ -2406,6 +2772,14 @@ programs.xmobar = {
 services.taffybar = {
   enable = true;
 };
+#+end_src
+
+*** Hidden Bar
+
+On MacOS, we use [[https://github.com/dwarvesf/hidden/][hidden Bar]] to work around the issue that MacOS doesn't natively provide mechanisms for seeing the menubar items that are hidden when the icon count gets too large or when the focused application menu entries are too many (like with Emacs which has menu entries crossing the camera notch).
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Hidden Bar" = 1452453066;
 #+end_src
 
 ** Syncthing
@@ -2566,7 +2940,15 @@ Especially for things link mail indices and Org-roam databases, I may need to do
 }
 #+end_src
 
-*** COMMENT OBS
+*** OBS
+
+On MacOS, we just install OBS with homebrew:
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"obs" # for streaming
+#+end_src
+
+**** COMMENT On Linux
 
 https://obsproject.com/wiki/install-instructions
 
@@ -2577,7 +2959,7 @@ https://obsproject.com/wiki/install-instructions
 obs-studio
 #+end_src
 
-**** TODO Figure out OpenGL configuration
+***** TODO Figure out OpenGL configuration
 
 We had this binding nixgl into the multimedia.nix block but we are temporariliy ripping this out.
 
@@ -3699,9 +4081,19 @@ texlive-asabina
 
 ***** pdftk
 
+We install pdftk into our common config.
+
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 pdftk
 #+end_src
+
+And relist it for the Darwin config
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin-packages-common
+pdftk
+#+end_src
+
+until I've had some time to properly abstract this mess of a config. I have my Linux machine back, so high-time to test that tux config again.
 
 ***** pandoc
 
@@ -3821,6 +4213,16 @@ qrencode
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 libreoffice
+#+end_src
+
+**** Remarkable
+
+We previously installed the reMarkable app for OSX through homebrew casks but are now following the recommendation from the app itself to install it from the App Store.
+
+https://apps.apple.com/us/app/remarkable-desktop/id1276493162
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Remarkable Desktop" = 1276493162;
 #+end_src
 
 ** TODO [3/22] Convert home-manager config to literate config

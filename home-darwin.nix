@@ -10,6 +10,7 @@
 
   home.packages = with pkgs; [
     pywal
+    # Darwin packages for home-manager (i.e.: nix-darwin)
     alacritty
   ];
 
@@ -19,13 +20,16 @@
     ".config/git/ignore".source = ./git/ignore;
   };
 
-  # NOTE: Copied from dev.nix
   # No corresponding option in nix-darwin, so we config this with hm
   programs.git = {
     enable = true;
     userName = "David Asabina";
     userEmail = "vid@bina.me";
     lfs.enable = true;
+    aliases = {
+      wdiff = "diff --word-diff --word-diff-regex='\\w+'";
+      glog = "log --oneline --graph --all --decorate";
+    };
     extraConfig = {
       init = {
         defaultBranch = "main";
@@ -39,12 +43,31 @@
         program = "gpg2";
       };
 
-      # NOTE: Commenting out to test if `git config -l` changes
-      # sendemail = {
-      #   annotate = true;
-      #   smtpServer = "msmtp";
-      #   smtpServerOption = "-a vidbina";
-      # };
+      sendemail = {
+        annotate = true;
+        smtpServer = "msmtp";
+        smtpServerOption = "-a vidbina";
+      };
+
+      color = {
+        ui = true;
+        diff = {
+          meta = "yellow bold";
+          frag = "magenta bold";
+           old = "red";
+           new = "green";
+        };
+        grep = {
+          match = "yellow";
+          filename = "blue";
+          linenumber = "brightblack";
+        };
+        status = {
+          added = "yellow";
+          changed = "green";
+          untracked = "brightblack";
+        };
+      };
     };
   };
 
@@ -60,21 +83,27 @@
   # See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
   programs.zsh.enable = true;
 
+  home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
+
   programs.vscode = {
     enable = true;
     extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
       bbenoist.nix
       be5invis.toml
+      elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
       github.copilot
       github.copilot-chat
+      hbenl.vscode-test-explorer
       hediet.vscode-drawio
       mkhl.direnv
       ms-azuretools.vscode-docker
+      ms-playwright.playwright
       ms-python.python
       ms-vscode-remote.remote-containers
       tomoki1207.pdf
       vscode-org-mode.org-mode
       vscodevim.vim
+      gruntfuggly.todo-tree
     ];
     keybindings = [
       {

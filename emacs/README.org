@@ -2383,13 +2383,15 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
 
 The [[https://github.com/jcaw/theme-magic][theme-magic]] package uses [[https://github.com/dylanaraps/pywal][pywal]] to update terminal emulator color schemes or themes. Using theme-magic allows one to syncs the terminal themes to the current Emacs theme.
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 (use-package theme-magic
   :straight (theme-magic :type git
                          :host github
                          :repo "jcaw/theme-magic")
   :config
-  (theme-magic-export-theme-mode))
+  (theme-magic-export-theme-mode)
+  <<theme-magic-config>>
+)
 #+end_src
 
 Run the =theme-magic-from-emacs= command to update your system theme to match your Emacs theme.
@@ -2404,6 +2406,57 @@ Pywal provides instructions on the [[https://github.com/dylanaraps/pywal/wiki/In
 - Terminal.app (the macOS standard)
 - Terminology (the Enlightenment EFL standard)
 - st (the suckless standard)
+
+**** Improve theme output for Modus Themes
+
+See =theme-magic--preferred-extracted-colors= for an overview of the output.
+
+#+begin_src elisp :noweb-ref theme-magic-config
+(setq theme-magic--preferred-extracted-colors
+      '(
+        ;; background
+        (0 . ((modus-themes-get-color-value 'bg-main)
+              (modus-themes-get-color-value 'bg-dim)))
+
+        ;; error (red)
+        (1 . ((modus-themes-get-color-value 'red-intense)
+              (modus-themes-get-color-value 'err)
+              (modus-themes-get-color-value 'red)))
+
+        ;; warning (yellow)
+        (3 . ((modus-themes-get-color-value 'yellow-warmer)
+              (modus-themes-get-color-value 'warning)
+              (modus-themes-get-color-value 'yellow-intense)
+              (modus-themes-get-color-value 'bg-yellow-intense)))
+
+        ;; cyan
+        (6 . ((modus-themes-get-color-value 'cyan-intense)
+              (modus-themes-get-color-value 'cyan)))
+
+        ;; foreground
+        (7 . ((modus-themes-get-color-value 'fg-main)))
+
+        ;; alt/faded
+        (8 . ((modus-themes-get-color-value 'fg-dim)
+              (modus-themes-get-color-value 'fg-alt)))
+
+        ;; additionals, non primaries
+
+        ;; (green)
+        (2 . ((modus-themes-get-color-value 'green-intense)
+              (modus-themes-get-color-value 'green)
+              (modus-themes-get-color-value 'green-faint)))
+
+        ;; (blue)
+        (4 . ((modus-themes-get-color-value 'blue-warmer)
+              (modus-themes-get-color-value 'blue-intense)
+              (modus-themes-get-color-value 'blue)))
+
+        ;; (purple)
+        (5 . ((modus-themes-get-color-value 'magenta-intense)
+              (modus-themes-get-color-value 'magenta-warmer)
+              (modus-themes-get-color-value 'magenta)))))
+#+end_src
 
 ** COMMENT NΛNO: NANO Theme by Rougier
 
@@ -6543,6 +6596,18 @@ Commenting this out since it bootstraps LSP-mode which we're avoiding as we're g
                       :repo "emacs-lsp/lsp-java"))
 #+end_src
 
+*** Lua
+
+In order to edit Lua code for our neovim configs, Hammerspoon and just good measure because Lua isn't that uncommon of a language to bump into, we install the [[https://github.com/immerrr/lua-mode][lua-mode package]].
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/immerrr/lua-mode
+(use-package lua-mode
+  :straight (lua-mode :type git
+                      :host github
+                      :repo "immerrr/lua-mode"))
+#+end_src
+
 *** Clojure
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
@@ -6670,6 +6735,19 @@ To add another layer of convenience or complexity, depending on how you want to 
                        :host github
                        :repo "rust-lang/rust-mode"))
 #+end_src
+
+*** AppleScript
+
+At times, I may need to edit AppleScript code for some machine-side automations which I may trigger with Hammerspoon.
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacsorphanage/applescript-mode
+(use-package applescript-mode
+  :straight (applescript-mode :type git
+                              :host github
+                              :repo "emacsorphanage/applescript-mode"))
+#+end_src
+
 
 ** Misc
 
@@ -6917,6 +6995,17 @@ In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][pa
                      :host github
                      :repo "emacsmirror/paredit")
   <<paredit-config>>)
+#+end_src
+
+One of the killer features of paredit is command =transpose-sexp= (keybinding: =C-M-t=) which swaps left-hand and right-hand sexps. In the example of the cursor being represented as =_=, we can transpose from =(a_ b c)= to =(b_ a c)=. Especially when one has multi-line complex sexps where starting and ending parens may be complicating the ability to just swap sexps by moving lines, this comes in handy.
+
+#+begin_src elisp
+(do-something-useful 'dry-run
+                     ;; Note how neither of the following lines can be swapped
+                     ;; without breaking elisp syntax.
+                     '((get-value a)
+                       (get-value b)
+                       (get-value c)))
 #+end_src
 
 **** Set lighter
@@ -7723,6 +7812,7 @@ in
 {
   environment.systemPackages = with pkgs; [
     <<nix-packages>>
+    <<nix-darwin-packages>>
   ];
 
   nixpkgs.overlays = [
@@ -7896,22 +7986,6 @@ pkgs.coreutils
 pkgs.fd
 pkgs.multimarkdown
 pkgs.python39
-#+end_src
-
-****** ripgrep
-
-We build ripgrep for Doom Emacs. I haven't even used Doom Emacs for a long time but the setting is still here and perhaps I can rely on this again for a faster grepping experience:
-
-#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
-ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-  withPCRE2 = true;
-});
-#+end_src
-
-We also add the custom ripgrep to our Emacs paths to factor it into the build:
-
-#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-emacs-paths
-ripgrep-for-doom-emacs
 #+end_src
 
 ****** COMMENT Jupyter
@@ -8115,6 +8189,28 @@ javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(loca
 
 #+begin_src nix :noweb-ref nix-packages
 python312
+#+end_src
+
+**** ripgrep
+
+We build ripgrep for Doom Emacs. I haven't even used Doom Emacs for a long time but the setting is still here and perhaps I can rely on this again for a faster grepping experience:
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
+ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+  withPCRE2 = true;
+});
+#+end_src
+
+We also add the custom ripgrep to our Emacs paths to factor it into the build:
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-emacs-paths
+ripgrep-for-doom-emacs
+#+end_src
+
+only Darwin, the standard ripgrep is used until we find better reasons to invest in finding a different variant of ripgrep.
+
+#+begin_src nix :noweb-ref nix-darwin-packages
+ripgrep
 #+end_src
 
 *** XDG mimeApps

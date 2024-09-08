@@ -10,6 +10,7 @@
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
+    # common Darwin packages
     asciinema
     bat
     checkmake
@@ -28,6 +29,7 @@
     nodePackages.typescript-language-server
     nodejs
     pass
+    pqrs
     nixpkgs-fmt
     redis
     rnix-lsp
@@ -42,11 +44,15 @@
     yq
     inputs.linsk.packages.${system}.default
     inputs.devenv.packages.${system}.default
+
+    devbox
+    pdftk
   ] ++ (if system == "aarch64-darwin" then [
     # ARM-only packages
 
   ] else [
     # Intel-only packages
+    # Darwin packages for Intel-only
     gdb
     ghidra-bin
   ]);
@@ -177,6 +183,10 @@
     brews = [
       "smudge/smudge/nightlight"
       "pidof"
+
+      "ollama"
+      "wireguard-tools"
+      "pcalc"
     ];
     casks = [
       # Software Development
@@ -200,7 +210,6 @@
       "notion"
       "obsidian" # best-in-class with mobile app support
       "raycast"
-      "remarkable"
       "zoom"
 
       # Android
@@ -221,7 +230,15 @@
       "slack"
       "telegram"
       "whatsapp"
+
+      "wezterm"
+      "lm-studio"
+      "obs" # for streaming
     ];
+    masApps = {
+      "Hidden Bar" = 1452453066;
+      "Remarkable Desktop" = 1276493162;
+    };
   };
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [

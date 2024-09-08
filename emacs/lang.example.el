@@ -260,6 +260,12 @@
   ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
   (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx)))
 
+;; https://github.com/immerrr/lua-mode
+(use-package lua-mode
+  :straight (lua-mode :type git
+                      :host github
+                      :repo "immerrr/lua-mode"))
+
 ;; https://github.com/clojure-emacs/clojure-mode
 (use-package clojure-mode
   :straight (clojure-mode :type git
@@ -316,6 +322,12 @@
   :straight (rust-mode :type git
                        :host github
                        :repo "rust-lang/rust-mode"))
+
+;; https://github.com/emacsorphanage/applescript-mode
+(use-package applescript-mode
+  :straight (applescript-mode :type git
+                              :host github
+                              :repo "emacsorphanage/applescript-mode"))
 
 ;; https://github.com/editorconfig/editorconfig-emacs#readme
 (use-package editorconfig
