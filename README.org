@@ -51,7 +51,6 @@ in
   ];
 
   nix = {
-    package = pkgs-bleeding.nixVersions.nix_2_13;
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
@@ -579,7 +578,7 @@ pkgs-bleeding = import nixpkgs-bleeding-src { };
 
 #+begin_src nix :noweb-ref common-packages
 pkgs-bleeding.niv
-pkgs-bleeding.nixVersions.nix_2_13
+pkgs-bleeding.nixVersions.nix_2_24
 #+end_src
 
 **** Shell
