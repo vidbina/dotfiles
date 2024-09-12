@@ -41,7 +41,6 @@
     vim
     xxd
     yq
-    inputs.linsk.packages.${system}.default
     inputs.devenv.packages.${system}.default
 
     devbox

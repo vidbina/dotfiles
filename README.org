@@ -1491,7 +1491,6 @@ tree-sitter
 vim
 xxd
 yq
-inputs.linsk.packages.${system}.default
 inputs.devenv.packages.${system}.default
 #+end_src
 
@@ -2324,6 +2323,14 @@ I have issues with my touchpad often enough and also have issues with Chromium h
 ***** Linux Input Debugging/Kernel Watching
 
 See https://lwn.net/Articles/658948/
+
+****** COMMENT Linsk
+
+In order to mount Linux partitions like ext4 under MacOS, we may want to use [[https://github.com/AlexSSD7/linsk][Linsk]].
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+inputs.linsk.packages.${system}.default
+#+end_src
 
 ****** COMMENT libinput
 
