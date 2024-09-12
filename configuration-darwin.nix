@@ -69,6 +69,12 @@
   # Necessary for using flakes on this system.
   nix.settings.experimental-features = "nix-command flakes";
 
+  # Adding trusted users for devenv to use Cachix
+  nix.settings.trusted-users = [
+    "root"
+    "vidbina"
+  ];
+
   # NOTE: Copied from home-linux.nix
   programs.gnupg.agent = {
     enable = true;

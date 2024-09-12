@@ -1535,6 +1535,17 @@ nix.package = pkgs.nix;
 nix.settings.experimental-features = "nix-command flakes";
 #+end_src
 
+**** Trusted users
+
+
+#+begin_src nix :noweb-ref nix-darwin
+# Adding trusted users for devenv to use Cachix
+nix.settings.trusted-users = [
+  "root"
+  "vidbina"
+];
+#+end_src
+
 *** Use gpg-agent
 
 #+begin_src nix :noweb-ref nix-darwin
