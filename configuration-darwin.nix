@@ -32,7 +32,7 @@
     pqrs
     nixpkgs-fmt
     redis
-    shell_gpt
+    shell-gpt
     shellcheck
     shfmt
     sqlite-interactive
