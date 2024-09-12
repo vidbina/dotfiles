@@ -32,7 +32,6 @@
     pqrs
     nixpkgs-fmt
     redis
-    rnix-lsp
     shell_gpt
     shellcheck
     shfmt

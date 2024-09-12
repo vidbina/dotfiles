@@ -1482,7 +1482,6 @@ pass
 pqrs
 nixpkgs-fmt
 redis
-rnix-lsp
 shell_gpt
 shellcheck
 shfmt
@@ -2278,7 +2277,7 @@ pkgs.ghcid
 #+end_src
 
 **** LSP
-***** Nix
+***** COMMENT Nix
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.rnix-lsp
