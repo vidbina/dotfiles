@@ -576,9 +576,10 @@ nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
 pkgs-bleeding = import nixpkgs-bleeding-src { };
 #+end_src
 
+***** COMMENT Niv
+
 #+begin_src nix :noweb-ref common-packages
 pkgs-bleeding.niv
-pkgs-bleeding.nixVersions.nix_2_24
 #+end_src
 
 **** Shell
