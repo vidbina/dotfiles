@@ -51,7 +51,6 @@ in
   ];
 
   nix = {
-    package = pkgs-bleeding.nixVersions.nix_2_13;
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
@@ -577,9 +576,10 @@ nixpkgs-bleeding-src = sources."nixpkgs-bleeding";
 pkgs-bleeding = import nixpkgs-bleeding-src { };
 #+end_src
 
+***** COMMENT Niv
+
 #+begin_src nix :noweb-ref common-packages
 pkgs-bleeding.niv
-pkgs-bleeding.nixVersions.nix_2_13
 #+end_src
 
 **** Shell
@@ -1482,8 +1482,7 @@ pass
 pqrs
 nixpkgs-fmt
 redis
-rnix-lsp
-shell_gpt
+shell-gpt
 shellcheck
 shfmt
 sqlite-interactive
@@ -1492,7 +1491,6 @@ tree-sitter
 vim
 xxd
 yq
-inputs.linsk.packages.${system}.default
 inputs.devenv.packages.${system}.default
 #+end_src
 
@@ -1531,10 +1529,21 @@ It follows that the amount of Intel-only packages will decrease as developers ma
 #+begin_src nix :noweb-ref nix-darwin
 # Auto upgrade nix package and the daemon service.
 services.nix-daemon.enable = true;
-# nix.package = pkgs.nix;
+nix.package = pkgs.nix;
 
 # Necessary for using flakes on this system.
 nix.settings.experimental-features = "nix-command flakes";
+#+end_src
+
+**** Trusted users
+
+
+#+begin_src nix :noweb-ref nix-darwin
+# Adding trusted users for devenv to use Cachix
+nix.settings.trusted-users = [
+  "root"
+  "vidbina"
+];
 #+end_src
 
 *** Use gpg-agent
@@ -2278,7 +2287,7 @@ pkgs.ghcid
 #+end_src
 
 **** LSP
-***** Nix
+***** COMMENT Nix
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.rnix-lsp
@@ -2325,6 +2334,14 @@ I have issues with my touchpad often enough and also have issues with Chromium h
 ***** Linux Input Debugging/Kernel Watching
 
 See https://lwn.net/Articles/658948/
+
+****** COMMENT Linsk
+
+In order to mount Linux partitions like ext4 under MacOS, we may want to use [[https://github.com/AlexSSD7/linsk][Linsk]].
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+inputs.linsk.packages.${system}.default
+#+end_src
 
 ****** COMMENT libinput
 

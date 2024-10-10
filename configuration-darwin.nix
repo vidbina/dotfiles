@@ -32,8 +32,7 @@
     pqrs
     nixpkgs-fmt
     redis
-    rnix-lsp
-    shell_gpt
+    shell-gpt
     shellcheck
     shfmt
     sqlite-interactive
@@ -42,7 +41,6 @@
     vim
     xxd
     yq
-    inputs.linsk.packages.${system}.default
     inputs.devenv.packages.${system}.default
 
     devbox
@@ -66,10 +64,16 @@
   # General nix-darwin settings
   # Auto upgrade nix package and the daemon service.
   services.nix-daemon.enable = true;
-  # nix.package = pkgs.nix;
+  nix.package = pkgs.nix;
 
   # Necessary for using flakes on this system.
   nix.settings.experimental-features = "nix-command flakes";
+
+  # Adding trusted users for devenv to use Cachix
+  nix.settings.trusted-users = [
+    "root"
+    "vidbina"
+  ];
 
   # NOTE: Copied from home-linux.nix
   programs.gnupg.agent = {

@@ -18,8 +18,7 @@ in
   ++ (pathIfExists ./personal.nix);
 
   home.packages = [
-    pkgs-bleeding.niv
-    pkgs-bleeding.nixVersions.nix_2_13
+
     pkgs.slack
     pkgs.discord
   ];
@@ -39,7 +38,6 @@ in
   ];
 
   nix = {
-    package = pkgs-bleeding.nixVersions.nix_2_13;
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
