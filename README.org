@@ -1186,6 +1186,7 @@ set number
 - [X] define Plug extensions
   #+begin_src vimrc :noweb-ref neovim-plugged
 call plug#begin("~/.local/share/nvim/plugged")
+  Plug 'neovim/nvim-lspconfig'
   Plug 'airblade/vim-gitgutter'
   Plug 'aklt/plantuml-syntax'
   Plug 'dense-analysis/ale'

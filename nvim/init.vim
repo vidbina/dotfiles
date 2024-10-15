@@ -1,5 +1,6 @@
 " Tangled from README.org
 call plug#begin("~/.local/share/nvim/plugged")
+  Plug 'neovim/nvim-lspconfig'
   Plug 'airblade/vim-gitgutter'
   Plug 'aklt/plantuml-syntax'
   Plug 'dense-analysis/ale'
