@@ -6608,6 +6608,16 @@ In order to edit Lua code for our neovim configs, Hammerspoon and just good meas
                       :repo "immerrr/lua-mode"))
 #+end_src
 
+*** Neovim and Vim
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/mcandre/vimrc-mode
+(use-package vimrc-mode
+  :straight (vimrc-mode :type git
+                      :host github
+                      :repo "mcandre/vimrc-mode"))
+#+end_src
+
 *** Clojure
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
