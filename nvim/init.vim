@@ -16,9 +16,9 @@ call plug#begin("~/.local/share/nvim/plugged")
   Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
   Plug 'LnL7/vim-nix'
   Plug 'majutsushi/tagbar'
-  " https://github.com/neoclide/coc.nvim
-  " Load VSCode extensions and host language servers
-  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+  "https://github.com/neoclide/coc.nvim
+  "Load VSCode extensions and host language servers
+  "Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'preservim/nerdtree'
   Plug 'prettier/vim-prettier'
   Plug 'purescript-contrib/purescript-vim'
