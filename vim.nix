@@ -54,5 +54,8 @@
       set ignorecase
       set nofoldenable
     '';
+    extraLuaConfig = ''
+      require'lspconfig'.gleam.setup{}
+    '';
   };
 }
