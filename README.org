@@ -1171,20 +1171,20 @@ ln -s ${PATH_TO_DOTFILE}/nvim ${HOME}/.config/nvim
 #+end_src
 
 - [X] set tabbing behavior (expand tabs to 2 spaces)
-  #+begin_src lua :noweb-ref neovim-config
+  #+begin_src vimrc :noweb-ref neovim-config
 set tabstop=2    " tab stop to 2 spaces
 set shiftwidth=2 " shift width by 2 spaces
 set expandtab    " expand tabs to spaces
   #+end_src
 - [X] enable mouse in all modes
-  #+begin_src lua :noweb-ref neovim-config
+  #+begin_src vimrc :noweb-ref neovim-config
 set mouse=a
 set number
 ":map <ScrollWheelUp> <C-Y>
 ":map <ScrollWheelDown> <C-E>
   #+end_src
 - [X] define Plug extensions
-  #+begin_src lua :noweb-ref neovim-plugged
+  #+begin_src vimrc :noweb-ref neovim-plugged
 call plug#begin("~/.local/share/nvim/plugged")
   Plug 'airblade/vim-gitgutter'
   Plug 'aklt/plantuml-syntax'
@@ -1220,7 +1220,7 @@ call plug#begin("~/.local/share/nvim/plugged")
 call plug#end()
   #+end_src
 - [X] Set remaining vim settings
-  #+begin_src lua :noweb-ref neovim-config
+  #+begin_src vimrc :noweb-ref neovim-config
 colorscheme dim
 
 let g:vim_markdown_frontmatter = 1
@@ -1236,7 +1236,7 @@ set nofoldenable
 
 We compose the different settings into init.vim and tangle the non-Pathogen-related stuff into our nix config (where we define vim packages through nix and therefore won't need Pathogen).
 
-#+begin_src lua :noweb yes :tangle nvim/init.vim
+#+begin_src vimrc :noweb yes :tangle nvim/init.vim
 " Tangled from README.org
 <<neovim-plugged>>
 <<neovim-config>>
