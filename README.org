@@ -2719,13 +2719,13 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
 *** Neovim packages
 
 #+begin_src nix :noweb-ref nvim-packages
-coc-nvim
 deoplete-notmuch
 elm-vim
 goyo-vim
 neoformat
 nerdtree
 nvim-treesitter
+nvim-lspconfig
 orgmode
 plantuml-syntax
 tabular

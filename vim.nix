@@ -8,13 +8,13 @@
     enable = true;
 
     plugins = with pkgs.vimPlugins; [
-      coc-nvim
       deoplete-notmuch
       elm-vim
       goyo-vim
       neoformat
       nerdtree
       nvim-treesitter
+      nvim-lspconfig
       orgmode
       plantuml-syntax
       tabular
