@@ -1725,7 +1725,7 @@ homebrew = {
 As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefers pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility.
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
-#"smudge/smudge/nightlight"
+"smudge/smudge/nightlight"
 "pidof"
 #+end_src
 

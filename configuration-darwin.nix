@@ -186,7 +186,7 @@
       ];
     };
     brews = [
-      #"smudge/smudge/nightlight"
+      "smudge/smudge/nightlight"
       "pidof"
 
       "ollama"
