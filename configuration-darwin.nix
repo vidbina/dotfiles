@@ -16,6 +16,7 @@
     checkmake
     exercism
     gh
+    gleam
     gnumake
     gnupg
     gotop
