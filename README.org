@@ -2287,6 +2287,12 @@ pkgs.ghc
 pkgs.ghcid
 #+end_src
 
+**** Gleam
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.gleam
+#+end_src
+
 **** LSP
 ***** COMMENT Nix
 
