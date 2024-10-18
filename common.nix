@@ -23,10 +23,12 @@ in
     pkgs.discord
   ];
 
-  home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
+  home.file = {
+    ".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
 
-  # TODO: Remove, likely not necessary
-  home.file.".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
+    # TODO: Remove, likely not necessary
+    ".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
+  };
 
   #home.file.".profile".text = ''
   #  PATH=${toString ./bin}:$HOME/.nix-profile/bin:$PATH

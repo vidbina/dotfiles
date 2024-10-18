@@ -36,10 +36,9 @@ in
     <<desktop-packages>>
   ];
 
-  home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
-
-  # TODO: Remove, likely not necessary
-  home.file.".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
+  home.file = {
+    <<common-home-files>>
+  };
 
   #home.file.".profile".text = ''
   #  PATH=${toString ./bin}:$HOME/.nix-profile/bin:$PATH
@@ -70,6 +69,13 @@ in
 
   <<common-programs>>
 }
+#+end_src
+
+#+begin_src nix :noweb-ref common-home-files
+".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
+
+# TODO: Remove, likely not necessary
+".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
 #+end_src
 
 **** Common Programs
@@ -496,7 +502,7 @@ home.packages = with pkgs; [
 # NOTE: Copied from dev.nix
 # TODO: Figure out how to re-use dev.nix config for Darwin and Linux
 home.file = {
-  ".config/git/ignore".source = ./git/ignore;
+  <<home-darwin-files>>
 };
 
 # No corresponding option in nix-darwin, so we config this with hm
@@ -2029,6 +2035,10 @@ programs.git = {
   enable = true;
   <<nix-devtools-git>>
 };
+#+end_src
+
+#+begin_src nix :noweb-ref home-darwin-files
+".config/git/ignore".source = ./git/ignore;
 #+end_src
 
 **** Global Gitignore
