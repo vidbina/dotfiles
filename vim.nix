@@ -13,7 +13,7 @@
       goyo-vim
       neoformat
       nerdtree
-      nvim-treesitter
+      nvim-treesitter.withAllGrammars
       nvim-lspconfig
       orgmode
       plantuml-syntax
