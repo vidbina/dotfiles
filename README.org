@@ -2729,22 +2729,25 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
 *** Neovim packages
 
 #+begin_src nix :noweb-ref nvim-packages
-deoplete-notmuch
-elm-vim
+# deoplete-notmuch
 goyo-vim
 neoformat
 nerdtree
-nvim-treesitter.withAllGrammars
-nvim-lspconfig
-orgmode
-plantuml-syntax
 tabular
 tagbar
-typescript-vim
 vim-airline
 vim-dim
 vim-fugitive
 vim-gitgutter
+#+end_src
+
+**** COMMENT Nvim Language Plugins
+
+#+begin_src nix :noweb-ref nvim-packages
+elm-vim
+orgmode
+plantuml-syntax
+typescript-vim
 vim-graphql
 vim-markdown
 vim-nix

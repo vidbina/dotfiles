@@ -8,29 +8,16 @@
     enable = true;
 
     plugins = with pkgs.vimPlugins; [
-      deoplete-notmuch
-      elm-vim
+      # deoplete-notmuch
       goyo-vim
       neoformat
       nerdtree
-      nvim-treesitter.withAllGrammars
-      nvim-lspconfig
-      orgmode
-      plantuml-syntax
       tabular
       tagbar
-      typescript-vim
       vim-airline
       vim-dim
       vim-fugitive
       vim-gitgutter
-      vim-graphql
-      vim-markdown
-      vim-nix
-      vim-prettier
-      vim-solidity
-      vim-terraform
-      wmgraphviz-vim
     ];
     vimdiffAlias = true;
     withRuby = true;
