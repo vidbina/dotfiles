@@ -2759,13 +2759,26 @@ wmgraphviz-vim
 
 *** Neovim LSP Config
 
+Install the [[https://github.com/neovim/nvim-lspconfig][nvim-lspconfig]] package for the LSP client configurations for various languages:
+
 #+begin_src nix :noweb-ref nvim-packages
 nvim-lspconfig
 #+end_src
 
+Configure lspconfig for the languages we have an interest in:
+
 #+begin_src lua :noweb-ref neovim-lua-config
 require'lspconfig'.gleam.setup{}
 #+end_src
+
+We map backslack + i (for info) to float the diagnostics window:
+
+#+begin_src lua :noweb-ref neovim-lua-config
+-- Float diagnostics window through custom mapping
+vim.keymap.set('n', '<Leader>i', function() vim.diagnostic.open_float(nil, {focus=false, scope='cursor'}) end)
+#+end_src
+
+See =:h mapleader= for info on the leader key which is set to backslack (=\=) by default. When different, try to run =:echo mapleader= from inside of vim to find out.
 
 *** Neovim Treesitter
 

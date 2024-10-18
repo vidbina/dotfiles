@@ -45,6 +45,8 @@
     '';
     extraLuaConfig = ''
       require'lspconfig'.gleam.setup{}
+      -- Float diagnostics window through custom mapping
+      vim.keymap.set('n', '<Leader>i', function() vim.diagnostic.open_float(nil, {focus=false, scope='cursor'}) end)
       require'nvim-treesitter.configs'.setup{
         highlight = {
           enable = true,
