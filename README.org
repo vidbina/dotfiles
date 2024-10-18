@@ -2039,6 +2039,7 @@ programs.git = {
 
 #+begin_src nix :noweb-ref home-darwin-files
 ".config/git/ignore".source = ./git/ignore;
+".wezterm.lua".source = ./wezterm/wezterm.lua;
 #+end_src
 
 **** Global Gitignore
