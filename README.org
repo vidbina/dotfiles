@@ -2757,10 +2757,35 @@ vim-terraform
 wmgraphviz-vim
 #+end_src
 
-*** Neovim Lua Config
+*** Neovim LSP Config
+
+#+begin_src nix :noweb-ref nvim-packages
+nvim-lspconfig
+#+end_src
 
 #+begin_src lua :noweb-ref neovim-lua-config
 require'lspconfig'.gleam.setup{}
+#+end_src
+
+*** Neovim Treesitter
+
+#+begin_src nix :noweb-ref nvim-packages
+nvim-treesitter.withAllGrammars
+#+end_src
+
+See https://github.com/nvim-treesitter/nvim-treesitter?tab=readme-ov-file#highlight
+
+#+begin_src lua :noweb-ref neovim-lua-config
+require'nvim-treesitter.configs'.setup{
+  highlight = {
+    enable = true,
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
 #+end_src
 
 *** Make Neovim default editor
