@@ -58,15 +58,21 @@
                                 enable-local-eval t
                                 auto-save-default nil
                                 org-babel-pre-tangle-hook '())
+                          (message "🧬 Async Org-Babel: exec from [%s] load from [%s]" ,exec-path ,load-path)
                           (package-initialize)
+                          (message "🧬 Async Org-Babel: package init completed")
+
                           (find-file ,(buffer-file-name))
+                          (message "🧬 Async Org-Babel: file [%s] found" ,(buffer-file-name))
                           (read-only-mode t)
                           (goto-char ,(point))
+                          (message "🧬 Async Org-Babel: point [%s] located" ,(point))
                           (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
+                          (message "🧬 Async Org-Babel: tangled [%s] in lang [%s]" ,target-file ,lang-re)
                           buffer-file-name)
-                      (error "🧬 Async Org-Babel is not visiting a file")))
+                      (error "🧬 Async Org-Babel: not visiting a file")))
                  `(lambda (result)
-                    (message "🧬 Async Org-Babel tangled %s" result))))
+                    (message "🧬 Async Org-Babel: completed [%s]" result))))
   ;; https://orgmode.org/manual/Structure-Templates.html
   (require 'org-tempo)
   ;; https://www.reddit.com/r/emacs/comments/c1b70i/best_way_to_include_source_code_blocks_in_a_latex/
