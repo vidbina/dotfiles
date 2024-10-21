@@ -41,6 +41,10 @@ set number
 ":map <ScrollWheelUp> <C-Y>
 ":map <ScrollWheelDown> <C-E>
 colorscheme dim
+" https://vi.stackexchange.com/a/45130
+set notermguicolor
+set t_Co=16
+
 
 let g:vim_markdown_frontmatter = 1
 let g:vim_markdown_math = 1
