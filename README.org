@@ -36,10 +36,9 @@ in
     <<desktop-packages>>
   ];
 
-  home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
-
-  # TODO: Remove, likely not necessary
-  home.file.".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
+  home.file = {
+    <<common-home-files>>
+  };
 
   #home.file.".profile".text = ''
   #  PATH=${toString ./bin}:$HOME/.nix-profile/bin:$PATH
@@ -70,6 +69,13 @@ in
 
   <<common-programs>>
 }
+#+end_src
+
+#+begin_src nix :noweb-ref common-home-files
+".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
+
+# TODO: Remove, likely not necessary
+".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
 #+end_src
 
 **** Common Programs
@@ -452,11 +458,11 @@ Pay attention to trigger the correct disk identifier (note that the numbers in t
 
 #+begin_src bash
 sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels
-#+end_src bash
+#+end_src
 
 After this, I restart the installation process.
 
-Reading [[a comment on jmatsushita's config][https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4054744#gistcomment-4054744]] led me to believe that the removal of ~/.nix-profile may have broken my system further but then it seems that nix-darwin uses global profiles instead of user-based profiles, which suggests that the existence of ~/.nix-profile may have been a remnant of my pre-nix-darwin use of home-manager. For now it seems that enabling the emacs service in nix-darwin does not immediately expose a CLI-accessible command. I've resorted to enabling the service along with installing emacs as a systemPackage but I have to first confirm if the emacs service alone yields a system that exposes the emacs command in a standard shell.
+Reading [[https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4054744#gistcomment-4054744][a comment on jmatsushita's config]] led me to believe that the removal of ~/.nix-profile may have broken my system further but then it seems that nix-darwin uses global profiles instead of user-based profiles, which suggests that the existence of ~/.nix-profile may have been a remnant of my pre-nix-darwin use of home-manager. For now it seems that enabling the emacs service in nix-darwin does not immediately expose a CLI-accessible command. I've resorted to enabling the service along with installing emacs as a systemPackage but I have to first confirm if the emacs service alone yields a system that exposes the emacs command in a standard shell.
 
 **** Handling =ls: .: Operation not permitted= errors
 
@@ -496,7 +502,7 @@ home.packages = with pkgs; [
 # NOTE: Copied from dev.nix
 # TODO: Figure out how to re-use dev.nix config for Darwin and Linux
 home.file = {
-  ".config/git/ignore".source = ./git/ignore;
+  <<home-darwin-files>>
 };
 
 # No corresponding option in nix-darwin, so we config this with hm
@@ -1074,7 +1080,7 @@ services.trayer = {
 
 ** The more tedious and manual way: without home-manager
 
-The tedious way basically requires one to make symlinks from the needed locations into this dotfiles repository. There are a number of ways how one can simplify this experience ranging from manually symlinking everything that you would need all the way up to using a [[id:home-manager][home-manager]] alternative like GNU Stow to manage these symlinks for you (and minimize the toil on your end).
+The tedious way basically requires one to make symlinks from the needed locations into this dotfiles repository. There are a number of ways how one can simplify this experience ranging from manually symlinking everything that you would need all the way up to using a home-manager alternative like GNU Stow to manage these symlinks for you (and minimize the toil on your end).
 
 This is a listing of the symlinks that I could track in my home directory right before moving over to home-manager. I may have missed some, but largely this covers much of what I have packaged in this repository so it should be relatively complete.
 
@@ -1223,6 +1229,10 @@ call plug#end()
 - [X] Set remaining vim settings
   #+begin_src vimrc :noweb-ref neovim-config
 colorscheme dim
+" https://vi.stackexchange.com/a/45130
+set notermguicolors
+set t_Co=16
+
 
 let g:vim_markdown_frontmatter = 1
 let g:vim_markdown_math = 1
@@ -1467,6 +1477,7 @@ bat
 checkmake
 exercism
 gh
+gleam
 gnumake
 gnupg
 gotop
@@ -2030,6 +2041,11 @@ programs.git = {
 };
 #+end_src
 
+#+begin_src nix :noweb-ref home-darwin-files
+".config/git/ignore".source = ./git/ignore;
+".wezterm.lua".source = ./wezterm/wezterm.lua;
+#+end_src
+
 **** Global Gitignore
 
 For convenience we define [[file:git/ignore]] which we want to automatically want to honor in every repo. Based on the instructions in =man gitignore= we stub the =XDG_HOME_CONFIG/.config/git/ignore= and the =~/.gitignore= files to reflect the content of [[file:git/ignore]].
@@ -2141,6 +2157,14 @@ pkgs.gh
 #+end_src
 
 *** Utils
+
+**** Coreutils
+
+Sometimes we need GNU CLI utils, such as for dired in Emacs which expects the GNU ls variant which offers the =--dired= option. Install [[https://formulae.brew.sh/formula/coreutils][coreutils]] coreutils for this capability and note that for all utils that already have MacOS-native equivalents the GNU-equivalent will be prefixed with =g= such that the GNU =ls= tool is now accessed through =gls=:
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"coreutils"
+#+end_src
 
 **** Development Environments
 
@@ -2285,6 +2309,12 @@ pkgs.glibc
 #+begin_src nix :noweb-ref dev-packages
 pkgs.ghc
 pkgs.ghcid
+#+end_src
+
+**** Gleam
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.gleam
 #+end_src
 
 **** LSP
@@ -2722,22 +2752,25 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
 *** Neovim packages
 
 #+begin_src nix :noweb-ref nvim-packages
-deoplete-notmuch
-elm-vim
+# deoplete-notmuch
 goyo-vim
 neoformat
 nerdtree
-nvim-treesitter
-nvim-lspconfig
-orgmode
-plantuml-syntax
 tabular
 tagbar
-typescript-vim
 vim-airline
 vim-dim
 vim-fugitive
 vim-gitgutter
+#+end_src
+
+**** COMMENT Nvim Language Plugins
+
+#+begin_src nix :noweb-ref nvim-packages
+elm-vim
+orgmode
+plantuml-syntax
+typescript-vim
 vim-graphql
 vim-markdown
 vim-nix
@@ -2747,10 +2780,48 @@ vim-terraform
 wmgraphviz-vim
 #+end_src
 
-*** Neovim Lua Config
+*** Neovim LSP Config
+
+Install the [[https://github.com/neovim/nvim-lspconfig][nvim-lspconfig]] package for the LSP client configurations for various languages:
+
+#+begin_src nix :noweb-ref nvim-packages
+nvim-lspconfig
+#+end_src
+
+Configure lspconfig for the languages we have an interest in:
 
 #+begin_src lua :noweb-ref neovim-lua-config
 require'lspconfig'.gleam.setup{}
+#+end_src
+
+We map backslack + i (for info) to float the diagnostics window:
+
+#+begin_src lua :noweb-ref neovim-lua-config
+-- Float diagnostics window through custom mapping
+vim.keymap.set('n', '<Leader>i', function() vim.diagnostic.open_float(nil, {focus=false, scope='cursor'}) end)
+#+end_src
+
+See =:h mapleader= for info on the leader key which is set to backslack (=\=) by default. When different, try to run =:echo mapleader= from inside of vim to find out.
+
+*** Neovim Treesitter
+
+#+begin_src nix :noweb-ref nvim-packages
+nvim-treesitter.withAllGrammars
+#+end_src
+
+See https://github.com/nvim-treesitter/nvim-treesitter?tab=readme-ov-file#highlight
+
+#+begin_src lua :noweb-ref neovim-lua-config
+require'nvim-treesitter.configs'.setup{
+  highlight = {
+    enable = true,
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
 #+end_src
 
 *** Make Neovim default editor

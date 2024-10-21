@@ -47,9 +47,10 @@
   (defun org-babel-tangle-async (&optional arg target-file lang-re)
     "Call `org-babel-tangle' asynchronously"
     (interactive "P")
-    (message "🧬 Async Org-Babel start tangling %s" buffer-file-name)
+    (message "🧬 Async Org-Babel: start tangle [%s]" buffer-file-name)
     (run-hooks 'org-babel-pre-tangle-hook)
     (async-start `(lambda ()
+                    (message "🧬 Async Org-Babel: lambda start")
                     (if (and (stringp ,buffer-file-name)
                              (file-exists-p ,buffer-file-name))
                         (progn
@@ -58,15 +59,26 @@
                                 enable-local-eval t
                                 auto-save-default nil
                                 org-babel-pre-tangle-hook '())
+                          (print (format "🧬 Async Org-Babel: exec from [%s] load from [%s]" exec-path load-path))
                           (package-initialize)
+                          (print (format "🧬 Async Org-Babel: package init completed"))
+
                           (find-file ,(buffer-file-name))
+                          (print (format "🧬 Async Org-Babel: file [%s] found" ,buffer-file-name))
                           (read-only-mode t)
                           (goto-char ,(point))
+                          (print (format "🧬 Async Org-Babel: point [%s] located" ,(point)))
+
+                          (print (format "🧬 Async Org-Babel: auto confirm babel eval"))
+                          (setq-local org-confirm-babel-evaluate nil)
+
+                          (print (format "🧬 Async Org-Babel:\n\targ [%s]\n\ttarget [%s]\n\tlang [%s]" ,arg , target-file ,lang-re))
                           (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
+                          (print (format "🧬 Async Org-Babel: tangled"))
                           buffer-file-name)
-                      (error "🧬 Async Org-Babel is not visiting a file")))
+                      (error "🧬 Async Org-Babel: not visiting a file")))
                  `(lambda (result)
-                    (message "🧬 Async Org-Babel tangled %s" result))))
+                    (message "🧬 Async Org-Babel: completed [%s]" result))))
   ;; https://orgmode.org/manual/Structure-Templates.html
   (require 'org-tempo)
   ;; https://www.reddit.com/r/emacs/comments/c1b70i/best_way_to_include_source_code_blocks_in_a_latex/
@@ -984,3 +996,8 @@
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file t)
+
+;; https://stackoverflow.com/a/42038174
+(when (string= system-type "darwin")
+  (setq insert-directory-program "/opt/homebrew/bin/gls")
+  (setq dired-use-ls-dired t))

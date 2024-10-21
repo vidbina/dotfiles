@@ -16,6 +16,7 @@
     checkmake
     exercism
     gh
+    gleam
     gnumake
     gnupg
     gotop
@@ -188,6 +189,7 @@
       "smudge/smudge/nightlight"
       "pidof"
 
+      "coreutils"
       "ollama"
       "wireguard-tools"
       "pcalc"

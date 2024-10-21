@@ -527,7 +527,7 @@ Tangling sometimes takes a fair amount of time that we can't always afford to wa
 (defun org-babel-tangle-async (&optional arg target-file lang-re)
   "Call `org-babel-tangle' asynchronously"
   (interactive "P")
-  (message "🧬 Async Org-Babel start tangling %s" buffer-file-name)
+  (message "🧬 Async Org-Babel: start tangle [%s]" buffer-file-name)
   <<org-babel-tangle-async-start>>)
 #+end_src
 
@@ -551,6 +551,7 @@ It's unclear if the use of =find-file= is a really bad idea. I've considered tha
 
 #+begin_src elisp :noweb-ref org-babel-tangle-async-start
 (async-start `(lambda ()
+                (message "🧬 Async Org-Babel: lambda start")
                 (if (and (stringp ,buffer-file-name)
                          (file-exists-p ,buffer-file-name))
                     (progn
@@ -559,15 +560,26 @@ It's unclear if the use of =find-file= is a really bad idea. I've considered tha
                             enable-local-eval t
                             auto-save-default nil
                             org-babel-pre-tangle-hook '())
+                      (print (format "🧬 Async Org-Babel: exec from [%s] load from [%s]" exec-path load-path))
                       (package-initialize)
+                      (print (format "🧬 Async Org-Babel: package init completed"))
+
                       (find-file ,(buffer-file-name))
+                      (print (format "🧬 Async Org-Babel: file [%s] found" ,buffer-file-name))
                       (read-only-mode t)
                       (goto-char ,(point))
+                      (print (format "🧬 Async Org-Babel: point [%s] located" ,(point)))
+
+                      (print (format "🧬 Async Org-Babel: auto confirm babel eval"))
+                      (setq-local org-confirm-babel-evaluate nil)
+
+                      (print (format "🧬 Async Org-Babel:\n\targ [%s]\n\ttarget [%s]\n\tlang [%s]" ,arg , target-file ,lang-re))
                       (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
+                      (print (format "🧬 Async Org-Babel: tangled"))
                       buffer-file-name)
-                  (error "🧬 Async Org-Babel is not visiting a file")))
+                  (error "🧬 Async Org-Babel: not visiting a file")))
              `(lambda (result)
-                (message "🧬 Async Org-Babel tangled %s" result)))
+                (message "🧬 Async Org-Babel: completed [%s]" result)))
 #+end_src
 
 **** TODO Contrast current with =org-export-async-start= implementation
@@ -6608,7 +6620,7 @@ In order to edit Lua code for our neovim configs, Hammerspoon and just good meas
                       :repo "immerrr/lua-mode"))
 #+end_src
 
-*** Neovim and Vim
+*** Vim
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/mcandre/vimrc-mode
@@ -7938,6 +7950,24 @@ In order to switch themes automatically when the macOS system theme changes, we 
     :hook (auto-dark-light-mode-hook . vidbina/theme-switch-to-light))
     :config (auto-dark-mode t))
 #+end_src
+
+**** Account of lacking =--dired= support in =ls= for MacOS
+
+On MacOS the ls util does not support the =--dired= flag which may result in the following error:
+
+#+begin_src txt
+insert-directory: Listing directory failed but ‘access-file’ worked
+#+end_src
+
+Address this by using ls from coreutils instead of the MacOS-native variant.
+
+#+begin_src elisp :tangle init.el
+;; https://stackoverflow.com/a/42038174
+(when (string= system-type "darwin")
+  (setq insert-directory-program "/opt/homebrew/bin/gls")
+  (setq dired-use-ls-dired t))
+#+end_src
+
 
 *** Package overlays
 **** <<nix-overlays-linux>> GNU/Linux Overlays

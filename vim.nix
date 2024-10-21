@@ -8,29 +8,18 @@
     enable = true;
 
     plugins = with pkgs.vimPlugins; [
-      deoplete-notmuch
-      elm-vim
+      # deoplete-notmuch
       goyo-vim
       neoformat
       nerdtree
-      nvim-treesitter
-      nvim-lspconfig
-      orgmode
-      plantuml-syntax
       tabular
       tagbar
-      typescript-vim
       vim-airline
       vim-dim
       vim-fugitive
       vim-gitgutter
-      vim-graphql
-      vim-markdown
-      vim-nix
-      vim-prettier
-      vim-solidity
-      vim-terraform
-      wmgraphviz-vim
+      nvim-lspconfig
+      nvim-treesitter.withAllGrammars
     ];
     vimdiffAlias = true;
     withRuby = true;
@@ -43,6 +32,10 @@
       ":map <ScrollWheelUp> <C-Y>
       ":map <ScrollWheelDown> <C-E>
       colorscheme dim
+      " https://vi.stackexchange.com/a/45130
+      set notermguicolors
+      set t_Co=16
+
 
       let g:vim_markdown_frontmatter = 1
       let g:vim_markdown_math = 1
@@ -56,6 +49,18 @@
     '';
     extraLuaConfig = ''
       require'lspconfig'.gleam.setup{}
+      -- Float diagnostics window through custom mapping
+      vim.keymap.set('n', '<Leader>i', function() vim.diagnostic.open_float(nil, {focus=false, scope='cursor'}) end)
+      require'nvim-treesitter.configs'.setup{
+        highlight = {
+          enable = true,
+          -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+          -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+          -- Using this option may slow down your editor, and you may see some duplicate highlights.
+          -- Instead of true it can also be a list of languages
+          additional_vim_regex_highlighting = false,
+        },
+      }
     '';
   };
 }
