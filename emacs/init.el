@@ -984,3 +984,8 @@
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file t)
+
+;; https://stackoverflow.com/a/42038174
+(when (string= system-type "darwin")
+  (setq insert-directory-program "/opt/homebrew/bin/gls")
+  (setq dired-use-ls-dired t))

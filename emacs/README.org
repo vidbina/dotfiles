@@ -7939,6 +7939,24 @@ In order to switch themes automatically when the macOS system theme changes, we 
     :config (auto-dark-mode t))
 #+end_src
 
+**** Account of lacking =--dired= support in =ls= for MacOS
+
+On MacOS the ls util does not support the =--dired= flag which may result in the following error:
+
+#+begin_src txt
+insert-directory: Listing directory failed but ‘access-file’ worked
+#+end_src
+
+Address this by using ls from coreutils instead of the MacOS-native variant.
+
+#+begin_src elisp :tangle init.el
+;; https://stackoverflow.com/a/42038174
+(when (string= system-type "darwin")
+  (setq insert-directory-program "/opt/homebrew/bin/gls")
+  (setq dired-use-ls-dired t))
+#+end_src
+
+
 *** Package overlays
 **** <<nix-overlays-linux>> GNU/Linux Overlays
 
