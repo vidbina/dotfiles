@@ -2158,6 +2158,14 @@ pkgs.gh
 
 *** Utils
 
+**** Coreutils
+
+Sometimes we need GNU CLI utils, such as for dired in Emacs which expects the GNU ls variant which offers the =--dired= option. Install [[https://formulae.brew.sh/formula/coreutils][coreutils]] coreutils for this capability and note that for all utils that already have MacOS-native equivalents the GNU-equivalent will be prefixed with =g= such that the GNU =ls= tool is now accessed through =gls=:
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"coreutils"
+#+end_src
+
 **** Development Environments
 
 ***** Devbox

@@ -189,6 +189,7 @@
       "smudge/smudge/nightlight"
       "pidof"
 
+      "coreutils"
       "ollama"
       "wireguard-tools"
       "pcalc"
