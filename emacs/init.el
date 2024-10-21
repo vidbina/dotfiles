@@ -68,8 +68,13 @@
                           (read-only-mode t)
                           (goto-char ,(point))
                           (print (format "🧬 Async Org-Babel: point [%s] located" ,(point)))
+
+                          (print (format "🧬 Async Org-Babel: auto confirm babel eval"))
+                          (setq-local org-confirm-babel-evaluate nil)
+
+                          (print (format "🧬 Async Org-Babel:\n\targ [%s]\n\ttarget [%s]\n\tlang [%s]" ,arg , target-file ,lang-re))
                           (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
-                          (print (format "🧬 Async Org-Babel: tangled [%s] in lang [%s]" ,target-file ,lang-re))
+                          (print (format "🧬 Async Org-Babel: tangled"))
                           buffer-file-name)
                       (error "🧬 Async Org-Babel: not visiting a file")))
                  `(lambda (result)
