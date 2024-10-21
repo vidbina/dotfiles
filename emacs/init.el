@@ -47,7 +47,7 @@
   (defun org-babel-tangle-async (&optional arg target-file lang-re)
     "Call `org-babel-tangle' asynchronously"
     (interactive "P")
-    (message "🧬 Async Org-Babel start tangling %s" buffer-file-name)
+    (message "🧬 Async Org-Babel: start tangle [%s]" buffer-file-name)
     (run-hooks 'org-babel-pre-tangle-hook)
     (async-start `(lambda ()
                     (if (and (stringp ,buffer-file-name)

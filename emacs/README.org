@@ -527,7 +527,7 @@ Tangling sometimes takes a fair amount of time that we can't always afford to wa
 (defun org-babel-tangle-async (&optional arg target-file lang-re)
   "Call `org-babel-tangle' asynchronously"
   (interactive "P")
-  (message "🧬 Async Org-Babel start tangling %s" buffer-file-name)
+  (message "🧬 Async Org-Babel: start tangle [%s]" buffer-file-name)
   <<org-babel-tangle-async-start>>)
 #+end_src
 
