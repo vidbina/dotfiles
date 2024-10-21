@@ -458,11 +458,11 @@ Pay attention to trigger the correct disk identifier (note that the numbers in t
 
 #+begin_src bash
 sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels
-#+end_src bash
+#+end_src
 
 After this, I restart the installation process.
 
-Reading [[a comment on jmatsushita's config][https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4054744#gistcomment-4054744]] led me to believe that the removal of ~/.nix-profile may have broken my system further but then it seems that nix-darwin uses global profiles instead of user-based profiles, which suggests that the existence of ~/.nix-profile may have been a remnant of my pre-nix-darwin use of home-manager. For now it seems that enabling the emacs service in nix-darwin does not immediately expose a CLI-accessible command. I've resorted to enabling the service along with installing emacs as a systemPackage but I have to first confirm if the emacs service alone yields a system that exposes the emacs command in a standard shell.
+Reading [[https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4054744#gistcomment-4054744][a comment on jmatsushita's config]] led me to believe that the removal of ~/.nix-profile may have broken my system further but then it seems that nix-darwin uses global profiles instead of user-based profiles, which suggests that the existence of ~/.nix-profile may have been a remnant of my pre-nix-darwin use of home-manager. For now it seems that enabling the emacs service in nix-darwin does not immediately expose a CLI-accessible command. I've resorted to enabling the service along with installing emacs as a systemPackage but I have to first confirm if the emacs service alone yields a system that exposes the emacs command in a standard shell.
 
 **** Handling =ls: .: Operation not permitted= errors
 
@@ -1080,7 +1080,7 @@ services.trayer = {
 
 ** The more tedious and manual way: without home-manager
 
-The tedious way basically requires one to make symlinks from the needed locations into this dotfiles repository. There are a number of ways how one can simplify this experience ranging from manually symlinking everything that you would need all the way up to using a [[id:home-manager][home-manager]] alternative like GNU Stow to manage these symlinks for you (and minimize the toil on your end).
+The tedious way basically requires one to make symlinks from the needed locations into this dotfiles repository. There are a number of ways how one can simplify this experience ranging from manually symlinking everything that you would need all the way up to using a home-manager alternative like GNU Stow to manage these symlinks for you (and minimize the toil on your end).
 
 This is a listing of the symlinks that I could track in my home directory right before moving over to home-manager. I may have missed some, but largely this covers much of what I have packaged in this repository so it should be relatively complete.
 
