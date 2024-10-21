@@ -50,6 +50,7 @@
     (message "🧬 Async Org-Babel: start tangle [%s]" buffer-file-name)
     (run-hooks 'org-babel-pre-tangle-hook)
     (async-start `(lambda ()
+                    (message "🧬 Async Org-Babel: lambda start")
                     (if (and (stringp ,buffer-file-name)
                              (file-exists-p ,buffer-file-name))
                         (progn

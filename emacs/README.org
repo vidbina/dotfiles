@@ -551,6 +551,7 @@ It's unclear if the use of =find-file= is a really bad idea. I've considered tha
 
 #+begin_src elisp :noweb-ref org-babel-tangle-async-start
 (async-start `(lambda ()
+                (message "🧬 Async Org-Babel: lambda start")
                 (if (and (stringp ,buffer-file-name)
                          (file-exists-p ,buffer-file-name))
                     (progn
