@@ -42,7 +42,7 @@ set number
 ":map <ScrollWheelDown> <C-E>
 colorscheme dim
 " https://vi.stackexchange.com/a/45130
-set notermguicolor
+set notermguicolors
 set t_Co=16
 
 
