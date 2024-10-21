@@ -266,6 +266,12 @@
                       :host github
                       :repo "immerrr/lua-mode"))
 
+;; https://github.com/mcandre/vimrc-mode
+(use-package vimrc-mode
+  :straight (vimrc-mode :type git
+                      :host github
+                      :repo "mcandre/vimrc-mode"))
+
 ;; https://github.com/clojure-emacs/clojure-mode
 (use-package clojure-mode
   :straight (clojure-mode :type git

@@ -6608,7 +6608,7 @@ In order to edit Lua code for our neovim configs, Hammerspoon and just good meas
                       :repo "immerrr/lua-mode"))
 #+end_src
 
-*** Neovim and Vim
+*** Vim
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/mcandre/vimrc-mode
