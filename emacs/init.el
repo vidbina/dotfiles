@@ -58,12 +58,12 @@
                                 enable-local-eval t
                                 auto-save-default nil
                                 org-babel-pre-tangle-hook '())
-                          (message "🧬 Async Org-Babel: exec from [%s] load from [%s]" ,exec-path ,load-path)
+                          (message "🧬 Async Org-Babel: exec from [%s] load from [%s]" exec-path load-path)
                           (package-initialize)
                           (message "🧬 Async Org-Babel: package init completed")
 
                           (find-file ,(buffer-file-name))
-                          (message "🧬 Async Org-Babel: file [%s] found" ,(buffer-file-name))
+                          (message "🧬 Async Org-Babel: file [%s] found" ,buffer-file-name)
                           (read-only-mode t)
                           (goto-char ,(point))
                           (message "🧬 Async Org-Babel: point [%s] located" ,(point))
