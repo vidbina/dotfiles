@@ -373,6 +373,7 @@
           (json-mode . json-ts-mode)
           (yaml-mode . yaml-ts-mode)
           (python-mode . python-ts-mode)
+          (gleam-mode . gleam-ts-mode)
           (bash-mode . bash-ts-mode)
           (js2-mode . js-ts-mode)
           (css-mode . css-ts-mode)

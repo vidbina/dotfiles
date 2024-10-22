@@ -6645,6 +6645,12 @@ For treesitter, we install the necessary grammar as mentioned in the [[https://g
 (gleam . ("https://github.com/gleam-lang/tree-sitter-gleam"))
 #+end_src
 
+For the ease of use, we configure the Gleam-specific bit for =major-mode-remap-alist=:
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(gleam-mode . gleam-ts-mode)
+#+end_src
+
 *** Lua
 
 In order to edit Lua code for our neovim configs, Hammerspoon and just good measure because Lua isn't that uncommon of a language to bump into, we install the [[https://github.com/immerrr/lua-mode][lua-mode package]].
