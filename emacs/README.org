@@ -6999,6 +6999,17 @@ Automatically installs treesitter grammars and calls the function ~treesit-insta
 
 Failing with =void-variable treesit-language-source-alist=
 
+**** COMMENT tree-sitter-indent
+
+#+begin_src elisp :tangle lang.example.el
+;; https://codeberg.org/FelipeLema/tree-sitter-indent.el
+(straight-use-package
+ '(tree-sitter-indent :type git
+                      :repo "https://codeberg.org/FelipeLema/tree-sitter-indent.el.git"
+                      :branch "main"
+                      :files ("tree-sitter-indent.el")))
+#+end_src
+
 *** Structural Editing
 
 Structural editing allows us to treat structural units of code with specific actions like movement, splicing and selection.
