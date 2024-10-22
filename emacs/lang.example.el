@@ -260,6 +260,12 @@
   ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
   (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx)))
 
+;; https://github.com/gleam-lang/gleam-mode
+(use-package gleam-ts-mode
+  :straight (gleam-ts-mode :type git
+                           :host github
+                           :repo "gleam-lang/gleam-mode"))
+
 ;; https://github.com/immerrr/lua-mode
 (use-package lua-mode
   :straight (lua-mode :type git
@@ -364,6 +370,7 @@
   :init
   (setq treesit-language-source-alist
         '(
+          (gleam . ("https://github.com/gleam-lang/tree-sitter-gleam"))
           (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
           (c . ("https://github.com/tree-sitter/tree-sitter-c"))
           (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))

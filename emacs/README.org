@@ -6609,6 +6609,22 @@ Commenting this out since it bootstraps LSP-mode which we're avoiding as we're g
                       :repo "emacs-lsp/lsp-java"))
 #+end_src
 
+*** Gleam
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/gleam-lang/gleam-mode
+(use-package gleam-ts-mode
+  :straight (gleam-ts-mode :type git
+                           :host github
+                           :repo "gleam-lang/gleam-mode"))
+#+end_src
+
+For treesitter, we install the necessary grammar as mentioned in the [[https://github.com/tree-sitter/tree-sitter/pull/1876/files][PR listing the official Gleam grammar]]:
+
+#+begin_src elisp :noweb-ref treesit-languages
+(gleam . ("https://github.com/gleam-lang/tree-sitter-gleam"))
+#+end_src
+
 *** Lua
 
 In order to edit Lua code for our neovim configs, Hammerspoon and just good measure because Lua isn't that uncommon of a language to bump into, we install the [[https://github.com/immerrr/lua-mode][lua-mode package]].
