@@ -6881,15 +6881,27 @@ https://emacs-tree-sitter.github.io/installation/#installing-with-straight-dot-e
 
 **** tree-sitter major mode mappings
 
-#+begin_src elisp :noweb-ref treesit-config
+We define the major mode remap assoc list in order to tighten the treesitter config:
+
+#+begin_src elisp :noweb yes :noweb-ref treesit-config
 (setq major-mode-remap-alist
-      '((yaml-mode . yaml-ts-mode)
-        (bash-mode . bash-ts-mode)
-        (js2-mode . js-ts-mode)
-        (typescript-mode . typescript-ts-mode)
-        (json-mode . json-ts-mode)
-        (css-mode . css-ts-mode)
-        (python-mode . python-ts-mode)))
+      '(
+        <<treesit-config-major-mode-remap>>
+        ))
+#+end_src
+
+Individual language settings are tangled into our =setq= above in order to simplify splitting of this part of the config across the language-specific section. We do this for the first time for the Gleam setup.
+
+***** TODO Split language major mode remapping configuration across language sections
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(yaml-mode . yaml-ts-mode)
+(bash-mode . bash-ts-mode)
+(js2-mode . js-ts-mode)
+(typescript-mode . typescript-ts-mode)
+(json-mode . json-ts-mode)
+(css-mode . css-ts-mode)
+(python-mode . python-ts-mode)
 #+end_src
 
 **** tree-sitter extension mappings
