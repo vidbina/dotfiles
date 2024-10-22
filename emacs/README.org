@@ -5166,7 +5166,8 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 
 #+begin_src elisp :tangle personal-example.el
 (defun vidbina/browse-url-xsel (url &optional ignored)
-  (shell-command (format "echo \"%s\" | xsel -ib" url)))
+  (message "🌐 Browse: copy url [%s]" url)
+  (kill-new url))
 
 (setq browse-url-browser-function 'vidbina/browse-url-xsel)
 
@@ -5175,7 +5176,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (progn
     (when (derived-mode-p 'html-mode)
       (progn
-        (message (concat "Browse " buffer-file-name))
+        (message "🌐 Browse: open file [%s]" buffer-file-name)
         (browse-url (file-truename buffer-file-name))))))
 
 (add-hook 'after-save-hook 'vidbina/browse-to-current-file)
