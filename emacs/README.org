@@ -6424,7 +6424,8 @@ Inspired from https://robbmann.io/posts/emacs-eglot-pyrightconfig/
                      :repo "dominikh/go-mode.el"))
 #+end_src
 
-*** JavaScript (ECMAScript or ES)
+*** JavaScript
+**** Js-Comint: JavaScript Interpreter
 
 Since JavaScript is everywhere, let's make sure we can at least read it with ease.
 
@@ -6447,7 +6448,9 @@ Since JavaScript is everywhere, let's make sure we can at least read it with eas
 
 Superset of JavaScript that folks really should be using instead of just vanilla JS but we're not here to judge. 🤷🏿‍♂️
 
-***** TSI
+Note that Emacs not bundles =typescript-ts-mode= so we may not need to install a separate package for this. As per <2024-10-22 Tue>, we are commenting-out all custom config regarding TypeScript.
+
+***** COMMENT TSI
 
 https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/#ensure-for-tsx-configure-for-tree-sitter-based-indentation
 
@@ -6479,7 +6482,7 @@ https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-
          '(tsx-ts-mode . ("typescript-language-server" "--stdio")))))
 #+end_src
 
-**** PROTOTYPE Typescript-mode
+**** PROTOTYPE COMMENT Typescript-mode
 :LOGBOOK:
 - State "PROTOTYPE"  from "CANCELED"   [2023-07-04 Tue 20:44] \\
   Reopening typescript-mode as there seems to be a bit of a disconnect between major modes and the tree-sitter major modes that I really need to understand.

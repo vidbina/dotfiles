@@ -235,31 +235,6 @@
   :custom
   (js-indent-level 2))
 
-;; https://github.com/emacs-typescript/typescript.el
-(use-package typescript-mode
-  :straight
-  (typescript-mode :type git
-                   :host github
-                   :repo "emacs-typescript/typescript.el")
-  :after flyspell tree-sitter
-  :delight
-  (typescript-mode "ts")
-  :custom
-  (typescript-indent-level 2)
-
-  ;; https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/#ensure-for-tsx-configure-for-tree-sitter-based-indentation
-  :config
-  ;; we choose this instead of tsx-mode so that eglot can automatically figure out language for server
-  ;; see https://github.com/joaotavora/eglot/issues/624 and https://github.com/joaotavora/eglot#handling-quirky-servers
-  (define-derived-mode typescriptreact-mode typescript-mode
-    "TypeScript TSX")
-
-  ;; use our derived mode for tsx files
-  (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . typescriptreact-mode))
-  ;; by default, typescript-mode is mapped to the treesitter typescript parser
-  ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
-  (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx)))
-
 ;; https://github.com/gleam-lang/gleam-mode
 (use-package gleam-ts-mode
   :straight (gleam-ts-mode :type git
@@ -398,7 +373,6 @@
           (json-mode . json-ts-mode)
           (yaml-mode . yaml-ts-mode)
           (python-mode . python-ts-mode)
-          (typescript-mode . typescript-ts-mode)
           (bash-mode . bash-ts-mode)
           (js2-mode . js-ts-mode)
           (css-mode . css-ts-mode)
