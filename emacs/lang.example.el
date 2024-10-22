@@ -395,13 +395,13 @@
   :config
   (setq major-mode-remap-alist
         '(
+          (json-mode . json-ts-mode)
           (yaml-mode . yaml-ts-mode)
+          (python-mode . python-ts-mode)
+          (typescript-mode . typescript-ts-mode)
           (bash-mode . bash-ts-mode)
           (js2-mode . js-ts-mode)
-          (typescript-mode . typescript-ts-mode)
-          (json-mode . json-ts-mode)
           (css-mode . css-ts-mode)
-          (python-mode . python-ts-mode)
           ))
   (add-to-list 'auto-mode-alist '("\\.[tj]sx?\\'" . tsx-ts-mode))
   (defun nf/treesit-install-all-languages ()

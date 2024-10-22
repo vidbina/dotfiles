@@ -5735,6 +5735,11 @@ Some of the relevant keybindings are:
 - =C-c C-f= format region or buffer with =json-reformat=
 - =c-c P= copy path to object at point to the kill ring
 
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(json-mode . json-ts-mode)
+#+end_src
+
 **** JSON Reformat
 
 [[https://github.com/gongo/json-reformat][JSON Reformat]] provides convenience helpers to reformat JSON in string or region.
@@ -5777,6 +5782,10 @@ Some of the relevant keybindings are:
   :straight (yaml-mode :type git
                        :host github
                        :repo "yoshiki/yaml-mode"))
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(yaml-mode . yaml-ts-mode)
 #+end_src
 
 **** YAML Formatter
@@ -6351,6 +6360,10 @@ but I am trying to figure out how to spawn a nix shell interpreter in a Flake-ba
 
 *** Python
 
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(python-mode . python-ts-mode)
+#+end_src
+
 **** Use pyright-langserver as default LSP for Python
 
 #+begin_src elisp
@@ -6501,6 +6514,10 @@ Development of this package has been halted, so we're stopping our use of this.
   ;; by default, typescript-mode is mapped to the treesitter typescript parser
   ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
   (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx)))
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(typescript-mode . typescript-ts-mode)
 #+end_src
 
 ***** COMMENT Tide
@@ -6908,16 +6925,10 @@ We define the major mode remap assoc list in order to tighten the treesitter con
 
 Individual language settings are tangled into our =setq= above in order to simplify splitting of this part of the config across the language-specific section. We do this for the first time for the Gleam setup.
 
-***** TODO Split language major mode remapping configuration across language sections
-
-#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
-(yaml-mode . yaml-ts-mode)
+#+begin_src elisp :noweb yes :noweb-ref treesit-config-major-mode-remap
 (bash-mode . bash-ts-mode)
 (js2-mode . js-ts-mode)
-(typescript-mode . typescript-ts-mode)
-(json-mode . json-ts-mode)
 (css-mode . css-ts-mode)
-(python-mode . python-ts-mode)
 #+end_src
 
 **** tree-sitter extension mappings
