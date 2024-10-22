@@ -363,7 +363,8 @@
   :commands (treesit-install-language-grammar nf/treesit-install-all-languages)
   :init
   (setq treesit-language-source-alist
-        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+        '(
+          (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
           (c . ("https://github.com/tree-sitter/tree-sitter-c"))
           (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
           (css . ("https://github.com/tree-sitter/tree-sitter-css"))
@@ -382,8 +383,8 @@
           (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
           (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
           (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-          (zig . ("https://github.com/GrayJack/tree-sitter-zig")))
-        )
+          (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
+          ))
   :config
   (setq major-mode-remap-alist
         '((yaml-mode . yaml-ts-mode)
