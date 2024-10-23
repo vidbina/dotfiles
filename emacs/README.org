@@ -6742,7 +6742,7 @@ Refer to the [[https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-cloju
                          :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
 #+end_src
 
-*** Swift
+*** COMMENT Swift
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/swift-emacs/swift-mode

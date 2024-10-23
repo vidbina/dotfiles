@@ -276,12 +276,6 @@
                          :host github
                          :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
 
-;; https://github.com/swift-emacs/swift-mode
-(use-package swift-mode
-  :straight (swift-mode :type git
-                        :host github
-                        :repo "swift-emacs/swift-mode"))
-
 ;; https://github.com/haskell/haskell-mode
 (use-package haskell-mode
   :straight (haskell-mode :type git
@@ -351,7 +345,6 @@
           (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
           (gleam . ("https://github.com/gleam-lang/tree-sitter-gleam"))
           (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
-          (swift . ("https://github.com/alex-pinkus/tree-sitter-swift"))
           (haskell . ("https://github.com/tree-sitter/tree-sitter-haskell"))
           (elm . ("https://github.com/elm-tooling/tree-sitter-elm"))
           (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
