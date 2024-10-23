@@ -46,6 +46,13 @@
 
     devbox
     pdftk
+    hunspell
+    hunspellDicts.nl_NL
+    hunspellDicts.en_US
+    hunspellDicts.de_DE
+    hunspellDicts.he_IL
+    hunspellDicts.es-any
+    hunspellDicts.fr-any
   ] ++ (if system == "aarch64-darwin" then [
     # ARM-only packages
 
@@ -257,4 +264,6 @@
       my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
     })
   ];
+
+  environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];
 }

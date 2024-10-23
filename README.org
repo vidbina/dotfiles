@@ -4234,7 +4234,36 @@ aspellDicts.en
 aspellDicts.nl
 #+end_src
 
-**** COMMENT Hunspell
+**** Hunspell
+
+Install hunspell as the system-wide spell checker as we will use it in Emacs.
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin-packages-common
+hunspell
+#+end_src
+
+***** Hunspell dictionaries for MacOS
+
+Set a few dictionaries that would be helpful to have in hunspell:
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin-packages-common
+hunspellDicts.nl_NL
+hunspellDicts.en_US
+hunspellDicts.de_DE
+hunspellDicts.he_IL
+hunspellDicts.es-any
+hunspellDicts.fr-any
+#+end_src
+
+and set the path such that =hunspell -D= can actually find these dictionaries:
+
+#+begin_src nix :noweb-ref nix-darwin
+environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];
+#+end_src
+
+***** TODO COMMENT Hunspell dictionaries in NixOS
+
+Figure out how to fix this configuration to reuse it in Darwin and Linux.
 
 #+begin_src nix :noweb yes :noweb-ref doc-let-bindings
 hunspell-personal = with prev;
