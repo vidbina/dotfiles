@@ -604,6 +604,7 @@
   :bind (("C-x g" . magit-status)
          ("C-x C-g" . magit-status))
   :custom
+  (with-editor-emacsclient-executable nil)
   (magit-display-buffer-function
    (lambda (buffer)
      ;; based on magit-display-buffer-same-window-except-diff-v1
