@@ -6750,6 +6750,8 @@ Refer to the [[https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-cloju
                         :repo "swift-emacs/swift-mode"))
 #+end_src
 
+⚠️ The following configuration is broken because the repo does not list the grammar.json and parser.c files that treesitter needs but instead expect the files to be generated first.
+
 #+begin_src elisp :noweb-ref treesit-languages
 (swift . ("https://github.com/alex-pinkus/tree-sitter-swift"))
 #+end_src
