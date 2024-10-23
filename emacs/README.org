@@ -388,6 +388,7 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
 (use-package org
   :straight (:type built-in)
+  :after magit
   :init
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
@@ -3154,13 +3155,17 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
 
 *** Magit: Git Porcelain
 
+Disabling magit in order to fall back on the Emacs default.
+
 #+begin_src elisp :tangle init.el
 ;; https://github.com/magit/magit.git
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit"
-                   :branch "main")
+                   :repo "magit/magit")
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x C-g" . magit-status))
   :custom
   (magit-display-buffer-function
    (lambda (buffer)
@@ -3213,6 +3218,8 @@ pass edit api.github.com/vidbina^forge
 ⛔ Warning (straight): Packages "magit-section" and "magit" have incompatible recipes (:branch cannot be both nil and "main")
 ⛔ Warning (straight): Packages "git-commit" and "magit-section" have incompatible recipes (:branch cannot be both "main" and nil)
 #+end_quote
+
+The thread at https://github.com/radian-software/straight.el/issues/326 outlines that this issue is caused by us installing a package at a given version while a tightly coupled dependency is installed at a different version, thus creation a situation of incompatibility. My hunch is that this issue is caused by attempts to custom install magit without installing a matching magit-section or git-commit.
 
 *** Diff-hl: Diff highlighting in the left gutter of a buffer
 
@@ -5933,6 +5940,7 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
                       :host github
                       :repo "NixOS/nix-mode")
 
+  :after magit
   :custom
   (nix-nixfmt-bin "nixpkgs-fmt"))
 #+end_src

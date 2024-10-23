@@ -138,6 +138,7 @@
                       :host github
                       :repo "NixOS/nix-mode")
 
+  :after magit
   :custom
   (nix-nixfmt-bin "nixpkgs-fmt"))
 

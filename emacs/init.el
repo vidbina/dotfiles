@@ -32,6 +32,7 @@
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
 (use-package org
   :straight (:type built-in)
+  :after magit
   :init
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
@@ -598,8 +599,10 @@
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit"
-                   :branch "main")
+                   :repo "magit/magit")
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x C-g" . magit-status))
   :custom
   (magit-display-buffer-function
    (lambda (buffer)
