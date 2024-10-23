@@ -6925,6 +6925,8 @@ See if treesitter is available in a buffer by running:
 Fiddled around with this for a bit and stumbled into a variety of errors, and after some sleuthing hich landed on the explicit definition of variable =treesit-language-source-alist= which treesit-auto needs to get the job done. While playing around, I noticed that I misunderstood how tree-sitter-langs and treesit-auto fit into the picture. My current understanding as per [2023-07-04 Tue 15:19] is that:
 - tree-sitter-langs provides lang bundles *that need to be installed*
 
+See https://emacs-tree-sitter.github.io/getting-started/ for instructions on how to get started with tree-sitter.
+
 #+begin_src elisp :noweb yes :tangle lang.example.el
 (use-package treesit
   :straight (:type built-in)
@@ -6933,10 +6935,15 @@ Fiddled around with this for a bit and stumbled into a variety of errors, and af
         '(
           <<treesit-languages>>
           ))
-  ;; https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
-  (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
   :config
   <<treesit-config>>
+
+  (defun vidbina/treesit-install-all-languages ()
+    "Install all languages specified by `treesit-language-source-alist'."
+    (interactive)
+    ;; https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
+    (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist)))
+
   (defun nf/treesit-install-all-languages ()
     "Install all languages specified by `treesit-language-source-alist'."
     (interactive)

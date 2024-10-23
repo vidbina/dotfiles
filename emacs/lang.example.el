@@ -355,8 +355,6 @@
           (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
           (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
           ))
-  ;; https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
-  (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
   :config
   (setq major-mode-remap-alist
         '(
@@ -369,6 +367,13 @@
           (css-mode . css-ts-mode)
           ))
   (add-to-list 'auto-mode-alist '("\\.[tj]sx?\\'" . tsx-ts-mode))
+
+  (defun vidbina/treesit-install-all-languages ()
+    "Install all languages specified by `treesit-language-source-alist'."
+    (interactive)
+    ;; https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
+    (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist)))
+
   (defun nf/treesit-install-all-languages ()
     "Install all languages specified by `treesit-language-source-alist'."
     (interactive)
