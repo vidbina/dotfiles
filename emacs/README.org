@@ -8046,7 +8046,7 @@ Note that the =with-no-title-bars= arg resulted in unhandleable windows.
 "with-no-title-bars" 
 #+end_src
 
-**** Auto-dark mode on macOS
+**** COMMENT Auto-dark mode on macOS
 
 In order to switch themes automatically when the macOS system theme changes, we can use [[https://github.com/LionyxML/auto-dark-emacs][auto-dark-emacs]].
 
