@@ -5078,28 +5078,28 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (vidbina/theme-switch-to-dark)
     (vidbina/theme-switch-to-light)))
 
+(defun vidbina/theme-param-set (mode-line-color wallpaper-color emacs-theme)
+  (setq zoom-window-mode-line-color mode-line-color)
+  (load-theme emacs-theme :no-confirm)
+  (vidbina/theme-switch-update-cursor-styles)
+  (pcase  system-type
+    (darwin (error "No hsetroot on Darwin"))
+    ('gnu/linux (async-shell-command (format "hsetroot -solid '%s'" "*dotfile-helpers*"
+                                             wallpaper-color))
+                (message "see *dotfile-helpers* for output of wallpaper color set"))
+    (_ (error "Skipping wallpaper color set on unknown sys"))))
+
 (defun vidbina/theme-switch-to-dark ()
   "Switch to the dark theme"
   (interactive)
-  (setq zoom-window-mode-line-color "DodgerBlue4")
-  (load-theme 'modus-vivendi :no-confirm)
-  (vidbina/theme-switch-update-cursor-styles)
-  ;; call commands
-  ;; hsetroot -solid '#000000'
-  (async-shell-command "hsetroot -solid '#000000'" "*dotfile-helpers*")
-  (message "see *dotfile-helpers* for output of wallpaper color set")
+  (vidbina/theme-param-set "DodgerBlue4" "#000000" 'modus-vivendi)
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
 
 (defun vidbina/theme-switch-to-light ()
   "Switch to the light theme"
   (interactive)
-  (setq zoom-window-mode-line-color "Gold")
-  (load-theme 'modus-operandi :no-confirm)
-  (vidbina/theme-switch-update-cursor-styles)
-  ;; call commands
-  (async-shell-command "hsetroot -solid '#ff9800'" "*dotfile-helpers*")
-  (message "see *dotfile-helpers* for output of wallpaper color set")
+  (vidbina/theme-param-set "Gold" "#ff9800" 'modus-operandi)
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
 
