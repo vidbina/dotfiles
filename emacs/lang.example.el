@@ -340,33 +340,33 @@
 
 (use-package treesit
   :straight (:type built-in)
-  ;;:autoload treesit-install-language-grammar
-  :commands (treesit-install-language-grammar nf/treesit-install-all-languages)
   :init
   (setq treesit-language-source-alist
         '(
+          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+          (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
+          (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
           (gleam . ("https://github.com/gleam-lang/tree-sitter-gleam"))
+          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+          (swift . ("https://github.com/alex-pinkus/tree-sitter-swift"))
+          (haskell . ("https://github.com/tree-sitter/tree-sitter-haskell"))
+          (elm . ("https://github.com/elm-tooling/tree-sitter-elm"))
+          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
           (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
           (c . ("https://github.com/tree-sitter/tree-sitter-c"))
           (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
           (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
           (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
           (make . ("https://github.com/alemuller/tree-sitter-make"))
           (org . ("https://github.com/milisims/tree-sitter-org"))
-          (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
-          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-          (php . ("https://github.com/tree-sitter/tree-sitter-php"))
-          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
-          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
           (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
           (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-          (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
           ))
+  ;; https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
+  (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
   :config
   (setq major-mode-remap-alist
         '(
