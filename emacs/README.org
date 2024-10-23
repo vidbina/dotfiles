@@ -2502,14 +2502,16 @@ Probably a good holiday hacking effort.
 (use-package mu4e-dashboard
   :straight (mu4e-dashboard :type git
                             :host github
-                            :repo "rougier/mu4e-dashboard"))
+                            :repo "rougier/mu4e-dashboard")
+  :after mu4e)
 #+end_src
 
 #+begin_src elisp :tangle init.el
 (use-package mu4e-thread-folding
   :straight (mu4e-thread-folding :type git
                                  :host github
-                                 :repo "rougier/mu4e-thread-folding"))
+                                 :repo "rougier/mu4e-thread-folding")
+  :after mu4e)
 #+end_src
 
 *** svg-tag-mode
@@ -4187,7 +4189,7 @@ You will find the following MTA options in Emacs:
 
 Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.html][Mail Composition Methods (Emacs Manual)]] for more information on how to compose mail in Emacs.
 
-*** mu4e
+*** COMMENT mu4e
 
 mu4e is a Maildir-friendly mail client that uses mu as a backend.
 
@@ -8243,7 +8245,7 @@ javascript:location.href='org-protocol://store-link://'+encodeURIComponent(locat
 javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(location.href) + '/' + encodeURIComponent(document.title) + '/' + encodeURIComponent(window.getSelection())
 #+end_src
 
-**** Emacs mu4e
+**** COMMENT Emacs mu4e
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-packages
 <<nix-linux-packages-desktop-emacs-mu4e>>
