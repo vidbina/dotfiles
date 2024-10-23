@@ -7337,7 +7337,7 @@ hello
 #+end_src
 
 *** AI
-**** AIDE
+**** COMMENT AIDE
 
 In order to use OpenAI's GPT models directly inside of Emacs, we are using the AIDE package.
 

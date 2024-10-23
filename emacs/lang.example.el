@@ -443,66 +443,6 @@
   :config (when (daemonp)
             (exec-path-from-shell-initialize)))
 
-;; https://github.com/junjizhi/aide.el
-(use-package aide
-  :straight (aide :type git
-                  :host github
-                  :repo "junjizhi/aide.el")
-  :custom
-  (aide-completions-model "text-davinci-003")
-  (aide-max-output-tokens 1000)
-  (aide-openai-api-key-getter (lambda ()
-                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
-
-(defun vidbina/aide-openai-chat-complete (instruction target)
-  "Return the prompt answer from OpenAI API.
-API-KEY is the OpenAI API key.
-
-PROMPT is the prompt string we send to the API."
-  (message "Let's get schwifty")
-  (let* ((result nil)
-         (auth-value (format "Bearer %s" (funcall aide-openai-api-key-getter)))
-         (model "gpt-3.5-turbo")
-         (data `(("model" . "gpt-3.5-turbo")
-
-                 ("top_p" . ,aide-top-p)
-                 ("max_tokens" . ,aide-max-tokens)
-                 ("messages" . [
-                                (("role" . "system") ("content" . ,instruction))
-                                (("role" . "user") ("content" . ,target))
-                                ])))
-         ;;(json-data (json-encode data))
-         (endpoint "https://api.openai.com/v1/chat/completions"))
-    (message "Payload %s" data)
-    (message "Target %s" endpoint)
-    (vidbina/kill (json-encode data))
-    (request endpoint
-      :type "POST"
-      :data (json-encode data)
-      :headers `(("Authorization" . ,auth-value) ("Content-Type" . "application/json"))
-      :sync t
-      :parser 'json-read
-      :success (cl-function
-                (lambda (&key data &allow-other-keys)
-
-                  (message "Yes! %s" data)
-                  (let ((top-choice-message (alist-get 'message (elt (alist-get 'choices data) 0))))
-                    (setq result (alist-get 'content top-choice-message))
-                    (message "%s: %s" (alist-get 'role top-choice-message) (alist-get 'content top-choice-message)))))
-      :error (cl-function (lambda (x) (message "Error: %s" x))))
-    result))
-
-(defun vidbina/gpt-pair-prog (start end)
-  (interactive "r")
-  (if (region-active-p)
-      (progn (message "Region is selected!")
-             (let* ((instruction (read-string ">" "As a senior programmer, "))
-                    (region (buffer-substring-no-properties start end))
-                    ;;(result (aide--openai-complete-string region))
-                    (result-new (vidbina/aide-openai-chat-complete instruction region)))
-               (vidbina/kill result-new)))
-    (message "No region is selected.")))
-
 ;; https://github.com/karthink/gptel
 (use-package gptel
   :straight (gptel :type git
