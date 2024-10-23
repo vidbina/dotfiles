@@ -934,7 +934,20 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file t)
 
+(when (eq system-type 'darwin)
+  (message "🌗 Setup auto-dark on darwin")
+  (use-package auto-dark
+    :after modus-themes
+    :straight (auto-dark :type git
+                         :host github
+                         :repo "LionyxML/auto-dark-emacs")
+    :hook (auto-dark-dark-mode-hook . vidbina/theme-switch-to-dark)
+    :hook (auto-dark-light-mode-hook . vidbina/theme-switch-to-light))
+    :config (auto-dark-mode t))
+
 ;; https://stackoverflow.com/a/42038174
 (when (string= system-type "darwin")
   (setq insert-directory-program "/opt/homebrew/bin/gls")
   (setq dired-use-ls-dired t))
+
+(message "🏁 End of the config")

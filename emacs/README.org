@@ -8050,9 +8050,9 @@ Note that the =with-no-title-bars= arg resulted in unhandleable windows.
 
 In order to switch themes automatically when the macOS system theme changes, we can use [[https://github.com/LionyxML/auto-dark-emacs][auto-dark-emacs]].
 
-#+begin_src elisp
+#+begin_src elisp :tangle init.el
 (when (eq system-type 'darwin)
-  (message "🌕 Setup auto-dark on darwin")
+  (message "🌗 Setup auto-dark on darwin")
   (use-package auto-dark
     :after modus-themes
     :straight (auto-dark :type git
@@ -8584,6 +8584,10 @@ Example of a keymap based off of https://github.com/zzkt/charybdis which is base
 For convenience, we call =delete-trailing-whitespace= as outlined in an [[https://www.mail-archive.com/emacs-orgmode@gnu.org/msg112517.html][emacs-orgmode mailing thread]] to automatically clean up trailing whitespaces that may be artifact from tangling noweb refs that
 1. contain line-breaks and are being indented or
 2. have no noweb-ref writes
+
+#+begin_src elisp :tangle init.el
+(message "🏁 End of the config")
+#+end_src
 
 ;;; Local Variables:
 ;;; eval: (add-hook 'org-babel-post-tangle-hook #'delete-trailing-whitespace)
