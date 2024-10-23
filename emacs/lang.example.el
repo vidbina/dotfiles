@@ -11,11 +11,7 @@
   :straight (:type built-in)
   :custom
   (ispell-program-name "hunspell")
-  ;; Configure German, Swiss German, and two variants of English.
-  (ispell-dictionary "en_US,de_DE,nl")
-  ;; For saving words to the personal dictionary, don't infer it from
-  ;; the locale, otherwise it would save to ~/.hunspell_de_DE.
-  (ispell-personal-dictionary "~/.hunspell_personal")
+  (ispell-dictionary "en_US,de_DE,nl_NL,fr-toutesvariantes,es_ANY")
   (ispell-personal-dictionary "~/.hunspell_personal")
   :config
   ;; https://www.emacswiki.org/emacs/FlySpell#h5o-14
