@@ -60,6 +60,7 @@
 
   home.packages = [
     pkgs.gh
+    pkgs.nushell
     pkgs.xxd
     pkgs.hexyl
     pkgs.ghidra-bin

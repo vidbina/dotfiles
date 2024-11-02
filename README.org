@@ -2191,6 +2191,14 @@ Find out if the devenv install is moveable. The env.nix file does not have the =
 See [[*Packages][Packages]] for the current installation of devenv.
 
 **** Terminals
+***** NuShell
+
+Use [[https://www.nushell.sh/][NuShell]] for a more data-centric terminal experience, where it should be easier to query data in the shell.
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.nushell
+#+end_src
+
 ***** WezTerm
 
 [[https://wezfurlong.org/wezterm][WezTerm]] is a terminal emulator and multiplexer written in Rust, with hyperlink support, emoji support and since it's written in Rust... probably as blazingly fast as it gets.
