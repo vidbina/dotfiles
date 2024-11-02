@@ -45,6 +45,8 @@
     inputs.devenv.packages.${system}.default
 
     devbox
+    nushell
+    wezterm
     pdftk
     hunspell
     hunspellDicts.nl_NL

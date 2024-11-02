@@ -2195,8 +2195,14 @@ See [[*Packages][Packages]] for the current installation of devenv.
 
 Use [[https://www.nushell.sh/][NuShell]] for a more data-centric terminal experience, where it should be easier to query data in the shell.
 
+We still need to clean up my config to reuse the old dev.nix:
+
 #+begin_src nix :noweb-ref dev-packages
 pkgs.nushell
+#+end_src
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+nushell
 #+end_src
 
 ***** WezTerm
@@ -2211,8 +2217,14 @@ pkgs.nushell
 
 ****** Install through Nix
 
+We still need to clean up my config to reuse the old dev.nix:
+
 #+begin_src nix :noweb-ref dev-packages
 pkgs.wezterm
+#+end_src
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+wezterm
 #+end_src
 
 **** AI
