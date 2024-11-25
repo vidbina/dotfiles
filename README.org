@@ -1490,7 +1490,6 @@ jq
 kakoune
 nodePackages.typescript-language-server
 nodejs
-pass
 pqrs
 nixpkgs-fmt
 redis
@@ -2197,6 +2196,27 @@ devbox
 Find out if the devenv install is moveable. The env.nix file does not have the =inputs= variable as an input so we'll either have to pass it along or find a different way to bring these packages into scope within dev.nix.
 
 See [[*Packages][Packages]] for the current installation of devenv.
+
+**** Password Managers
+***** Pass
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+pass
+#+end_src
+
+***** Bitwarden
+
+For FLOSS friendly password managers with better GUIs, Bitwarden can be your friend. See this interesting [[https://www.reddit.com/r/Bitwarden/comments/15ssebq/bitwarden_vs_1password/][Reddit thread]] that highlights some differences to 1password in 2023.
+
+#+begin_src nix :noweb-ref homebrew-casks
+"bitwarden"
+#+end_src
+
+***** 1Password
+
+#+begin_src nix :noweb-ref homebrew-casks
+"1password"
+#+end_src
 
 **** Terminals
 ***** NuShell

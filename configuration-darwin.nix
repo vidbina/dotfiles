@@ -29,7 +29,6 @@
     kakoune
     nodePackages.typescript-language-server
     nodejs
-    pass
     pqrs
     nixpkgs-fmt
     redis
@@ -45,6 +44,7 @@
     inputs.devenv.packages.${system}.default
 
     devbox
+    pass
     nushell
     wezterm
     pdftk
@@ -247,6 +247,8 @@
       "telegram"
       "whatsapp"
 
+      "bitwarden"
+      "1password"
       "lm-studio"
       "obs" # for streaming
     ];
