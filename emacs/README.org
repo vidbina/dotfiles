@@ -388,6 +388,7 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
 (use-package org
   :straight (:type built-in)
+  :after magit
   :init
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
@@ -2502,14 +2503,16 @@ Probably a good holiday hacking effort.
 (use-package mu4e-dashboard
   :straight (mu4e-dashboard :type git
                             :host github
-                            :repo "rougier/mu4e-dashboard"))
+                            :repo "rougier/mu4e-dashboard")
+  :after mu4e)
 #+end_src
 
 #+begin_src elisp :tangle init.el
 (use-package mu4e-thread-folding
   :straight (mu4e-thread-folding :type git
                                  :host github
-                                 :repo "rougier/mu4e-thread-folding"))
+                                 :repo "rougier/mu4e-thread-folding")
+  :after mu4e)
 #+end_src
 
 *** svg-tag-mode
@@ -3152,14 +3155,19 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
 
 *** Magit: Git Porcelain
 
+Disabling magit in order to fall back on the Emacs default.
+
 #+begin_src elisp :tangle init.el
 ;; https://github.com/magit/magit.git
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit"
-                   :branch "main")
+                   :repo "magit/magit")
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x C-g" . magit-status))
   :custom
+  (with-editor-emacsclient-executable nil)
   (magit-display-buffer-function
    (lambda (buffer)
      ;; based on magit-display-buffer-same-window-except-diff-v1
@@ -3211,6 +3219,8 @@ pass edit api.github.com/vidbina^forge
 ⛔ Warning (straight): Packages "magit-section" and "magit" have incompatible recipes (:branch cannot be both nil and "main")
 ⛔ Warning (straight): Packages "git-commit" and "magit-section" have incompatible recipes (:branch cannot be both "main" and nil)
 #+end_quote
+
+The thread at https://github.com/radian-software/straight.el/issues/326 outlines that this issue is caused by us installing a package at a given version while a tightly coupled dependency is installed at a different version, thus creation a situation of incompatibility. My hunch is that this issue is caused by attempts to custom install magit without installing a matching magit-section or git-commit.
 
 *** Diff-hl: Diff highlighting in the left gutter of a buffer
 
@@ -4187,7 +4197,7 @@ You will find the following MTA options in Emacs:
 
 Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.html][Mail Composition Methods (Emacs Manual)]] for more information on how to compose mail in Emacs.
 
-*** mu4e
+*** COMMENT mu4e
 
 mu4e is a Maildir-friendly mail client that uses mu as a backend.
 
@@ -5078,28 +5088,28 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (vidbina/theme-switch-to-dark)
     (vidbina/theme-switch-to-light)))
 
+(defun vidbina/theme-param-set (mode-line-color wallpaper-color emacs-theme)
+  (setq zoom-window-mode-line-color mode-line-color)
+  (load-theme emacs-theme :no-confirm)
+  (vidbina/theme-switch-update-cursor-styles)
+  (pcase  system-type
+    (darwin (error "No hsetroot on Darwin"))
+    ('gnu/linux (async-shell-command (format "hsetroot -solid '%s'" "*dotfile-helpers*"
+                                             wallpaper-color))
+                (message "see *dotfile-helpers* for output of wallpaper color set"))
+    (_ (error "Skipping wallpaper color set on unknown sys"))))
+
 (defun vidbina/theme-switch-to-dark ()
   "Switch to the dark theme"
   (interactive)
-  (setq zoom-window-mode-line-color "DodgerBlue4")
-  (load-theme 'modus-vivendi :no-confirm)
-  (vidbina/theme-switch-update-cursor-styles)
-  ;; call commands
-  ;; hsetroot -solid '#000000'
-  (async-shell-command "hsetroot -solid '#000000'" "*dotfile-helpers*")
-  (message "see *dotfile-helpers* for output of wallpaper color set")
+  (vidbina/theme-param-set "DodgerBlue4" "#000000" 'modus-vivendi)
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
 
 (defun vidbina/theme-switch-to-light ()
   "Switch to the light theme"
   (interactive)
-  (setq zoom-window-mode-line-color "Gold")
-  (load-theme 'modus-operandi :no-confirm)
-  (vidbina/theme-switch-update-cursor-styles)
-  ;; call commands
-  (async-shell-command "hsetroot -solid '#ff9800'" "*dotfile-helpers*")
-  (message "see *dotfile-helpers* for output of wallpaper color set")
+  (vidbina/theme-param-set "Gold" "#ff9800" 'modus-operandi)
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
 
@@ -5166,7 +5176,8 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 
 #+begin_src elisp :tangle personal-example.el
 (defun vidbina/browse-url-xsel (url &optional ignored)
-  (shell-command (format "echo \"%s\" | xsel -ib" url)))
+  (message "🌐 Browse: copy url [%s]" url)
+  (kill-new url))
 
 (setq browse-url-browser-function 'vidbina/browse-url-xsel)
 
@@ -5175,7 +5186,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (progn
     (when (derived-mode-p 'html-mode)
       (progn
-        (message (concat "Browse " buffer-file-name))
+        (message "🌐 Browse: open file [%s]" buffer-file-name)
         (browse-url (file-truename buffer-file-name))))))
 
 (add-hook 'after-save-hook 'vidbina/browse-to-current-file)
@@ -5577,11 +5588,7 @@ This configuration is derived from the article [[https://200ok.ch/posts/2020-08-
   :straight (:type built-in)
   :custom
   (ispell-program-name "hunspell")
-  ;; Configure German, Swiss German, and two variants of English.
-  (ispell-dictionary "en_US,de_DE,nl")
-  ;; For saving words to the personal dictionary, don't infer it from
-  ;; the locale, otherwise it would save to ~/.hunspell_de_DE.
-  (ispell-personal-dictionary "~/.hunspell_personal")
+  (ispell-dictionary "en_US,de_DE,nl_NL,fr-toutesvariantes,es_ANY")
   (ispell-personal-dictionary "~/.hunspell_personal")
   :config
   ;; https://www.emacswiki.org/emacs/FlySpell#h5o-14
@@ -5734,6 +5741,15 @@ Some of the relevant keybindings are:
 - =C-c C-f= format region or buffer with =json-reformat=
 - =c-c P= copy path to object at point to the kill ring
 
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(json-mode . json-ts-mode)
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-languages
+(json . ("https://github.com/tree-sitter/tree-sitter-json"))
+#+end_src
+
 **** JSON Reformat
 
 [[https://github.com/gongo/json-reformat][JSON Reformat]] provides convenience helpers to reformat JSON in string or region.
@@ -5776,6 +5792,10 @@ Some of the relevant keybindings are:
   :straight (yaml-mode :type git
                        :host github
                        :repo "yoshiki/yaml-mode"))
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(yaml-mode . yaml-ts-mode)
 #+end_src
 
 **** YAML Formatter
@@ -5921,6 +5941,7 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
                       :host github
                       :repo "NixOS/nix-mode")
 
+  :after magit
   :custom
   (nix-nixfmt-bin "nixpkgs-fmt"))
 #+end_src
@@ -6350,6 +6371,14 @@ but I am trying to figure out how to spawn a nix shell interpreter in a Flake-ba
 
 *** Python
 
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(python-mode . python-ts-mode)
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-languages
+(python . ("https://github.com/tree-sitter/tree-sitter-python"))
+#+end_src
+
 **** Use pyright-langserver as default LSP for Python
 
 #+begin_src elisp
@@ -6410,7 +6439,17 @@ Inspired from https://robbmann.io/posts/emacs-eglot-pyrightconfig/
                      :repo "dominikh/go-mode.el"))
 #+end_src
 
-*** JavaScript (ECMAScript or ES)
+#+begin_src elisp :noweb-ref treesit-languages
+(go . ("https://github.com/tree-sitter/tree-sitter-go"))
+#+end_src
+
+*** JavaScript
+
+#+begin_src elisp :noweb-ref treesit-languages
+(javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+#+end_src
+
+**** Js-Comint: JavaScript Interpreter
 
 Since JavaScript is everywhere, let's make sure we can at least read it with ease.
 
@@ -6433,7 +6472,14 @@ Since JavaScript is everywhere, let's make sure we can at least read it with eas
 
 Superset of JavaScript that folks really should be using instead of just vanilla JS but we're not here to judge. 🤷🏿‍♂️
 
-***** TSI
+Note that Emacs not bundles =typescript-ts-mode= so we may not need to install a separate package for this. As per <2024-10-22 Tue>, we are commenting-out all custom config regarding TypeScript.
+
+#+begin_src elisp :noweb-ref treesit-languages
+(typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
+(tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+#+end_src
+
+***** COMMENT TSI
 
 https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/#ensure-for-tsx-configure-for-tree-sitter-based-indentation
 
@@ -6465,7 +6511,7 @@ https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-
          '(tsx-ts-mode . ("typescript-language-server" "--stdio")))))
 #+end_src
 
-**** PROTOTYPE Typescript-mode
+**** PROTOTYPE COMMENT Typescript-mode
 :LOGBOOK:
 - State "PROTOTYPE"  from "CANCELED"   [2023-07-04 Tue 20:44] \\
   Reopening typescript-mode as there seems to be a bit of a disconnect between major modes and the tree-sitter major modes that I really need to understand.
@@ -6500,6 +6546,10 @@ Development of this package has been halted, so we're stopping our use of this.
   ;; by default, typescript-mode is mapped to the treesitter typescript parser
   ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
   (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx)))
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(typescript-mode . typescript-ts-mode)
 #+end_src
 
 ***** COMMENT Tide
@@ -6608,6 +6658,28 @@ Commenting this out since it bootstraps LSP-mode which we're avoiding as we're g
                       :repo "emacs-lsp/lsp-java"))
 #+end_src
 
+*** Gleam
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/gleam-lang/gleam-mode
+(use-package gleam-ts-mode
+  :straight (gleam-ts-mode :type git
+                           :host github
+                           :repo "gleam-lang/gleam-mode"))
+#+end_src
+
+For treesitter, we install the necessary grammar as mentioned in the [[https://github.com/tree-sitter/tree-sitter/pull/1876/files][PR listing the official Gleam grammar]]:
+
+#+begin_src elisp :noweb-ref treesit-languages
+(gleam . ("https://github.com/gleam-lang/tree-sitter-gleam"))
+#+end_src
+
+For the ease of use, we configure the Gleam-specific bit for =major-mode-remap-alist=:
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(gleam-mode . gleam-ts-mode)
+#+end_src
+
 *** Lua
 
 In order to edit Lua code for our neovim configs, Hammerspoon and just good measure because Lua isn't that uncommon of a language to bump into, we install the [[https://github.com/immerrr/lua-mode][lua-mode package]].
@@ -6618,6 +6690,10 @@ In order to edit Lua code for our neovim configs, Hammerspoon and just good meas
   :straight (lua-mode :type git
                       :host github
                       :repo "immerrr/lua-mode"))
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-languages
+(lua . ("https://github.com/Azganoth/tree-sitter-lua"))
 #+end_src
 
 *** Vim
@@ -6673,7 +6749,7 @@ Refer to the [[https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-cloju
                          :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
 #+end_src
 
-*** Swift
+*** COMMENT Swift
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/swift-emacs/swift-mode
@@ -6681,6 +6757,12 @@ Refer to the [[https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-cloju
   :straight (swift-mode :type git
                         :host github
                         :repo "swift-emacs/swift-mode"))
+#+end_src
+
+⚠️ The following configuration is broken because the repo does not list the grammar.json and parser.c files that treesitter needs but instead expect the files to be generated first.
+
+#+begin_src elisp :noweb-ref treesit-languages
+(swift . ("https://github.com/alex-pinkus/tree-sitter-swift"))
 #+end_src
 
 *** Haskell
@@ -6708,6 +6790,11 @@ In order to configure interactive mode, we follow the [[https://haskell.github.i
 #+end_src
 
 Please note that [[https://wiki.haskell.org/GHC/GHCi][GHCi]], [[https://github.com/ndmitchell/hlint][HLint]] and [[https://github.com/haskell/stylish-haskell][stylish-haskell]] are needed for this configuration to work.
+
+#+begin_src elisp :noweb-ref treesit-languages
+(haskell . ("https://github.com/tree-sitter/tree-sitter-haskell"))
+#+end_src
+
 
 **** Haskell Environment Configuration in Nix
 
@@ -6748,6 +6835,11 @@ To add another layer of convenience or complexity, depending on how you want to 
                       :repo "jcollard/elm-mode"))
 #+end_src
 
+
+#+begin_src elisp :noweb-ref treesit-languages
+(elm . ("https://github.com/elm-tooling/tree-sitter-elm"))
+#+end_src
+
 *** Rust
 
 #+begin_src elisp :tangle lang.example.el
@@ -6756,6 +6848,11 @@ To add another layer of convenience or complexity, depending on how you want to 
   :straight (rust-mode :type git
                        :host github
                        :repo "rust-lang/rust-mode"))
+#+end_src
+
+
+#+begin_src elisp :noweb-ref treesit-languages
+(rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
 #+end_src
 
 *** AppleScript
@@ -6769,7 +6866,6 @@ At times, I may need to edit AppleScript code for some machine-side automations 
                               :host github
                               :repo "emacsorphanage/applescript-mode"))
 #+end_src
-
 
 ** Misc
 
@@ -6827,20 +6923,28 @@ See if treesitter is available in a buffer by running:
 
 - ⚠️ [2023-07-04 Tue 20:40] +I initally thought of test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]] but am realising that my current build of Emacs may not have tree-sitter bundled into it. 😅+ Don't use bleeding edge Emacs but just use the stable-ish version 29 if you don't want to screw around.
 
-Fiddled around with this for a bit and stumbled into a variety of errors, so I triehich led to the the explicit definition of variable =treesit-language-source-alist= which treesit-auto needs to get the job done. While playing around, I noticed that I misunderstood how tree-sitter-langs and treesit-auto factor into the picture. My current understanding as per [2023-07-04 Tue 15:19] is that:
+Fiddled around with this for a bit and stumbled into a variety of errors, and after some sleuthing hich landed on the explicit definition of variable =treesit-language-source-alist= which treesit-auto needs to get the job done. While playing around, I noticed that I misunderstood how tree-sitter-langs and treesit-auto fit into the picture. My current understanding as per [2023-07-04 Tue 15:19] is that:
 - tree-sitter-langs provides lang bundles *that need to be installed*
+
+See https://emacs-tree-sitter.github.io/getting-started/ for instructions on how to get started with tree-sitter.
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
 (use-package treesit
   :straight (:type built-in)
-  ;;:autoload treesit-install-language-grammar
-  :commands (treesit-install-language-grammar nf/treesit-install-all-languages)
   :init
   (setq treesit-language-source-alist
-        <<treesit-languages>>
-        )
+        '(
+          <<treesit-languages>>
+          ))
   :config
   <<treesit-config>>
+
+  (defun vidbina/treesit-install-all-languages ()
+    "Install all languages specified by `treesit-language-source-alist'."
+    (interactive)
+    ;; https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
+    (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist)))
+
   (defun nf/treesit-install-all-languages ()
     "Install all languages specified by `treesit-language-source-alist'."
     (interactive)
@@ -6879,15 +6983,21 @@ https://emacs-tree-sitter.github.io/installation/#installing-with-straight-dot-e
 
 **** tree-sitter major mode mappings
 
-#+begin_src elisp :noweb-ref treesit-config
+We define the major mode remap assoc list in order to tighten the treesitter config:
+
+#+begin_src elisp :noweb yes :noweb-ref treesit-config
 (setq major-mode-remap-alist
-      '((yaml-mode . yaml-ts-mode)
-        (bash-mode . bash-ts-mode)
-        (js2-mode . js-ts-mode)
-        (typescript-mode . typescript-ts-mode)
-        (json-mode . json-ts-mode)
-        (css-mode . css-ts-mode)
-        (python-mode . python-ts-mode)))
+      '(
+        <<treesit-config-major-mode-remap>>
+        ))
+#+end_src
+
+Individual language settings are tangled into our =setq= above in order to simplify splitting of this part of the config across the language-specific section. We do this for the first time for the Gleam setup.
+
+#+begin_src elisp :noweb yes :noweb-ref treesit-config-major-mode-remap
+(bash-mode . bash-ts-mode)
+(js2-mode . js-ts-mode)
+(css-mode . css-ts-mode)
 #+end_src
 
 **** tree-sitter extension mappings
@@ -6902,30 +7012,21 @@ See a listing of available grammars at https://tree-sitter.github.io/tree-sitter
 
 ***** alist of language mappings
 
-Just because =treesit-language-source-alist= needs this (for the treesit config), we define the /language to grammar repo/ mapping here for "reuse".
+Just because =treesit-language-source-alist= needs this (for the treesit config), we define the /language to grammar repo/ mapping here for "reuse". See [[https://www.masteringemacs.org/article/how-to-get-started-tree-sitter][Mastering Emacs]] for examples on how to set this up.
 
 #+begin_src elisp :noweb-ref treesit-languages
-'((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-  (c . ("https://github.com/tree-sitter/tree-sitter-c"))
-  (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
-  (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-  (go . ("https://github.com/tree-sitter/tree-sitter-go"))
-  (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-  (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-  (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-  (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
-  (make . ("https://github.com/alemuller/tree-sitter-make"))
-  (org . ("https://github.com/milisims/tree-sitter-org"))
-  (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
-  (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-  (php . ("https://github.com/tree-sitter/tree-sitter-php"))
-  (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
-  (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-  (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-  (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
-  (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-  (zig . ("https://github.com/GrayJack/tree-sitter-zig")))
+(bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+(c . ("https://github.com/tree-sitter/tree-sitter-c"))
+(cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+(css . ("https://github.com/tree-sitter/tree-sitter-css"))
+(html . ("https://github.com/tree-sitter/tree-sitter-html"))
+(make . ("https://github.com/alemuller/tree-sitter-make"))
+(org . ("https://github.com/milisims/tree-sitter-org"))
+(sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+(toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
 #+end_src
+
+The general rule-of-thumb is that a treesitter repo should contain a folder with a grammar.c file. We generally point our configuration to the repo, branch and directory that contains the standard treesitter filetree. For some repos, we may need to specify a subdirectory in the repo to find files such as grammar.js or grammar.json, parser.c and the other main treesitter files.
 
 ***** tree-sitter-langs: Bundle of tree-sitter grammars
 
@@ -6957,6 +7058,17 @@ Automatically installs treesitter grammars and calls the function ~treesit-insta
 #+end_src
 
 Failing with =void-variable treesit-language-source-alist=
+
+**** COMMENT tree-sitter-indent
+
+#+begin_src elisp :tangle lang.example.el
+;; https://codeberg.org/FelipeLema/tree-sitter-indent.el
+(straight-use-package
+ '(tree-sitter-indent :type git
+                      :repo "https://codeberg.org/FelipeLema/tree-sitter-indent.el.git"
+                      :branch "main"
+                      :files ("tree-sitter-indent.el")))
+#+end_src
 
 *** Structural Editing
 
@@ -7241,7 +7353,7 @@ hello
 #+end_src
 
 *** AI
-**** AIDE
+**** COMMENT AIDE
 
 In order to use OpenAI's GPT models directly inside of Emacs, we are using the AIDE package.
 
@@ -7934,13 +8046,13 @@ Note that the =with-no-title-bars= arg resulted in unhandleable windows.
 "with-no-title-bars" 
 #+end_src
 
-**** Auto-dark mode on macOS
+**** COMMENT Auto-dark mode on macOS
 
 In order to switch themes automatically when the macOS system theme changes, we can use [[https://github.com/LionyxML/auto-dark-emacs][auto-dark-emacs]].
 
-#+begin_src elisp
+#+begin_src elisp :tangle init.el
 (when (eq system-type 'darwin)
-  (message "🌕 Setup auto-dark on darwin")
+  (message "🌗 Setup auto-dark on darwin")
   (use-package auto-dark
     :after modus-themes
     :straight (auto-dark :type git
@@ -8147,7 +8259,7 @@ javascript:location.href='org-protocol://store-link://'+encodeURIComponent(locat
 javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(location.href) + '/' + encodeURIComponent(document.title) + '/' + encodeURIComponent(window.getSelection())
 #+end_src
 
-**** Emacs mu4e
+**** COMMENT Emacs mu4e
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-packages
 <<nix-linux-packages-desktop-emacs-mu4e>>
@@ -8472,6 +8584,10 @@ Example of a keymap based off of https://github.com/zzkt/charybdis which is base
 For convenience, we call =delete-trailing-whitespace= as outlined in an [[https://www.mail-archive.com/emacs-orgmode@gnu.org/msg112517.html][emacs-orgmode mailing thread]] to automatically clean up trailing whitespaces that may be artifact from tangling noweb refs that
 1. contain line-breaks and are being indented or
 2. have no noweb-ref writes
+
+#+begin_src elisp :tangle init.el
+(message "🏁 End of the config")
+#+end_src
 
 ;;; Local Variables:
 ;;; eval: (add-hook 'org-babel-post-tangle-hook #'delete-trailing-whitespace)

@@ -29,7 +29,6 @@
     kakoune
     nodePackages.typescript-language-server
     nodejs
-    pass
     pqrs
     nixpkgs-fmt
     redis
@@ -45,7 +44,17 @@
     inputs.devenv.packages.${system}.default
 
     devbox
+    pass
+    nushell
+    wezterm
     pdftk
+    hunspell
+    hunspellDicts.nl_NL
+    hunspellDicts.en_US
+    hunspellDicts.de_DE
+    hunspellDicts.he_IL
+    hunspellDicts.es-any
+    hunspellDicts.fr-any
   ] ++ (if system == "aarch64-darwin" then [
     # ARM-only packages
 
@@ -190,6 +199,7 @@
       "pidof"
 
       "coreutils"
+      "wimlib"
       "ollama"
       "wireguard-tools"
       "pcalc"
@@ -237,7 +247,8 @@
       "telegram"
       "whatsapp"
 
-      "wezterm"
+      "bitwarden"
+      "1password"
       "lm-studio"
       "obs" # for streaming
     ];
@@ -257,4 +268,6 @@
       my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
     })
   ];
+
+  environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];
 }

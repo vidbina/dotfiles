@@ -11,9 +11,9 @@ end
 
 function scheme_for_appearance(appearance)
   if appearance:find 'Dark' then
-    return '3024 (dark) (terminal.sexy)'
+    return 'Google Dark (Gogh)'
   else
-    return '3024 (light) (terminal.sexy)'
+    return 'Google Light (base16)'
   end
 end
 

@@ -1490,7 +1490,6 @@ jq
 kakoune
 nodePackages.typescript-language-server
 nodejs
-pass
 pqrs
 nixpkgs-fmt
 redis
@@ -2043,7 +2042,7 @@ programs.git = {
 
 #+begin_src nix :noweb-ref home-darwin-files
 ".config/git/ignore".source = ./git/ignore;
-".wezterm.lua".source = ./wezterm/wezterm.lua;
+#".wezterm.lua".source = ./wezterm/wezterm.lua;
 #+end_src
 
 **** Global Gitignore
@@ -2166,6 +2165,14 @@ Sometimes we need GNU CLI utils, such as for dired in Emacs which expects the GN
 "coreutils"
 #+end_src
 
+**** Windows Utils
+
+In order to build windows installation disks, we may need the wimlib util from time to time. See [[https://gist.github.com/acarril/8c15f600cf0397dd61161a470f50f669][acarril/bootable-win-on-mac gist]] for an example on how to build a Windows installation disk from MacOS.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"wimlib"
+#+end_src
+
 **** Development Environments
 
 ***** Devbox
@@ -2190,13 +2197,62 @@ Find out if the devenv install is moveable. The env.nix file does not have the =
 
 See [[*Packages][Packages]] for the current installation of devenv.
 
+**** Password Managers
+***** Pass
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+pass
+#+end_src
+
+***** Bitwarden
+
+For FLOSS friendly password managers with better GUIs, Bitwarden can be your friend. See this interesting [[https://www.reddit.com/r/Bitwarden/comments/15ssebq/bitwarden_vs_1password/][Reddit thread]] that highlights some differences to 1password in 2023.
+
+#+begin_src nix :noweb-ref homebrew-casks
+"bitwarden"
+#+end_src
+
+***** 1Password
+
+#+begin_src nix :noweb-ref homebrew-casks
+"1password"
+#+end_src
+
 **** Terminals
+***** NuShell
+
+Use [[https://www.nushell.sh/][NuShell]] for a more data-centric terminal experience, where it should be easier to query data in the shell.
+
+We still need to clean up my config to reuse the old dev.nix:
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.nushell
+#+end_src
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+nushell
+#+end_src
+
 ***** WezTerm
 
 [[https://wezfurlong.org/wezterm][WezTerm]] is a terminal emulator and multiplexer written in Rust, with hyperlink support, emoji support and since it's written in Rust... probably as blazingly fast as it gets.
 
+****** COMMENT Install through brew
+
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "wezterm"
+#+end_src
+
+****** Install through Nix
+
+We still need to clean up my config to reuse the old dev.nix:
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.wezterm
+#+end_src
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+wezterm
 #+end_src
 
 **** AI
@@ -4234,7 +4290,36 @@ aspellDicts.en
 aspellDicts.nl
 #+end_src
 
-**** COMMENT Hunspell
+**** Hunspell
+
+Install hunspell as the system-wide spell checker as we will use it in Emacs.
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin-packages-common
+hunspell
+#+end_src
+
+***** Hunspell dictionaries for MacOS
+
+Set a few dictionaries that would be helpful to have in hunspell:
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin-packages-common
+hunspellDicts.nl_NL
+hunspellDicts.en_US
+hunspellDicts.de_DE
+hunspellDicts.he_IL
+hunspellDicts.es-any
+hunspellDicts.fr-any
+#+end_src
+
+and set the path such that =hunspell -D= can actually find these dictionaries:
+
+#+begin_src nix :noweb-ref nix-darwin
+environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];
+#+end_src
+
+***** TODO COMMENT Hunspell dictionaries in NixOS
+
+Figure out how to fix this configuration to reuse it in Darwin and Linux.
 
 #+begin_src nix :noweb yes :noweb-ref doc-let-bindings
 hunspell-personal = with prev;

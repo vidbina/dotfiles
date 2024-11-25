@@ -32,6 +32,7 @@
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
 (use-package org
   :straight (:type built-in)
+  :after magit
   :init
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
@@ -598,9 +599,12 @@
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit"
-                   :branch "main")
+                   :repo "magit/magit")
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x C-g" . magit-status))
   :custom
+  (with-editor-emacsclient-executable nil)
   (magit-display-buffer-function
    (lambda (buffer)
      ;; based on magit-display-buffer-same-window-except-diff-v1
@@ -904,73 +908,6 @@
                            :host github
                            :repo "alpha22jp/atomic-chrome"))
 
-;; https://www.djcbsoftware.nl/code/mu/mu4e.html
-(use-package mu4e
-  :after (:all
-          message
-          sendmail)
-  :straight (:type built-in)
-  :demand t
-  :bind (("C-c M 4" . mu4e))
-  :hook (
-         ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
-         (dired-mode . turn-on-gnus-dired-mode))
-  :config
-  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
-  (require 'gnus-dired)
-  ;; make the `gnus-dired-mail-buffers' function also work on
-  ;; message-mode derived modes, such as mu4e-compose-mode
-  (defun gnus-dired-mail-buffers ()
-    "Return a list of active message buffers."
-    (let (buffers)
-      (save-current-buffer
-        (dolist (buffer (buffer-list t))
-          (set-buffer buffer)
-          (when (and (derived-mode-p 'message-mode)
-                     (null message-sent-message-via))
-            (push (buffer-name buffer) buffers))))
-      (nreverse buffers)))
-  (add-hook 'mu4e-compose-mode-hook #'(lambda () (auto-save-mode -1)))
-  (setq mu4e-contexts
-        `( ,(make-mu4e-context
-             :name "Sample"
-             :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
-             :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
-             :vars '(( user-mail-address . "foo@example.com")))))
-  :custom
-  (mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
-  (mu4e-compose-format-flowed t "Compose messages as format=flowed")
-  (mu4e-sent-messages-behavior 'delete "Switch this behavior to 'sent within the appropriate contexts where directory mu4e-sent-folder is correctly set")
-  (gnus-dired-mail-mode 'mu4e-user-agent)
-  (mu4e-use-fancy-chars nil "Use fancy unicode characters for mu4e marks")
-  (mu4e-headers-fields '((:flags . 6) (:human-date . 12) (:from . 20) (:subject)))
-  (mu4e-headers-date-format "%F")
-  (mu4e-sent-messages-behavior 'delete)
-  (mu4e-context-policy 'ask-if-none)
-  (mu4e-compose-context-policy 'ask-if-none)
-  (mu4e-index-update-in-background t "Index in background")
-  (mu4e-mu-debug t "Run mu in debug mode")
-  (mu4e-index-cleanup nil)
-  (mu4e-index-lazy-check t)
-  (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
-  (mu4e-update-interval 300 "Auto index every 5 minutes"))
-
-(defun draft-auto-save-buffer-name-handler (operation &rest args)
-  "for `make-auto-save-file-name' set '.' in front of the file name; do nothing for other operations"
-  (if
-      (and buffer-file-name (eq operation 'make-auto-save-file-name))
-      (concat (file-name-directory buffer-file-name)
-              "."
-              (file-name-nondirectory buffer-file-name))
-    (let ((inhibit-file-name-handlers
-           (cons 'draft-auto-save-buffer-name-handler
-                 (and (eq inhibit-file-name-operation operation)
-                      inhibit-file-name-handlers)))
-          (inhibit-file-name-operation operation))
-      (apply operation args))))
-
-(add-to-list 'file-name-handler-alist '("Drafts/cur/" . draft-auto-save-buffer-name-handler))
-
 (use-package sendmail
   :straight (:type built-in)
   :custom
@@ -1001,3 +938,5 @@
 (when (string= system-type "darwin")
   (setq insert-directory-program "/opt/homebrew/bin/gls")
   (setq dired-use-ls-dired t))
+
+(message "🏁 End of the config")

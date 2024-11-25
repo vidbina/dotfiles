@@ -11,11 +11,7 @@
   :straight (:type built-in)
   :custom
   (ispell-program-name "hunspell")
-  ;; Configure German, Swiss German, and two variants of English.
-  (ispell-dictionary "en_US,de_DE,nl")
-  ;; For saving words to the personal dictionary, don't infer it from
-  ;; the locale, otherwise it would save to ~/.hunspell_de_DE.
-  (ispell-personal-dictionary "~/.hunspell_personal")
+  (ispell-dictionary "en_US,de_DE,nl_NL,fr-toutesvariantes,es_ANY")
   (ispell-personal-dictionary "~/.hunspell_personal")
   :config
   ;; https://www.emacswiki.org/emacs/FlySpell#h5o-14
@@ -142,6 +138,7 @@
                       :host github
                       :repo "NixOS/nix-mode")
 
+  :after magit
   :custom
   (nix-nixfmt-bin "nixpkgs-fmt"))
 
@@ -235,30 +232,11 @@
   :custom
   (js-indent-level 2))
 
-;; https://github.com/emacs-typescript/typescript.el
-(use-package typescript-mode
-  :straight
-  (typescript-mode :type git
-                   :host github
-                   :repo "emacs-typescript/typescript.el")
-  :after flyspell tree-sitter
-  :delight
-  (typescript-mode "ts")
-  :custom
-  (typescript-indent-level 2)
-
-  ;; https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/#ensure-for-tsx-configure-for-tree-sitter-based-indentation
-  :config
-  ;; we choose this instead of tsx-mode so that eglot can automatically figure out language for server
-  ;; see https://github.com/joaotavora/eglot/issues/624 and https://github.com/joaotavora/eglot#handling-quirky-servers
-  (define-derived-mode typescriptreact-mode typescript-mode
-    "TypeScript TSX")
-
-  ;; use our derived mode for tsx files
-  (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . typescriptreact-mode))
-  ;; by default, typescript-mode is mapped to the treesitter typescript parser
-  ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
-  (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx)))
+;; https://github.com/gleam-lang/gleam-mode
+(use-package gleam-ts-mode
+  :straight (gleam-ts-mode :type git
+                           :host github
+                           :repo "gleam-lang/gleam-mode"))
 
 ;; https://github.com/immerrr/lua-mode
 (use-package lua-mode
@@ -294,12 +272,6 @@
   :straight (kotlin-mode :type git
                          :host github
                          :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
-
-;; https://github.com/swift-emacs/swift-mode
-(use-package swift-mode
-  :straight (swift-mode :type git
-                        :host github
-                        :repo "swift-emacs/swift-mode"))
 
 ;; https://github.com/haskell/haskell-mode
 (use-package haskell-mode
@@ -359,41 +331,49 @@
 
 (use-package treesit
   :straight (:type built-in)
-  ;;:autoload treesit-install-language-grammar
-  :commands (treesit-install-language-grammar nf/treesit-install-all-languages)
   :init
   (setq treesit-language-source-alist
-        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+        '(
+          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+          (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
+          (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+          (gleam . ("https://github.com/gleam-lang/tree-sitter-gleam"))
+          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+          (haskell . ("https://github.com/tree-sitter/tree-sitter-haskell"))
+          (elm . ("https://github.com/elm-tooling/tree-sitter-elm"))
+          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+          (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
           (c . ("https://github.com/tree-sitter/tree-sitter-c"))
           (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
           (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
           (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
           (make . ("https://github.com/alemuller/tree-sitter-make"))
           (org . ("https://github.com/milisims/tree-sitter-org"))
-          (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
-          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-          (php . ("https://github.com/tree-sitter/tree-sitter-php"))
-          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
-          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
           (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
           (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-          (zig . ("https://github.com/GrayJack/tree-sitter-zig")))
-        )
+          ))
   :config
   (setq major-mode-remap-alist
-        '((yaml-mode . yaml-ts-mode)
+        '(
+          (json-mode . json-ts-mode)
+          (yaml-mode . yaml-ts-mode)
+          (python-mode . python-ts-mode)
+          (gleam-mode . gleam-ts-mode)
           (bash-mode . bash-ts-mode)
           (js2-mode . js-ts-mode)
-          (typescript-mode . typescript-ts-mode)
-          (json-mode . json-ts-mode)
           (css-mode . css-ts-mode)
-          (python-mode . python-ts-mode)))
+          ))
   (add-to-list 'auto-mode-alist '("\\.[tj]sx?\\'" . tsx-ts-mode))
+
+  (defun vidbina/treesit-install-all-languages ()
+    "Install all languages specified by `treesit-language-source-alist'."
+    (interactive)
+    ;; https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
+    (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist)))
+
   (defun nf/treesit-install-all-languages ()
     "Install all languages specified by `treesit-language-source-alist'."
     (interactive)
@@ -468,66 +448,6 @@
                                   :repo "purcell/exec-path-from-shell")
   :config (when (daemonp)
             (exec-path-from-shell-initialize)))
-
-;; https://github.com/junjizhi/aide.el
-(use-package aide
-  :straight (aide :type git
-                  :host github
-                  :repo "junjizhi/aide.el")
-  :custom
-  (aide-completions-model "text-davinci-003")
-  (aide-max-output-tokens 1000)
-  (aide-openai-api-key-getter (lambda ()
-                                (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
-
-(defun vidbina/aide-openai-chat-complete (instruction target)
-  "Return the prompt answer from OpenAI API.
-API-KEY is the OpenAI API key.
-
-PROMPT is the prompt string we send to the API."
-  (message "Let's get schwifty")
-  (let* ((result nil)
-         (auth-value (format "Bearer %s" (funcall aide-openai-api-key-getter)))
-         (model "gpt-3.5-turbo")
-         (data `(("model" . "gpt-3.5-turbo")
-
-                 ("top_p" . ,aide-top-p)
-                 ("max_tokens" . ,aide-max-tokens)
-                 ("messages" . [
-                                (("role" . "system") ("content" . ,instruction))
-                                (("role" . "user") ("content" . ,target))
-                                ])))
-         ;;(json-data (json-encode data))
-         (endpoint "https://api.openai.com/v1/chat/completions"))
-    (message "Payload %s" data)
-    (message "Target %s" endpoint)
-    (vidbina/kill (json-encode data))
-    (request endpoint
-      :type "POST"
-      :data (json-encode data)
-      :headers `(("Authorization" . ,auth-value) ("Content-Type" . "application/json"))
-      :sync t
-      :parser 'json-read
-      :success (cl-function
-                (lambda (&key data &allow-other-keys)
-
-                  (message "Yes! %s" data)
-                  (let ((top-choice-message (alist-get 'message (elt (alist-get 'choices data) 0))))
-                    (setq result (alist-get 'content top-choice-message))
-                    (message "%s: %s" (alist-get 'role top-choice-message) (alist-get 'content top-choice-message)))))
-      :error (cl-function (lambda (x) (message "Error: %s" x))))
-    result))
-
-(defun vidbina/gpt-pair-prog (start end)
-  (interactive "r")
-  (if (region-active-p)
-      (progn (message "Region is selected!")
-             (let* ((instruction (read-string ">" "As a senior programmer, "))
-                    (region (buffer-substring-no-properties start end))
-                    ;;(result (aide--openai-complete-string region))
-                    (result-new (vidbina/aide-openai-chat-complete instruction region)))
-               (vidbina/kill result-new)))
-    (message "No region is selected.")))
 
 ;; https://github.com/karthink/gptel
 (use-package gptel
