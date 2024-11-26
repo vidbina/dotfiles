@@ -222,7 +222,6 @@
       "google-drive"
       "linear-linear"
       "logseq" # FLOSS (compared to Obsidian) but no mobile app
-      "microsoft-teams"
       "notion"
       "obsidian" # best-in-class with mobile app support
       "raycast"

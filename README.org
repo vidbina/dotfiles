@@ -1758,7 +1758,6 @@ Graphical tools which are typically installed through the /drag icon to Applicat
 "google-drive"
 "linear-linear"
 "logseq" # FLOSS (compared to Obsidian) but no mobile app
-"microsoft-teams"
 "notion"
 "obsidian" # best-in-class with mobile app support
 "raycast"
