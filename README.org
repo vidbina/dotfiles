@@ -3140,6 +3140,14 @@ https://guvcview.sourceforge.net/
 guvcview
 #+end_src
 
+*** Spotify
+
+As per <2024-11-26 Tue>, I'm moving back to Spotify after many years with TIDAL. Basically dropping TIDAL because I keep getting logged out of their app on my mobile phone and laptop and am just getting annoyed by it. Furthermore, I've had it multiple times that offline content was not available when I was travelling. What am I paying for if it doesn't work at the times I need it most.
+
+#+begin_src nix :noweb-ref homebrew-casks
+"spotify"
+#+end_src
+
 *** V4l utils
 
 https://linuxtv.org/projects.php

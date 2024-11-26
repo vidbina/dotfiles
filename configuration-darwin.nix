@@ -251,6 +251,7 @@
       "1password"
       "lm-studio"
       "obs" # for streaming
+      "spotify"
     ];
     masApps = {
       "Hidden Bar" = 1452453066;
