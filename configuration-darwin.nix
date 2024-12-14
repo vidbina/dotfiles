@@ -235,6 +235,7 @@
       "warp"
 
       # Entertainment
+      "spotify"
       "steam"
       "tidal"
 

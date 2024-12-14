@@ -1771,6 +1771,7 @@ Graphical tools which are typically installed through the /drag icon to Applicat
 "warp"
 
 # Entertainment
+"spotify"
 "steam"
 "tidal"
 
