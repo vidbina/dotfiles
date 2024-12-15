@@ -200,6 +200,7 @@
 
       "coreutils"
       "wimlib"
+      "bitwarden-cli"
       "ollama"
       "wireguard-tools"
       "pcalc"
@@ -247,7 +248,6 @@
       "whatsapp"
 
       "bitwarden"
-      "bitwarden-cli"
       "1password"
       "lm-studio"
       "obs" # for streaming

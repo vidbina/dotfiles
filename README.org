@@ -2220,6 +2220,9 @@ bitwarden-desktop
 
 #+begin_src nix :noweb-ref homebrew-casks
 "bitwarden"
+#+end_src
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "bitwarden-cli"
 #+end_src
 
