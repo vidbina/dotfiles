@@ -2226,6 +2226,12 @@ bitwarden-desktop
 "bitwarden-cli"
 #+end_src
 
+****** Install over Apple App Store
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Bitwarden" = 1352778147;
+#+end_src
+
 ***** 1Password
 
 #+begin_src nix :noweb-ref homebrew-casks
