@@ -2207,10 +2207,20 @@ pass
 
 For FLOSS friendly password managers with better GUIs, Bitwarden can be your friend. See this interesting [[https://www.reddit.com/r/Bitwarden/comments/15ssebq/bitwarden_vs_1password/][Reddit thread]] that highlights some differences to 1password in 2023.
 
-****** COMMENT Install with Brew (for OSX)
+****** COMMENT Install with Nix
+
+Note, bitwarden as packaged for nix is only availalble for the linux platform, not darwin.
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+bitwarden-cli
+bitwarden-desktop
+#+end_src
+
+****** Install with Brew (for OSX)
 
 #+begin_src nix :noweb-ref homebrew-casks
 "bitwarden"
+"bitwarden-cli"
 #+end_src
 
 ***** 1Password
