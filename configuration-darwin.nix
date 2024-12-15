@@ -246,7 +246,6 @@
       "telegram"
       "whatsapp"
 
-      "bitwarden"
       "1password"
       "lm-studio"
       "obs" # for streaming

@@ -2207,6 +2207,8 @@ pass
 
 For FLOSS friendly password managers with better GUIs, Bitwarden can be your friend. See this interesting [[https://www.reddit.com/r/Bitwarden/comments/15ssebq/bitwarden_vs_1password/][Reddit thread]] that highlights some differences to 1password in 2023.
 
+****** COMMENT Install with Brew (for OSX)
+
 #+begin_src nix :noweb-ref homebrew-casks
 "bitwarden"
 #+end_src
