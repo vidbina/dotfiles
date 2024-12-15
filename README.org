@@ -2216,7 +2216,7 @@ bitwarden-cli
 bitwarden-desktop
 #+end_src
 
-****** Install with Brew (for OSX)
+****** COMMENT Install with Brew (for OSX)
 
 #+begin_src nix :noweb-ref homebrew-casks
 "bitwarden"
