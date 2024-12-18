@@ -2324,6 +2324,16 @@ pkgs.ghidra-bin
 pkgs.kakoune
 #+end_src
 
+
+***** Zed
+
+[[https://zed.dev/][Zed]] is shaping up to be one of the coolest new editors. An IDE that was designed with speed in mind and should be blazingly fast with decent LLM features, multiplayer support and coming from the makers of Atom (from which they learned key lessons about how to not build and editor) and Treesitter. At least, that's what I get from their website and videos.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"zed"
+#+end_src
+
+
 **** Shell
 
 #+begin_src nix :noweb-ref dev-packages
