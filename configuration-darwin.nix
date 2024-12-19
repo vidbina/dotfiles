@@ -248,7 +248,6 @@
 
       "1password"
       "lm-studio"
-      "zed"
       "obs" # for streaming
       "spotify"
     ];
