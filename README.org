@@ -2337,7 +2337,7 @@ pkgs.kakoune
 
 ****** Installed from Nixpkgs
 
-#+begin_src nix :noweb-ref dev-packages
+#+begin_src nix :noweb-ref darwin-home-packages
 pkgs.zed-editor
 #+end_src
 

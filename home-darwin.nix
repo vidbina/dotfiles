@@ -12,6 +12,8 @@
     pywal
     # Darwin packages for home-manager (i.e.: nix-darwin)
     alacritty
+
+    pkgs.zed-editor
   ];
 
   # NOTE: Copied from dev.nix
