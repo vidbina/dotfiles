@@ -2335,6 +2335,12 @@ pkgs.kakoune
 "zed"
 #+end_src
 
+****** Installed from Nixpkgs
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.zed-editor
+#+end_src
+
 
 **** Shell
 

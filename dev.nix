@@ -66,6 +66,7 @@
     pkgs.hexyl
     pkgs.ghidra-bin
     pkgs.kakoune
+    pkgs.zed-editor
     pkgs.shellcheck
     pkgs.shfmt
     pkgs.asciinema
