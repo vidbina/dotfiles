@@ -200,7 +200,6 @@
 
       "coreutils"
       "wimlib"
-      "ollama"
       "wireguard-tools"
       "pcalc"
     ];

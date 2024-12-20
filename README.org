@@ -2281,6 +2281,8 @@ wezterm
 
 [[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
 
+****** COMMENT Install through homebrew
+
 On MacOS, we install Ollama using the [[https://formulae.brew.sh/formula/ollama][brew]]:
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
