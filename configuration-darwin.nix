@@ -247,7 +247,6 @@
       "whatsapp"
 
       "1password"
-      "lm-studio"
       "obs" # for streaming
       "spotify"
     ];

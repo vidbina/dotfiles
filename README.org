@@ -2287,7 +2287,11 @@ On MacOS, we install Ollama using the [[https://formulae.brew.sh/formula/ollama]
 "ollama"
 #+end_src
 
-***** LM Studio
+***** COMMENT LM Studio
+
+#+begin_comment
+⚠️ Keep in mind that LM Studio isn't FLOSS afaik and it won't run on an Intel MacOS, which makes sense but breaks this conf on my older MacBook Pro.
+#+end_comment
 
 With [[https://lmstudio.ai/][LM Studio]], one can easily inference against LLMs, spin up an API to allow other tools to access locally-served LLMs and compute embeddings locally... all through a convenient GUI.
 
