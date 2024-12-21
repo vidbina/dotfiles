@@ -1,6 +1,6 @@
 # Tangled from README.org
 # Please modify by editing README.org and re-tangling to generate this nix file.
-{ config, lib, pkgs, options, ... }:
+{ config, pkgs, ... }:
 
 {
   # Tangling individual dev tools through nix-devtools noweb reference

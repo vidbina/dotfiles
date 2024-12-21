@@ -1442,6 +1442,7 @@ On macOS, nix-darwin provides the most batteries included nix experience. We can
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
+    # common Darwin packages
     <<nix-darwin-packages-common>>
   ] ++ (if system == "aarch64-darwin" then [
     # ARM-only packages
@@ -1471,7 +1472,6 @@ Furthermore read https://www.launchd.info/ for more information on the launchd s
 All packages that are architecture agnostic are installed in all of our macOS machines.
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
-# common Darwin packages
 asciinema
 bat
 checkmake
@@ -1994,7 +1994,7 @@ For starters, we stub the general structure of the nix file and define the =<<ni
 #+begin_src nix :noweb yes :tangle dev.nix
 # Tangled from README.org
 # Please modify by editing README.org and re-tangling to generate this nix file.
-{ config, lib, pkgs, options, ... }:
+{ config, pkgs, ... }:
 
 {
   <<nix-devtools>>
