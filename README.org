@@ -2395,6 +2395,14 @@ On MacOS, we install Ollama using the [[https://formulae.brew.sh/formula/ollama]
 "ollama"
 #+end_src
 
+****** Install Ollama from nix packages
+
+We still need to clean up my config to reuse the old dev.nix:
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.ollama
+#+end_src
+
 ***** COMMENT LM Studio
 
 #+begin_comment

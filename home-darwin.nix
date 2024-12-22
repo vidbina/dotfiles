@@ -14,6 +14,7 @@
     pkgs.nushell
     alacritty
     pkgs.wezterm
+    pkgs.ollama
     pkgs.xxd
     pkgs.hexyl
     pkgs.ghidra-bin
