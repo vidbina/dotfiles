@@ -2405,8 +2405,8 @@ pkgs.httplab
 
 - State "TODO"       from              [2023-10-03 Tue 18:17] \\
   Verify that glibc is not available for Darwin and merge the separated configs or provide explanation.
+
 #+begin_src nix :noweb-ref dev-packages
-pkgs.gdb
 pkgs.checkmake
 #pkgs.cmakeCurses
 pkgs.gnumake
@@ -2416,6 +2416,7 @@ For now, isolate the Linux-specific dev packages from the more general dev packa
 
 #+begin_src nix :noweb-ref dev-packages-linux
 pkgs.glibc
+pkgs.gdb
 #+end_src
 
 **** COMMENT Haskell

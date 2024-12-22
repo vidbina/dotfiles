@@ -75,11 +75,11 @@
     pkgs.html-tidy
     pkgs.httpie
     pkgs.httplab
-    pkgs.gdb
     pkgs.checkmake
     #pkgs.cmakeCurses
     pkgs.gnumake
     pkgs.gleam
+    pkgs.nixd
     pkgs.nodePackages.typescript-language-server
     pkgs.tree-sitter
     pkgs.jq
@@ -88,6 +88,7 @@
     pkgs.redis
   ] ++ (if pkgs.stdenv.isLinux then [
     pkgs.glibc
+    pkgs.gdb
     pkgs.evemu
   ] else [ ]);
 }

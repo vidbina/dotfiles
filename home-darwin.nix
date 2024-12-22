@@ -26,7 +26,6 @@
     pkgs.html-tidy
     pkgs.httpie
     pkgs.httplab
-    pkgs.gdb
     pkgs.checkmake
     #pkgs.cmakeCurses
     pkgs.gnumake
