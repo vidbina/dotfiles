@@ -10,7 +10,97 @@ These dotfiles make my life slightly more convenient. Not promising they'll do t
 
 My configuration is currently managed with [[https://github.com/nix-community/home-manager][home-manager]] for the better DX or UX. Before using home-manager, I manually managed symlinks from my config directory to this dotfiles repo. The use of [[https://www.gnu.org/software//stow/][GNU Stow]] was considered for a brief moment until I realized that Stow was written in Perl and I came to terms with my unwillingness to have a critical part of my stack based on tooling that brings me no joy 🙊 (on account of my troubled personal history with Perl).
 
+#+begin_quote
+[!WARNING]
+This config is a bit of a mess and the dependency chain of tangled files kind of visualizes this. Reason being is that this repo has a bit of a wild history.
+
+This started of as just a regular collection of dotfiles -- something that I could use through manual symlinking or a GNU Stow-like experience. When I got guided into the NixOS world by the good folks at c-base (Berlin), I started tacking my nix configs into this repo. At some point, I learned home-manager and modified the config even more to separate out system config from home-manager config. Somewhere in between, an Emacs phase happened with a reintroduction to literate configs, which informed a considerable refactoring of the config in order to have more explanation -- at least that was the idea. Eventually, I ended up switching from NixOS to MacOS, due to a coffee mishap, and shoehorned a nix-darwin config into the mix.
+
+Point is: this repo has always been a pretty accurate reflection of my dotfiles at a given moment in time and since I've chaotically switched between tooling and systems quite a bit, the form of this config has shifted considerably in tandem as well. At times, for the better but in many cases for the worst as I made things more obscure. In a way, I overcomplicated this so much that I now need the literate config to even know what's going on. 😭 Skill issue on my side. I love Nix and the reliability it gives me. I love Emacs for the integrated config management tooling it gives me. I just need to organise this better sometime -- a hobby project.
+#+end_quote
+
+#+begin_src dot :file doc/sys-conf-setup.png :exports results
+digraph G {
+  node_this [shape=box, label="README.org"]
+
+  // not defined in this file but referenced here
+  node_emacs_nix_darwin_nix [shape=box, label="emacs/nix-darwin.nix"]
+  node_emacs_default_nix [shape=box, label="emacs/default.nix"]
+  node_rofi_default_nix [shape=box, label="rofi/default.nix"]
+  node_system_darwin_default_nix [shape=box, label="system/darwin/default.nix"]
+
+  // defined in this file
+  node_common_nix [shape=box, label="common.nix"]
+  node_shell_nix [shape=box, label="shell.nix"]
+  node_x_nix [shape=box, label="x.nix"]
+  node_dev_nix [shape=box, label="dev.nix"]
+  node_mail_nix [shape=box, label="mail.nix"]
+  node_vim_nix [shape=box, label="vim.nix"]
+  node_multimedia_nix [shape=box, label="multimedia.nix"]
+  node_browser_nix [shape=box, label="browser.nix"]
+  node_doc_nix [shape=box, label="doc.nix"]
+
+  node_home_darwin_nix [shape=box, label="home-darwin.nix"]
+  node_home_linux_nix [shape=box, label="home-linux.nix"]
+  node_configuration_darwin_nix [shape=box, label="configuration-darwin.nix"]
+
+  node_nvim_init_vim [shape=box, label="nvim/init.vim"]
+  node_hammerspoon_init_lua [shape=box, label="hammerspoon/init.lua"]
+
+  node_this -> node_common_nix [label="tangles to"]
+  node_this -> node_shell_nix [label="tangles to"]
+  node_this -> node_x_nix [label="tangles to"]
+  node_this -> node_common_nix [label="tangles to"]
+  node_this -> node_shell_nix [label="tangles to"]
+  node_this -> node_x_nix [label="tangles to"]
+  node_this -> node_dev_nix [label="tangles to"]
+  node_this -> node_mail_nix [label="tangles to"]
+  node_this -> node_vim_nix [label="tangles to"]
+  node_this -> node_multimedia_nix [label="tangles to"]
+  node_this -> node_browser_nix [label="tangles to"]
+  node_this -> node_doc_nix [label="tangles to"]
+  node_this -> node_home_darwin_nix [label="tangles to"]
+  node_this -> node_home_linux_nix [label="tangles to"]
+  node_this -> node_nvim_init_vim [label="tangles to"]
+  node_this -> node_hammerspoon_init_lua [label="tangles to"]
+  node_this -> node_configuration_darwin_nix [label="tangles to"]
+
+  node_dev_nix -> node_common_nix [label="imported by"]
+  node_vim_nix -> node_common_nix [label="imported by"]
+
+  node_vim_nix -> node_home_darwin_nix [label="imported by"]
+
+  node_common_nix -> node_home_linux_nix [label="imported by"]
+  node_doc_nix -> node_home_linux_nix [label="imported by"]
+  node_browser_nix -> node_home_linux_nix [label="imported by"]
+  node_x_nix -> node_home_linux_nix [label="imported by"]
+  node_multimedia_nix -> node_home_linux_nix [label="imported by"]
+  node_emacs_default_nix -> node_home_linux_nix [label="imported by"]
+
+  node_rofi_default_nix -> node_x_nix [label="imported by"]
+
+  node_emacs_nix_darwin_nix -> node_configuration_darwin_nix [label="imported by"]
+  node_system_darwin_default_nix -> node_configuration_darwin_nix [label="imported by"]
+
+  node_home_linux_nix -> node_shell_nix [label="imported by"]
+  node_home_darwin_nix -> node_shell_nix [label="imported by"]
+
+  // node_this -> node_default_nix [label="tangles to", style=dotted]
+  // node_this -> node_default_darwin_nix [label="tangles to", style=dotted]
+  // node_personal_example -> node_personal [style=dotted]
+}
+#+end_src
+
+#+RESULTS:
+[[file:doc/sys-conf-setup.png]]
+
+#+begin_quote
+[!NOTE]
+Org-mode in Emacs is used such that I can read my config as a literate configuration and tangle the necessary config files directly from Emacs. The pro of this setup is that it provides me context, the big con, is that you need Emacs to compile the target files if you want to make changes. Making changes in the target files directly, will result to overwrites when anyone retangles the config. For files tangled from Emacs, I've tried to add a notice at the start of those files to make sure you have a reminder when visiting a tangled file to head back to the source to make changes.
+#+end_quote
+
 ** The easy way with home-manager
+
 *** TODO Common Configuration
 
 #+begin_src nix :noweb yes :tangle common.nix
@@ -547,6 +637,7 @@ programs.zsh.enable = true;
 
 - State "TODO"       from              [2023-10-04 Wed 15:35] \\
   Update default-darwin.nix and import this instead of the emacsnix-darwin.nix
+
 #+begin_src nix :noweb-ref common-imports-darwin
 ./emacs/default-darwin.nix
 #+end_src
