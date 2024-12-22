@@ -2362,6 +2362,13 @@ pkgs.zed-editor
 #+end_src
 
 
+**** Diagramming
+***** Graphviz
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.graphviz
+#+end_src
+
 **** Shell
 
 #+begin_src nix :noweb-ref dev-packages

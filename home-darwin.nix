@@ -19,6 +19,7 @@
     pkgs.ghidra-bin
     pkgs.kakoune
     pkgs.zed-editor
+    pkgs.graphviz
     pkgs.shellcheck
     pkgs.shfmt
     pkgs.asciinema
