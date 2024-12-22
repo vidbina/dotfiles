@@ -496,6 +496,9 @@ Navigate to the "Full Disk Access" setting and enable access for the Terminal.
 home.stateVersion = "23.05";
 
 home.packages = with pkgs; [
+  # dev-packages
+  <<dev-packages>>
+  # darwin-home-packages
   <<darwin-home-packages>>
 ];
 
@@ -1513,11 +1516,6 @@ yq
 inputs.devenv.packages.${system}.default
 #+end_src
 
-#+begin_src nix :noweb-ref darwin-home-packages
-# Darwin packages for home-manager (i.e.: nix-darwin)
-alacritty
-#+end_src
-
 Intel-only packages are listed separately such that we can use them on the macOS machine that still has a x86-based Intel chip but avoid trying to install them on ARM-based Apple machines.
 
 #+begin_src nix :noweb-ref nix-darwin-packages-intel
@@ -2264,6 +2262,12 @@ pkgs.nushell
 nushell
 #+end_src
 
+***** TODO Alacritty
+
+#+begin_src nix :noweb-ref dev-packages
+alacritty
+#+end_src
+
 ***** WezTerm
 
 [[https://wezfurlong.org/wezterm][WezTerm]] is a terminal emulator and multiplexer written in Rust, with hyperlink support, emoji support and since it's written in Rust... probably as blazingly fast as it gets.
@@ -2341,7 +2345,6 @@ pkgs.ghidra-bin
 pkgs.kakoune
 #+end_src
 
-
 ***** Zed
 
 [[https://zed.dev/][Zed]] is shaping up to be one of the coolest new editors. An IDE that was designed with speed in mind and should be blazingly fast with decent LLM features, multiplayer support and coming from the makers of Atom (from which they learned key lessons about how to not build and editor) and Treesitter. At least, that's what I get from their website and videos.
@@ -2354,7 +2357,7 @@ pkgs.kakoune
 
 ****** Install Zed from Nixpkgs
 
-#+begin_src nix :noweb-ref darwin-home-packages
+#+begin_src nix :noweb-ref dev-packages
 pkgs.zed-editor
 #+end_src
 

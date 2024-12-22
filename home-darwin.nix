@@ -9,11 +9,36 @@
   home.stateVersion = "23.05";
 
   home.packages = with pkgs; [
-    pywal
-    # Darwin packages for home-manager (i.e.: nix-darwin)
+    # dev-packages
+    pkgs.gh
+    pkgs.nushell
     alacritty
-
+    pkgs.wezterm
+    pkgs.xxd
+    pkgs.hexyl
+    pkgs.ghidra-bin
+    pkgs.kakoune
     pkgs.zed-editor
+    pkgs.shellcheck
+    pkgs.shfmt
+    pkgs.asciinema
+    pkgs.exercism
+    pkgs.html-tidy
+    pkgs.httpie
+    pkgs.httplab
+    pkgs.gdb
+    pkgs.checkmake
+    #pkgs.cmakeCurses
+    pkgs.gnumake
+    pkgs.gleam
+    pkgs.nodePackages.typescript-language-server
+    pkgs.tree-sitter
+    pkgs.jq
+    pkgs.yq
+    pkgs.sqlite-interactive
+    pkgs.redis
+    # darwin-home-packages
+    pywal
   ];
 
   # NOTE: Copied from dev.nix

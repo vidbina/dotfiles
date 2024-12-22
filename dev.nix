@@ -61,11 +61,13 @@
   home.packages = [
     pkgs.gh
     pkgs.nushell
+    alacritty
     pkgs.wezterm
     pkgs.xxd
     pkgs.hexyl
     pkgs.ghidra-bin
     pkgs.kakoune
+    pkgs.zed-editor
     pkgs.shellcheck
     pkgs.shfmt
     pkgs.asciinema
