@@ -31,6 +31,7 @@
     #pkgs.cmakeCurses
     pkgs.gnumake
     pkgs.gleam
+    pkgs.nixd
     pkgs.nodePackages.typescript-language-server
     pkgs.tree-sitter
     pkgs.jq
