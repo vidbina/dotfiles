@@ -570,6 +570,7 @@ niv update nixpkgs
 6. Profit 💰
 
 #+begin_quote
+[!TIP]
 💡 Note that home-manager generated configuration files will be written somewhere to ~~/.config~, e.g.: ~~/.config/git/config~ for git.
 #+end_quote
 
@@ -955,6 +956,7 @@ autorandr --change
 #+end_src
 
 #+begin_quote
+[!IMPORTANT]
 ⚠️ With the autorandr tool, we have to plug screens into the same ports as we used when configuring the setup. In the case of my newer laptop where I have a bunch of USB C ports with the risk of pluggin monitors in different configurations between docking attempts, I just connect the monitor in every likely configuration, configure my setup with =arandr= and then save it with =autorandr --save= to ensure that autorandr will have seen that configuration before. 😉
 #+end_quote
 
@@ -1167,6 +1169,7 @@ ln -s ${PATH_TO_DOTFILE}/tmux.conf ${HOME}/.config/tmux.conf
 :END:
 
 #+begin_quote
+[!WARNING]
 ⚠️ I haven't relied on init.nvim for a while since I broke my configuration a little while ago in my attempts to pull vim-plug with Nix and then manage all my other plugins through the init.nvim file. As a lazyperson's way out, I have simply given up and started managing my entire nvim configuration in nix.
 
 [2024-02-19 Mon]: Tangling init.vim from the same snippets that I use in nix. Only difference is that init.vim contains the packages that are being installed through Pathogen, while the nix config handles package management for vim itself.
@@ -1467,9 +1470,14 @@ Read the Apple [[https://developer.apple.com/library/archive/documentation/MacOS
 
 Furthermore read https://www.launchd.info/ for more information on the launchd system. I have for a long time misunderstood it as an init system hut it is more of a job manager.
 
-*** Packages
+*** TODO Packages for MacOS
 
 All packages that are architecture agnostic are installed in all of our macOS machines.
+
+#+begin_quote
+[!NOTE]
+We want to move this block of package definitions into the appropriate sections such that all config details are localised to the tool-specific section in our config. This block here, is a hack because I couldn't figure out how to use the common.nix in my nix-darwin setup, so we're definitely not DRY in this configuration setup.
+#+end_quote
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
 asciinema
@@ -1519,6 +1527,7 @@ ghidra-bin
 #+end_src
 
 #+begin_quote
+[!NOTE]
 It follows that the amount of Intel-only packages will decrease as developers make their applications more readily available (also for Apple Silicon).
 #+end_quote
 
@@ -1787,7 +1796,7 @@ Install apps from the Apple App Store through the mas CLI tool for which the nix
 
 💡 Remember to go through the list of all masApps in your file:configuration-darwin.nix and make sure to at least manually install them into your Apple account once to avoid the [[*Resolve: Redownload Unavailable with This Apple ID: This redownload is not available for this Apple ID either because it was bought by a different user or the item was refunded or cancelled.][this "Redownload Unavailable with this Apple ID" issue]].
 
-*** DONE Resolve: Redownload Unavailable with This Apple ID: This redownload is not available for this Apple ID either because it was bought by a different user or the item was refunded or cancelled. 
+*** DONE Resolve: Redownload Unavailable with This Apple ID: This redownload is not available for this Apple ID either because it was bought by a different user or the item was refunded or cancelled.
 
 Apps need to already be in a user's Purchased list before mas can install them. For any new tools, just make sure that you install it on one machine at least manually in order to add it to your Purchased list as documented in [[https://github.com/mas-cli/mas/issues/85#issuecomment-305382347][GH mas-cli issue 85]]. In my case, I didn't even complete the installation, I just started it to add it to the list and then prematurely stopped it in order to continue the installation through nix-darwin.
 
@@ -1801,7 +1810,7 @@ You can review your current computer's authorisation status by opening the App S
 Computer authorisation status did not have any bearing on this issue but it seems a good practice to ocassionally verify that all the authorised devices in an account are still in your possession.
 
 *** nix-darwin nixpkgs
-**** Allow some unfree packages
+**** Allow some unfree packages in nix-darwin
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
@@ -1809,7 +1818,7 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
 ];
 #+end_src
 
-**** Allow some nixpkgs overlays
+**** Allow some nixpkgs overlays inn ninx-darwin
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 nixpkgs.overlays = [
@@ -2216,7 +2225,7 @@ bitwarden-cli
 bitwarden-desktop
 #+end_src
 
-****** COMMENT Install with Brew (for OSX)
+****** COMMENT Install Bitwarden (for OSX) from homebrew cask
 
 #+begin_src nix :noweb-ref homebrew-casks
 "bitwarden"
@@ -2226,13 +2235,15 @@ bitwarden-desktop
 "bitwarden-cli"
 #+end_src
 
-****** Install over Apple App Store
+****** Install Bitwarden from Apple App Store
 
 #+begin_src nix :noweb-ref homebrew-masapps :noweb yes
 "Bitwarden" = 1352778147;
 #+end_src
 
 ***** 1Password
+
+****** Install 1Password (for OSX) from homebrew cask
 
 #+begin_src nix :noweb-ref homebrew-casks
 "1password"
@@ -2257,7 +2268,7 @@ nushell
 
 [[https://wezfurlong.org/wezterm][WezTerm]] is a terminal emulator and multiplexer written in Rust, with hyperlink support, emoji support and since it's written in Rust... probably as blazingly fast as it gets.
 
-****** COMMENT Install through brew
+****** COMMENT Install WezTerm from homebrew cask
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "wezterm"
@@ -2281,7 +2292,7 @@ wezterm
 
 [[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
 
-****** COMMENT Install through homebrew
+****** COMMENT Install Ollama through homebrew
 
 On MacOS, we install Ollama using the [[https://formulae.brew.sh/formula/ollama][brew]]:
 
@@ -2335,13 +2346,13 @@ pkgs.kakoune
 
 [[https://zed.dev/][Zed]] is shaping up to be one of the coolest new editors. An IDE that was designed with speed in mind and should be blazingly fast with decent LLM features, multiplayer support and coming from the makers of Atom (from which they learned key lessons about how to not build and editor) and Treesitter. At least, that's what I get from their website and videos.
 
-****** COMMENT Installed from homebrew cask
+****** COMMENT Install Zed from a homebrew cask
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "zed"
 #+end_src
 
-****** Installed from Nixpkgs
+****** Install Zed from Nixpkgs
 
 #+begin_src nix :noweb-ref darwin-home-packages
 pkgs.zed-editor
@@ -2532,6 +2543,7 @@ evemu-play touchpad-debug.evemu
 According to ChatGPT:
 
 #+begin_quote org
+[!TIP]
 If the recording from evemu-record is already choppy, the problem is likely at a lower level than libinput. Libinput processes the events given by the kernel, so if the kernel events are choppy, libinput will also see choppy data.
 
 Here are some steps you can take to debug the issue:
@@ -2590,6 +2602,7 @@ Is the touchpad being reconnected over different ports?
 Searching for DLL0945:00 04F3:311C on Google yields https://www.dell.com/community/XPS/XPS-15-9510-Touchpad-Intermittent-touchpad-lag/td-p/8012567/page/4 where the following comment is posted:
 
 #+begin_quote
+[!NOTE]
 I can also reproduce that this is related to the palm rejection on the side of the touchpad. Usually the cursor does not move when I move the finger on the very right side of the touchpad. Every time the cursor is laggy, the palm rejection does not work and I can move the cursor by touching the pad on the very right side.
 
 I also tried out the mtouch drivers instead of libinput but the problem persists. so I suppose that the problem is related to the firmware of the touchpad.
@@ -2698,7 +2711,7 @@ The keybindings that we want are as follows:
 }
 #+end_src
 
-**** Settings
+**** VsCode Settings
 
 In order to enable long-presses to register multiple entries we need the =ApplePressAndHoldEnabled= OSX setting, otherwise, we have to manually depress a key multiple times in order to have multiple entries.
 
@@ -2766,7 +2779,7 @@ I have used neomutt in combination with Neovim and mu4e in Emacs for nearly half
 }
 #+end_src
 
-*** Packages
+*** Packages for Mutt-like Mail
 
 The following packages were part of my config before and are just seperated to help me break this down into subordinate chapters:
 
@@ -2787,13 +2800,13 @@ offlineimap
 
 This is only necessary if I don't end up moving this part of my config entirely into home-manager instead.
 
-*** msmtp
+**** msmtp
 
 #+begin_src nix :noweb-ref mail-packages
 msmtp
 #+end_src
 
-*** Notmuch
+**** Notmuch
 
 Much of my work-related comms transpires over e-mail. In order to obtain [[https://tongfamily.com/2022/01/22/superhuman-hidden-commands-to-top-and-bottom-are-gg-and-g/][superhuman-level-like-or-better]] 🙊 convenience, I am using [[https://notmuchmail.org/][notmuch]] which has [[https://notmuchmail.org/frontends/][plenty of frontends]] available.
 
@@ -2810,7 +2823,7 @@ See my private dotfiles where I have defined a mbsync service to handle synchron
 
 #+begin_src text
 sendmail: authentication failed (method PLAIN)
-sendmail: server message: 454 4.7.0 Temporary authentication failure: 
+sendmail: server message: 454 4.7.0 Temporary authentication failure:
 sendmail: could not send mail (account work-asabina-gmbh from /home/vidbina/.config/msmtp/config)
 #+end_src
 
@@ -2957,7 +2970,7 @@ For now, I symlinked ~/.config/xmobar to ~/src/vidbina/xmobar-configuration.
 #+begin_src nix :noweb-ref x-progams
 programs.xmobar = {
   enable = true;
-  # extraConfig = 
+  # extraConfig =
 };
 #+end_src
 
@@ -3039,6 +3052,7 @@ launchd.agents.syncthing = {
 as =KeepAlive= is defined in the nix config, but missing in the observed launch output, furthermore =OnDemand= isn't mentioned at all in the nix config. 🤷🏿
 
 #+begin_quote
+[!NOTE]
 It seems that the [[https://github.com/nix-community/home-manager/blob/f99eace7c167b8a6a0871849493b1c613d0f1b80/modules/launchd/launchd.nix#L167][OnDemand]] option is a pre macOS 10.5 key which has been superceded by KeepAlive.
 #+end_quote
 
@@ -4005,6 +4019,7 @@ vi-editor for input controls
 *** Firefox
 
 #+begin_quote
+[!TIP]
 ⚠️ In order to get the extensions in Firefox to work, you may have to first manually enable the extensions.
 #+end_quote
 
@@ -4489,10 +4504,10 @@ Refer to [[file:emacs/README.org]] for an example of a literate config that tang
 
 ** TODO Add MIME types
 
-#+begin_quote conf
+#+begin_src conf
 application/pdf=org.pwmt.zathura-pdf-mupdf.desktop;okularApplication_pdf.desktop;
 application/octet-stream=emacsclient.desktop;
-#+end_quote
+#+end_src
 
 * Local Variables
 
