@@ -234,7 +234,7 @@ Navigate to the "Full Disk Access" setting and enable access for the Terminal.
 
 {
   imports = [
-    <<common-imports-darwin>>
+    <<home-darwin-imports>>
   ];
 
   <<home-darwin>>
@@ -291,13 +291,13 @@ programs.zsh.enable = true;
 
 ****** COMMENT Import common
 
-#+begin_src nix :noweb-ref common-imports-darwin
+#+begin_src nix :noweb-ref home-darwin-imports
 ./common.nix
 #+end_src
 
 ****** Import vim into Darwin config
 
-#+begin_src nix :noweb-ref common-imports-darwin
+#+begin_src nix :noweb-ref home-darwin-imports
 ./vim.nix
 #+end_src
 
@@ -306,7 +306,7 @@ programs.zsh.enable = true;
 - State "TODO"       from              [2023-10-04 Wed 15:35] \\
   Update default-darwin.nix and import this instead of the emacsnix-darwin.nix
 
-#+begin_src nix :noweb-ref common-imports-darwin
+#+begin_src nix :noweb-ref home-darwin-imports
 ./emacs/default-darwin.nix
 #+end_src
 
