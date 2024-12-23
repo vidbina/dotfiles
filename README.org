@@ -241,7 +241,11 @@ Navigate to the "Full Disk Access" setting and enable access for the Terminal.
 }
 #+end_src
 
-***** TODO Darwin Home-manager Config
+***** DONE Darwin Home-manager Config
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2024-12-23 Mon 10:19] \\
+  DRY-ing up the Darwin home-manager config by using the Linux home-manager config isn't a reasonable since Linux and Darwin use different mechanisms to provide home-manager facilities and this isn't shareable between platforms. It's a home-manager vs nix-darwin thing.
+:END:
 
 - State "TODO"       from              [2023-10-04 Wed 14:20] \\
   Refactor to reuse the shared hm and programs configurations that we've used for the Linux config earlier. We want to DRY the overal config up.
@@ -838,7 +842,7 @@ services.trayer = {
 };
 #+end_src
 
-*** TODO Common Configuration
+*** Common Configuration
 
 #+begin_src nix :noweb yes :tangle common.nix
 # Tangled from README.org
@@ -904,6 +908,10 @@ in
 # TODO: Remove, likely not necessary
 ".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
 #+end_src
+
+**** WIP Generalise config by removing home-manager specifics in common.nix and other suposedly shareable nix files and considering whether out concern specific nix-files introduce needless idirection
+
+Linux vs darwin nix configurations will have different attributes/options that we can configure under =home.= due to home-manager vs nix-darwin being separate projects. As such, the notion of .nix files that we can share between the two platforms doesn't really make much sense. We're better of specifying MacOS (darwin) specifics and NixOS specifics inside of the respective application-level heading and tangling it into one flat config file per platform.
 
 **** Common Programs
 
@@ -1257,7 +1265,7 @@ ln -s ${PATH_TO_DOTFILE}/tmux.conf ${HOME}/.config/tmux.conf
 - sets up vi key bindings in tmux
 - remaps colors
 
-*** TODO Neovim
+*** DONE Neovim
 :PROPERTIES:
 :CUSTOM_ID: neovim
 :END:
@@ -1273,20 +1281,20 @@ ln -s ${PATH_TO_DOTFILE}/tmux.conf ${HOME}/.config/tmux.conf
 ln -s ${PATH_TO_DOTFILE}/nvim ${HOME}/.config/nvim
 #+end_src
 
-- [X] set tabbing behavior (expand tabs to 2 spaces)
+- [x] set tabbing behavior (expand tabs to 2 spaces)
   #+begin_src vimrc :noweb-ref neovim-config
 set tabstop=2    " tab stop to 2 spaces
 set shiftwidth=2 " shift width by 2 spaces
 set expandtab    " expand tabs to spaces
   #+end_src
-- [X] enable mouse in all modes
+- [x] enable mouse in all modes
   #+begin_src vimrc :noweb-ref neovim-config
 set mouse=a
 set number
 ":map <ScrollWheelUp> <C-Y>
 ":map <ScrollWheelDown> <C-E>
   #+end_src
-- [X] define Plug extensions
+- [x] define Plug extensions
   #+begin_src vimrc :noweb-ref neovim-plugged
 call plug#begin("~/.local/share/nvim/plugged")
   Plug 'neovim/nvim-lspconfig'
@@ -1323,7 +1331,7 @@ call plug#begin("~/.local/share/nvim/plugged")
   Plug 'jeffkreeftmeijer/vim-dim', { 'branch': 'main' }
 call plug#end()
   #+end_src
-- [X] Set remaining vim settings
+- [x] Set remaining vim settings
   #+begin_src vimrc :noweb-ref neovim-config
 colorscheme dim
 " https://vi.stackexchange.com/a/45130
@@ -1422,10 +1430,6 @@ ln -s ${PATH_TO_DOTFILE}/compton/compton.conf ${HOME}/.config/compton.conf
 ln -s ${PATH_TO_DOTFILE}/octave/.octaverc ${HOME}/.config/.octaverc
 #+end_src
 
-**** TODO: Rename hidden file to more visible file
-:PROPERTIES:
-:CUSTOM_ID: todo-rename-hidden-file-to-more-visible-file
-:END:
 *** Lein
 :PROPERTIES:
 :CUSTOM_ID: lein
@@ -2353,7 +2357,7 @@ pkgs.nushell
 nushell
 #+end_src
 
-***** TODO Alacritty
+***** DONE Alacritty
 
 #+begin_src nix :noweb-ref dev-packages
 alacritty
@@ -2507,7 +2511,7 @@ pkgs.httpie
 pkgs.httplab
 #+end_src
 
-**** TODO GCC
+**** DONE GCC
 
 - State "TODO"       from              [2023-10-03 Tue 18:17] \\
   Verify that glibc is not available for Darwin and merge the separated configs or provide explanation.
@@ -2723,11 +2727,11 @@ I can also reproduce that this is related to the palm rejection on the side of t
 I also tried out the mtouch drivers instead of libinput but the problem persists. so I suppose that the problem is related to the firmware of the touchpad.
 #+end_quote
 
-****** TODO mtdiag-qt
+****** CANCELED mtdiag-qt
 
 https://github.com/bentiss/mtdiag-qt
 
-****** TODO mtview
+****** CANCELED mtview
 
 https://github.com/whot/mtview
 
@@ -2910,10 +2914,6 @@ urlview
 #+begin_src nix :noweb-ref mail-packages
 offlineimap
 #+end_src
-
-**** TODO Split out packages into subordinate chapters
-
-This is only necessary if I don't end up moving this part of my config entirely into home-manager instead.
 
 **** msmtp
 
@@ -3122,7 +3122,11 @@ services.syncthing = {
 };
 #+end_src
 
-**** TODO Issue: Syncthing not automatically started on macOS
+**** DONE Issue: Syncthing not automatically started on macOS
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2024-12-23 Mon 10:28] \\
+  Checking on <2024-12-21 Sat>, I noticed that syncthings is running on tokyo23 (ARM) so we're good here.
+:END:
 
 [2024-02-07 Wed] On macOS, the syncthing service isn't running which was confirmed by running:
 
