@@ -1265,99 +1265,6 @@ ln -s ${PATH_TO_DOTFILE}/tmux.conf ${HOME}/.config/tmux.conf
 - sets up vi key bindings in tmux
 - remaps colors
 
-*** DONE Neovim
-:PROPERTIES:
-:CUSTOM_ID: neovim
-:END:
-
-#+begin_quote
-[!WARNING]
-⚠️ I haven't relied on init.nvim for a while since I broke my configuration a little while ago in my attempts to pull vim-plug with Nix and then manage all my other plugins through the init.nvim file. As a lazyperson's way out, I have simply given up and started managing my entire nvim configuration in nix.
-
-[2024-02-19 Mon]: Tangling init.vim from the same snippets that I use in nix. Only difference is that init.vim contains the packages that are being installed through Pathogen, while the nix config handles package management for vim itself.
-#+end_quote
-
-#+begin_src shell
-ln -s ${PATH_TO_DOTFILE}/nvim ${HOME}/.config/nvim
-#+end_src
-
-- [x] set tabbing behavior (expand tabs to 2 spaces)
-  #+begin_src vimrc :noweb-ref neovim-config
-set tabstop=2    " tab stop to 2 spaces
-set shiftwidth=2 " shift width by 2 spaces
-set expandtab    " expand tabs to spaces
-  #+end_src
-- [x] enable mouse in all modes
-  #+begin_src vimrc :noweb-ref neovim-config
-set mouse=a
-set number
-":map <ScrollWheelUp> <C-Y>
-":map <ScrollWheelDown> <C-E>
-  #+end_src
-- [x] define Plug extensions
-  #+begin_src vimrc :noweb-ref neovim-plugged
-call plug#begin("~/.local/share/nvim/plugged")
-  Plug 'neovim/nvim-lspconfig'
-  Plug 'airblade/vim-gitgutter'
-  Plug 'aklt/plantuml-syntax'
-  Plug 'dense-analysis/ale'
-  Plug 'derekwyatt/vim-scala'
-  Plug 'ElmCast/elm-vim'
-  Plug 'godlygeek/tabular'
-  Plug 'hashicorp/sentinel.vim'
-  Plug 'hashivim/vim-terraform'
-  "Plug 'https://github.com/hrother/offlineimaprc.vim.git'
-  Plug 'https://github.com/junegunn/goyo.vim.git'
-  Plug 'https://github.com/plasticboy/vim-markdown.git'
-  Plug 'isRuslan/vim-es6'
-  Plug 'jparise/vim-graphql'
-  Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
-  Plug 'LnL7/vim-nix'
-  Plug 'majutsushi/tagbar'
-  "https://github.com/neoclide/coc.nvim
-  "Load VSCode extensions and host language servers
-  "Plug 'neoclide/coc.nvim', { 'branch': 'release' }
-  Plug 'preservim/nerdtree'
-  Plug 'prettier/vim-prettier'
-  Plug 'purescript-contrib/purescript-vim'
-  Plug 'saltstack/salt-vim'
-  "Plug 'sbdchd/neoformat'
-  Plug 'sigmike/vim-taskjuggler'
-  Plug 'tomlion/vim-solidity'
-  Plug 'tpope/vim-fugitive'
-  Plug 'vim-airline/vim-airline'
-  Plug 'vim-scripts/openvpn'
-  Plug 'wannesm/wmgraphviz.vim'
-  Plug 'jeffkreeftmeijer/vim-dim', { 'branch': 'main' }
-call plug#end()
-  #+end_src
-- [x] Set remaining vim settings
-  #+begin_src vimrc :noweb-ref neovim-config
-colorscheme dim
-" https://vi.stackexchange.com/a/45130
-set notermguicolors
-set t_Co=16
-
-
-let g:vim_markdown_frontmatter = 1
-let g:vim_markdown_math = 1
-let g:vim_markdown_fenced_languages = ['nix=nix', 'Dockerfile=dockerfile']
-let g:vim_markdown_new_list_item_indent = 2
-let g:vim_markdown_auto_insert_bullets = 0
-
-set wrap
-set ignorecase
-set nofoldenable
-  #+end_src
-
-We compose the different settings into init.vim and tangle the non-Pathogen-related stuff into our nix config (where we define vim packages through nix and therefore won't need Pathogen).
-
-#+begin_src vimrc :noweb yes :tangle nvim/init.vim
-" Tangled from README.org
-<<neovim-plugged>>
-<<neovim-config>>
-#+end_src
-
 *** Termite
 :PROPERTIES:
 :CUSTOM_ID: termite
@@ -1531,6 +1438,7 @@ Note that the same configuration above is adapted for macOS by setting =home.hom
 On macOS, nix-darwin provides the most batteries included nix experience. We can manage services (through launchd), home-manager and homebrew all through a nix configuration.
 
 #+begin_src nix :noweb yes :tangle configuration-darwin.nix
+# Tangled from README.org
 # This is a nix-darwin config
 { pkgs, lib, inputs, config, username, ... }: {
   imports = [
@@ -2946,6 +2854,101 @@ sendmail: could not send mail (account work-asabina-gmbh from /home/vidbina/.con
 
 For Neovim, remember that CoC completions basically work through use of the =C-n= and =C-p= binding to cycle through next and previous items in the completion listing.
 
+*** vim-configuration for Neovim
+
+#+begin_quote
+[!WARNING]
+⚠️ I haven't relied on init.nvim for a while since I broke my configuration a little while ago in my attempts to pull vim-plug with Nix and then manage all my other plugins through the init.nvim file. As a lazyperson's way out, I have simply given up and started managing my entire nvim configuration in nix.
+
+[2024-02-19 Mon]: Tangling init.vim from the same snippets that I use in nix. Only difference is that init.vim contains the packages that are being installed through Pathogen, while the nix config handles package management for vim itself.
+#+end_quote
+
+In case you need to use the Neovim configuration manually, please symlink the generated file into your home directory by running the following (or some derivative thereof that is applicable to your environment):
+
+#+begin_src shell
+ln -s ${PATH_TO_DOTFILE}/nvim ${HOME}/.config/nvim
+#+end_src
+
+Our configuration, basically does the following:
+- set tabbing behavior (expand tabs to 2 spaces)
+  #+begin_src vimrc :noweb-ref neovim-config
+set tabstop=2    " tab stop to 2 spaces
+set shiftwidth=2 " shift width by 2 spaces
+set expandtab    " expand tabs to spaces
+  #+end_src
+- enable mouse in all modes
+  #+begin_src vimrc :noweb-ref neovim-config
+set mouse=a
+set number
+":map <ScrollWheelUp> <C-Y>
+":map <ScrollWheelDown> <C-E>
+  #+end_src
+- Set remaining vim settings, like terminal colors (useful for CLI mode, markdown settings that I'm not even sure are still useful or relevant today and some other misc settings.
+  #+begin_src vimrc :noweb-ref neovim-config
+colorscheme dim
+" https://vi.stackexchange.com/a/45130
+set notermguicolors
+set t_Co=16
+
+
+let g:vim_markdown_frontmatter = 1
+let g:vim_markdown_math = 1
+let g:vim_markdown_fenced_languages = ['nix=nix', 'Dockerfile=dockerfile']
+let g:vim_markdown_new_list_item_indent = 2
+let g:vim_markdown_auto_insert_bullets = 0
+
+set wrap
+set ignorecase
+set nofoldenable
+  #+end_src
+- define Plug extensions, which are only relevant for the manual configuration scenario and not when you are using Nix to manage *vim
+  #+begin_src vimrc :noweb-ref neovim-plugged
+call plug#begin("~/.local/share/nvim/plugged")
+  Plug 'neovim/nvim-lspconfig'
+  Plug 'airblade/vim-gitgutter'
+  Plug 'aklt/plantuml-syntax'
+  Plug 'dense-analysis/ale'
+  Plug 'derekwyatt/vim-scala'
+  Plug 'ElmCast/elm-vim'
+  Plug 'godlygeek/tabular'
+  Plug 'hashicorp/sentinel.vim'
+  Plug 'hashivim/vim-terraform'
+  "Plug 'https://github.com/hrother/offlineimaprc.vim.git'
+  Plug 'https://github.com/junegunn/goyo.vim.git'
+  Plug 'https://github.com/plasticboy/vim-markdown.git'
+  Plug 'isRuslan/vim-es6'
+  Plug 'jparise/vim-graphql'
+  Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+  Plug 'LnL7/vim-nix'
+  Plug 'majutsushi/tagbar'
+  "https://github.com/neoclide/coc.nvim
+  "Load VSCode extensions and host language servers
+  "Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+  Plug 'preservim/nerdtree'
+  Plug 'prettier/vim-prettier'
+  Plug 'purescript-contrib/purescript-vim'
+  Plug 'saltstack/salt-vim'
+  "Plug 'sbdchd/neoformat'
+  Plug 'sigmike/vim-taskjuggler'
+  Plug 'tomlion/vim-solidity'
+  Plug 'tpope/vim-fugitive'
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-scripts/openvpn'
+  Plug 'wannesm/wmgraphviz.vim'
+  Plug 'jeffkreeftmeijer/vim-dim', { 'branch': 'main' }
+call plug#end()
+  #+end_src
+
+We compose the different settings into init.vim and tangle the non-Pathogen-related stuff into our nix config (where we define vim packages through nix and therefore won't need Pathogen).
+
+#+begin_src vimrc :noweb yes :tangle nvim/init.vim
+" Tangled from README.org
+<<neovim-plugged>>
+<<neovim-config>>
+#+end_src
+
+*** Nix config for Neovim
+
 #+begin_src nix :noweb-ref common-imports
 ./vim.nix
 #+end_src
@@ -2977,7 +2980,7 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
 }
 #+end_src
 
-*** Neovim packages
+*** Misc Neovim packages installed through Nix
 
 #+begin_src nix :noweb-ref nvim-packages
 # deoplete-notmuch
@@ -3007,6 +3010,10 @@ vim-solidity
 vim-terraform
 wmgraphviz-vim
 #+end_src
+
+***** TODO Separate out Nvim language plugins into the respective language configuration section
+
+We should define Nvim language plugins in the section where we install language related tooling, like language servers, etc.
 
 *** Neovim LSP Config
 
@@ -3082,7 +3089,7 @@ For now, I symlink ~/.xmonad to ~/src/vidbina/xmonad-config and run =xmonad --re
 
 For now, I symlinked ~/.config/xmobar to ~/src/vidbina/xmobar-configuration.
 
-#+begin_src nix :noweb-ref x-progams
+#+begin_src nix :noweb-ref x-programs
 programs.xmobar = {
   enable = true;
   # extraConfig =
@@ -4594,19 +4601,18 @@ https://apps.apple.com/us/app/remarkable-desktop/id1276493162
 "Remarkable Desktop" = 1276493162;
 #+end_src
 
-** TODO [3/22] Convert home-manager config to literate config
+** TODO [5/21] Convert home-manager config to literate config
 
 Refer to [[file:emacs/README.org]] for an example of a literate config that tangles into multiple output files.
 
-- [-] configuration-darwin.nix
-- [ ] emacs/home.nix
+- [X] configuration-darwin.nix
 - [ ] system/darwin.nix
 - [ ] direnv
 - [ ] .xsession
 - [ ] .Xresources.d
 - [ ] .Xmodmap
 - [ ] tmux
-- [ ] Neovim
+- [X] Neovim
 - [ ] Termite
 - [ ] Starship
 - [X] Rofi (handled through Pywal since [2023-07-03 Mon])

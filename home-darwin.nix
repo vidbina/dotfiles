@@ -39,7 +39,7 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
-    # darwin-home-packages
+    # home-darwin-packages
     pywal
   ];
 

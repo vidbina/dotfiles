@@ -1,3 +1,4 @@
+# Tangled from README.org
 # This is a nix-darwin config
 { pkgs, lib, inputs, config, username, ... }: {
   imports = [
