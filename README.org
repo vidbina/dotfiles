@@ -252,8 +252,8 @@ home.stateVersion = "23.05";
 home.packages = with pkgs; [
   # dev-packages
   <<dev-packages>>
-  # darwin-home-packages
-  <<darwin-home-packages>>
+  # home-darwin-packages
+  <<home-darwin-packages>>
 ];
 
 # NOTE: Copied from dev.nix
@@ -1170,7 +1170,7 @@ programs.pywal = {
 
 For Darwin, we currently install Pywal with home-manager:
 
-#+begin_src nix :noweb-ref darwin-home-packages
+#+begin_src nix :noweb-ref home-darwin-packages
 pywal
 #+end_src
 
