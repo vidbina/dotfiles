@@ -28,6 +28,7 @@ digraph G {
   node_emacs_default_nix [shape=box, label="emacs/default.nix"]
   node_rofi_default_nix [shape=box, label="rofi/default.nix"]
   node_system_darwin_default_nix [shape=box, label="system/darwin/default.nix"]
+  node_flake_nix [shape=box, label="flake.nix"]
 
   // defined in this file
   node_common_nix [shape=box, label="common.nix"]
@@ -85,6 +86,8 @@ digraph G {
   node_home_linux_nix -> node_shell_nix [label="imported by"]
   node_home_darwin_nix -> node_shell_nix [label="imported by"]
 
+  node_configuration_darwin_nix -> node_flake_nix [label="loaded as module by"]
+  node_home_darwin_nix -> node_flake_nix [label="imported to hm.users.${user} by"]
   // node_this -> node_default_nix [label="tangles to", style=dotted]
   // node_this -> node_default_darwin_nix [label="tangles to", style=dotted]
   // node_personal_example -> node_personal [style=dotted]
