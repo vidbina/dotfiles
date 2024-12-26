@@ -2314,8 +2314,11 @@ On nix-darwin, we load our WezTerm config from our dotfiles as follows:
 #+begin_src lua :noweb yes :tangle wezterm/wezterm.lua
 -- Tangled from README.org
 local wezterm = require 'wezterm'
+local config = {}
 
 <<wezterm-config>>
+
+return config
 #+end_src
 
 We stub our WezTerm config to help with some theme-switching magic.
@@ -2338,9 +2341,7 @@ function scheme_for_appearance(appearance)
   end
 end
 
-return {
-  color_scheme = scheme_for_appearance(get_appearance()),
-}
+config.color_scheme = scheme_for_appearance(get_appearance())
 #+end_src
 
 Additionally, we also provide enable the WebGpu front-end to solve a font [[https://www.reddit.com/r/wezterm/comments/1eze6zt/colored_blocks_instead_of_text/][rendering issue]].
