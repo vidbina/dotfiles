@@ -1,3 +1,4 @@
+-- Tangled from README.org
 local wezterm = require 'wezterm'
 
 -- wezterm.gui is not available to the mux server, so take care to
@@ -20,3 +21,5 @@ end
 return {
   color_scheme = scheme_for_appearance(get_appearance()),
 }
+-- workaround to tackle WezTerm issue
+config.front_end = 'WebGpu'

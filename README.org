@@ -2304,6 +2304,46 @@ pkgs.wezterm
 wezterm
 #+end_src
 
+****** WezTerm Lua Config
+
+#+begin_src lua :noweb yes :tangle wezterm/wezterm.lua
+-- Tangled from README.org
+local wezterm = require 'wezterm'
+
+<<wezterm-config>>
+#+end_src
+
+We stub our WezTerm config to help with some theme-switching magic.
+
+#+begin_src lua :noweb-ref wezterm-config
+-- wezterm.gui is not available to the mux server, so take care to
+-- do something reasonable when this config is evaluated by the mux
+function get_appearance()
+  if wezterm.gui then
+    return wezterm.gui.get_appearance()
+  end
+  return 'Dark'
+end
+
+function scheme_for_appearance(appearance)
+  if appearance:find 'Dark' then
+    return 'Google Dark (Gogh)'
+  else
+    return 'Google Light (base16)'
+  end
+end
+
+return {
+  color_scheme = scheme_for_appearance(get_appearance()),
+}
+#+end_src
+
+Additionally, we also provide enable the WebGpu front-end to solve a font [[https://www.reddit.com/r/wezterm/comments/1eze6zt/colored_blocks_instead_of_text/][rendering issue]].
+
+#+begin_src lua :noweb-ref wezterm-config
+-- workaround to tackle WezTerm issue
+config.front_end = 'WebGpu'
+#+end_src
 **** AI
 
 ***** Ollama
