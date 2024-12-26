@@ -2252,7 +2252,12 @@ bitwarden-desktop
 "1password"
 #+end_src
 
-****** Install 1Password from Apple App Store
+****** COMMENT Install 1Password from Apple App Store
+
+#+begin_quote
+[!WARNING]
+On <2024-12-26 Thu> the App Store app only installs 1Password version 7 on my berlin-4corei7 machine while homebrew installs version 8.
+#+end_quote
 
 1Password from the [[https://apps.apple.com/de/app/1password-7-password-manager/id1333542190?l=en-GB&mt=12][Apple App Store]] should have better access to security features on MacOS than the homebrew installed version, so we're opting for app store where we can.
 

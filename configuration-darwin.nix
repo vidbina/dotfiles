@@ -251,7 +251,6 @@
     ];
     masApps = {
       "Bitwarden" = 1352778147;
-      "1Password" = 1333542190;
       "Hidden Bar" = 1452453066;
       "Remarkable Desktop" = 1276493162;
     };
