@@ -2253,6 +2253,14 @@ bitwarden-desktop
 "1password"
 #+end_src
 
+****** Install 1Password from Apple App Store
+
+1Password from the [[https://apps.apple.com/de/app/1password-7-password-manager/id1333542190?l=en-GB&mt=12][Apple App Store]] should have better access to security features on MacOS than the homebrew installed version, so we're opting for app store where we can.
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"1Password" = 1333542190;
+#+end_src
+
 **** Terminals
 ***** NuShell
 
