@@ -246,6 +246,7 @@
       "telegram"
       "whatsapp"
 
+      "1password"
       "obs" # for streaming
       "spotify"
     ];

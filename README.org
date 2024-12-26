@@ -2246,7 +2246,7 @@ bitwarden-desktop
 
 ***** 1Password
 
-****** COMMENT Install 1Password (for OSX) from homebrew cask
+****** Install 1Password (for OSX) from homebrew cask
 
 #+begin_src nix :noweb-ref homebrew-casks
 "1password"
