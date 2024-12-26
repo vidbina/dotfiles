@@ -47,7 +47,7 @@
   # TODO: Figure out how to re-use dev.nix config for Darwin and Linux
   home.file = {
     ".config/git/ignore".source = ./git/ignore;
-    #".wezterm.lua".source = ./wezterm/wezterm.lua;
+    ".wezterm.lua".source = ./wezterm/wezterm.lua;
   };
 
   # No corresponding option in nix-darwin, so we config this with hm

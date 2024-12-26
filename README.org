@@ -2054,7 +2054,6 @@ programs.git = {
 
 #+begin_src nix :noweb-ref home-darwin-files
 ".config/git/ignore".source = ./git/ignore;
-#".wezterm.lua".source = ./wezterm/wezterm.lua;
 #+end_src
 
 **** Global Gitignore
@@ -2305,6 +2304,12 @@ wezterm
 #+end_src
 
 ****** WezTerm Lua Config
+
+On nix-darwin, we load our WezTerm config from our dotfiles as follows:
+
+#+begin_src nix :noweb-ref home-darwin-files
+".wezterm.lua".source = ./wezterm/wezterm.lua;
+#+end_src
 
 #+begin_src lua :noweb yes :tangle wezterm/wezterm.lua
 -- Tangled from README.org
