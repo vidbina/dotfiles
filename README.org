@@ -2514,7 +2514,7 @@ pkgs.gleam
 
 **** LSP
 
-***** Nix
+***** Nixd Language Server
 
 Since I use Nix quite heavily to almost all my configuration management problems, it helps to have a Nix Language Server globally installed.
 
@@ -2522,6 +2522,12 @@ Installing nixd because Zed was looking for it on <2024-12-21 Sat>.
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.nixd
+#+end_src
+
+We also install nixfmt since I noticed some =formatting nixfmt command exited with 65280= errors when navigating nix code in Zed.
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.nixfmt
 #+end_src
 
 ***** Typescript Language Server
