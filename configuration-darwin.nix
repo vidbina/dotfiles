@@ -247,6 +247,7 @@
       "whatsapp"
 
       "1password"
+      "1password-cli"
       "obs" # for streaming
       "spotify"
     ];
