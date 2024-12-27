@@ -469,16 +469,6 @@
      ))
   )
 
-(use-package copilot
-  :straight (:host github :repo "zerolfx/copilot.el"
-                   :files ("dist" "copilot.el"))
-  :ensure t
-  :config
-  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-  (define-key copilot-completion-map (kbd "M-n") 'copilot-next-completion)
-  (define-key copilot-completion-map (kbd "M-p") 'copilot-previous-completion))
-
 (with-eval-after-load 'flymake
   ;; Set flymake bindings
   (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)

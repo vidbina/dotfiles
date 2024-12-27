@@ -7526,7 +7526,7 @@ CODE
    ))
 #+end_src
 
-**** Copilot
+**** COMMENT Copilot
 
 https://www.irfanhabib.com/2022-04-26-setting-up-github-copilot-in-emacs/
 
