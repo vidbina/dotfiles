@@ -8365,6 +8365,20 @@ only Darwin, the standard ripgrep is used until we find better reasons to invest
 ripgrep
 #+end_src
 
+**** GCC
+
+In order to deal with the following type of errors:
+
+#+begin_src text
+⛔ Warning (comp): libgccjit.so: error: error invoking gcc driver
+#+end_src
+
+we try to install libgccjit into Emacs:
+
+#+begin_src nix :noweb-ref nix-packages
+libgccjit
+#+end_src
+
 *** XDG mimeApps
 
 #+begin_src nix :noweb-ref nix-linux-mime

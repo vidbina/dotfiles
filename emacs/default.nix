@@ -23,6 +23,8 @@ in
 
     python312
 
+    libgccjit
+
     # Linux packages
     (writeScriptBin "e" ''
       exec emacsclient -a emacs -c "$@"
