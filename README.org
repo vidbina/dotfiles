@@ -2527,7 +2527,7 @@ pkgs.nixd
 We also install nixfmt since I noticed some =formatting nixfmt command exited with 65280= errors when navigating nix code in Zed.
 
 #+begin_src nix :noweb-ref dev-packages
-pkgs.nixfmt
+pkgs.nixfmt-rfc-style
 #+end_src
 
 ***** Typescript Language Server
