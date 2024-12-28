@@ -2316,6 +2316,13 @@ alacritty
 
 ***** Ghostty
 
+#+begin_quote
+[!WARNING]
+As per <2024-12-29 Sun>, the https://github.com/ghostty-org/ghostty/tree/main flake.nix does not build for =x86_64-apple-darwin=, so we'll have to revisit this at a later stage.
+#+end_quote
+
+****** COMMENT Install Ghostty from Nix Flake
+
 #+begin_src nix :noweb-ref nix-darwin-packages-common
 inputs.ghostty.packages.${system}.default
 #+end_src

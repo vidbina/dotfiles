@@ -47,7 +47,6 @@
     devbox
     pass
     nushell
-    inputs.ghostty.packages.${system}.default
     wezterm
     pdftk
     hunspell
