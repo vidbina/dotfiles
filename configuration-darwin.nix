@@ -252,6 +252,7 @@
       "spotify"
     ];
     masApps = {
+      "Xcode" = 497799835;
       "Bitwarden" = 1352778147;
       "Hidden Bar" = 1452453066;
       "Remarkable Desktop" = 1276493162;

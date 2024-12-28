@@ -2208,6 +2208,20 @@ Find out if the devenv install is moveable. The env.nix file does not have the =
 
 See [[*Packages][Packages]] for the current installation of devenv.
 
+***** Xcode
+
+On MacOS, we need [[https://apps.apple.com/de/app/xcode/id497799835?l=en-GB&mt=12][Xcode]] installed to do things like natively compile C/C++ code.
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Xcode" = 497799835;
+#+end_src
+
+One practical example of why we needed Xcode is outlined in https://stackoverflow.com/questions/22752000/clang-cmath-file-not-found which outlines how something like the following may not work because of libs not being available (in scope):
+
+#+begin_src cpp
+#include <cmath>
+#+end_src
+
 **** Password Managers
 ***** Pass
 
