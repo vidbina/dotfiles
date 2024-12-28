@@ -2222,6 +2222,12 @@ One practical example of why we needed Xcode is outlined in https://stackoverflo
 #include <cmath>
 #+end_src
 
+After installation, remember to run the following:
+
+#+begin_src bash
+sudo xcodebuild -license accept
+#+end_src
+
 **** Password Managers
 ***** Pass
 
