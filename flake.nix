@@ -18,6 +18,7 @@
     devenv.inputs.nixpkgs.follows = "nixpkgs";
     vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
     vscode-extensions.inputs.nixpkgs.follows = "nixpkgs";
+    ghostty.url = "github:ghostty-org/ghostty";
   };
 
   outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, ... }:
