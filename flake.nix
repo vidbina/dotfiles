@@ -21,45 +21,61 @@
     ghostty.url = "github:ghostty-org/ghostty";
   };
 
-  outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, ... }:
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      nix-darwin,
+      home-manager,
+      ...
+    }:
     let
       machines = [
-        { name = "tokyo23-m2"; system = "aarch64-darwin"; username = "vidbina"; }
-        { name = "berlin-4corei7"; system = "x86_64-darwin"; username = "vidbina"; }
+        {
+          name = "tokyo23-m2";
+          system = "aarch64-darwin";
+          username = "vidbina";
+        }
+        {
+          name = "berlin-4corei7";
+          system = "x86_64-darwin";
+          username = "vidbina";
+        }
       ];
 
-      darwinConfigurationFor = machine: nix-darwin.lib.darwinSystem {
-        inherit (machine) system;
+      darwinConfigurationFor =
+        machine:
+        nix-darwin.lib.darwinSystem {
+          inherit (machine) system;
 
-        # See https://github.com/LnL7/nix-darwin#using-flake-inputs
-        specialArgs = {
-          inherit inputs;
-          # TODO: Refactor to DRY-up shared specialArgs use across configs
-          inherit (machine) username;
+          # See https://github.com/LnL7/nix-darwin#using-flake-inputs
+          specialArgs = {
+            inherit inputs;
+            # TODO: Refactor to DRY-up shared specialArgs use across configs
+            inherit (machine) username;
+          };
+
+          modules = [
+            ./configuration-darwin.nix
+            # https://nix-community.github.io/home-manager/nix-darwin-options.html
+            home-manager.darwinModules.home-manager
+            {
+              home-manager.backupFileExtension = "backup";
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.${machine.username} = import ./home-darwin.nix;
+              home-manager.verbose = true;
+            }
+          ];
         };
-
-        modules = [
-          ./configuration-darwin.nix
-          # https://nix-community.github.io/home-manager/nix-darwin-options.html
-          home-manager.darwinModules.home-manager
-          {
-            home-manager.backupFileExtension = "backup";
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.users.${machine.username} = import ./home-darwin.nix;
-            home-manager.verbose = true;
-          }
-        ];
-      };
     in
     {
-      darwinConfigurations =
-        builtins.listToAttrs (map
-          (machine: {
-            inherit (machine) name;
-            value = darwinConfigurationFor machine;
-          })
-          machines);
+      darwinConfigurations = builtins.listToAttrs (
+        map (machine: {
+          inherit (machine) name;
+          value = darwinConfigurationFor machine;
+        }) machines
+      );
 
       # TODO: Bring Linux configuration into scope
       # See https://github.com/vidbina/nixos-configuration
