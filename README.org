@@ -2314,6 +2314,12 @@ nushell
 alacritty
 #+end_src
 
+***** Ghostty
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+inputs.ghostty.packages.${system}.default
+#+end_src
+
 ***** WezTerm
 
 [[https://wezfurlong.org/wezterm][WezTerm]] is a terminal emulator and multiplexer written in Rust, with hyperlink support, emoji support and since it's written in Rust... probably as blazingly fast as it gets.
