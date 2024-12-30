@@ -248,6 +248,7 @@
 
       "1password"
       "1password-cli"
+      "chatgpt"
       "obs" # for streaming
       "spotify"
     ];

@@ -2385,6 +2385,14 @@ config.front_end = 'WebGpu'
 #+end_src
 **** AI
 
+***** ChatGPT
+
+ChatGPT is the premiere LLM tool that I've been using. On some systems (tokyo23), I installed it manually, but let's add it to my config since I'm realising how much I'm depending on the nifty Option+Space shortcut these days.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"chatgpt"
+#+end_src
+
 ***** Ollama
 
 [[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
