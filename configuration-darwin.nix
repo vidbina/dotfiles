@@ -186,14 +186,15 @@
   homebrew = {
     enable = true;
     global = {
-      autoUpdate = false;
+      autoUpdate = true; # same as default
     };
     onActivation = {
-      autoUpdate = false;
+      autoUpdate = false; # same as default
       cleanup = "uninstall";
       extraFlags = [
         "--verbose"
       ];
+      upgrade = false; # same as default
     };
     brews = [
       "smudge/smudge/nightlight"
