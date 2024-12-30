@@ -1735,7 +1735,7 @@ homebrew = {
   brews = [
     <<homebrew-brews>>
   ];
-  casks = [
+  casks = builtins.filter (x: x != null) [
     <<homebrew-casks>>
   ];
   masApps = {
@@ -2390,7 +2390,7 @@ config.front_end = 'WebGpu'
 ChatGPT is the premiere LLM tool that I've been using. On some systems (tokyo23), I installed it manually, but let's add it to my config since I'm realising how much I'm depending on the nifty Option+Space shortcut these days.
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
-"chatgpt"
+(if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
 #+end_src
 
 ***** Ollama

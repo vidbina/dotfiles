@@ -204,7 +204,7 @@
       "wireguard-tools"
       "pcalc"
     ];
-    casks = [
+    casks = builtins.filter (x: x != null) [
       # Software Development
       "iterm2"
       "kitty"
@@ -248,7 +248,7 @@
 
       "1password"
       "1password-cli"
-      "chatgpt"
+      (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
       "obs" # for streaming
       "spotify"
     ];
