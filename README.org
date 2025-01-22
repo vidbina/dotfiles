@@ -2428,6 +2428,17 @@ On MacOS, we install LM Studio using the [[https://formulae.brew.sh/cask/lm-stud
 "lm-studio"
 #+end_src
 
+***** Perplexity
+
+#+begin_quote org
+[!WARNING]
+For all apps installed through Apple App Store, remember to once "Get" the app first through the Apple App Store application in order to make it programmatically installable.
+#+end_quote
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Perplexity" = 6714467650;
+#+end_src
+
 **** Networking
 
 Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your MacOS.
