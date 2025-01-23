@@ -2371,6 +2371,8 @@ local config = {}
 return config
 #+end_src
 
+****** Theme selection based on system dark-mode status
+
 We stub our WezTerm config to help with some theme-switching magic.
 
 #+begin_src lua :noweb-ref wezterm-config
@@ -2394,12 +2396,28 @@ end
 config.color_scheme = scheme_for_appearance(get_appearance())
 #+end_src
 
+****** Set WebGPU as frontend
+
 Additionally, we also provide enable the WebGpu front-end to solve a font [[https://www.reddit.com/r/wezterm/comments/1eze6zt/colored_blocks_instead_of_text/][rendering issue]].
 
 #+begin_src lua :noweb-ref wezterm-config
 -- workaround to tackle WezTerm issue
 config.front_end = 'WebGpu'
 #+end_src
+
+****** COMMENT Configure keys for theme reloading
+
+#+begin_src lua :noweb-ref wezterm-config
+-- reload config using the Cmd + Shift + r binding
+config.keys = {
+  {
+    key = 'r',
+    mods = 'CMD|SHIFT',
+    action = wezterm.action.ReloadConfiguration,
+  },
+}
+#+end_src
+
 **** AI
 
 ***** ChatGPT
