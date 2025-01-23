@@ -2267,7 +2267,17 @@ bitwarden-desktop
 
 ***** 1Password
 
-****** Install 1Password (for OSX) from homebrew cask
+****** COMMENT Install 1Password with Nix
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+1password-gui_beta
+#+end_src
+
+#+begin_src nix :noweb-ref darwin-unfree
+"1password-gui_beta"
+#+end_src
+
+****** COMMENT Install 1Password (for OSX) from homebrew cask
 
 We install 1Password from homebrew to bring in version 8 into scope since the App Store only lists version 1 as per <2024-12-27 Fri>.
 
