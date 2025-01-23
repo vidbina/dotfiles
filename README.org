@@ -2267,17 +2267,23 @@ bitwarden-desktop
 
 ***** 1Password
 
-****** COMMENT Install 1Password with Nix
+#+begin_quote
+[!WARNING]
+On <2025-01-23 Thu> the nixpkgs for 1Password are [[https://github.com/NixOS/nixpkgs/blob/a8a41134c89e5f42a422e7e1cb929f5d21e09caa/pkgs/applications/misc/1password-gui/default.nix#L63-L64][marked as /broken/]] due some issue with having to be installed in =/Application/= which nix can't help us solve in an elegant manner as we'd have to refer to some obscure =/nix/store= path in our config.
+#+end_quote
+
+******* COMMENT Install 1Password with Nix
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
-1password-gui_beta
+_1password-gui
 #+end_src
 
 #+begin_src nix :noweb-ref darwin-unfree
-"1password-gui_beta"
+"1password"
+"_1password-gui"
 #+end_src
 
-****** COMMENT Install 1Password (for OSX) from homebrew cask
+****** Install 1Password (for OSX) from homebrew cask
 
 We install 1Password from homebrew to bring in version 8 into scope since the App Store only lists version 1 as per <2024-12-27 Fri>.
 
