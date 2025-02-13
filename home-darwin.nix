@@ -165,6 +165,7 @@
       "workbench.colorTheme" = "Default High Contrast Light";
       "workbench.preferredDarkColorTheme" = "Default High Contrast";
       "workbench.preferredLightColorTheme" = "Default High Contrast Light";
+      "workbench.list.openMode" = "doubleClick";
     };
   };
   # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;

@@ -2933,6 +2933,14 @@ Define parts of the VsCode-specific fields are defined in the JSON format as fol
 "workbench.preferredLightColorTheme" = "Default High Contrast Light";
 #+end_src
 
+***** Disable single click previews
+
+Pressing a file with a single click to get a preview tab is really annoying because another click may just replace the previous /preview/ file. I'd much rather just double-click to open files in their dedicated tabs and then do housekeeping later. Makes things a bit more explicit. See [[https://stackoverflow.com/a/48559054][StackOverflow]] for more.
+
+#+begin_src nix :noweb-ref vscode-settings
+"workbench.list.openMode" = "doubleClick";
+#+end_src
+
 ** COMMENT E-mail
 
 We configure file:mail.nix as our mail-related config file.
