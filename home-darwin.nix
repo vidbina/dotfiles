@@ -133,6 +133,7 @@
       ms-vscode-remote.remote-containers
       tomoki1207.pdf
       vscodevim.vim
+      gamunu.opentofu
       gruntfuggly.todo-tree
     ];
     keybindings = [

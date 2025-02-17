@@ -2861,6 +2861,7 @@ ms-python.python
 ms-vscode-remote.remote-containers
 tomoki1207.pdf
 vscodevim.vim
+gamunu.opentofu
 #+end_src
 
 ***** COMMENT Org-mode in VsCode
