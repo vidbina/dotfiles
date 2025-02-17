@@ -2861,8 +2861,15 @@ ms-playwright.playwright
 ms-python.python
 ms-vscode-remote.remote-containers
 tomoki1207.pdf
-vscode-org-mode.org-mode
 vscodevim.vim
+#+end_src
+
+***** COMMENT Org-mode in VsCode
+
+On <2025-02-16 Sun>, I'm trying to rebuild my config and finding that this extension is no longer available through [[https://github.com/nix-community/nix-vscode-extensions?tab=readme-ov-file][vscode-extensions]], so I'm commenting it out for now.
+
+#+begin_src nix :noweb-ref vscode-extensions
+vscode-org-mode.org-mode
 #+end_src
 
 ***** Show tree of TODO and FIXME comment
