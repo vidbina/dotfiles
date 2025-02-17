@@ -1,4 +1,6 @@
+-- Tangled from README.org
 local wezterm = require 'wezterm'
+local config = {}
 
 -- wezterm.gui is not available to the mux server, so take care to
 -- do something reasonable when this config is evaluated by the mux
@@ -17,6 +19,8 @@ function scheme_for_appearance(appearance)
   end
 end
 
-return {
-  color_scheme = scheme_for_appearance(get_appearance()),
-}
+config.color_scheme = scheme_for_appearance(get_appearance())
+-- workaround to tackle WezTerm issue
+config.front_end = 'WebGpu'
+
+return config

@@ -9,6 +9,8 @@
     mu
 
     python312
+
+    libgccjit
     ripgrep
   ];
 

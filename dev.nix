@@ -1,6 +1,6 @@
 # Tangled from README.org
 # Please modify by editing README.org and re-tangling to generate this nix file.
-{ config, lib, pkgs, options, ... }:
+{ config, pkgs, ... }:
 
 {
   # Tangling individual dev tools through nix-devtools noweb reference
@@ -61,11 +61,15 @@
   home.packages = [
     pkgs.gh
     pkgs.nushell
+    alacritty
     pkgs.wezterm
+    pkgs.ollama
     pkgs.xxd
     pkgs.hexyl
     pkgs.ghidra-bin
     pkgs.kakoune
+    pkgs.zed-editor
+    pkgs.graphviz
     pkgs.shellcheck
     pkgs.shfmt
     pkgs.asciinema
@@ -73,11 +77,12 @@
     pkgs.html-tidy
     pkgs.httpie
     pkgs.httplab
-    pkgs.gdb
     pkgs.checkmake
     #pkgs.cmakeCurses
     pkgs.gnumake
     pkgs.gleam
+    pkgs.nixd
+    pkgs.nixfmt-rfc-style
     pkgs.nodePackages.typescript-language-server
     pkgs.tree-sitter
     pkgs.jq
@@ -86,6 +91,7 @@
     pkgs.redis
   ] ++ (if pkgs.stdenv.isLinux then [
     pkgs.glibc
+    pkgs.gdb
     pkgs.evemu
   ] else [ ]);
 }

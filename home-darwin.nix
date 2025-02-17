@@ -9,16 +9,46 @@
   home.stateVersion = "23.05";
 
   home.packages = with pkgs; [
-    pywal
-    # Darwin packages for home-manager (i.e.: nix-darwin)
+    # dev-packages
+    pkgs.gh
+    pkgs.nushell
     alacritty
+    pkgs.wezterm
+    pkgs.ollama
+    pkgs.xxd
+    pkgs.hexyl
+    pkgs.ghidra-bin
+    pkgs.kakoune
+    pkgs.zed-editor
+    pkgs.graphviz
+    pkgs.shellcheck
+    pkgs.shfmt
+    pkgs.asciinema
+    pkgs.exercism
+    pkgs.html-tidy
+    pkgs.httpie
+    pkgs.httplab
+    pkgs.checkmake
+    #pkgs.cmakeCurses
+    pkgs.gnumake
+    pkgs.gleam
+    pkgs.nixd
+    pkgs.nixfmt-rfc-style
+    pkgs.nodePackages.typescript-language-server
+    pkgs.tree-sitter
+    pkgs.jq
+    pkgs.yq
+    pkgs.sqlite-interactive
+    pkgs.redis
+    # home-darwin-packages
+    pywal
   ];
 
   # NOTE: Copied from dev.nix
   # TODO: Figure out how to re-use dev.nix config for Darwin and Linux
   home.file = {
     ".config/git/ignore".source = ./git/ignore;
-    #".wezterm.lua".source = ./wezterm/wezterm.lua;
+    ".wezterm.lua".source = ./wezterm/wezterm.lua;
   };
 
   # No corresponding option in nix-darwin, so we config this with hm
@@ -102,8 +132,8 @@
       ms-python.python
       ms-vscode-remote.remote-containers
       tomoki1207.pdf
-      vscode-org-mode.org-mode
       vscodevim.vim
+      gamunu.opentofu
       gruntfuggly.todo-tree
     ];
     keybindings = [
@@ -135,6 +165,7 @@
       "workbench.colorTheme" = "Default High Contrast Light";
       "workbench.preferredDarkColorTheme" = "Default High Contrast";
       "workbench.preferredLightColorTheme" = "Default High Contrast Light";
+      "workbench.list.openMode" = "doubleClick";
     };
   };
   # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;

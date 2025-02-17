@@ -7526,7 +7526,7 @@ CODE
    ))
 #+end_src
 
-**** Copilot
+**** COMMENT Copilot
 
 https://www.irfanhabib.com/2022-04-26-setting-up-github-copilot-in-emacs/
 
@@ -8363,6 +8363,20 @@ only Darwin, the standard ripgrep is used until we find better reasons to invest
 
 #+begin_src nix :noweb-ref nix-darwin-packages
 ripgrep
+#+end_src
+
+**** GCC
+
+In order to deal with the following type of errors:
+
+#+begin_src text
+⛔ Warning (comp): libgccjit.so: error: error invoking gcc driver
+#+end_src
+
+we try to install libgccjit into Emacs:
+
+#+begin_src nix :noweb-ref nix-packages
+libgccjit
 #+end_src
 
 *** XDG mimeApps

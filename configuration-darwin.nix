@@ -1,3 +1,4 @@
+# Tangled from README.org
 # This is a nix-darwin config
 { pkgs, lib, inputs, config, username, ... }: {
   imports = [
@@ -72,8 +73,7 @@
   ];
 
   # General nix-darwin settings
-  # Auto upgrade nix package and the daemon service.
-  services.nix-daemon.enable = true;
+  nix.enable = true;
   nix.package = pkgs.nix;
 
   # Necessary for using flakes on this system.
@@ -185,14 +185,15 @@
   homebrew = {
     enable = true;
     global = {
-      autoUpdate = false;
+      autoUpdate = true; # same as default
     };
     onActivation = {
-      autoUpdate = false;
+      autoUpdate = false; # same as default
       cleanup = "uninstall";
       extraFlags = [
         "--verbose"
       ];
+      upgrade = false; # same as default
     };
     brews = [
       "smudge/smudge/nightlight"
@@ -200,11 +201,10 @@
 
       "coreutils"
       "wimlib"
-      "ollama"
       "wireguard-tools"
       "pcalc"
     ];
-    casks = [
+    casks = builtins.filter (x: x != null) [
       # Software Development
       "iterm2"
       "kitty"
@@ -218,11 +218,9 @@
       "utm"
 
       # Productivity
-      "anytype" # in beta, not very feature-complete imo
       "google-drive"
       "linear-linear"
       "logseq" # FLOSS (compared to Obsidian) but no mobile app
-      "microsoft-teams"
       "notion"
       "obsidian" # best-in-class with mobile app support
       "raycast"
@@ -237,6 +235,7 @@
       "warp"
 
       # Entertainment
+      "spotify"
       "steam"
       "tidal"
 
@@ -247,12 +246,16 @@
       "telegram"
       "whatsapp"
 
-      "bitwarden"
       "1password"
-      "lm-studio"
+      "1password-cli"
+      (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
       "obs" # for streaming
+      "spotify"
     ];
     masApps = {
+      "Xcode" = 497799835;
+      "Bitwarden" = 1352778147;
+      "Perplexity" = 6714467650;
       "Hidden Bar" = 1452453066;
       "Remarkable Desktop" = 1276493162;
     };

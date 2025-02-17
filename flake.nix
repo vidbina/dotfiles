@@ -23,7 +23,7 @@
   outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, ... }:
     let
       machines = [
-        { name = "tokyo23"; system = "aarch64-darwin"; username = "vidbina"; }
+        { name = "tokyo23-m2"; system = "aarch64-darwin"; username = "vidbina"; }
         { name = "berlin-4corei7"; system = "x86_64-darwin"; username = "vidbina"; }
       ];
 
