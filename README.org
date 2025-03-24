@@ -2826,14 +2826,16 @@ Our vscode configuration declaratively manages soem extensions, keybindings and 
 #+begin_src nix :noweb yes :noweb-ref home-darwin-config
 programs.vscode = {
   enable = true;
-  extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
-    <<vscode-extensions>>
-  ];
-  keybindings = [
-    <<vscode-keybindings>>
-  ];
-  userSettings = {
-    <<vscode-settings>>
+  profiles.default = {
+    extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
+      <<vscode-extensions>>
+    ];
+    keybindings = [
+      <<vscode-keybindings>>
+    ];
+    userSettings = {
+      <<vscode-settings>>
+    };
   };
 };
 #+end_src
