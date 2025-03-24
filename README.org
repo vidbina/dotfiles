@@ -2864,6 +2864,37 @@ vscodevim.vim
 gamunu.opentofu
 #+end_src
 
+***** Markdown Preview in VSCode
+
+See [[https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview][Matt Bierner's Markdown extensions]] for useful upgrades to VsCodes Markdown Preview capabilities. Just open the regular markdown preview through the command palette (cmd+shift+p on MacOS).
+
+We're installing them all:
+
+#+begin_src nix :noweb-ref vscode-extensions
+bierner.github-markdown-preview
+bierner.markdown-checkbox
+bierner.markdown-yaml-preamble
+bierner.markdown-emoji
+bierner.markdown-mermaid
+bierner.markdown-footnotes
+bierner.markdown-preview-github-styles
+#+end_src
+
+and enabling front-matter preview rendering in the config:
+
+#+begin_src nix :noweb-ref vscode-settings
+# https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview
+"markdown.previewFrontMatter" = "show";
+#+end_src
+
+***** COMMENT Markdown Preview Enhanced in VSCode
+
+See [[https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced][Yiyi Wang's Markdown Preview Enchanced]] to preview markdown with more batteries included. Use the command palette and search for *Markdown Preview Enhanced* commands. I have disabled this because it doesn't do dark-mode well and that was more disruptive than not having callouts (as is the shortcoming of the standard previewer even with the Bierner extensions).
+
+#+begin_src nix :noweb-ref vscode-extensions
+shd101wyy.markdown-preview-enhanced
+#+end_src
+
 ***** COMMENT Org-mode in VsCode
 
 On <2025-02-16 Sun>, I'm trying to rebuild my config and finding that this extension is no longer available through [[https://github.com/nix-community/nix-vscode-extensions?tab=readme-ov-file][vscode-extensions]], so I'm commenting it out for now.
@@ -2909,7 +2940,7 @@ defaults.CustomUserPreferences = {
 
 Define parts of the VsCode-specific fields are defined in the JSON format as follows:
 
-#+begin_src json :noweb-ref vscode-settings
+#+begin_src nix :noweb-ref vscode-settings
 "editor.cursorSurroundingLines" = 8;
 
 # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations

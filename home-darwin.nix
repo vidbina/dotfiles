@@ -134,6 +134,13 @@
       tomoki1207.pdf
       vscodevim.vim
       gamunu.opentofu
+      bierner.github-markdown-preview
+      bierner.markdown-checkbox
+      bierner.markdown-yaml-preamble
+      bierner.markdown-emoji
+      bierner.markdown-mermaid
+      bierner.markdown-footnotes
+      bierner.markdown-preview-github-styles
       gruntfuggly.todo-tree
     ];
     keybindings = [
@@ -147,6 +154,8 @@
       }
     ];
     userSettings = {
+      # https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview
+      "markdown.previewFrontMatter" = "show";
       "editor.cursorSurroundingLines" = 8;
 
       # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
