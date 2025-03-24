@@ -132,6 +132,8 @@ nix run nix-darwin -- switch --flake . --show-trace
 darwin-rebuild switch --flake .
    #+end_src
 
+   In case of =Error: invalid option: --no-lock= errors, try to update your flakes as suggested in [[https://github.com/LnL7/nix-darwin/issues/1369][nix-darwin issue 1369]].
+
    In case of =error: experimental Nix feature 'nix-command' is disabled; use '--extra-experimental-features nix-command' to override= errors, try to run:
 
    #+begin_src bash
