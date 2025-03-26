@@ -123,15 +123,12 @@
         bbenoist.nix
         be5invis.toml
         elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
-        github.copilot
-        github.copilot-chat
         hbenl.vscode-test-explorer
         hediet.vscode-drawio
         mkhl.direnv
         ms-azuretools.vscode-docker
         ms-playwright.playwright
         ms-python.python
-        ms-vscode-remote.remote-containers
         tomoki1207.pdf
         vscodevim.vim
         gamunu.opentofu
