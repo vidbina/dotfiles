@@ -2511,7 +2511,7 @@ pkgs.kakoune
 "zed"
 #+end_src
 
-****** Install Zed from Nixpkgs
+****** COMMENT Install Zed from Nixpkgs
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.zed-editor
