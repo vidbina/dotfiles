@@ -251,6 +251,7 @@
       (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
       "obs" # for streaming
       "spotify"
+      "arc"
     ];
     masApps = {
       "Xcode" = 497799835;

@@ -4413,6 +4413,14 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 
 💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
 
+*** Arc
+
+@KKarpac has been hyping up this browser so much, I'll have to give it a shot, so here goes:
+
+#+begin_src nix :noweb-ref homebrew-casks
+"arc"
+#+end_src
+
 *** Shared Extensions
 **** WIP GhostText
 
