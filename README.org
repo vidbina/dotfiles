@@ -3604,7 +3604,7 @@ chromium --disable-gpu-vsync --disable-frame-rate-limit
 - chrome://gpu
 - chrome://flags/
 
-*** DONE Debug Chrome freeze-ups (possibly accelleration-related)
+**** DONE Debug Chrome freeze-ups (possibly accelleration-related)
 
 Output of starting chromium on [2023-03-04 Sat 16:51]
 
@@ -4233,7 +4233,7 @@ https://www.lifewire.com/hardware-acceleration-in-chrome-4125122
 
 Somehow resolved after disabling offloading. Also running chrome as =DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1=1 chromium=.
 
-*** DONE Debug Chrome
+**** DONE Debug Chrome
 
 See https://github.com/NixOS/nixpkgs/issues/216361
 
