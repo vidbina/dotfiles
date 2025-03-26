@@ -17,13 +17,14 @@
   nixpkgs.overlays = [
     # Overlay custom Emacs build into pkgs
     (self: super: {
-      my-emacs = pkgs.emacs29-macport.pkgs.withPackages (epkgs: (
-        with epkgs; [
+      my-emacs = pkgs.emacs30.pkgs.withPackages (
+        epkgs:
+        (with epkgs; [
           notmuch
           vterm
           pdf-tools
-        ]
-      ));
+        ])
+      );
     })
   ];
 

@@ -8162,6 +8162,10 @@ jupyter-for-emacs
 🐉 This has not been sufficiently tested so use with caution. I'm using NixOS mainly, so anything Darwin-related has probably been run once on a MacBook that I haven't touched for a good 4 months at the time of writing (being [2022-06-30 Thu 18:31]).
 #+end_center
 
+In order to resolve an issue with Spotlight's ability to find Emacs, remember to also install Emacs as a system package in order to set up the links in the macOS Application directory.
+
+***** COMMENT Emacs 29
+
 For simplicity's sake, we're just assigning the standard v29 MacPort of Emacs in order to get things started.
 
 #+begin_src nix :noweb-ref nix-darwin-overlays
@@ -8177,7 +8181,28 @@ For simplicity's sake, we're just assigning the standard v29 MacPort of Emacs in
 })
 #+end_src
 
-In order to resolve an issue with Spotlight's ability to find Emacs, remember to also install Emacs as a system package in order to set up the links in the macOS Application directory.
+***** Emacs 30
+
+Since <2025-03-26 Wed>, we switch to Emacs 30 because of:
+
+#+begin_src text
+Known issues:
+ - CVE-2024-53920 CVE-2025-1244, please use newer versions such as emacs30
+#+end_src
+
+
+#+begin_src nix :noweb-ref nix-darwin-overlays
+# Overlay custom Emacs build into pkgs
+(self: super: {
+  my-emacs = pkgs.emacs30.pkgs.withPackages (epkgs: (
+    with epkgs; [
+      notmuch
+      vterm
+      pdf-tools
+    ]
+  ));
+})
+#+end_src
 
 *** Packages
 :PROPERTIES:

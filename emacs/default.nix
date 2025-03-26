@@ -1,8 +1,15 @@
 # Tangled from README.org
-{ config, pkgs, lib, options, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  options,
+  ...
+}:
 
 let
-  baseCommand = windowName:
+  baseCommand =
+    windowName:
     builtins.concatStringsSep " " [
       "emacsclient -a emacs"
       ''-F "((name . \\\"${windowName}\\\"))"''
@@ -91,43 +98,51 @@ in
   nixpkgs.overlays = [
     # Imports before overlaying
 
-
     # Overlay custom Emacs build into pkgs
-    (self: super:
+    (
+      self: super:
       let
-        emacs = (pkgs.emacs-unstable.override {
-          withNativeCompilation = true;
-          withSQLite3 = true;
-          withGTK2 = false;
-          withGTK3 = false;
-          withTreeSitter = true;
-        });
-        bundled-emacs = emacs.pkgs.withPackages (epkgs: (
-          with epkgs; [
+        emacs = (
+          pkgs.emacs-unstable.override {
+            withNativeCompilation = true;
+            withSQLite3 = true;
+            withGTK2 = false;
+            withGTK3 = false;
+            withTreeSitter = true;
+          }
+        );
+        bundled-emacs = emacs.pkgs.withPackages (
+          epkgs:
+          (with epkgs; [
             notmuch
             vterm
             pdf-tools
-          ]
-        ));
-        ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-          withPCRE2 = true;
-        });
+          ])
+        );
+        ripgrep-for-doom-emacs = (
+          pkgs.ripgrep.override {
+            withPCRE2 = true;
+          }
+        );
       in
       {
-        my-emacs = (pkgs.buildEnv {
-          name = "my-emacs";
-          paths = [
-            bundled-emacs
-            pkgs.clang
-            pkgs.cmake
-            pkgs.coreutils
-            pkgs.fd
-            pkgs.multimarkdown
-            pkgs.python39
-            ripgrep-for-doom-emacs
-          ];
-        });
-      })
+        my-emacs = (
+          pkgs.buildEnv {
+            name = "my-emacs";
+            paths = [
+              bundled-emacs
+              pkgs.clang
+              pkgs.cmake
+              pkgs.coreutils
+              pkgs.fd
+              pkgs.multimarkdown
+              pkgs.python39
+              ripgrep-for-doom-emacs
+            ];
+          }
+        );
+      }
+    )
   ];
 
   xdg.mimeApps.defaultApplications = {
