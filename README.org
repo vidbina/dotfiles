@@ -2237,7 +2237,7 @@ sudo xcodebuild -license accept
 pass
 #+end_src
 
-***** Bitwarden
+***** COMMENT Bitwarden
 
 For FLOSS friendly password managers with better GUIs, Bitwarden can be your friend. See this interesting [[https://www.reddit.com/r/Bitwarden/comments/15ssebq/bitwarden_vs_1password/][Reddit thread]] that highlights some differences to 1password in 2023.
 
