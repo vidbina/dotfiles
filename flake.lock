@@ -39,16 +39,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1742659231,
-        "narHash": "sha256-7bvafmxXeRfoAtWSJeTFmHlCHMte0cZecGE/BvvgyqE=",
+        "lastModified": 1739852725,
+        "narHash": "sha256-OjdnHKQ+eWA8YvPUpl3xxyaNK91c9sMebqXgVdN8Lm4=",
         "owner": "cachix",
         "repo": "devenv",
-        "rev": "c651cb04013be972767aaecb3e9a98fc930d080e",
+        "rev": "98b99188b1539c0d2a45e0a0a161a7b8e797caac",
         "type": "github"
       },
       "original": {
         "owner": "cachix",
         "repo": "devenv",
+        "rev": "98b99188b1539c0d2a45e0a0a161a7b8e797caac",
         "type": "github"
       }
     },
