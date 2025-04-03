@@ -249,6 +249,7 @@
       "1password"
       "1password-cli"
       (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
+      "zed"
       "obs" # for streaming
       "spotify"
       "arc"
