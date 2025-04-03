@@ -2420,6 +2420,10 @@ Pywal provides instructions on the [[https://github.com/dylanaraps/pywal/wiki/In
 - Terminology (the Enlightenment EFL standard)
 - st (the suckless standard)
 
+#+begin_aside
+theme-magic--check-dependencies: Could not find ’python’ executable. Is Python installed and on the path?
+#+end_aside
+
 **** Improve theme output for Modus Themes
 
 See =theme-magic--preferred-extracted-colors= for an overview of the output.
