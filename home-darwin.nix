@@ -19,7 +19,6 @@
     pkgs.hexyl
     pkgs.ghidra-bin
     pkgs.kakoune
-    pkgs.zed-editor
     pkgs.graphviz
     pkgs.shellcheck
     pkgs.shfmt
@@ -118,63 +117,62 @@
 
   programs.vscode = {
     enable = true;
-    extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
-      bbenoist.nix
-      be5invis.toml
-      elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
-      github.copilot
-      github.copilot-chat
-      hbenl.vscode-test-explorer
-      hediet.vscode-drawio
-      mkhl.direnv
-      ms-azuretools.vscode-docker
-      ms-playwright.playwright
-      ms-python.python
-      ms-vscode-remote.remote-containers
-      tomoki1207.pdf
-      vscodevim.vim
-      gamunu.opentofu
-      bierner.github-markdown-preview
-      bierner.markdown-checkbox
-      bierner.markdown-yaml-preamble
-      bierner.markdown-emoji
-      bierner.markdown-mermaid
-      bierner.markdown-footnotes
-      bierner.markdown-preview-github-styles
-      gruntfuggly.todo-tree
-    ];
-    keybindings = [
-      {
-        "key" = "ctrl+tab";
-        "command" = "workbench.action.nextEditorInGroup";
-      }
-      {
-        "key" = "ctrl+shift+tab";
-        "command" = "workbench.action.previousEditorInGroup";
-      }
-    ];
-    userSettings = {
-      # https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview
-      "markdown.previewFrontMatter" = "show";
-      "editor.cursorSurroundingLines" = 8;
+    profiles.default = {
+      extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
+        bbenoist.nix
+        be5invis.toml
+        elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
+        hbenl.vscode-test-explorer
+        hediet.vscode-drawio
+        mkhl.direnv
+        ms-azuretools.vscode-docker
+        ms-playwright.playwright
+        ms-python.python
+        tomoki1207.pdf
+        vscodevim.vim
+        gamunu.opentofu
+        bierner.github-markdown-preview
+        bierner.markdown-checkbox
+        bierner.markdown-yaml-preamble
+        bierner.markdown-emoji
+        bierner.markdown-mermaid
+        bierner.markdown-footnotes
+        bierner.markdown-preview-github-styles
+        gruntfuggly.todo-tree
+      ];
+      keybindings = [
+        {
+          "key" = "ctrl+tab";
+          "command" = "workbench.action.nextEditorInGroup";
+        }
+        {
+          "key" = "ctrl+shift+tab";
+          "command" = "workbench.action.previousEditorInGroup";
+        }
+      ];
+      userSettings = {
+        # https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview
+        "markdown.previewFrontMatter" = "show";
+        "editor.cursorSurroundingLines" = 8;
 
-      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
-      "extensions.ignoreRecommendations" = true;
-      "extensions.showRecommendationsOnlyOnDemand" = true;
+        # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+        "extensions.ignoreRecommendations" = true;
+        "extensions.showRecommendationsOnlyOnDemand" = true;
 
-      # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
-      "telemetry.telemetryLevel" = "off";
+        # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+        "telemetry.telemetryLevel" = "off";
 
-      "vim.highlightedyank.enable" = true;
+        "vim.highlightedyank.enable" = true;
 
-      "window.autoDetectColorScheme" = true;
-      # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
-      "editor.guides.bracketPairs" = true;
-      "editor.guides.highlightActiveIndentation" = true;
-      "workbench.colorTheme" = "Default High Contrast Light";
-      "workbench.preferredDarkColorTheme" = "Default High Contrast";
-      "workbench.preferredLightColorTheme" = "Default High Contrast Light";
-      "workbench.list.openMode" = "doubleClick";
+        "window.autoDetectColorScheme" = true;
+        # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
+        "editor.guides.bracketPairs" = true;
+        "editor.guides.highlightActiveIndentation" = true;
+        "workbench.colorTheme" = "Default High Contrast Light";
+        "workbench.preferredDarkColorTheme" = "Default High Contrast";
+        "workbench.preferredLightColorTheme" = "Default High Contrast Light";
+        "workbench.list.openMode" = "doubleClick";
+      };
     };
   };
   # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;

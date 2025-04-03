@@ -132,6 +132,8 @@ nix run nix-darwin -- switch --flake . --show-trace
 darwin-rebuild switch --flake .
    #+end_src
 
+   In case of =Error: invalid option: --no-lock= errors, try to update your flakes as suggested in [[https://github.com/LnL7/nix-darwin/issues/1369][nix-darwin issue 1369]].
+
    In case of =error: experimental Nix feature 'nix-command' is disabled; use '--extra-experimental-features nix-command' to override= errors, try to run:
 
    #+begin_src bash
@@ -2235,7 +2237,7 @@ sudo xcodebuild -license accept
 pass
 #+end_src
 
-***** Bitwarden
+***** COMMENT Bitwarden
 
 For FLOSS friendly password managers with better GUIs, Bitwarden can be your friend. See this interesting [[https://www.reddit.com/r/Bitwarden/comments/15ssebq/bitwarden_vs_1password/][Reddit thread]] that highlights some differences to 1password in 2023.
 
@@ -2503,13 +2505,13 @@ pkgs.kakoune
 
 [[https://zed.dev/][Zed]] is shaping up to be one of the coolest new editors. An IDE that was designed with speed in mind and should be blazingly fast with decent LLM features, multiplayer support and coming from the makers of Atom (from which they learned key lessons about how to not build and editor) and Treesitter. At least, that's what I get from their website and videos.
 
-****** COMMENT Install Zed from a homebrew cask
+****** Install Zed from a homebrew cask
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "zed"
 #+end_src
 
-****** Install Zed from Nixpkgs
+****** COMMENT Install Zed from Nixpkgs
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.zed-editor
@@ -2824,14 +2826,16 @@ Our vscode configuration declaratively manages soem extensions, keybindings and 
 #+begin_src nix :noweb yes :noweb-ref home-darwin-config
 programs.vscode = {
   enable = true;
-  extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
-    <<vscode-extensions>>
-  ];
-  keybindings = [
-    <<vscode-keybindings>>
-  ];
-  userSettings = {
-    <<vscode-settings>>
+  profiles.default = {
+    extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
+      <<vscode-extensions>>
+    ];
+    keybindings = [
+      <<vscode-keybindings>>
+    ];
+    userSettings = {
+      <<vscode-settings>>
+    };
   };
 };
 #+end_src
@@ -2850,18 +2854,36 @@ The extensions that we are interested in are the following:
 bbenoist.nix
 be5invis.toml
 elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
-github.copilot
-github.copilot-chat
 hbenl.vscode-test-explorer
 hediet.vscode-drawio
 mkhl.direnv
 ms-azuretools.vscode-docker
 ms-playwright.playwright
 ms-python.python
-ms-vscode-remote.remote-containers
 tomoki1207.pdf
 vscodevim.vim
 gamunu.opentofu
+#+end_src
+
+***** COMMENT GitHub CoPilot in VSCode
+
+#+begin_src nix :noweb-ref vscode-extensions
+github.copilot
+github.copilot-chat
+#+end_src
+
+#+begin_src nix :noweb-ref darwin-unfree
+"vscode-extension-github-copilot"
+#+end_src
+
+***** COMMENT Remote Containers in VSCode
+
+#+begin_src nix :noweb-ref vscode-extensions
+ms-vscode-remote.remote-containers
+#+end_src
+
+#+begin_src nix :noweb-ref darwin-unfree
+"vscode-extension-ms-vscode-remote-remote-containers"
 #+end_src
 
 ***** Markdown Preview in VSCode
@@ -3582,7 +3604,7 @@ chromium --disable-gpu-vsync --disable-frame-rate-limit
 - chrome://gpu
 - chrome://flags/
 
-*** DONE Debug Chrome freeze-ups (possibly accelleration-related)
+**** DONE Debug Chrome freeze-ups (possibly accelleration-related)
 
 Output of starting chromium on [2023-03-04 Sat 16:51]
 
@@ -4211,7 +4233,7 @@ https://www.lifewire.com/hardware-acceleration-in-chrome-4125122
 
 Somehow resolved after disabling offloading. Also running chrome as =DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1=1 chromium=.
 
-*** DONE Debug Chrome
+**** DONE Debug Chrome
 
 See https://github.com/NixOS/nixpkgs/issues/216361
 
@@ -4390,6 +4412,14 @@ Remember that =Shift= + =Insert= (or =Ctrl= + =Alt= + =Escape= but I'm refusing 
 Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle through search results.
 
 💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
+
+*** Arc
+
+@KKarpac has been hyping up this browser so much, I'll have to give it a shot, so here goes:
+
+#+begin_src nix :noweb-ref homebrew-casks
+"arc"
+#+end_src
 
 *** Shared Extensions
 **** WIP GhostText
