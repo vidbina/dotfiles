@@ -4444,6 +4444,12 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 "arc"
 #+end_src
 
+*** Zen
+
+#+begin_src nix :noweb-ref homebrew-casks
+"zen-browser"
+#+end_src
+
 *** Shared Extensions
 **** WIP GhostText
 

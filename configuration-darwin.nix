@@ -254,6 +254,7 @@
       "spotify"
       "firefox@developer-edition"
       "arc"
+      "zen-browser"
     ];
     masApps = {
       "Xcode" = 497799835;
