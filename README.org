@@ -2298,7 +2298,16 @@ Additionally, we also install the 1Password CLI:
 "1password-cli"
 #+end_src
 
+****** Install 1Password for Safari from Apple App Store
+
+The 1Password extension for Safari is available from the [[https://apps.apple.com/de/app/1password-for-safari/id1569813296?l=en-GB&mt=12][Apple App Store]]:
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"1Password for Safari" = 1569813296;
+#+end_src
+
 ****** COMMENT Install 1Password from Apple App Store
+
 
 #+begin_quote
 [!WARNING]
