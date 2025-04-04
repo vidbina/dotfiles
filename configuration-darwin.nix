@@ -252,6 +252,7 @@
       "zed"
       "obs" # for streaming
       "spotify"
+      "firefox@developer-edition"
       "arc"
     ];
     masApps = {

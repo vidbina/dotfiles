@@ -4382,12 +4382,20 @@ vi-editor for input controls
 ⚠️ In order to get the extensions in Firefox to work, you may have to first manually enable the extensions.
 #+end_quote
 
+**** Install Firefox on Linux
+
 #+begin_src nix :noweb yes :noweb-ref browser-firefox
 programs.firefox = {
   enable = true;
 
   <<browser-firefox-profiles>>
 };
+#+end_src
+
+**** Install Firefox from Homebrew on macOS
+
+#+begin_src nix :noweb-ref homebrew-casks
+"firefox@developer-edition"
 #+end_src
 
 **** Extensions
