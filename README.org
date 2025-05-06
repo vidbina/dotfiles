@@ -1802,6 +1802,12 @@ Install apps from the Apple App Store through the mas CLI tool for which the nix
 
 💡 Remember to go through the list of all masApps in your file:configuration-darwin.nix and make sure to at least manually install them into your Apple account once to avoid the [[*Resolve: Redownload Unavailable with This Apple ID: This redownload is not available for this Apple ID either because it was bought by a different user or the item was refunded or cancelled.][this "Redownload Unavailable with this Apple ID" issue]].
 
+You can use the =mas search= command to find available apps from the Apple App Store:
+
+#+begin_src bash
+mas search SOMETHING
+#+end_src
+
 *** DONE Resolve: Redownload Unavailable with This Apple ID: This redownload is not available for this Apple ID either because it was bought by a different user or the item was refunded or cancelled.
 
 Apps need to already be in a user's Purchased list before mas can install them. For any new tools, just make sure that you install it on one machine at least manually in order to add it to your Purchased list as documented in [[https://github.com/mas-cli/mas/issues/85#issuecomment-305382347][GH mas-cli issue 85]]. In my case, I didn't even complete the installation, I just started it to add it to the list and then prematurely stopped it in order to continue the installation through nix-darwin.
@@ -2298,7 +2304,16 @@ Additionally, we also install the 1Password CLI:
 "1password-cli"
 #+end_src
 
+****** Install 1Password for Safari from Apple App Store
+
+The 1Password extension for Safari is available from the [[https://apps.apple.com/de/app/1password-for-safari/id1569813296?l=en-GB&mt=12][Apple App Store]]:
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"1Password for Safari" = 1569813296;
+#+end_src
+
 ****** COMMENT Install 1Password from Apple App Store
+
 
 #+begin_quote
 [!WARNING]
@@ -4367,12 +4382,20 @@ vi-editor for input controls
 ⚠️ In order to get the extensions in Firefox to work, you may have to first manually enable the extensions.
 #+end_quote
 
+**** Install Firefox on Linux
+
 #+begin_src nix :noweb yes :noweb-ref browser-firefox
 programs.firefox = {
   enable = true;
 
   <<browser-firefox-profiles>>
 };
+#+end_src
+
+**** Install Firefox from Homebrew on macOS
+
+#+begin_src nix :noweb-ref homebrew-casks
+"firefox@developer-edition"
 #+end_src
 
 **** Extensions
@@ -4419,6 +4442,12 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 
 #+begin_src nix :noweb-ref homebrew-casks
 "arc"
+#+end_src
+
+*** Zen
+
+#+begin_src nix :noweb-ref homebrew-casks
+"zen-browser"
 #+end_src
 
 *** Shared Extensions
