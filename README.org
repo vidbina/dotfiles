@@ -2184,6 +2184,12 @@ Sometimes we need GNU CLI utils, such as for dired in Emacs which expects the GN
 "coreutils"
 #+end_src
 
+**** Hardware Tinkering Tools
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"lsusb"
+#+end_src
+
 **** Windows Utils
 
 In order to build windows installation disks, we may need the wimlib util from time to time. See [[https://gist.github.com/acarril/8c15f600cf0397dd61161a470f50f669][acarril/bootable-win-on-mac gist]] for an example on how to build a Windows installation disk from MacOS.
