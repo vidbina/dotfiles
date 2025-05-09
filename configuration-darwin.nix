@@ -200,7 +200,7 @@
       "pidof"
 
       "coreutils"
-      "lsusb"
+      "usbutils"
       "wimlib"
       "wireguard-tools"
       "pcalc"

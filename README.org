@@ -2186,8 +2186,10 @@ Sometimes we need GNU CLI utils, such as for dired in Emacs which expects the GN
 
 **** Hardware Tinkering Tools
 
+Instead of installing lsusb directly, we install [[http://www.linux-usb.org/][usbutils]] ([[https://github.com/gregkh/usbutils][GitHub]]) which should contain the =lsusb= and =usbhid-dump= CLI tools.
+
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
-"lsusb"
+"usbutils"
 #+end_src
 
 **** Windows Utils
