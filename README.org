@@ -2200,6 +2200,21 @@ In order to build windows installation disks, we may need the wimlib util from t
 "wimlib"
 #+end_src
 
+**** Package Managers
+***** Micromamba
+
+Micromamba is a statically-linked build of /[[https://github.com/mamba-org/mamba][Mamba]]/, the C++ rewrite of Conda, which was written in Python and is known to be pretty slow. Micromamba has everything it needs it its executable. No dynamic deps.
+
+#+begin_quote
+<2025-05-09 Fri> Would be nice if we could just use a devenv, flake or nix-shell but because of glibc, it will be a bit tricky to build this for darwin.
+#+end_quote
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"micromamba"
+#+end_src
+
+See [[https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html][installation instructions]] for additional guidance.
+
 **** Development Environments
 
 ***** Devbox

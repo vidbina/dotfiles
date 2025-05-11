@@ -202,6 +202,7 @@
       "coreutils"
       "usbutils"
       "wimlib"
+      "micromamba"
       "wireguard-tools"
       "pcalc"
     ];
