@@ -196,67 +196,46 @@
       upgrade = false; # same as default
     };
     brews = [
-      "smudge/smudge/nightlight"
-      "pidof"
-
       "coreutils"
-      "usbutils"
       "wimlib"
       "micromamba"
       "wireguard-tools"
+      "pidof"
+      "usbutils"
       "pcalc"
+      "smudge/smudge/nightlight"
     ];
     casks = builtins.filter (x: x != null) [
-      # Software Development
+      "android-file-transfer"
+      "1password"
+      "1password-cli"
       "iterm2"
       "kitty"
-
-      # Design
-      "figma"
+      # Go to top-right Settings gear > VSCode Import > Start Import
+      "warp"
+      (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
+      "zed"
+      "cursor"
       "drawio"
-
-      # Containerization & Virtualization
+      "figma"
       "docker"
       "utm"
-
-      # Productivity
-      "google-drive"
-      "linear-linear"
-      "logseq" # FLOSS (compared to Obsidian) but no mobile app
-      "notion"
-      "obsidian" # best-in-class with mobile app support
       "raycast"
-      "zoom"
-
-      # Android
-      "android-file-transfer"
-
-      # Devtools
-      # Go to top-right Settings gear > VSCode Import > Start Import
-      "cursor"
-      "warp"
-
-      # Entertainment
+      "obs" # for streaming
       "spotify"
-      "steam"
       "tidal"
-
-      # Social
+      "steam"
+      "firefox@developer-edition"
+      "arc"
+      "zen-browser"
       "discord"
       "signal"
       "slack"
       "telegram"
       "whatsapp"
-
-      "1password"
-      "1password-cli"
-      (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
-      "zed"
-      "obs" # for streaming
-      "spotify"
-      "firefox@developer-edition"
-      "arc"
-      "zen-browser"
+      "zoom"
+      "obsidian" # best-in-class with mobile app support
+      "linear-linear"
     ];
     masApps = {
       "Xcode" = 497799835;

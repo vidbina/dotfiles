@@ -19,8 +19,8 @@ in
 
   home.packages = [
 
-    pkgs.slack
     pkgs.discord
+    pkgs.slack
   ];
 
   home.file = {
@@ -53,10 +53,10 @@ in
     ];
 
     config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-      "slack"
       "discord"
       "discord-ptb"
       "discord-canary"
+      "slack"
     ];
   };
 
