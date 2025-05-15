@@ -213,6 +213,7 @@
       "kitty"
       # Go to top-right Settings gear > VSCode Import > Start Import
       "warp"
+      "claude"
       (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
       "zed"
       "cursor"

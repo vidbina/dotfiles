@@ -2281,6 +2281,12 @@ config.keys = {
 
 **** AI
 
+***** Claude
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"claude"
+#+end_src
+
 ***** ChatGPT
 
 ChatGPT is the premiere LLM tool that I've been using. On some systems (tokyo23), I installed it manually, but let's add it to my config since I'm realising how much I'm depending on the nifty Option+Space shortcut these days.
