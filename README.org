@@ -4961,7 +4961,7 @@ For work, we may need Notion installed on our MacOS systems:
 "notion"
 #+end_src
 
-**** COMMENT Gdrive
+**** Gdrive
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "google-drive"

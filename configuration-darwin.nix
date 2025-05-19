@@ -235,6 +235,7 @@
       "telegram"
       "whatsapp"
       "zoom"
+      "google-drive"
       "obsidian" # best-in-class with mobile app support
       "linear-linear"
     ];
