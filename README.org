@@ -2287,6 +2287,20 @@ config.keys = {
 "claude"
 #+end_src
 
+****** Claude Code
+
+See [[https://www.npmjs.com/package/@anthropic-ai/claude-code][NPM]] or [[https://github.com/anthropics/claude-code][GitHub]] for the Claude Code CLI tool which is in research preview as per <2025-05-22 Thu>.
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.claude-code
+#+end_src
+
+Note that claude-code is unfree.
+
+#+begin_src nix :noweb-ref darwin-unfree
+"claude-code"
+#+end_src
+
 ***** ChatGPT
 
 ChatGPT is the premiere LLM tool that I've been using. On some systems (tokyo23), I installed it manually, but let's add it to my config since I'm realising how much I'm depending on the nifty Option+Space shortcut these days.

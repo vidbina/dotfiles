@@ -14,6 +14,7 @@
     pkgs.nushell
     alacritty
     pkgs.wezterm
+    pkgs.claude-code
     pkgs.ollama
     pkgs.xxd
     pkgs.hexyl
