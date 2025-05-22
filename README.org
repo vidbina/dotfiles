@@ -2301,12 +2301,21 @@ Note that claude-code is unfree.
 "claude-code"
 #+end_src
 
-***** ChatGPT
+***** OpenAI
+****** ChatGPT
 
 ChatGPT is the premiere LLM tool that I've been using. On some systems (tokyo23), I installed it manually, but let's add it to my config since I'm realising how much I'm depending on the nifty Option+Space shortcut these days.
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
+#+end_src
+
+****** OpenAI Codex CLI
+
+Use [[https://github.com/openai/codex][Codex]] as a coding agent, directly from your CLI:
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.codex
 #+end_src
 
 ***** Ollama
