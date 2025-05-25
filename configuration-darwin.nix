@@ -245,6 +245,7 @@
       "Perplexity" = 6714467650;
       "Hidden Bar" = 1452453066;
       "Remarkable Desktop" = 1276493162;
+      "Endel" = 1346247457;
     };
   };
 

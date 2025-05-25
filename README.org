@@ -5015,6 +5015,14 @@ https://apps.apple.com/us/app/remarkable-desktop/id1276493162
 #+end_src
 
 *** Misc
+**** Endel
+
+[[https://endel.io/][Endel]] is a wellness app which helps play soundscapes to help one fall asleep, focus, relax, etc. I have been using the Endel app on Android for a while now but there is also the Mac app available from the [[https://apps.apple.com/de/app/endel-focus-sleep-relax/id1346247457?l=en-GB][Apple App Store]].
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Endel" = 1346247457;
+#+end_src
+
 **** QR
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
