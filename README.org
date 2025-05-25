@@ -2359,6 +2359,8 @@ On MacOS, we install LM Studio using the [[https://formulae.brew.sh/cask/lm-stud
 For all apps installed through Apple App Store, remember to once "Get" the app first through the Apple App Store application in order to make it programmatically installable.
 #+end_quote
 
+Perplexity can be found in the [[https://apps.apple.com/de/app/perplexity-ask-anything/id6714467650?l=en-GB&mt=12][Apple App Store]] and may need some manual updates as I'm doing at <2025-05-19 Mon> since it apparently isn't done automatically.
+
 #+begin_src nix :noweb-ref homebrew-masapps :noweb yes
 "Perplexity" = 6714467650;
 #+end_src
