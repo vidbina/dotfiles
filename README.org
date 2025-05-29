@@ -1867,6 +1867,16 @@ programs.git = {
 ".config/git/ignore".source = ./git/ignore;
 #+end_src
 
+**** Graphite
+
+Graphite is a new class of git-porcelain with a focus on [[https://graphite.dev/guides/understanding-and-managing-stacked-branches-in-git][git stacking]].
+
+See the [[https://app.graphite.dev/core/get-started/][Getting Started]] page for instruction on how to set things up.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"withgraphite/tap/graphite"
+#+end_src
+
 **** Global Gitignore
 
 For convenience we define [[file:git/ignore]] which we want to automatically want to honor in every repo. Based on the instructions in =man gitignore= we stub the =XDG_HOME_CONFIG/.config/git/ignore= and the =~/.gitignore= files to reflect the content of [[file:git/ignore]].

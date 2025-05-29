@@ -196,6 +196,7 @@
       upgrade = false; # same as default
     };
     brews = [
+      "withgraphite/tap/graphite"
       "coreutils"
       "wimlib"
       "micromamba"
