@@ -14,7 +14,7 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     linsk.url = "github:vidbina/linsk/vid/init-nix-flake";
     linsk.inputs.nixpkgs.follows = "nixpkgs";
-    devenv.url = "github:cachix/devenv/98b99188b1539c0d2a45e0a0a161a7b8e797caac";
+    devenv.url = "github:cachix/devenv";
     devenv.inputs.nixpkgs.follows = "nixpkgs";
     vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
     vscode-extensions.inputs.nixpkgs.follows = "nixpkgs";

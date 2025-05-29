@@ -1746,56 +1746,20 @@ homebrew = {
 };
 #+end_src
 
-As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefers pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility.
+As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefers pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility as demonstrated through the following snippet:
 
-#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+#+begin_src nix
+,#+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "smudge/smudge/nightlight"
-"pidof"
+,#+end_src
 #+end_src
 
-Graphical tools which are typically installed through the /drag icon to Applications/ mess, can be installed in a more automated fashion through the use of the homebrew casks extension.
+Graphical tools which are typically installed through the /drag icon to Applications/ mess, can be installed in a more automated fashion through the use of the homebrew casks extension as demonstrated by the following snippet that we can use in our literate config where needed:
 
-#+begin_src nix :noweb-ref homebrew-casks :noweb yes
-# Software Development
-"iterm2"
-"kitty"
-
-# Design
-"figma"
-"drawio"
-
-# Containerization & Virtualization
-"docker"
-"utm"
-
-# Productivity
-"google-drive"
-"linear-linear"
-"logseq" # FLOSS (compared to Obsidian) but no mobile app
-"notion"
-"obsidian" # best-in-class with mobile app support
-"raycast"
-"zoom"
-
-# Android
-"android-file-transfer"
-
-# Devtools
-# Go to top-right Settings gear > VSCode Import > Start Import
-"cursor"
-"warp"
-
-# Entertainment
-"spotify"
-"steam"
-"tidal"
-
-# Social
-"discord"
-"signal"
-"slack"
-"telegram"
-"whatsapp"
+#+begin_src nix
+,#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"raycast" 
+,#+end_src
 #+end_src
 
 Install apps from the Apple App Store through the mas CLI tool for which the nix-darwin homebrew config provides the [[https://daiderd.com/nix-darwin/manual/index.html#opt-homebrew.masApps][=masApps= attribute]].
@@ -1839,167 +1803,6 @@ nixpkgs.overlays = [
     <<darwin-overlays>>
   })
 ];
-#+end_src
-
-*** Hammerspoon
-
-I use [[https://www.hammerspoon.org/][Hammerspoon]] for some OSX-specific automations which can be scripted through Lua. Like mapping keybindings to open specific locations in Finder, opening specific apps within a workstation or rendering notification or alerts with some useful information and more.
-
-We link the hammerspoon directory into our homedir in order to set up the necessary Spoons and the init.lua:
-
-#+begin_src nix :noweb-ref home-darwin-config
-home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
-#+end_src
-
-We load the Spoons and define our own bindings and more in the init.lua file that we symlinked into our homedir previously:
-
-#+begin_src lua :noweb yes :tangle hammerspoon/init.lua
--- Tangled from README.org
-
-hsBaseBinding = {"alt", "cmd", "ctrl"}
-strBaseBinding = "⌃⌥⌘"
-
-cheatsheet = "💡"
-
--- A dummy binding for Hammerspoon
-hs.hotkey.bind(
-   hsBaseBinding,
-   "H",
-   function()
-      hs.alert.show(cheatsheet)
-      hs.notify.new({title="Hammerspoon", informativeText=cheatsheet}):send()
-   end
-)
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " H = help"
-
--- https://www.hammerspoon.org/go/#simple-configuration-reloading
-hs.hotkey.bind(
-   hsBaseBinding,
-   "R",
-   function()
-      hs.alert.show("Reloading Hammerspoon config")
-      hs.reload()
-   end
-)
-cheatsheet = cheatsheet .."\n" .. strBaseBinding .. " R = reload"
-
--- https://www.hammerspoon.org/go/#drawing-on-the-screen
-mouseCircle = nil
-mouseCircleTimer = nil
-
-function mouseHighlight()
-   -- Delete an existing highlight if it exists
-   if mouseCircle then
-      mouseCircle:delete()
-      if mouseCircleTimer then
-         mouseCircleTimer:stop()
-      end
-   end
-   -- Get the current co-ordinates of the mouse pointer
-   mousepoint = hs.mouse.absolutePosition()
-   -- Prepare a big red circle around the mouse pointer
-   mouseCircle = hs.drawing.circle(hs.geometry.rect(mousepoint.x-40, mousepoint.y-40, 80, 80))
-   mouseCircle:setStrokeColor({["red"]=1,["blue"]=0,["green"]=0,["alpha"]=1})
-   mouseCircle:setFill(false)
-   mouseCircle:setStrokeWidth(5)
-   mouseCircle:show()
-
-   -- Set a timer to delete the circle after 3 seconds
-   mouseCircleTimer = hs.timer.doAfter(
-      1,
-      function()
-         mouseCircle:delete()
-         mouseCircle = nil
-      end
-   )
-end
-hs.hotkey.bind(hsBaseBinding, "D", mouseHighlight)
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " D = mouse highlight"
-
-hs.loadSpoon("Caffeine")
-isCaffeinated = false
-hs.hotkey.bind(
-   hsBaseBinding,
-   "Z",
-   function()
-      if not isCaffeinated then
-         hs.alert.show("Buzzed! Flattie mode! ☕")
-         spoon.Caffeine:start()
-      else
-         hs.alert.show("Letting that buzz wear off. 🥱")
-         spoon.Caffeine:stop()
-      end
-      isCaffeinated = not isCaffeinated
-   end
-)
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " Z = ☕"
-
-hs.loadSpoon("KSheet")
-spoon.KSheet:bindHotkeys(
-   {
-      toggle = {hsBaseBinding, "K"}
-   }
-)
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = KSheet"
-
-hs.loadSpoon("HSKeybindings")
-isShowingHSKeybindings = false
-hs.hotkey.bind(
-   hsBaseBinding,
-   "/",
-   function()
-      if not isShowingHSKeybindings then
-         hs.alert.show("Showing HSKeybindings")
-         spoon.HSKeybindings:show()
-      else
-         hs.alert.show("Hiding HSKeybindings")
-         spoon.HSKeybindings:hide()
-      end
-      isShowingHSKeybindings = not isShowingHSKeybindings
-   end
-)
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = HSKeybindings"
-
-hs.hotkey.bind(
-   hsBaseBinding,
-   ".",
-   function()
-      hs.alert.show("Inspecting Hammerspoon")
-      hs.alert.show("displayIdle: " .. (hs.caffeinate.get("displayIdle") and "On" or "Off"))
-      hs.alert.show("systemIdle: " .. (hs.caffeinate.get("systemIdle") and "On" or "Off"))
-      hs.alert.show("system: " .. (hs.caffeinate.get("system") and "On" or "Off"))
-   end
-)
-
-hs.hotkey.bind(
-   hsBaseBinding,
-   "return",
-   function()
-      if hs.application.find("iTerm") then
-         hs.osascript.applescript([[
-            <<applescript-open-iterm>>
-         ]])
-      else
-         hs.application.open("iTerm")
-      end
-   end
-)
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " ⏎ = iTerm2 👨🏿‍💻"
-#+end_src
-
-For our iTerm2 function, we define the AppleScript separately:
-
-#+begin_src applescript :noweb-ref applescript-open-iterm
-tell application "iTerm"
-create window with default profile
-end tell
-#+end_src
-
-See [[https://zzamboni.org/post/my-hammerspoon-configuration-with-commentary/][zzamboni's config]] for inspiration.
-
-*** COMMENT Next
-
-#+begin_src nix :noweb-ref nix-darwin
 #+end_src
 
 ** Developer Tooling
@@ -2062,6 +1865,16 @@ programs.git = {
 
 #+begin_src nix :noweb-ref home-darwin-files
 ".config/git/ignore".source = ./git/ignore;
+#+end_src
+
+**** Graphite
+
+Graphite is a new class of git-porcelain with a focus on [[https://graphite.dev/guides/understanding-and-managing-stacked-branches-in-git][git stacking]].
+
+See the [[https://app.graphite.dev/core/get-started/][Getting Started]] page for instruction on how to set things up.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"withgraphite/tap/graphite"
 #+end_src
 
 **** Global Gitignore
@@ -2176,6 +1989,14 @@ pkgs.gh
 
 *** Utils
 
+**** Android
+
+***** Android File Transfer
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"android-file-transfer"
+#+end_src
+
 **** Coreutils
 
 Sometimes we need GNU CLI utils, such as for dired in Emacs which expects the GNU ls variant which offers the =--dired= option. Install [[https://formulae.brew.sh/formula/coreutils][coreutils]] coreutils for this capability and note that for all utils that already have MacOS-native equivalents the GNU-equivalent will be prefixed with =g= such that the GNU =ls= tool is now accessed through =gls=:
@@ -2191,6 +2012,21 @@ In order to build windows installation disks, we may need the wimlib util from t
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "wimlib"
 #+end_src
+
+**** Package Managers
+***** Micromamba
+
+Micromamba is a statically-linked build of /[[https://github.com/mamba-org/mamba][Mamba]]/, the C++ rewrite of Conda, which was written in Python and is known to be pretty slow. Micromamba has everything it needs it its executable. No dynamic deps.
+
+#+begin_quote
+<2025-05-09 Fri> Would be nice if we could just use a devenv, flake or nix-shell but because of glibc, it will be a bit tricky to build this for darwin.
+#+end_quote
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"micromamba"
+#+end_src
+
+See [[https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html][installation instructions]] for additional guidance.
 
 **** Development Environments
 
@@ -2434,14 +2270,62 @@ config.keys = {
 }
 #+end_src
 
+***** Iterm2
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"iterm2"
+#+end_src
+
+***** Kitty
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"kitty"
+#+end_src
+
+***** Warp
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+# Go to top-right Settings gear > VSCode Import > Start Import
+"warp"
+#+end_src
+
 **** AI
 
-***** ChatGPT
+***** Claude
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"claude"
+#+end_src
+
+****** Claude Code
+
+See [[https://www.npmjs.com/package/@anthropic-ai/claude-code][NPM]] or [[https://github.com/anthropics/claude-code][GitHub]] for the Claude Code CLI tool which is in research preview as per <2025-05-22 Thu>.
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.claude-code
+#+end_src
+
+Note that claude-code is unfree.
+
+#+begin_src nix :noweb-ref darwin-unfree
+"claude-code"
+#+end_src
+
+***** OpenAI
+****** ChatGPT
 
 ChatGPT is the premiere LLM tool that I've been using. On some systems (tokyo23), I installed it manually, but let's add it to my config since I'm realising how much I'm depending on the nifty Option+Space shortcut these days.
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
+#+end_src
+
+****** OpenAI Codex CLI
+
+Use [[https://github.com/openai/codex][Codex]] as a coding agent, directly from your CLI:
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.codex
 #+end_src
 
 ***** Ollama
@@ -2485,6 +2369,8 @@ On MacOS, we install LM Studio using the [[https://formulae.brew.sh/cask/lm-stud
 For all apps installed through Apple App Store, remember to once "Get" the app first through the Apple App Store application in order to make it programmatically installable.
 #+end_quote
 
+Perplexity can be found in the [[https://apps.apple.com/de/app/perplexity-ask-anything/id6714467650?l=en-GB&mt=12][Apple App Store]] and may need some manual updates as I'm doing at <2025-05-19 Mon> since it apparently isn't done automatically.
+
 #+begin_src nix :noweb-ref homebrew-masapps :noweb yes
 "Perplexity" = 6714467650;
 #+end_src
@@ -2512,6 +2398,8 @@ pkgs.ghidra-bin
 
 **** Editors
 
+***** Kakoune
+
 #+begin_src nix :noweb-ref dev-packages
 pkgs.kakoune
 #+end_src
@@ -2532,8 +2420,26 @@ pkgs.kakoune
 pkgs.zed-editor
 #+end_src
 
+***** Cursor
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"cursor"
+#+end_src
 
 **** Diagramming
+
+***** Drawio
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"drawio"
+#+end_src
+
+***** Figma
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"figma"
+#+end_src
+
 ***** Graphviz
 
 #+begin_src nix :noweb-ref dev-packages
@@ -2665,6 +2571,20 @@ pkgs.redis
 **** Linux Hacking
 
 I have issues with my touchpad often enough and also have issues with Chromium hanging here and there. It's time that I learned to dig into some of the Linux innards and do some good kernel watching.
+
+***** pidof
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"pidof"
+#+end_src
+
+***** Linux-like Hardware Tinkering on MacOS
+
+Instead of installing lsusb directly on MacOS, we install [[http://www.linux-usb.org/][usbutils]] ([[https://github.com/gregkh/usbutils][GitHub]]) which should contain the =lsusb= and =usbhid-dump= CLI tools.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"usbutils"
+#+end_src
 
 ***** Linux Input Debugging/Kernel Watching
 
@@ -2817,6 +2737,20 @@ https://github.com/traviscross/mtr
 pkgs.mtr
 #+end_src
 
+**** Virtualization
+
+***** Docker
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"docker"
+#+end_src
+
+***** UTM
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"utm"
+#+end_src
+
 **** Calculators
 ***** pcalc
 
@@ -2827,6 +2761,156 @@ For MacOS, we just install pcalc using the brew:
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "pcalc"
 #+end_src
+
+**** Syncthing
+
+Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup. As per [2022-05-05 Thu 12:08], the syncthing service in home-manager is only declarative to the extend of turning it on and providing extra CLI options to start the service with.
+
+Consult the [[https://docs.syncthing.net/intro/getting-started.html][Getting Started]] guide to learn how to set it up "imperatively" (i.e.: setting up peers and generating their IDs and copying the needed information over to the other syncthing peers to establish connections) through the portal.
+
+***** Syncthing Daemon on Darwin
+
+#+begin_src nix :noweb-ref home-darwin-config
+services.syncthing = {
+  enable = true;
+};
+#+end_src
+
+****** DONE Issue: Syncthing not automatically started on macOS
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2024-12-23 Mon 10:28] \\
+  Checking on <2024-12-21 Sat>, I noticed that syncthings is running on tokyo23 (ARM) so we're good here.
+:END:
+
+[2024-02-07 Wed] On macOS, the syncthing service isn't running which was confirmed by running:
+
+#+begin_src bash
+launchctl list org.nix-community.home.syncthing
+#+end_src
+
+where the output is
+
+#+begin_src text
+{
+	"LimitLoadToSessionType" = "Aqua";
+	"Label" = "org.nix-community.home.syncthing";
+	"OnDemand" = true;
+	"LastExitStatus" = 19968;
+	"Program" = "/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing";
+	"ProgramArguments" = (
+		"/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing";
+		"-no-browser";
+		"-no-restart";
+		"-logflags=0";
+	);
+};
+#+end_src
+
+which seems at odds with the nix definition for syncthing
+
+#+begin_src nix
+launchd.agents.syncthing = {
+  enable = true;
+  config = {
+    ProgramArguments = syncthingArgs;
+    KeepAlive = {
+      Crashed = true;
+      SuccessfulExit = false;
+    };
+    ProcessType = "Background";
+  };
+};
+#+end_src
+
+as =KeepAlive= is defined in the nix config, but missing in the observed launch output, furthermore =OnDemand= isn't mentioned at all in the nix config. 🤷🏿
+
+#+begin_quote
+[!NOTE]
+It seems that the [[https://github.com/nix-community/home-manager/blob/f99eace7c167b8a6a0871849493b1c613d0f1b80/modules/launchd/launchd.nix#L167][OnDemand]] option is a pre macOS 10.5 key which has been superceded by KeepAlive.
+#+end_quote
+
+Just to confirm, Syncthing really isn't running, I have checked the process list for a corresponding entry:
+
+#+begin_src bash
+ps aux | grep syncthing
+#+end_src
+
+Trying to start syncthing through
+
+#+begin_src bash
+launchctl start org.nix-community.home.syncthing
+#+end_src
+
+yields status 134 (SIGABRT) and 139 (SIGSEGV). Retrying with =sudo= fails with status 3.
+
+Attempts to kickstart with
+
+#+begin_src bash
+launchctl kickstart gui/501/org.nix-community.home.syncthing
+#+end_src
+
+also fail with =139: Service cannot presently execute= but of course I don't have any freaking logs.
+
+#+begin_quote
+😕 I just ran the =launchctl list= and =ps= commands on my personal MacBook and found that syncthing is running as a daemon there. Perhaps I need a system restart. I recall that starting/stopping logic with launchd is quite different in terms of UX to systemd and likely the start/stop commands just don't do the same thing.
+#+end_quote
+
+As a fallback, just start =syncthing= through a terminal with the temporary added benefit of having a log/trace of Syncthing's actions. This needs further exploration.
+
+A deeper dive, leads me through https://www.launchd.info/ which outlines where the different files for job definitions are stored. For me ~/Library/LaunchAgents/org.nix-community.home.syncthing.plist seems to match the definition in the home-manager codebase, unlike the output I was seeing from =launchctl list= earlier.
+
+#+begin_src xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>KeepAlive</key>
+	<dict>
+		<key>Crashed</key>
+		<true/>
+		<key>SuccessfulExit</key>
+		<false/>
+	</dict>
+	<key>Label</key>
+	<string>org.nix-community.home.syncthing</string>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing</string>
+		<string>-no-browser</string>
+		<string>-no-restart</string>
+		<string>-logflags=0</string>
+	</array>
+</dict>
+</plist>
+#+end_src
+
+Perhaps the new job definition has simply not been loaded, which would be a failing of the =darwin-rebuild switch= run we did earlier. So, for next time, I should remember to try the following:
+
+#+begin_src bash
+sudo launchctl load ~/Library/LaunchAgents/org.nix-community.home.syncthing.plist
+sudo launchctl enable gui/501/org.nix-community.home.syncthing
+#+end_src
+
+but for now, I just try a restart and see what happens. 🤞🏿
+
+***** COMMENT Syncthing Service on Linux
+
+#+begin_src nix :noweb-ref home-linux-services
+services.syncthing = {
+  enable = true;
+  tray = { enable = true; };
+};
+#+end_src
+
+***** TODO Set ignore file for Syncthing or move some sensitive stuff out of synced folders
+
+Especially for things link mail indices and Org-roam databases, I may need to do this.
+
+- https://docs.syncthing.net/users/ignoring.html
+- https://github.com/org-roam/org-roam/issues/977
+- https://github.com/org-roam/org-roam/issues/550
 
 *** VsCode
 
@@ -3317,7 +3401,7 @@ At the moment we import our nix configs for Emacs into our configuration-darwin.
 
 For now, I symlink ~/.xmonad to ~/src/vidbina/xmonad-config and run =xmonad --recompile= to produce the Xmonad binary.
 
-** Bars
+** Window Management, Bars and Launchers
 *** COMMENT TODO Bring in xmobar configuration
 
 For now, I symlinked ~/.config/xmobar to ~/src/vidbina/xmobar-configuration.
@@ -3348,155 +3432,173 @@ On MacOS, we use [[https://github.com/dwarvesf/hidden/][hidden Bar]] to work aro
 "Hidden Bar" = 1452453066;
 #+end_src
 
-** Syncthing
+*** Raycast
 
-Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup. As per [2022-05-05 Thu 12:08], the syncthing service in home-manager is only declarative to the extend of turning it on and providing extra CLI options to start the service with.
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"raycast"
+#+end_src
 
-Consult the [[https://docs.syncthing.net/intro/getting-started.html][Getting Started]] guide to learn how to set it up "imperatively" (i.e.: setting up peers and generating their IDs and copying the needed information over to the other syncthing peers to establish connections) through the portal.
+*** Nightlight
 
-*** Syncthing Daemon on Darwin
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"smudge/smudge/nightlight"
+#+end_src
+
+*** Hammerspoon
+
+I use [[https://www.hammerspoon.org/][Hammerspoon]] for some OSX-specific automations which can be scripted through Lua. Like mapping keybindings to open specific locations in Finder, opening specific apps within a workstation or rendering notification or alerts with some useful information and more.
+
+We link the hammerspoon directory into our homedir in order to set up the necessary Spoons and the init.lua:
 
 #+begin_src nix :noweb-ref home-darwin-config
-services.syncthing = {
-  enable = true;
-};
+home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
 #+end_src
 
-**** DONE Issue: Syncthing not automatically started on macOS
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2024-12-23 Mon 10:28] \\
-  Checking on <2024-12-21 Sat>, I noticed that syncthings is running on tokyo23 (ARM) so we're good here.
-:END:
+We load the Spoons and define our own bindings and more in the init.lua file that we symlinked into our homedir previously:
 
-[2024-02-07 Wed] On macOS, the syncthing service isn't running which was confirmed by running:
+#+begin_src lua :noweb yes :tangle hammerspoon/init.lua
+-- Tangled from README.org
 
-#+begin_src bash
-launchctl list org.nix-community.home.syncthing
+hsBaseBinding = {"alt", "cmd", "ctrl"}
+strBaseBinding = "⌃⌥⌘"
+
+cheatsheet = "💡"
+
+-- A dummy binding for Hammerspoon
+hs.hotkey.bind(
+   hsBaseBinding,
+   "H",
+   function()
+      hs.alert.show(cheatsheet)
+      hs.notify.new({title="Hammerspoon", informativeText=cheatsheet}):send()
+   end
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " H = help"
+
+-- https://www.hammerspoon.org/go/#simple-configuration-reloading
+hs.hotkey.bind(
+   hsBaseBinding,
+   "R",
+   function()
+      hs.alert.show("Reloading Hammerspoon config")
+      hs.reload()
+   end
+)
+cheatsheet = cheatsheet .."\n" .. strBaseBinding .. " R = reload"
+
+-- https://www.hammerspoon.org/go/#drawing-on-the-screen
+mouseCircle = nil
+mouseCircleTimer = nil
+
+function mouseHighlight()
+   -- Delete an existing highlight if it exists
+   if mouseCircle then
+      mouseCircle:delete()
+      if mouseCircleTimer then
+         mouseCircleTimer:stop()
+      end
+   end
+   -- Get the current co-ordinates of the mouse pointer
+   mousepoint = hs.mouse.absolutePosition()
+   -- Prepare a big red circle around the mouse pointer
+   mouseCircle = hs.drawing.circle(hs.geometry.rect(mousepoint.x-40, mousepoint.y-40, 80, 80))
+   mouseCircle:setStrokeColor({["red"]=1,["blue"]=0,["green"]=0,["alpha"]=1})
+   mouseCircle:setFill(false)
+   mouseCircle:setStrokeWidth(5)
+   mouseCircle:show()
+
+   -- Set a timer to delete the circle after 3 seconds
+   mouseCircleTimer = hs.timer.doAfter(
+      1,
+      function()
+         mouseCircle:delete()
+         mouseCircle = nil
+      end
+   )
+end
+hs.hotkey.bind(hsBaseBinding, "D", mouseHighlight)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " D = mouse highlight"
+
+hs.loadSpoon("Caffeine")
+isCaffeinated = false
+hs.hotkey.bind(
+   hsBaseBinding,
+   "Z",
+   function()
+      if not isCaffeinated then
+         hs.alert.show("Buzzed! Flattie mode! ☕")
+         spoon.Caffeine:start()
+      else
+         hs.alert.show("Letting that buzz wear off. 🥱")
+         spoon.Caffeine:stop()
+      end
+      isCaffeinated = not isCaffeinated
+   end
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " Z = ☕"
+
+hs.loadSpoon("KSheet")
+spoon.KSheet:bindHotkeys(
+   {
+      toggle = {hsBaseBinding, "K"}
+   }
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = KSheet"
+
+hs.loadSpoon("HSKeybindings")
+isShowingHSKeybindings = false
+hs.hotkey.bind(
+   hsBaseBinding,
+   "/",
+   function()
+      if not isShowingHSKeybindings then
+         hs.alert.show("Showing HSKeybindings")
+         spoon.HSKeybindings:show()
+      else
+         hs.alert.show("Hiding HSKeybindings")
+         spoon.HSKeybindings:hide()
+      end
+      isShowingHSKeybindings = not isShowingHSKeybindings
+   end
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = HSKeybindings"
+
+hs.hotkey.bind(
+   hsBaseBinding,
+   ".",
+   function()
+      hs.alert.show("Inspecting Hammerspoon")
+      hs.alert.show("displayIdle: " .. (hs.caffeinate.get("displayIdle") and "On" or "Off"))
+      hs.alert.show("systemIdle: " .. (hs.caffeinate.get("systemIdle") and "On" or "Off"))
+      hs.alert.show("system: " .. (hs.caffeinate.get("system") and "On" or "Off"))
+   end
+)
+
+hs.hotkey.bind(
+   hsBaseBinding,
+   "return",
+   function()
+      if hs.application.find("iTerm") then
+         hs.osascript.applescript([[
+            <<applescript-open-iterm>>
+         ]])
+      else
+         hs.application.open("iTerm")
+      end
+   end
+)
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " ⏎ = iTerm2 👨🏿‍💻"
 #+end_src
 
-where the output is
+For our iTerm2 function, we define the AppleScript separately:
 
-#+begin_src text
-{
-	"LimitLoadToSessionType" = "Aqua";
-	"Label" = "org.nix-community.home.syncthing";
-	"OnDemand" = true;
-	"LastExitStatus" = 19968;
-	"Program" = "/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing";
-	"ProgramArguments" = (
-		"/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing";
-		"-no-browser";
-		"-no-restart";
-		"-logflags=0";
-	);
-};
+#+begin_src applescript :noweb-ref applescript-open-iterm
+tell application "iTerm"
+create window with default profile
+end tell
 #+end_src
 
-which seems at odds with the nix definition for syncthing
-
-#+begin_src nix
-launchd.agents.syncthing = {
-  enable = true;
-  config = {
-    ProgramArguments = syncthingArgs;
-    KeepAlive = {
-      Crashed = true;
-      SuccessfulExit = false;
-    };
-    ProcessType = "Background";
-  };
-};
-#+end_src
-
-as =KeepAlive= is defined in the nix config, but missing in the observed launch output, furthermore =OnDemand= isn't mentioned at all in the nix config. 🤷🏿
-
-#+begin_quote
-[!NOTE]
-It seems that the [[https://github.com/nix-community/home-manager/blob/f99eace7c167b8a6a0871849493b1c613d0f1b80/modules/launchd/launchd.nix#L167][OnDemand]] option is a pre macOS 10.5 key which has been superceded by KeepAlive.
-#+end_quote
-
-Just to confirm, Syncthing really isn't running, I have checked the process list for a corresponding entry:
-
-#+begin_src bash
-ps aux | grep syncthing
-#+end_src
-
-Trying to start syncthing through
-
-#+begin_src bash
-launchctl start org.nix-community.home.syncthing
-#+end_src
-
-yields status 134 (SIGABRT) and 139 (SIGSEGV). Retrying with =sudo= fails with status 3.
-
-Attempts to kickstart with
-
-#+begin_src bash
-launchctl kickstart gui/501/org.nix-community.home.syncthing
-#+end_src
-
-also fail with =139: Service cannot presently execute= but of course I don't have any freaking logs.
-
-#+begin_quote
-😕 I just ran the =launchctl list= and =ps= commands on my personal MacBook and found that syncthing is running as a daemon there. Perhaps I need a system restart. I recall that starting/stopping logic with launchd is quite different in terms of UX to systemd and likely the start/stop commands just don't do the same thing.
-#+end_quote
-
-As a fallback, just start =syncthing= through a terminal with the temporary added benefit of having a log/trace of Syncthing's actions. This needs further exploration.
-
-A deeper dive, leads me through https://www.launchd.info/ which outlines where the different files for job definitions are stored. For me ~/Library/LaunchAgents/org.nix-community.home.syncthing.plist seems to match the definition in the home-manager codebase, unlike the output I was seeing from =launchctl list= earlier.
-
-#+begin_src xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>KeepAlive</key>
-	<dict>
-		<key>Crashed</key>
-		<true/>
-		<key>SuccessfulExit</key>
-		<false/>
-	</dict>
-	<key>Label</key>
-	<string>org.nix-community.home.syncthing</string>
-	<key>ProcessType</key>
-	<string>Background</string>
-	<key>ProgramArguments</key>
-	<array>
-		<string>/nix/store/rnigg5xf6n2jxda3ivscrn0yzw474dq4-syncthing-1.26.1/bin/syncthing</string>
-		<string>-no-browser</string>
-		<string>-no-restart</string>
-		<string>-logflags=0</string>
-	</array>
-</dict>
-</plist>
-#+end_src
-
-Perhaps the new job definition has simply not been loaded, which would be a failing of the =darwin-rebuild switch= run we did earlier. So, for next time, I should remember to try the following:
-
-#+begin_src bash
-sudo launchctl load ~/Library/LaunchAgents/org.nix-community.home.syncthing.plist
-sudo launchctl enable gui/501/org.nix-community.home.syncthing
-#+end_src
-
-but for now, I just try a restart and see what happens. 🤞🏿
-
-*** COMMENT Syncthing Service on Linux
-
-#+begin_src nix :noweb-ref home-linux-services
-services.syncthing = {
-  enable = true;
-  tray = { enable = true; };
-};
-#+end_src
-
-*** TODO Set ignore file for Syncthing or move some sensitive stuff out of synced folders
-
-Especially for things link mail indices and Org-roam databases, I may need to do this.
-
-- https://docs.syncthing.net/users/ignoring.html
-- https://github.com/org-roam/org-roam/issues/977
-- https://github.com/org-roam/org-roam/issues/550
+See [[https://zzamboni.org/post/my-hammerspoon-configuration-with-commentary/][zzamboni's config]] for inspiration.
 
 ** Multimedia
 
@@ -3565,12 +3667,26 @@ As per <2024-11-26 Tue>, I'm moving back to Spotify after many years with TIDAL.
 "spotify"
 #+end_src
 
+*** Tidal
+
+#+begin_src nix :noweb-ref homebrew-casks
+"tidal"
+#+end_src
+
 *** V4l utils
 
 https://linuxtv.org/projects.php
 
 #+begin_src nix :noweb-ref multimedia-packages
 v4l-utils
+#+end_src
+
+** Gaming
+
+*** Steam
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"steam"
 #+end_src
 
 ** Browsers
@@ -4572,18 +4688,6 @@ Filed into https://github.com/darkreader/darkreader/pull/11108
 #+end_src
 
 ** Chat
-*** Slack
-
-Using Slack from the browser is a shitty experience because one has to keep so many tabs open for the different workspaces. I'm finally budging and installing the official client.
-
-#+begin_src nix :noweb-ref desktop-packages
-pkgs.slack
-#+end_src
-
-#+begin_src nix :noweb-ref nixpkgs-unfree
-"slack"
-#+end_src
-
 *** Discord
 
 #+begin_src nix :noweb-ref desktop-packages
@@ -4596,6 +4700,10 @@ pkgs.discord
 "discord-canary"
 #+end_src
 
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"discord"
+#+end_src
+
 **** COMMENT Skip Discord host update
 
 Tangle single block in order to configure file:~/.config/discord/settings.json such that Discord skips the host update logic as host updates won't work well on NixOS.
@@ -4604,6 +4712,46 @@ Tangle single block in order to configure file:~/.config/discord/settings.json s
 {
   "SKIP_HOST_UPDATE": true
 }
+#+end_src
+
+*** Signal
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"signal"
+#+end_src
+
+*** Slack
+
+Using Slack from the browser is a shitty experience because one has to keep so many tabs open for the different workspaces. I'm finally budging and installing the official client.
+
+#+begin_src nix :noweb-ref desktop-packages
+pkgs.slack
+#+end_src
+
+#+begin_src nix :noweb-ref nixpkgs-unfree
+"slack"
+#+end_src
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"slack"
+#+end_src
+
+*** Telegram
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"telegram"
+#+end_src
+
+*** WhatsApp
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"whatsapp"
+#+end_src
+
+*** Zoom
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"zoom"
 #+end_src
 
 ** Docs
@@ -4833,17 +4981,37 @@ visidata
 
 #+end_src
 
-*** Misc
-**** QR
-
-#+begin_src nix :noweb yes :noweb-ref doc-packages
-qrencode
-#+end_src
-
+*** Docs / Notes / Productivity / Office
 **** Office
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 libreoffice
+#+end_src
+
+**** COMMENT Notion
+
+For work, we may need Notion installed on our MacOS systems:
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"notion"
+#+end_src
+
+**** Gdrive
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"google-drive"
+#+end_src
+
+**** Obsidian
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"obsidian" # best-in-class with mobile app support
+#+end_src
+
+**** Linear
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"linear-linear"
 #+end_src
 
 **** Remarkable
@@ -4854,6 +5022,21 @@ https://apps.apple.com/us/app/remarkable-desktop/id1276493162
 
 #+begin_src nix :noweb-ref homebrew-masapps :noweb yes
 "Remarkable Desktop" = 1276493162;
+#+end_src
+
+*** Misc
+**** Endel
+
+[[https://endel.io/][Endel]] is a wellness app which helps play soundscapes to help one fall asleep, focus, relax, etc. I have been using the Endel app on Android for a while now but there is also the Mac app available from the [[https://apps.apple.com/de/app/endel-focus-sleep-relax/id1346247457?l=en-GB][Apple App Store]].
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Endel" = 1346247457;
+#+end_src
+
+**** QR
+
+#+begin_src nix :noweb yes :noweb-ref doc-packages
+qrencode
 #+end_src
 
 ** TODO [5/21] Convert home-manager config to literate config

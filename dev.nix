@@ -63,6 +63,8 @@
     pkgs.nushell
     alacritty
     pkgs.wezterm
+    pkgs.claude-code
+    pkgs.codex
     pkgs.ollama
     pkgs.xxd
     pkgs.hexyl

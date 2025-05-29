@@ -14,6 +14,8 @@
     pkgs.nushell
     alacritty
     pkgs.wezterm
+    pkgs.claude-code
+    pkgs.codex
     pkgs.ollama
     pkgs.xxd
     pkgs.hexyl
@@ -113,8 +115,9 @@
   # See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
   programs.zsh.enable = true;
 
-  home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
-
+  services.syncthing = {
+    enable = true;
+  };
   programs.vscode = {
     enable = true;
     profiles.default = {
@@ -183,7 +186,5 @@
   # See https://discourse.nixos.org/t/accessing-home-manager-config-in-flakes/19864/8
   # See https://github.com/nix-community/home-manager/issues/2085#issuecomment-861427318
   home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
-  services.syncthing = {
-    enable = true;
-  };
+  home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
 }
