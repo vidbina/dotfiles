@@ -1521,7 +1521,7 @@ tree-sitter
 vim
 xxd
 yq
-inputs.devenv.packages.${system}.default
+devenv
 #+end_src
 
 Intel-only packages are listed separately such that we can use them on the macOS machine that still has a x86-based Intel chip but avoid trying to install them on ARM-based Apple machines.
