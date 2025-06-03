@@ -42,7 +42,7 @@
     vim
     xxd
     yq
-    devenv
+    inputs.devenv.packages.${system}.default
 
     devbox
     pass
