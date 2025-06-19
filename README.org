@@ -292,6 +292,16 @@ programs.zsh.enable = true;
 <<home-darwin-config>>
 #+end_src
 
+***** Sudo with TouchID
+
+#+begin_src nix :noweb-ref nix-darwin
+security.pam.services.sudo_local = {
+  enable = true;
+  reattach = true;
+  touchIdAuth = true;
+};
+#+end_src
+
 ***** Imports
 
 ****** COMMENT Import common
