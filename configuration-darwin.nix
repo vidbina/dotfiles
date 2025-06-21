@@ -78,6 +78,9 @@
     reattach = true;
     touchIdAuth = true;
   };
+  users.users.vidbina = {
+    home = "/Users/vidbina";
+  };
   nix.enable = true;
   nix.package = pkgs.nix;
 
@@ -176,15 +179,12 @@
   system.stateVersion = 4;
 
   system = {
+    primaryUser = "vidbina";
     defaults.CustomUserPreferences = {
       "com.microsoft.VSCode" = {
         "ApplePressAndHoldEnabled" = false;
       };
     };
-  };
-
-  users.users.vidbina = {
-    home = "/Users/vidbina";
   };
 
   homebrew = {

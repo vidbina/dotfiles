@@ -1445,6 +1445,18 @@ Observe the snippet below for an example of a valid personal.nix file.
 
 Note that the same configuration above is adapted for macOS by setting =home.homeDirectory= to a valid macOS home path like =/Users/vidbina=.
 
+*** Configure user for MacOS
+
+#+begin_src nix :noweb-ref nix-darwin
+users.users.vidbina = {
+  home = "/Users/vidbina";
+};
+#+end_src
+
+#+begin_src nix :noweb-ref darwin-system
+primaryUser = "vidbina";
+#+end_src
+
 ** nix-darwin
 :PROPERTIES:
 :header-args: :noweb-sep "\n\n"
@@ -1552,15 +1564,7 @@ It follows that the amount of Intel-only packages will decrease as developers ma
 - [X] Make the first snippets comment snippets (for explanation)
 - [ ] move the code out to the tool-specific section.
 
-*** Setup homebrew
-
-#+begin_src nix :noweb-ref nix-darwin-interactive-shellinit
-''
-  eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
-''
-#+end_src
-
-*** Setup nix
+*** Setup nix on Darwin
 
 #+begin_src nix :noweb-ref nix-darwin
 nix.enable = true;
@@ -1570,7 +1574,7 @@ nix.package = pkgs.nix;
 nix.settings.experimental-features = "nix-command flakes";
 #+end_src
 
-**** Trusted users
+**** Trusted users on Darwin
 
 
 #+begin_src nix :noweb-ref nix-darwin
@@ -1581,7 +1585,7 @@ nix.settings.trusted-users = [
 ];
 #+end_src
 
-*** Use gpg-agent
+*** Use gpg-agent on Darwin
 
 #+begin_src nix :noweb-ref nix-darwin
 # NOTE: Copied from home-linux.nix
@@ -1591,7 +1595,7 @@ programs.gnupg.agent = {
 };
 #+end_src
 
-*** Setup zsh
+*** Setup zsh on Darwin
 
 #+begin_src nix :noweb-ref nix-darwin
 # Create /etc/zshrc that loads the nix-darwin environment.
@@ -1664,7 +1668,7 @@ programs.zsh = {
 };
 #+end_src
 
-*** Configure system
+*** Configure Darwin system
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 # Set Git commit hash for darwin-version.
@@ -1682,7 +1686,7 @@ system = {
 };
 #+end_src
 
-**** COMMENT Configure system activation scripts
+**** COMMENT Configure Darwin system activation scripts
 
 #+begin_src nix :noweb-ref nix-darwin
 # Use activation scripts to set up Spotlight visibility of nix-darwin apps
@@ -1720,15 +1724,9 @@ system.activationScripts.applications.text = lib.mkForce ''
 '';
 #+end_src
 
-*** Configure user
-
-#+begin_src nix :noweb-ref nix-darwin
-users.users.vidbina = {
-  home = "/Users/vidbina";
-};
-#+end_src
-
 *** Setup homebrew
+
+Configure homebrew:
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 homebrew = {
@@ -1755,6 +1753,15 @@ homebrew = {
   };
 };
 #+end_src
+
+and init it in our shells:
+
+#+begin_src nix :noweb-ref nix-darwin-interactive-shellinit
+''
+  eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
+''
+#+end_src
+
 
 As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefers pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility as demonstrated through the following snippet:
 
