@@ -221,12 +221,12 @@
       "warp"
       "claude"
       (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
-      "zed"
-      "cursor"
       "drawio"
       "figma"
       "docker"
       "utm"
+      "zed"
+      "cursor"
       "raycast"
       "obs" # for streaming
       "spotify"

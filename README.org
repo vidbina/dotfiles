@@ -2263,36 +2263,6 @@ pkgs.hexyl
 pkgs.ghidra-bin
 #+end_src
 
-**** Editors
-
-***** Kakoune
-
-#+begin_src nix :noweb-ref dev-packages
-pkgs.kakoune
-#+end_src
-
-***** Zed
-
-[[https://zed.dev/][Zed]] is shaping up to be one of the coolest new editors. An IDE that was designed with speed in mind and should be blazingly fast with decent LLM features, multiplayer support and coming from the makers of Atom (from which they learned key lessons about how to not build and editor) and Treesitter. At least, that's what I get from their website and videos.
-
-****** Install Zed from a homebrew cask
-
-#+begin_src nix :noweb-ref homebrew-casks :noweb yes
-"zed"
-#+end_src
-
-****** COMMENT Install Zed from Nixpkgs
-
-#+begin_src nix :noweb-ref dev-packages
-pkgs.zed-editor
-#+end_src
-
-***** Cursor
-
-#+begin_src nix :noweb-ref homebrew-casks :noweb yes
-"cursor"
-#+end_src
-
 **** Diagramming
 
 ***** Drawio
@@ -2966,6 +2936,34 @@ Pressing a file with a single click to get a preview tab is really annoying beca
 
 #+begin_src nix :noweb-ref vscode-settings
 "workbench.list.openMode" = "doubleClick";
+#+end_src
+
+**** Kakoune
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.kakoune
+#+end_src
+
+**** Zed
+
+[[https://zed.dev/][Zed]] is shaping up to be one of the coolest new editors. An IDE that was designed with speed in mind and should be blazingly fast with decent LLM features, multiplayer support and coming from the makers of Atom (from which they learned key lessons about how to not build and editor) and Treesitter. At least, that's what I get from their website and videos.
+
+***** Install Zed from a homebrew cask
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"zed"
+#+end_src
+
+***** COMMENT Install Zed from Nixpkgs
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.zed-editor
+#+end_src
+
+**** Cursor
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"cursor"
 #+end_src
 
 *** Version Control

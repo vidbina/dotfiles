@@ -19,7 +19,6 @@
     pkgs.xxd
     pkgs.hexyl
     pkgs.ghidra-bin
-    pkgs.kakoune
     pkgs.graphviz
     pkgs.shellcheck
     pkgs.shfmt
@@ -40,6 +39,7 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
+    pkgs.kakoune
     pkgs.gh
     # home-darwin-packages
     pywal
