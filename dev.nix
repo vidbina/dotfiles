@@ -59,7 +59,6 @@
   };
 
   home.packages = [
-    pkgs.gh
     pkgs.nushell
     alacritty
     pkgs.wezterm
@@ -90,6 +89,7 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
+    pkgs.gh
   ] ++ (if pkgs.stdenv.isLinux then [
     pkgs.glibc
     pkgs.gdb

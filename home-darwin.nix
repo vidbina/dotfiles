@@ -10,7 +10,6 @@
 
   home.packages = with pkgs; [
     # dev-packages
-    pkgs.gh
     pkgs.nushell
     alacritty
     pkgs.wezterm
@@ -41,6 +40,7 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
+    pkgs.gh
     # home-darwin-packages
     pywal
   ];
@@ -48,8 +48,8 @@
   # NOTE: Copied from dev.nix
   # TODO: Figure out how to re-use dev.nix config for Darwin and Linux
   home.file = {
-    ".config/git/ignore".source = ./git/ignore;
     ".wezterm.lua".source = ./wezterm/wezterm.lua;
+    ".config/git/ignore".source = ./git/ignore;
   };
 
   # No corresponding option in nix-darwin, so we config this with hm

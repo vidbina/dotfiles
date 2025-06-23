@@ -201,7 +201,6 @@
       upgrade = false; # same as default
     };
     brews = [
-      "withgraphite/tap/graphite"
       "coreutils"
       "wimlib"
       "micromamba"
@@ -209,6 +208,7 @@
       "pidof"
       "usbutils"
       "pcalc"
+      "withgraphite/tap/graphite"
       "smudge/smudge/nightlight"
     ];
     casks = builtins.filter (x: x != null) [
