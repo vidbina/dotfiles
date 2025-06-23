@@ -201,6 +201,7 @@
       upgrade = false; # same as default
     };
     brews = [
+      "withgraphite/tap/graphite"
       "coreutils"
       "wimlib"
       "micromamba"
@@ -208,10 +209,11 @@
       "pidof"
       "usbutils"
       "pcalc"
-      "withgraphite/tap/graphite"
       "smudge/smudge/nightlight"
     ];
     casks = builtins.filter (x: x != null) [
+      "zed"
+      "cursor"
       "android-file-transfer"
       "1password"
       "1password-cli"
@@ -225,8 +227,6 @@
       "figma"
       "docker"
       "utm"
-      "zed"
-      "cursor"
       "raycast"
       "obs" # for streaming
       "spotify"
@@ -256,8 +256,8 @@
   };
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "claude-code"
     "vscode"
+    "claude-code"
   ];
 
   nixpkgs.overlays = [

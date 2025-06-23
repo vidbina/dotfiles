@@ -10,6 +10,8 @@
 
   home.packages = with pkgs; [
     # dev-packages
+    pkgs.kakoune
+    pkgs.gh
     pkgs.nushell
     alacritty
     pkgs.wezterm
@@ -39,8 +41,6 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
-    pkgs.kakoune
-    pkgs.gh
     # home-darwin-packages
     pywal
   ];
@@ -48,8 +48,8 @@
   # NOTE: Copied from dev.nix
   # TODO: Figure out how to re-use dev.nix config for Darwin and Linux
   home.file = {
-    ".wezterm.lua".source = ./wezterm/wezterm.lua;
     ".config/git/ignore".source = ./git/ignore;
+    ".wezterm.lua".source = ./wezterm/wezterm.lua;
   };
 
   # No corresponding option in nix-darwin, so we config this with hm
@@ -115,9 +115,6 @@
   # See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
   programs.zsh.enable = true;
 
-  services.syncthing = {
-    enable = true;
-  };
   programs.vscode = {
     enable = true;
     profiles.default = {
@@ -177,6 +174,9 @@
         "workbench.list.openMode" = "doubleClick";
       };
     };
+  };
+  services.syncthing = {
+    enable = true;
   };
   # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
   # TODO: Fix hack of hardcoded dotfiles path
