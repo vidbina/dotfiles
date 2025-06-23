@@ -41,6 +41,7 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
+
     # home-darwin-packages
     pywal
   ];
@@ -173,6 +174,12 @@
         "workbench.preferredLightColorTheme" = "Default High Contrast Light";
         "workbench.list.openMode" = "doubleClick";
       };
+    };
+  };
+  programs.bat = {
+    enable = true;
+    config = {
+      theme = "base16";
     };
   };
   services.syncthing = {

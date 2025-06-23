@@ -90,7 +90,8 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
-  ] ++ (if pkgs.stdenv.isLinux then [
+  ] ++
+  (if pkgs.stdenv.isLinux then [
     pkgs.glibc
     pkgs.gdb
     pkgs.evemu

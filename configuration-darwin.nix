@@ -12,10 +12,7 @@
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
     # common Darwin packages
-    asciinema
-    bat
     checkmake
-    exercism
     gh
     gleam
     gnumake

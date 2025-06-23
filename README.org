@@ -261,6 +261,7 @@ home.stateVersion = "23.05";
 home.packages = with pkgs; [
   # dev-packages
   <<dev-packages>>
+  <<dev-packages-darwin>>
   # home-darwin-packages
   <<home-darwin-packages>>
 ];
@@ -773,7 +774,7 @@ Run =darkman set light= or =darkman set dark= or just run =darkman toggle=.
 ******* TODO rofi
 
 - State "TODO"       from              [2023-10-03 Tue 17:30] \\
-  Update config to work for Linux. common.nix is no used between darwin and linux and rofi is no relevant for darwin systems.
+  Update config to work for Linux. common.nix is not used between darwin and linux and rofi is not relevant for darwin systems.
 
 We import the previous rofi configuration and have removed the =programs.rofi.theme= option because Pywal is currently managing this.
 
@@ -857,7 +858,7 @@ services.trayer = {
 };
 #+end_src
 
-*** Common Configuration
+*** Common Configuration (Linux only)
 
 #+begin_src nix :noweb yes :tangle common.nix
 # Tangled from README.org
@@ -931,13 +932,6 @@ Linux vs darwin nix configurations will have different attributes/options that w
 **** Common Programs
 
 #+begin_src nix :noweb yes :noweb-ref common-programs
-programs.bat = {
-  enable = true;
-  config = {
-    theme = "base16";
-  };
-};
-
 # Let Home Manager install and manage itself.
 programs.home-manager.enable = true;
 
@@ -953,6 +947,10 @@ programs.tmux = {
   extraConfig = builtins.readFile (./. + "/tmux.conf");
 };
 #+end_src
+
+***** TODO Remove common
+
+Common is an architectural mistake. There are bits that can be shared between Darwin and Linux systems, but we probably shouldn't use another level of indirection by introducing another file which we import between the system-specific configs. Writing directly into the target system's config is much cleaner and simpler to reason about.
 
 **** Manual
 
@@ -1513,10 +1511,7 @@ We want to move this block of package definitions into the appropriate sections 
 #+end_quote
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
-asciinema
-bat
 checkmake
-exercism
 gh
 gleam
 gnumake
@@ -1842,7 +1837,8 @@ For starters, we stub the general structure of the nix file and define the =<<ni
 
   home.packages = [
     <<dev-packages>>
-  ] ++ (if pkgs.stdenv.isLinux then [
+  ] ++
+  (if pkgs.stdenv.isLinux then [
     <<dev-packages-linux>>
   ] else [ ]);
 }
@@ -2623,6 +2619,30 @@ Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your Mac
 #+begin_src nix :noweb-ref dev-packages
 pkgs.xxd
 pkgs.hexyl
+#+end_src
+
+***** Bat
+
+On NixOS, we install bat through the programs facility:
+
+#+begin_src nix :noweb yes :noweb-ref common-programs
+programs.bat = {
+  enable = true;
+  config = {
+    theme = "base16";
+  };
+};
+#+end_src
+
+On Darwin, we install it into our home-manager setup:
+
+#+begin_src nix :noweb-ref home-darwin-config
+programs.bat = {
+  enable = true;
+  config = {
+    theme = "base16";
+  };
+};
 #+end_src
 
 **** Reverse engineering
