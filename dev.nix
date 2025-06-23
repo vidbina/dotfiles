@@ -60,6 +60,7 @@
 
   home.packages = [
     pkgs.kakoune
+    pkgs.jujutsu
     pkgs.gh
     pkgs.nushell
     alacritty

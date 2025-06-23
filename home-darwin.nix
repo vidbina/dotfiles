@@ -11,6 +11,7 @@
   home.packages = with pkgs; [
     # dev-packages
     pkgs.kakoune
+    pkgs.jujutsu
     pkgs.gh
     pkgs.nushell
     alacritty

@@ -2068,6 +2068,15 @@ pkgs.zed-editor
 #+end_src
 
 *** Version Control
+**** Jujutsu
+
+Just watched https://www.youtube.com/watch?v=2otjrTzRfVk&t=534s and am trying to get on the jj bandwagon to taste its benefits:
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.jujutsu
+#+end_src
+
+
 **** Git
 
 We tangle the git-related configuration into [[file:dev.nix]] but if you want to manually set things up, check out the [[manual-git][manual git instructions]].
