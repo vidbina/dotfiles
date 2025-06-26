@@ -4598,9 +4598,11 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 
 💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
 
-*** Arc
+*** COMMENT Arc
 
 @KKarpac has been hyping up this browser so much, I'll have to give it a shot, so here goes:
+
+Update <2025-06-26 Thu>: It's [[https://www.reddit.com/r/ArcBrowser/comments/1ih3qzi/is_arc_dead_if_so_where_to_next/][dead]]!
 
 #+begin_src nix :noweb-ref homebrew-casks
 "arc"

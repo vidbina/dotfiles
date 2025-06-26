@@ -230,7 +230,6 @@
       "tidal"
       "steam"
       "firefox@developer-edition"
-      "arc"
       "zen-browser"
       "discord"
       "signal"
