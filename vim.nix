@@ -46,6 +46,7 @@
       set wrap
       set ignorecase
       set nofoldenable
+      set nofixeol
     '';
     extraLuaConfig = ''
       require'lspconfig'.gleam.setup{}

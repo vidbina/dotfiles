@@ -3263,6 +3263,7 @@ let g:vim_markdown_auto_insert_bullets = 0
 set wrap
 set ignorecase
 set nofoldenable
+set nofixeol
   #+end_src
 - define Plug extensions, which are only relevant for the manual configuration scenario and not when you are using Nix to manage *vim
   #+begin_src vimrc :noweb-ref neovim-plugged
