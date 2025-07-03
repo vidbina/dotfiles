@@ -2662,6 +2662,18 @@ pkgs.ghidra-bin
 
 **** Diagramming
 
+***** Kap
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"kap"
+#+end_src
+
+***** Shottr
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"shottr"
+#+end_src
+
 ***** Drawio
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes

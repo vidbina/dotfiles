@@ -220,6 +220,8 @@
       "warp"
       "claude"
       (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
+      "kap"
+      "shottr"
       "drawio"
       "figma"
       "docker"
