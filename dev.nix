@@ -62,7 +62,6 @@
     pkgs.kakoune
     pkgs.jujutsu
     pkgs.gh
-    pkgs.nushell
     alacritty
     pkgs.wezterm
     pkgs.claude-code

@@ -43,7 +43,6 @@
 
     devbox
     pass
-    nushell
     wezterm
     pdftk
     hunspell

@@ -2403,7 +2403,7 @@ On <2024-12-26 Thu> the App Store app only installs 1Password version 7 on my be
 #+end_src
 
 **** Terminals
-***** NuShell
+***** COMMENT NuShell
 
 Use [[https://www.nushell.sh/][NuShell]] for a more data-centric terminal experience, where it should be easier to query data in the shell.
 
