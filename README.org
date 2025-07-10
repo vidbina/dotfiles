@@ -2533,6 +2533,8 @@ config.keys = {
 
 ***** Claude
 
+****** Claude Desktop
+
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "claude"
 #+end_src
