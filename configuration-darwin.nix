@@ -223,6 +223,7 @@
       "shottr"
       "drawio"
       "figma"
+      "rive"
       "docker"
       "utm"
       "raycast"

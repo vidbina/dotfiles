@@ -2688,6 +2688,14 @@ pkgs.ghidra-bin
 "figma"
 #+end_src
 
+***** Rive
+
+[[https://rive.app][Rive]], like Lottie provides tooling to animate assets for mobile apps but unlike Lottie owns the E2E stack where Lottie requires the use of multiple disconnected tools in order to author Lottie animations. Rive furthermore boasts support for state-aware animations.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"rive"
+#+end_src
+
 ***** Graphviz
 
 #+begin_src nix :noweb-ref dev-packages
