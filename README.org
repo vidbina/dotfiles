@@ -1900,7 +1900,7 @@ ms-playwright.playwright
 ms-python.python
 tomoki1207.pdf
 vscodevim.vim
-gamunu.opentofu
+opentofu.vscode-opentofu
 #+end_src
 
 ****** COMMENT GitHub CoPilot in VSCode
