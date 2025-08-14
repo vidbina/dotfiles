@@ -131,7 +131,7 @@
         ms-python.python
         tomoki1207.pdf
         vscodevim.vim
-        gamunu.opentofu
+        opentofu.vscode-opentofu
         bierner.github-markdown-preview
         bierner.markdown-checkbox
         bierner.markdown-yaml-preamble
