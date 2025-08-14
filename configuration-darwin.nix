@@ -250,6 +250,7 @@
       "Hidden Bar" = 1452453066;
       "Remarkable Desktop" = 1276493162;
       "Endel" = 1346247457;
+      "Amphetamine"= 937984704;
     };
   };
 

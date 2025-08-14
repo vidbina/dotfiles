@@ -5110,6 +5110,14 @@ https://apps.apple.com/us/app/remarkable-desktop/id1276493162
 qrencode
 #+end_src
 
+**** Amphetamine
+
+https://apps.apple.com/de/app/amphetamine/id937984704?l=en-GB&mt=12b
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Amphetamine"= 937984704;
+#+end_src
+
 ** TODO [5/21] Convert home-manager config to literate config
 
 Refer to [[file:emacs/README.org]] for an example of a literate config that tangles into multiple output files.
