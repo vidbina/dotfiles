@@ -5206,8 +5206,9 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (notmuch-search-tag (list "-inbox"))
     (notmuch-search-tag (list "+inbox"))))
 
-(evil-collection-define-key 'normal 'notmuch-search-mode-map
-  "i" 'vidbina/notmuch-toggle-inbox)
+(if (fboundp 'evil-collection-define-key)
+ (evil-collection-define-key 'normal 'notmuch-search-mode-map
+  "i" 'vidbina/notmuch-toggle-inbox))
 #+end_src
 
 *** Mail Signature Helpers
