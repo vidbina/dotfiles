@@ -5097,9 +5097,8 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (load-theme emacs-theme :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
   (pcase  system-type
-    (darwin (error "No hsetroot on Darwin"))
-    ('gnu/linux (async-shell-command (format "hsetroot -solid '%s'" "*dotfile-helpers*"
-                                             wallpaper-color))
+    ('darwin (error "No hsetroot on Darwin"))
+    ('gnu/linux (async-shell-command (format "hsetroot -solid '%s'" wallpaper-color) "*dotfile-helpers*")
                 (message "see *dotfile-helpers* for output of wallpaper color set"))
     (_ (error "Skipping wallpaper color set on unknown sys"))))
 
