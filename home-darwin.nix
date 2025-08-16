@@ -140,6 +140,7 @@
         bierner.markdown-footnotes
         bierner.markdown-preview-github-styles
         gruntfuggly.todo-tree
+        anthropic.claude-code
       ];
       keybindings = [
         {
