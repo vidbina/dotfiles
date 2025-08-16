@@ -5585,7 +5585,7 @@ Use the built-in ispell for spell checking.
 
 This configuration is derived from the article [[https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html][Setting up spell checking with multiple dictionaries in Emacs (by Alain M. Lafon from 200ok.ch)]].
 
-**** Ported use-package configuration
+**** COMMENT Ported use-package configuration
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html

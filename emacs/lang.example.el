@@ -6,26 +6,6 @@
                           :host github
                           :repo "emacsmirror/rainbow-mode"))
 
-;; https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html
-(use-package ispell
-  :straight (:type built-in)
-  :custom
-  (ispell-program-name "hunspell")
-  (ispell-dictionary "en_US,de_DE,nl_NL,fr-toutesvariantes,es_ANY")
-  (ispell-personal-dictionary "~/.hunspell_personal")
-  :config
-  ;; https://www.emacswiki.org/emacs/FlySpell#h5o-14
-  (add-to-list 'ispell-skip-region-alist '("^#+BEGIN_SRC" . "^#+END_SRC"))
-
-  ;; ispell-set-spellchecker-params has to be called
-  ;; before ispell-hunspell-add-multi-dic will work
-  (ispell-set-spellchecker-params)
-  (ispell-hunspell-add-multi-dic ispell-dictionary)
-  ;; The personal dictionary file has to exist, otherwise hunspell will
-  ;; silently not use it.
-  (unless (file-exists-p ispell-personal-dictionary)
-    (write-region "" nil ispell-personal-dictionary nil 0)))
-
 ;; https://jblevins.org/projects/markdown-mode/
 (use-package markdown-mode
   :straight (markdown-mode :type git

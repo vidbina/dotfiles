@@ -2553,6 +2553,12 @@ Note that claude-code is unfree.
 "claude-code"
 #+end_src
 
+For vscode and vscode-derived editors, we want to enable the official Claude Code extension:
+
+#+begin_src nix :noweb-ref vscode-extensions
+anthropic.claude-code
+#+end_src
+
 ***** OpenAI
 ****** ChatGPT
 
