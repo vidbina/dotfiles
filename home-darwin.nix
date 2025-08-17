@@ -124,6 +124,7 @@
         be5invis.toml
         elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
         hbenl.vscode-test-explorer
+        ms-vscode.test-adapter-converter
         hediet.vscode-drawio
         mkhl.direnv
         ms-azuretools.vscode-docker
