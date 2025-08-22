@@ -4646,7 +4646,9 @@ Update <2025-06-26 Thu>: It's [[https://www.reddit.com/r/ArcBrowser/comments/1ih
 "arc"
 #+end_src
 
-*** Zen
+*** COMMENT Zen
+
+[[https://zen-browser.app/][Zen Browser]] was the open-source answer to the Arc Browser back then before Arc restarted from scratch.
 
 #+begin_src nix :noweb-ref homebrew-casks
 "zen-browser"

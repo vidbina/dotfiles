@@ -233,7 +233,6 @@
       "tidal"
       "steam"
       "firefox@developer-edition"
-      "zen-browser"
       "discord"
       "signal"
       "slack"
