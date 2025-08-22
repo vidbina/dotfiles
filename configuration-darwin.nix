@@ -227,6 +227,7 @@
       "docker"
       "utm"
       "raycast"
+      (if pkgs.system == "x86_64-darwin" then "aldente" else null)
       "obs" # for streaming
       "spotify"
       "tidal"

@@ -3520,6 +3520,14 @@ On MacOS, we use [[https://github.com/dwarvesf/hidden/][hidden Bar]] to work aro
 "smudge/smudge/nightlight"
 #+end_src
 
+*** Al Dente
+
+The [[https://apphousekitchen.com/][Al Dente]] app helps us to avoid overcharging our MacBook battery. Since I got a new battery in my MacBook Pro (2018, Intel), this is becoming a useful adddition. Apple Silicon machines apparently have /Optimized Battery Charging/ so we're only installing this for Intel-based Apple devices.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+(if pkgs.system == "x86_64-darwin" then "aldente" else null)
+#+end_src
+
 *** Hammerspoon
 
 I use [[https://www.hammerspoon.org/][Hammerspoon]] for some OSX-specific automations which can be scripted through Lua. Like mapping keybindings to open specific locations in Finder, opening specific apps within a workstation or rendering notification or alerts with some useful information and more.
