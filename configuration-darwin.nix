@@ -215,8 +215,8 @@
       "1password-cli"
       "iterm2"
       "kitty"
-      # Go to top-right Settings gear > VSCode Import > Start Import
       "warp"
+      "ghostty"
       "claude"
       (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
       "kap"

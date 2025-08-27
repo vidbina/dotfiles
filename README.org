@@ -2526,8 +2526,13 @@ config.keys = {
 ***** Warp
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
-# Go to top-right Settings gear > VSCode Import > Start Import
 "warp"
+#+end_src
+
+***** Ghostty
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"ghostty"
 #+end_src
 
 **** AI
