@@ -133,6 +133,7 @@
         tomoki1207.pdf
         vscodevim.vim
         opentofu.vscode-opentofu
+        dart-code.flutter
         bierner.github-markdown-preview
         bierner.markdown-checkbox
         bierner.markdown-yaml-preamble

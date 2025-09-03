@@ -1902,6 +1902,7 @@ ms-python.python
 tomoki1207.pdf
 vscodevim.vim
 opentofu.vscode-opentofu
+dart-code.flutter
 #+end_src
 
 ****** COMMENT GitHub CoPilot in VSCode
