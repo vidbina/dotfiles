@@ -1994,7 +1994,7 @@ In order to enable long-presses to register multiple entries we need the =AppleP
 #+begin_src nix :noweb-ref darwin-system
 defaults.CustomUserPreferences = {
   "com.microsoft.VSCode" = {
-    "ApplePressAndHoldEnabled" = false;
+    "ApplePressAndHoldEnabled" = true;
   };
 };
 #+end_src

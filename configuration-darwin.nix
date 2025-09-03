@@ -178,7 +178,7 @@
     primaryUser = "vidbina";
     defaults.CustomUserPreferences = {
       "com.microsoft.VSCode" = {
-        "ApplePressAndHoldEnabled" = false;
+        "ApplePressAndHoldEnabled" = true;
       };
     };
   };
