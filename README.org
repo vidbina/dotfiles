@@ -2566,6 +2566,12 @@ For vscode and vscode-derived editors, we want to enable the official Claude Cod
 anthropic.claude-code
 #+end_src
 
+***** Gemini
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.gemini-cli
+#+end_src
+
 ***** OpenAI
 ****** ChatGPT
 

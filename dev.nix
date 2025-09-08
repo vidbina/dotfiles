@@ -65,6 +65,7 @@
     alacritty
     pkgs.wezterm
     pkgs.claude-code
+    pkgs.gemini-cli
     pkgs.codex
     pkgs.ollama
     pkgs.xxd
