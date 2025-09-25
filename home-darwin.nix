@@ -144,6 +144,7 @@
         bierner.markdown-preview-github-styles
         gruntfuggly.todo-tree
         anthropic.claude-code
+        openai.chatgpt
       ];
       keybindings = [
         {

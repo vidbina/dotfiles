@@ -2589,6 +2589,14 @@ Use [[https://github.com/openai/codex][Codex]] as a coding agent, directly from 
 pkgs.codex
 #+end_src
 
+****** OpenAI Codex VsCode Extension
+
+https://marketplace.visualstudio.com/items?itemName=openai.chatgpt
+
+#+begin_src nix :noweb-ref vscode-extensions
+openai.chatgpt
+#+end_src
+
 ***** Ollama
 
 [[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
