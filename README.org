@@ -1993,11 +1993,12 @@ The keybindings that we want are as follows:
 In order to enable long-presses to register multiple entries we need the =ApplePressAndHoldEnabled= OSX setting, otherwise, we have to manually depress a key multiple times in order to have multiple entries.
 
 #+begin_src nix :noweb-ref darwin-system
-defaults.CustomUserPreferences = {
-  "com.microsoft.VSCode" = {
-    "ApplePressAndHoldEnabled" = true;
-  };
-};
+defaults.NSGlobalDomain.ApplePressAndHoldEnabled = true;
+# defaults.CustomUserPreferences = {
+#   "com.microsoft.VSCode" = {
+#     "ApplePressAndHoldEnabled" = true;
+#   };
+# };
 #+end_src
 
 Define parts of the VsCode-specific fields are defined in the JSON format as follows:

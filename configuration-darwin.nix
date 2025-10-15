@@ -176,11 +176,12 @@
 
   system = {
     primaryUser = "vidbina";
-    defaults.CustomUserPreferences = {
-      "com.microsoft.VSCode" = {
-        "ApplePressAndHoldEnabled" = true;
-      };
-    };
+    defaults.NSGlobalDomain.ApplePressAndHoldEnabled = true;
+    # defaults.CustomUserPreferences = {
+    #   "com.microsoft.VSCode" = {
+    #     "ApplePressAndHoldEnabled" = true;
+    #   };
+    # };
   };
 
   homebrew = {
