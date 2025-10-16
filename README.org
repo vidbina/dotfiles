@@ -1699,6 +1699,23 @@ We can review =NSGlobalDomain= settings with the following command:
 default read NSGlobalDomain
 #+end_src
 
+***** Force Click
+
+Force click on macOS causes this annoying behavior where hard presses (single finger) open the dictionary as part of a /Look Up/. This can be disabled in the System Settings by looking up the Trackpad and turning the /Look up & data detectors/ setting off.
+
+We explored the Trackpad settings https://macos-defaults.com/trackpad/firstclickthreshold.html while configuring Look Up to work only on a 3-finger press and attempt to declaratively set it through the trackpad and AppleMultitouchTrackpad settings.
+
+#+begin_src nix :noweb-ref darwin-system
+defaults.CustomUserPreferences = {
+  "com.apple.trackpad" = {
+    forceClick = false;
+  };
+  "com.apple.AppleMultitouchTrackpad" = {
+    TrackpadThreeFingerTapGesture = 2;
+  };
+};
+#+end_src
+
 **** COMMENT Configure Darwin system activation scripts
 
 #+begin_src nix :noweb-ref nix-darwin

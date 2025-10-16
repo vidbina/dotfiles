@@ -178,6 +178,15 @@
     primaryUser = "vidbina";
     defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
 
+    defaults.CustomUserPreferences = {
+      "com.apple.trackpad" = {
+        forceClick = false;
+      };
+      "com.apple.AppleMultitouchTrackpad" = {
+        TrackpadThreeFingerTapGesture = 2;
+      };
+    };
+
     # defaults.CustomUserPreferences = {
     #   "com.microsoft.VSCode" = {
     #     "ApplePressAndHoldEnabled" = false;
