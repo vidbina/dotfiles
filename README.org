@@ -1681,6 +1681,24 @@ system = {
 };
 #+end_src
 
+**** macOS Defaults
+
+Observe https://macos-defaults.com for information on how to manage macOS declaratively. The =default= command can be used to review the configuration.
+
+***** Key Press
+
+On a system level, we want continued key presses to register as repeat presses so we can leverage this for easy navigation (using keys like j, k, l, m). Some terminals, like Ghostty manage this separately, but other tools may not have a settings for this, in which the system-wide setting helps. We set [[https://macos-defaults.com/keyboard/applepressandholdenabled.html][ApplePressAndHoldEnabled]] to false in order to to accomplish this.
+
+#+begin_src nix :noweb-ref darwin-system
+defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
+#+end_src
+
+We can review =NSGlobalDomain= settings with the following command:
+
+#+begin_src bash
+default read NSGlobalDomain
+#+end_src
+
 **** COMMENT Configure Darwin system activation scripts
 
 #+begin_src nix :noweb-ref nix-darwin
@@ -1993,12 +2011,11 @@ The keybindings that we want are as follows:
 In order to enable long-presses to register multiple entries we need the =ApplePressAndHoldEnabled= OSX setting, otherwise, we have to manually depress a key multiple times in order to have multiple entries.
 
 #+begin_src nix :noweb-ref darwin-system
-defaults.NSGlobalDomain.ApplePressAndHoldEnabled = true;
-# defaults.CustomUserPreferences = {
-#   "com.microsoft.VSCode" = {
-#     "ApplePressAndHoldEnabled" = true;
-#   };
-# };
+  # defaults.CustomUserPreferences = {
+  #   "com.microsoft.VSCode" = {
+  #     "ApplePressAndHoldEnabled" = false;
+  #   };
+  # };
 #+end_src
 
 Define parts of the VsCode-specific fields are defined in the JSON format as follows:
