@@ -186,12 +186,6 @@
         TrackpadThreeFingerTapGesture = 2;
       };
     };
-
-    # defaults.CustomUserPreferences = {
-    #   "com.microsoft.VSCode" = {
-    #     "ApplePressAndHoldEnabled" = false;
-    #   };
-    # };
   };
 
   homebrew = {
