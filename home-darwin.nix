@@ -10,17 +10,18 @@
 
   home.packages = with pkgs; [
     # dev-packages
+    pkgs.kakoune
+    pkgs.jujutsu
     pkgs.gh
-    pkgs.nushell
     alacritty
     pkgs.wezterm
     pkgs.claude-code
+    pkgs.gemini-cli
     pkgs.codex
     pkgs.ollama
     pkgs.xxd
     pkgs.hexyl
     pkgs.ghidra-bin
-    pkgs.kakoune
     pkgs.graphviz
     pkgs.shellcheck
     pkgs.shfmt
@@ -41,6 +42,7 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
+
     # home-darwin-packages
     pywal
   ];
@@ -115,9 +117,6 @@
   # See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
   programs.zsh.enable = true;
 
-  services.syncthing = {
-    enable = true;
-  };
   programs.vscode = {
     enable = true;
     profiles.default = {
@@ -126,6 +125,7 @@
         be5invis.toml
         elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
         hbenl.vscode-test-explorer
+        ms-vscode.test-adapter-converter
         hediet.vscode-drawio
         mkhl.direnv
         ms-azuretools.vscode-docker
@@ -133,7 +133,8 @@
         ms-python.python
         tomoki1207.pdf
         vscodevim.vim
-        gamunu.opentofu
+        opentofu.vscode-opentofu
+        dart-code.flutter
         bierner.github-markdown-preview
         bierner.markdown-checkbox
         bierner.markdown-yaml-preamble
@@ -142,6 +143,8 @@
         bierner.markdown-footnotes
         bierner.markdown-preview-github-styles
         gruntfuggly.todo-tree
+        anthropic.claude-code
+        openai.chatgpt
       ];
       keybindings = [
         {
@@ -177,6 +180,15 @@
         "workbench.list.openMode" = "doubleClick";
       };
     };
+  };
+  programs.bat = {
+    enable = true;
+    config = {
+      theme = "base16";
+    };
+  };
+  services.syncthing = {
+    enable = true;
   };
   # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
   # TODO: Fix hack of hardcoded dotfiles path

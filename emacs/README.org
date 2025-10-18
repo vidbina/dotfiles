@@ -5097,9 +5097,8 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (load-theme emacs-theme :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
   (pcase  system-type
-    (darwin (error "No hsetroot on Darwin"))
-    ('gnu/linux (async-shell-command (format "hsetroot -solid '%s'" "*dotfile-helpers*"
-                                             wallpaper-color))
+    ('darwin (error "No hsetroot on Darwin"))
+    ('gnu/linux (async-shell-command (format "hsetroot -solid '%s'" wallpaper-color) "*dotfile-helpers*")
                 (message "see *dotfile-helpers* for output of wallpaper color set"))
     (_ (error "Skipping wallpaper color set on unknown sys"))))
 
@@ -5206,8 +5205,9 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (notmuch-search-tag (list "-inbox"))
     (notmuch-search-tag (list "+inbox"))))
 
-(evil-collection-define-key 'normal 'notmuch-search-mode-map
-  "i" 'vidbina/notmuch-toggle-inbox)
+(if (fboundp 'evil-collection-define-key)
+ (evil-collection-define-key 'normal 'notmuch-search-mode-map
+  "i" 'vidbina/notmuch-toggle-inbox))
 #+end_src
 
 *** Mail Signature Helpers
@@ -5584,7 +5584,7 @@ Use the built-in ispell for spell checking.
 
 This configuration is derived from the article [[https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html][Setting up spell checking with multiple dictionaries in Emacs (by Alain M. Lafon from 200ok.ch)]].
 
-**** Ported use-package configuration
+**** COMMENT Ported use-package configuration
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html
@@ -7965,13 +7965,15 @@ in
 
 Currently, I'm sloppily tangling package listing into the ref =nix-packages= which will break in Linux if I don't have a Linux-specific =my-emacs= overlay defined. In principle, the commenting of the following section, should not affect a Linux-specific config and now we tangle into both file:emacs/default.nix and file:emacs/nix-darwin.nix.x
 
-**** Install Emacs (launchd) service through nix-darwin and package through (home-manager)
+**** TODO Install Emacs (launchd) service through nix-darwin and package through (home-manager)
+
+WARNING: We're the launchd service temporarily because it's hogging the resources of my Macbook Pro Intel.
 
 In order to avoid having to figure out the mess with activation scripts, we can install the Emacs service through nix-darwin such that we have the long-running daemon available and simultaneously install the same Emacs as a home-manager package, such that we have the Spotlight-visible reference created for us (in the ~/Applications/Home Manager Apps directory). It is important to install the exact same version of Emacs in nix-darwin as well as home-manager to avoid version incompatibility issues.
 
 #+begin_src nix :noweb yes :noweb-ref nix-darwin
 services.emacs = {
-  enable = true;
+  enable = false;
   package = pkgs.my-emacs;
 };
 #+end_src

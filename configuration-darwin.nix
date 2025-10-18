@@ -12,10 +12,7 @@
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
     # common Darwin packages
-    asciinema
-    bat
     checkmake
-    exercism
     gh
     gleam
     gnumake
@@ -46,7 +43,6 @@
 
     devbox
     pass
-    nushell
     wezterm
     pdftk
     hunspell
@@ -180,9 +176,14 @@
 
   system = {
     primaryUser = "vidbina";
+    defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
+
     defaults.CustomUserPreferences = {
-      "com.microsoft.VSCode" = {
-        "ApplePressAndHoldEnabled" = false;
+      "com.apple.trackpad" = {
+        forceClick = false;
+      };
+      "com.apple.AppleMultitouchTrackpad" = {
+        TrackpadThreeFingerTapGesture = 2;
       };
     };
   };
@@ -212,29 +213,31 @@
       "smudge/smudge/nightlight"
     ];
     casks = builtins.filter (x: x != null) [
+      "zed"
+      "cursor"
       "android-file-transfer"
       "1password"
       "1password-cli"
       "iterm2"
       "kitty"
-      # Go to top-right Settings gear > VSCode Import > Start Import
       "warp"
+      "ghostty"
       "claude"
       (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
-      "zed"
-      "cursor"
+      "kap"
+      "shottr"
       "drawio"
       "figma"
+      "rive"
       "docker"
       "utm"
       "raycast"
+      (if pkgs.system == "x86_64-darwin" then "aldente" else null)
       "obs" # for streaming
       "spotify"
       "tidal"
       "steam"
       "firefox@developer-edition"
-      "arc"
-      "zen-browser"
       "discord"
       "signal"
       "slack"
@@ -252,12 +255,13 @@
       "Hidden Bar" = 1452453066;
       "Remarkable Desktop" = 1276493162;
       "Endel" = 1346247457;
+      "Amphetamine"= 937984704;
     };
   };
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "claude-code"
     "vscode"
+    "claude-code"
   ];
 
   nixpkgs.overlays = [

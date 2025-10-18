@@ -261,6 +261,7 @@ home.stateVersion = "23.05";
 home.packages = with pkgs; [
   # dev-packages
   <<dev-packages>>
+  <<dev-packages-darwin>>
   # home-darwin-packages
   <<home-darwin-packages>>
 ];
@@ -773,7 +774,7 @@ Run =darkman set light= or =darkman set dark= or just run =darkman toggle=.
 ******* TODO rofi
 
 - State "TODO"       from              [2023-10-03 Tue 17:30] \\
-  Update config to work for Linux. common.nix is no used between darwin and linux and rofi is no relevant for darwin systems.
+  Update config to work for Linux. common.nix is not used between darwin and linux and rofi is not relevant for darwin systems.
 
 We import the previous rofi configuration and have removed the =programs.rofi.theme= option because Pywal is currently managing this.
 
@@ -857,7 +858,7 @@ services.trayer = {
 };
 #+end_src
 
-*** Common Configuration
+*** Common Configuration (Linux only)
 
 #+begin_src nix :noweb yes :tangle common.nix
 # Tangled from README.org
@@ -931,13 +932,6 @@ Linux vs darwin nix configurations will have different attributes/options that w
 **** Common Programs
 
 #+begin_src nix :noweb yes :noweb-ref common-programs
-programs.bat = {
-  enable = true;
-  config = {
-    theme = "base16";
-  };
-};
-
 # Let Home Manager install and manage itself.
 programs.home-manager.enable = true;
 
@@ -953,6 +947,10 @@ programs.tmux = {
   extraConfig = builtins.readFile (./. + "/tmux.conf");
 };
 #+end_src
+
+***** TODO Remove common
+
+Common is an architectural mistake. There are bits that can be shared between Darwin and Linux systems, but we probably shouldn't use another level of indirection by introducing another file which we import between the system-specific configs. Writing directly into the target system's config is much cleaner and simpler to reason about.
 
 **** Manual
 
@@ -1513,10 +1511,7 @@ We want to move this block of package definitions into the appropriate sections 
 #+end_quote
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
-asciinema
-bat
 checkmake
-exercism
 gh
 gleam
 gnumake
@@ -1686,6 +1681,41 @@ system = {
 };
 #+end_src
 
+**** macOS Defaults
+
+Observe https://macos-defaults.com for information on how to manage macOS declaratively. The =default= command can be used to review the configuration.
+
+***** Key Press
+
+On a system level, we want continued key presses to register as repeat presses so we can leverage this for easy navigation (using keys like j, k, l, m). Some terminals, like Ghostty manage this separately, but other tools may not have a settings for this, in which the system-wide setting helps. We set [[https://macos-defaults.com/keyboard/applepressandholdenabled.html][ApplePressAndHoldEnabled]] to false in order to to accomplish this.
+
+#+begin_src nix :noweb-ref darwin-system
+defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
+#+end_src
+
+We can review =NSGlobalDomain= settings with the following command:
+
+#+begin_src bash
+default read NSGlobalDomain
+#+end_src
+
+***** Force Click
+
+Force click on macOS causes this annoying behavior where hard presses (single finger) open the dictionary as part of a /Look Up/. This can be disabled in the System Settings by looking up the Trackpad and turning the /Look up & data detectors/ setting off.
+
+We explored the Trackpad settings https://macos-defaults.com/trackpad/firstclickthreshold.html while configuring Look Up to work only on a 3-finger press and attempt to declaratively set it through the trackpad and AppleMultitouchTrackpad settings.
+
+#+begin_src nix :noweb-ref darwin-system
+defaults.CustomUserPreferences = {
+  "com.apple.trackpad" = {
+    forceClick = false;
+  };
+  "com.apple.AppleMultitouchTrackpad" = {
+    TrackpadThreeFingerTapGesture = 2;
+  };
+};
+#+end_src
+
 **** COMMENT Configure Darwin system activation scripts
 
 #+begin_src nix :noweb-ref nix-darwin
@@ -1842,7 +1872,8 @@ For starters, we stub the general structure of the nix file and define the =<<ni
 
   home.packages = [
     <<dev-packages>>
-  ] ++ (if pkgs.stdenv.isLinux then [
+  ] ++
+  (if pkgs.stdenv.isLinux then [
     <<dev-packages-linux>>
   ] else [ ]);
 }
@@ -1854,7 +1885,226 @@ As an example, you can observe how we direct some comments into the previously d
 # Tangling individual dev tools through nix-devtools noweb reference
 #+end_src
 
-*** Git
+*** Editors
+**** VsCode
+
+Visual Studio Code is unfree software and needs to be added to the list of unfree packages that we want to tolerate:
+
+#+begin_src nix :noweb-ref darwin-unfree
+"vscode"
+#+end_src
+
+Our vscode configuration declaratively manages soem extensions, keybindings and user settings:
+
+#+begin_src nix :noweb yes :noweb-ref home-darwin-config
+programs.vscode = {
+  enable = true;
+  profiles.default = {
+    extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
+      <<vscode-extensions>>
+    ];
+    keybindings = [
+      <<vscode-keybindings>>
+    ];
+    userSettings = {
+      <<vscode-settings>>
+    };
+  };
+};
+#+end_src
+
+***** VsCode Extensions
+
+We get our vscode extensions from the nix-community nix-vscode-extensions package which we alias to the reference =my-vscode-extensions= for internal use:
+
+#+begin_src nix :noweb-ref darwin-overlays
+my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
+#+end_src
+
+The extensions that we are interested in are the following:
+
+#+begin_src nix :noweb-ref vscode-extensions
+bbenoist.nix
+be5invis.toml
+elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
+hbenl.vscode-test-explorer
+ms-vscode.test-adapter-converter
+hediet.vscode-drawio
+mkhl.direnv
+ms-azuretools.vscode-docker
+ms-playwright.playwright
+ms-python.python
+tomoki1207.pdf
+vscodevim.vim
+opentofu.vscode-opentofu
+dart-code.flutter
+#+end_src
+
+****** COMMENT GitHub CoPilot in VSCode
+
+#+begin_src nix :noweb-ref vscode-extensions
+github.copilot
+github.copilot-chat
+#+end_src
+
+#+begin_src nix :noweb-ref darwin-unfree
+"vscode-extension-github-copilot"
+#+end_src
+
+****** COMMENT Remote Containers in VSCode
+
+#+begin_src nix :noweb-ref vscode-extensions
+ms-vscode-remote.remote-containers
+#+end_src
+
+#+begin_src nix :noweb-ref darwin-unfree
+"vscode-extension-ms-vscode-remote-remote-containers"
+#+end_src
+
+****** Markdown Preview in VSCode
+
+See [[https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview][Matt Bierner's Markdown extensions]] for useful upgrades to VsCodes Markdown Preview capabilities. Just open the regular markdown preview through the command palette (cmd+shift+p on MacOS).
+
+We're installing them all:
+
+#+begin_src nix :noweb-ref vscode-extensions
+bierner.github-markdown-preview
+bierner.markdown-checkbox
+bierner.markdown-yaml-preamble
+bierner.markdown-emoji
+bierner.markdown-mermaid
+bierner.markdown-footnotes
+bierner.markdown-preview-github-styles
+#+end_src
+
+and enabling front-matter preview rendering in the config:
+
+#+begin_src nix :noweb-ref vscode-settings
+# https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview
+"markdown.previewFrontMatter" = "show";
+#+end_src
+
+****** COMMENT Markdown Preview Enhanced in VSCode
+
+See [[https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced][Yiyi Wang's Markdown Preview Enchanced]] to preview markdown with more batteries included. Use the command palette and search for *Markdown Preview Enhanced* commands. I have disabled this because it doesn't do dark-mode well and that was more disruptive than not having callouts (as is the shortcoming of the standard previewer even with the Bierner extensions).
+
+#+begin_src nix :noweb-ref vscode-extensions
+shd101wyy.markdown-preview-enhanced
+#+end_src
+
+****** COMMENT Org-mode in VsCode
+
+On <2025-02-16 Sun>, I'm trying to rebuild my config and finding that this extension is no longer available through [[https://github.com/nix-community/nix-vscode-extensions?tab=readme-ov-file][vscode-extensions]], so I'm commenting it out for now.
+
+#+begin_src nix :noweb-ref vscode-extensions
+vscode-org-mode.org-mode
+#+end_src
+
+****** Show tree of TODO and FIXME comment
+
+Outline comment tags like =TODO= and =FIXME= in a todo tree for quick access.
+
+#+begin_src nix :noweb-ref vscode-extensions
+gruntfuggly.todo-tree
+#+end_src
+
+***** VsCode Keybindings
+
+The keybindings that we want are as follows:
+
+#+begin_src nix :noweb-ref vscode-keybindings
+{
+  "key" = "ctrl+tab";
+  "command" = "workbench.action.nextEditorInGroup";
+}
+{
+  "key" = "ctrl+shift+tab";
+  "command" = "workbench.action.previousEditorInGroup";
+}
+#+end_src
+
+***** VsCode Settings
+
+Define parts of the VsCode-specific fields are defined in the JSON format as follows:
+
+#+begin_src nix :noweb-ref vscode-settings
+"editor.cursorSurroundingLines" = 8;
+
+# https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+"extensions.ignoreRecommendations" = true;
+"extensions.showRecommendationsOnlyOnDemand" = true;
+
+# https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
+"telemetry.telemetryLevel" = "off";
+
+"vim.highlightedyank.enable" = true;
+
+"window.autoDetectColorScheme" = true;
+#+end_src
+
+****** Colored guides in VSCode
+
+#+begin_src nix :noweb-ref vscode-settings
+# https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
+"editor.guides.bracketPairs" = true;
+"editor.guides.highlightActiveIndentation" = true;
+#+end_src
+
+****** Theme configuration in VSCode
+
+#+begin_src nix :noweb-ref vscode-settings
+"workbench.colorTheme" = "Default High Contrast Light";
+"workbench.preferredDarkColorTheme" = "Default High Contrast";
+"workbench.preferredLightColorTheme" = "Default High Contrast Light";
+#+end_src
+
+****** Disable single click previews
+
+Pressing a file with a single click to get a preview tab is really annoying because another click may just replace the previous /preview/ file. I'd much rather just double-click to open files in their dedicated tabs and then do housekeeping later. Makes things a bit more explicit. See [[https://stackoverflow.com/a/48559054][StackOverflow]] for more.
+
+#+begin_src nix :noweb-ref vscode-settings
+"workbench.list.openMode" = "doubleClick";
+#+end_src
+
+**** Kakoune
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.kakoune
+#+end_src
+
+**** Zed
+
+[[https://zed.dev/][Zed]] is shaping up to be one of the coolest new editors. An IDE that was designed with speed in mind and should be blazingly fast with decent LLM features, multiplayer support and coming from the makers of Atom (from which they learned key lessons about how to not build and editor) and Treesitter. At least, that's what I get from their website and videos.
+
+***** Install Zed from a homebrew cask
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"zed"
+#+end_src
+
+***** COMMENT Install Zed from Nixpkgs
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.zed-editor
+#+end_src
+
+**** Cursor
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"cursor"
+#+end_src
+
+*** Version Control
+**** Jujutsu
+
+Just watched https://www.youtube.com/watch?v=2otjrTzRfVk&t=534s and am trying to get on the jj bandwagon to taste its benefits:
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.jujutsu
+#+end_src
+
+
+**** Git
 
 We tangle the git-related configuration into [[file:dev.nix]] but if you want to manually set things up, check out the [[manual-git][manual git instructions]].
 
@@ -1884,7 +2134,7 @@ programs.git = {
 ".config/git/ignore".source = ./git/ignore;
 #+end_src
 
-**** Graphite
+***** Graphite
 
 Graphite is a new class of git-porcelain with a focus on [[https://graphite.dev/guides/understanding-and-managing-stacked-branches-in-git][git stacking]].
 
@@ -1894,7 +2144,7 @@ See the [[https://app.graphite.dev/core/get-started/][Getting Started]] page for
 "withgraphite/tap/graphite"
 #+end_src
 
-**** Global Gitignore
+***** Global Gitignore
 
 For convenience we define [[file:git/ignore]] which we want to automatically want to honor in every repo. Based on the instructions in =man gitignore= we stub the =XDG_HOME_CONFIG/.config/git/ignore= and the =~/.gitignore= files to reflect the content of [[file:git/ignore]].
 
@@ -1909,7 +2159,7 @@ home.file = {
 Note that the =programs.git.ignores= setting in home manager can not coexist with the =home.file.".config/git/ignore"= home-manager option. I'm opting for the =home-file= approach since this simplifies updates to merely copying the output of the [[https://www.toptal.com/developers/gitignore][Toptal gitignore generator]]. 😉
 #+end_comment
 
-**** Git LFS
+***** Git LFS
 
 We want LFS enabled.
 
@@ -1917,7 +2167,7 @@ We want LFS enabled.
 lfs.enable = true;
 #+end_src
 
-**** Git Aliases
+***** Git Aliases
 
 #+begin_src nix :noweb-ref nix-devtools-git
 aliases = {
@@ -1926,7 +2176,7 @@ aliases = {
 };
 #+end_src
 
-**** Git Extra Configuration
+***** Git Extra Configuration
 
 Let's opt for naming our default branch "main", using nvim as our editor, using gpg2 are our GPG tool and setting git up to [[https://git-scm.com/docs/git-send-email][send patches by mail]].
 
@@ -1954,7 +2204,7 @@ extraConfig = {
 };
 #+end_src
 
-***** Colors in Git
+****** Colors in Git
 
 For readability's sake, we set the colors that we display git diffs, greps and status payloads in.
 
@@ -1982,7 +2232,7 @@ color = {
 
 Since we are using pywal to sync terminal themes with Emacs, we set some baseline colors in git to harmonise these.
 
-**** TODO COMMENT Diff: Look into delta or difftastic
+***** TODO COMMENT Diff: Look into delta or difftastic
 
 #+begin_src nix :noweb-ref nix-devtools-git
 delta = {
@@ -1998,7 +2248,7 @@ difftastic = {
 };
 #+end_src
 
-**** GitHub
+***** GitHub
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.gh
@@ -2180,7 +2430,7 @@ On <2024-12-26 Thu> the App Store app only installs 1Password version 7 on my be
 #+end_src
 
 **** Terminals
-***** NuShell
+***** COMMENT NuShell
 
 Use [[https://www.nushell.sh/][NuShell]] for a more data-centric terminal experience, where it should be easier to query data in the shell.
 
@@ -2302,13 +2552,20 @@ config.keys = {
 ***** Warp
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
-# Go to top-right Settings gear > VSCode Import > Start Import
 "warp"
+#+end_src
+
+***** Ghostty
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"ghostty"
 #+end_src
 
 **** AI
 
 ***** Claude
+
+****** Claude Desktop
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "claude"
@@ -2328,6 +2585,18 @@ Note that claude-code is unfree.
 "claude-code"
 #+end_src
 
+For vscode and vscode-derived editors, we want to enable the official Claude Code extension:
+
+#+begin_src nix :noweb-ref vscode-extensions
+anthropic.claude-code
+#+end_src
+
+***** Gemini
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.gemini-cli
+#+end_src
+
 ***** OpenAI
 ****** ChatGPT
 
@@ -2343,6 +2612,14 @@ Use [[https://github.com/openai/codex][Codex]] as a coding agent, directly from 
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.codex
+#+end_src
+
+****** OpenAI Codex VsCode Extension
+
+https://marketplace.visualstudio.com/items?itemName=openai.chatgpt
+
+#+begin_src nix :noweb-ref vscode-extensions
+openai.chatgpt
 #+end_src
 
 ***** Ollama
@@ -2407,43 +2684,49 @@ pkgs.xxd
 pkgs.hexyl
 #+end_src
 
+***** Bat
+
+On NixOS, we install bat through the programs facility:
+
+#+begin_src nix :noweb yes :noweb-ref common-programs
+programs.bat = {
+  enable = true;
+  config = {
+    theme = "base16";
+  };
+};
+#+end_src
+
+On Darwin, we install it into our home-manager setup:
+
+#+begin_src nix :noweb-ref home-darwin-config
+programs.bat = {
+  enable = true;
+  config = {
+    theme = "base16";
+  };
+};
+#+end_src
+
 **** Reverse engineering
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.ghidra-bin
 #+end_src
 
-**** Editors
-
-***** Kakoune
-
-#+begin_src nix :noweb-ref dev-packages
-pkgs.kakoune
-#+end_src
-
-***** Zed
-
-[[https://zed.dev/][Zed]] is shaping up to be one of the coolest new editors. An IDE that was designed with speed in mind and should be blazingly fast with decent LLM features, multiplayer support and coming from the makers of Atom (from which they learned key lessons about how to not build and editor) and Treesitter. At least, that's what I get from their website and videos.
-
-****** Install Zed from a homebrew cask
-
-#+begin_src nix :noweb-ref homebrew-casks :noweb yes
-"zed"
-#+end_src
-
-****** COMMENT Install Zed from Nixpkgs
-
-#+begin_src nix :noweb-ref dev-packages
-pkgs.zed-editor
-#+end_src
-
-***** Cursor
-
-#+begin_src nix :noweb-ref homebrew-casks :noweb yes
-"cursor"
-#+end_src
-
 **** Diagramming
+
+***** Kap
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"kap"
+#+end_src
+
+***** Shottr
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"shottr"
+#+end_src
 
 ***** Drawio
 
@@ -2455,6 +2738,14 @@ pkgs.zed-editor
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "figma"
+#+end_src
+
+***** Rive
+
+[[https://rive.app][Rive]], like Lottie provides tooling to animate assets for mobile apps but unlike Lottie owns the E2E stack where Lottie requires the use of multiple disconnected tools in order to author Lottie animations. Rive furthermore boasts support for state-aware animations.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"rive"
 #+end_src
 
 ***** Graphviz
@@ -2929,194 +3220,6 @@ Especially for things link mail indices and Org-roam databases, I may need to do
 - https://github.com/org-roam/org-roam/issues/977
 - https://github.com/org-roam/org-roam/issues/550
 
-*** VsCode
-
-Visual Studio Code is unfree software and needs to be added to the list of unfree packages that we want to tolerate:
-
-#+begin_src nix :noweb-ref darwin-unfree
-"vscode"
-#+end_src
-
-Our vscode configuration declaratively manages soem extensions, keybindings and user settings:
-
-#+begin_src nix :noweb yes :noweb-ref home-darwin-config
-programs.vscode = {
-  enable = true;
-  profiles.default = {
-    extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
-      <<vscode-extensions>>
-    ];
-    keybindings = [
-      <<vscode-keybindings>>
-    ];
-    userSettings = {
-      <<vscode-settings>>
-    };
-  };
-};
-#+end_src
-
-**** VsCode Extensions
-
-We get our vscode extensions from the nix-community nix-vscode-extensions package which we alias to the reference =my-vscode-extensions= for internal use:
-
-#+begin_src nix :noweb-ref darwin-overlays
-my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
-#+end_src
-
-The extensions that we are interested in are the following:
-
-#+begin_src nix :noweb-ref vscode-extensions
-bbenoist.nix
-be5invis.toml
-elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
-hbenl.vscode-test-explorer
-hediet.vscode-drawio
-mkhl.direnv
-ms-azuretools.vscode-docker
-ms-playwright.playwright
-ms-python.python
-tomoki1207.pdf
-vscodevim.vim
-gamunu.opentofu
-#+end_src
-
-***** COMMENT GitHub CoPilot in VSCode
-
-#+begin_src nix :noweb-ref vscode-extensions
-github.copilot
-github.copilot-chat
-#+end_src
-
-#+begin_src nix :noweb-ref darwin-unfree
-"vscode-extension-github-copilot"
-#+end_src
-
-***** COMMENT Remote Containers in VSCode
-
-#+begin_src nix :noweb-ref vscode-extensions
-ms-vscode-remote.remote-containers
-#+end_src
-
-#+begin_src nix :noweb-ref darwin-unfree
-"vscode-extension-ms-vscode-remote-remote-containers"
-#+end_src
-
-***** Markdown Preview in VSCode
-
-See [[https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview][Matt Bierner's Markdown extensions]] for useful upgrades to VsCodes Markdown Preview capabilities. Just open the regular markdown preview through the command palette (cmd+shift+p on MacOS).
-
-We're installing them all:
-
-#+begin_src nix :noweb-ref vscode-extensions
-bierner.github-markdown-preview
-bierner.markdown-checkbox
-bierner.markdown-yaml-preamble
-bierner.markdown-emoji
-bierner.markdown-mermaid
-bierner.markdown-footnotes
-bierner.markdown-preview-github-styles
-#+end_src
-
-and enabling front-matter preview rendering in the config:
-
-#+begin_src nix :noweb-ref vscode-settings
-# https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview
-"markdown.previewFrontMatter" = "show";
-#+end_src
-
-***** COMMENT Markdown Preview Enhanced in VSCode
-
-See [[https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced][Yiyi Wang's Markdown Preview Enchanced]] to preview markdown with more batteries included. Use the command palette and search for *Markdown Preview Enhanced* commands. I have disabled this because it doesn't do dark-mode well and that was more disruptive than not having callouts (as is the shortcoming of the standard previewer even with the Bierner extensions).
-
-#+begin_src nix :noweb-ref vscode-extensions
-shd101wyy.markdown-preview-enhanced
-#+end_src
-
-***** COMMENT Org-mode in VsCode
-
-On <2025-02-16 Sun>, I'm trying to rebuild my config and finding that this extension is no longer available through [[https://github.com/nix-community/nix-vscode-extensions?tab=readme-ov-file][vscode-extensions]], so I'm commenting it out for now.
-
-#+begin_src nix :noweb-ref vscode-extensions
-vscode-org-mode.org-mode
-#+end_src
-
-***** Show tree of TODO and FIXME comment
-
-Outline comment tags like =TODO= and =FIXME= in a todo tree for quick access.
-
-#+begin_src nix :noweb-ref vscode-extensions
-gruntfuggly.todo-tree
-#+end_src
-
-**** VsCode Keybindings
-
-The keybindings that we want are as follows:
-
-#+begin_src nix :noweb-ref vscode-keybindings
-{
-  "key" = "ctrl+tab";
-  "command" = "workbench.action.nextEditorInGroup";
-}
-{
-  "key" = "ctrl+shift+tab";
-  "command" = "workbench.action.previousEditorInGroup";
-}
-#+end_src
-
-**** VsCode Settings
-
-In order to enable long-presses to register multiple entries we need the =ApplePressAndHoldEnabled= OSX setting, otherwise, we have to manually depress a key multiple times in order to have multiple entries.
-
-#+begin_src nix :noweb-ref darwin-system
-defaults.CustomUserPreferences = {
-  "com.microsoft.VSCode" = {
-    "ApplePressAndHoldEnabled" = false;
-  };
-};
-#+end_src
-
-Define parts of the VsCode-specific fields are defined in the JSON format as follows:
-
-#+begin_src nix :noweb-ref vscode-settings
-"editor.cursorSurroundingLines" = 8;
-
-# https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
-"extensions.ignoreRecommendations" = true;
-"extensions.showRecommendationsOnlyOnDemand" = true;
-
-# https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
-"telemetry.telemetryLevel" = "off";
-
-"vim.highlightedyank.enable" = true;
-
-"window.autoDetectColorScheme" = true;
-#+end_src
-
-***** Colored guides in VSCode
-
-#+begin_src nix :noweb-ref vscode-settings
-# https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
-"editor.guides.bracketPairs" = true;
-"editor.guides.highlightActiveIndentation" = true;
-#+end_src
-
-***** Theme configuration in VSCode
-
-#+begin_src nix :noweb-ref vscode-settings
-"workbench.colorTheme" = "Default High Contrast Light";
-"workbench.preferredDarkColorTheme" = "Default High Contrast";
-"workbench.preferredLightColorTheme" = "Default High Contrast Light";
-#+end_src
-
-***** Disable single click previews
-
-Pressing a file with a single click to get a preview tab is really annoying because another click may just replace the previous /preview/ file. I'd much rather just double-click to open files in their dedicated tabs and then do housekeeping later. Makes things a bit more explicit. See [[https://stackoverflow.com/a/48559054][StackOverflow]] for more.
-
-#+begin_src nix :noweb-ref vscode-settings
-"workbench.list.openMode" = "doubleClick";
-#+end_src
-
 ** COMMENT E-mail
 
 We configure file:mail.nix as our mail-related config file.
@@ -3234,6 +3337,7 @@ let g:vim_markdown_auto_insert_bullets = 0
 set wrap
 set ignorecase
 set nofoldenable
+set nofixeol
   #+end_src
 - define Plug extensions, which are only relevant for the manual configuration scenario and not when you are using Nix to manage *vim
   #+begin_src vimrc :noweb-ref neovim-plugged
@@ -3459,6 +3563,14 @@ On MacOS, we use [[https://github.com/dwarvesf/hidden/][hidden Bar]] to work aro
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "smudge/smudge/nightlight"
+#+end_src
+
+*** Al Dente
+
+The [[https://apphousekitchen.com/][Al Dente]] app helps us to avoid overcharging our MacBook battery. Since I got a new battery in my MacBook Pro (2018, Intel), this is becoming a useful adddition. Apple Silicon machines apparently have /Optimized Battery Charging/ so we're only installing this for Intel-based Apple devices.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+(if pkgs.system == "x86_64-darwin" then "aldente" else null)
 #+end_src
 
 *** Hammerspoon
@@ -4569,15 +4681,19 @@ Use =/= to enter a search query and use =Ctrl= + =g= or =Ctrl= + =G= to cycle th
 
 💡 The search cycling binding is a bit differnet to what vi-bindings users may expect so just pay attention to keep =C-g= and =C-G= (expressed in Emacs notation) within (muscle) memory.
 
-*** Arc
+*** COMMENT Arc
 
 @KKarpac has been hyping up this browser so much, I'll have to give it a shot, so here goes:
+
+Update <2025-06-26 Thu>: It's [[https://www.reddit.com/r/ArcBrowser/comments/1ih3qzi/is_arc_dead_if_so_where_to_next/][dead]]!
 
 #+begin_src nix :noweb-ref homebrew-casks
 "arc"
 #+end_src
 
-*** Zen
+*** COMMENT Zen
+
+[[https://zen-browser.app/][Zen Browser]] was the open-source answer to the Arc Browser back then before Arc restarted from scratch.
 
 #+begin_src nix :noweb-ref homebrew-casks
 "zen-browser"
@@ -5054,6 +5170,14 @@ https://apps.apple.com/us/app/remarkable-desktop/id1276493162
 
 #+begin_src nix :noweb yes :noweb-ref doc-packages
 qrencode
+#+end_src
+
+**** Amphetamine
+
+https://apps.apple.com/de/app/amphetamine/id937984704?l=en-GB&mt=12b
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"Amphetamine"= 937984704;
 #+end_src
 
 ** TODO [5/21] Convert home-manager config to literate config

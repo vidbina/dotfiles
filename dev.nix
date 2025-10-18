@@ -59,17 +59,18 @@
   };
 
   home.packages = [
+    pkgs.kakoune
+    pkgs.jujutsu
     pkgs.gh
-    pkgs.nushell
     alacritty
     pkgs.wezterm
     pkgs.claude-code
+    pkgs.gemini-cli
     pkgs.codex
     pkgs.ollama
     pkgs.xxd
     pkgs.hexyl
     pkgs.ghidra-bin
-    pkgs.kakoune
     pkgs.graphviz
     pkgs.shellcheck
     pkgs.shfmt
@@ -90,7 +91,8 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
-  ] ++ (if pkgs.stdenv.isLinux then [
+  ] ++
+  (if pkgs.stdenv.isLinux then [
     pkgs.glibc
     pkgs.gdb
     pkgs.evemu

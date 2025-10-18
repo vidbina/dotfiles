@@ -60,13 +60,6 @@ in
     ];
   };
 
-  programs.bat = {
-    enable = true;
-    config = {
-      theme = "base16";
-    };
-  };
-
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
@@ -149,5 +142,11 @@ in
   };
   programs.pywal = {
     enable = true;
+  };
+  programs.bat = {
+    enable = true;
+    config = {
+      theme = "base16";
+    };
   };
 }
