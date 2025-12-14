@@ -1563,20 +1563,24 @@ It follows that the amount of Intel-only packages will decrease as developers ma
 
 *** Setup nix on Darwin
 
-#+begin_src nix :noweb-ref nix-darwin
-nix.enable = true;
-nix.package = pkgs.nix;
+#+begin_src nix :noweb-ref nix-darwin :noweb yes
+nix = {
+  enable = true;
+  package = pkgs.nix;
 
-# Necessary for using flakes on this system.
-nix.settings.experimental-features = "nix-command flakes";
+  # Necessary for using flakes on this system.
+  settings = {
+    experimental-features = "nix-command flakes";
+    <<nix-darwin-settings>>
+  };
+};
 #+end_src
 
 **** Trusted users on Darwin
 
-
-#+begin_src nix :noweb-ref nix-darwin
+#+begin_src nix :noweb-ref nix-darwin-settings
 # Adding trusted users for devenv to use Cachix
-nix.settings.trusted-users = [
+trusted-users = [
   "root"
   "vidbina"
 ];
@@ -1669,16 +1673,16 @@ programs.zsh = {
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 # Set Git commit hash for darwin-version.
-system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
+system = {
+  configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
 
-system.keyboard.enableKeyMapping = true;
-system.keyboard.remapCapsLockToControl = true;
+  keyboard.enableKeyMapping = true;
+  keyboard.remapCapsLockToControl = true;
 
 # Used for backwards compatibility, please read the changelog before changing.
 # $ darwin-rebuild changelog
-system.stateVersion = 4;
+  stateVersion = 4;
 
-system = {
   <<darwin-system>>
 };
 #+end_src
@@ -1720,10 +1724,10 @@ defaults.CustomUserPreferences = {
 
 **** COMMENT Configure Darwin system activation scripts
 
-#+begin_src nix :noweb-ref nix-darwin
+#+begin_src nix :noweb-ref darwin-system
 # Use activation scripts to set up Spotlight visibility of nix-darwin apps
 # See https://github.com/LnL7/nix-darwin/issues/214#issuecomment-1230730292
-system.activationScripts.applications.text = lib.mkForce ''
+activationScripts.applications.text = lib.mkForce ''
   echo "setting up ~/Applications..." >&2
   applications="$HOME/Applications"
   nix_apps="$applications/Nix Apps"

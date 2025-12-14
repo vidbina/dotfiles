@@ -77,17 +77,20 @@
   users.users.vidbina = {
     home = "/Users/vidbina";
   };
-  nix.enable = true;
-  nix.package = pkgs.nix;
+  nix = {
+    enable = true;
+    package = pkgs.nix;
 
-  # Necessary for using flakes on this system.
-  nix.settings.experimental-features = "nix-command flakes";
-
-  # Adding trusted users for devenv to use Cachix
-  nix.settings.trusted-users = [
-    "root"
-    "vidbina"
-  ];
+    # Necessary for using flakes on this system.
+    settings = {
+      experimental-features = "nix-command flakes";
+      # Adding trusted users for devenv to use Cachix
+      trusted-users = [
+        "root"
+        "vidbina"
+      ];
+    };
+  };
 
   # NOTE: Copied from home-linux.nix
   programs.gnupg.agent = {
@@ -165,16 +168,16 @@
   };
 
   # Set Git commit hash for darwin-version.
-  system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
+  system = {
+    configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
 
-  system.keyboard.enableKeyMapping = true;
-  system.keyboard.remapCapsLockToControl = true;
+    keyboard.enableKeyMapping = true;
+    keyboard.remapCapsLockToControl = true;
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
-  system.stateVersion = 4;
+    stateVersion = 4;
 
-  system = {
     primaryUser = "vidbina";
     defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
 
