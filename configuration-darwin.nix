@@ -39,7 +39,7 @@
     vim
     xxd
     yq
-    inputs.devenv.packages.${system}.default
+    inputs.devenv.packages.${stdenv.hostPlatform.system}.default
 
     devbox
     pass
@@ -52,7 +52,7 @@
     hunspellDicts.he_IL
     hunspellDicts.es-any
     hunspellDicts.fr-any
-  ] ++ (if system == "aarch64-darwin" then [
+  ] ++ (if stdenv.hostPlatform.system == "aarch64-darwin" then [
     # ARM-only packages
 
   ] else [
@@ -225,7 +225,7 @@
       "warp"
       "ghostty"
       "claude"
-      (if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
+      (if pkgs.stdenv.hostPlatform.system == "aarch64-darwin" then "chatgpt" else null)
       "kap"
       "shottr"
       "drawio"
@@ -234,7 +234,7 @@
       "docker"
       "utm"
       "raycast"
-      (if pkgs.system == "x86_64-darwin" then "aldente" else null)
+      (if pkgs.stdenv.hostPlatform.system == "x86_64-darwin" then "aldente" else null)
       "obs" # for streaming
       "spotify"
       "tidal"
@@ -269,7 +269,7 @@
   nixpkgs.overlays = [
     (self: super: {
       # nix-darwin overlays
-      my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
+      my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.stdenv.hostPlatform.system};
     })
   ];
 

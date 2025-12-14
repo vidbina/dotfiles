@@ -1480,7 +1480,7 @@ On macOS, nix-darwin provides the most batteries included nix experience. We can
   environment.systemPackages = with pkgs; [
     # common Darwin packages
     <<nix-darwin-packages-common>>
-  ] ++ (if system == "aarch64-darwin" then [
+  ] ++ (if stdenv.hostPlatform.system == "aarch64-darwin" then [
     # ARM-only packages
     <<nix-darwin-packages-arm>>
   ] else [
@@ -1540,7 +1540,7 @@ tree-sitter
 vim
 xxd
 yq
-inputs.devenv.packages.${system}.default
+inputs.devenv.packages.${stdenv.hostPlatform.system}.default
 #+end_src
 
 Intel-only packages are listed separately such that we can use them on the macOS machine that still has a x86-based Intel chip but avoid trying to install them on ARM-based Apple machines.
@@ -1924,7 +1924,7 @@ programs.vscode = {
 We get our vscode extensions from the nix-community nix-vscode-extensions package which we alias to the reference =my-vscode-extensions= for internal use:
 
 #+begin_src nix :noweb-ref darwin-overlays
-my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.system};
+my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.stdenv.hostPlatform.system};
 #+end_src
 
 The extensions that we are interested in are the following:
@@ -2607,7 +2607,7 @@ pkgs.gemini-cli
 ChatGPT is the premiere LLM tool that I've been using. On some systems (tokyo23), I installed it manually, but let's add it to my config since I'm realising how much I'm depending on the nifty Option+Space shortcut these days.
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
-(if pkgs.system == "aarch64-darwin" then "chatgpt" else null)
+(if pkgs.stdenv.hostPlatform.system == "aarch64-darwin" then "chatgpt" else null)
 #+end_src
 
 ****** OpenAI Codex CLI
@@ -2907,7 +2907,7 @@ See https://lwn.net/Articles/658948/
 In order to mount Linux partitions like ext4 under MacOS, we may want to use [[https://github.com/AlexSSD7/linsk][Linsk]].
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
-inputs.linsk.packages.${system}.default
+inputs.linsk.packages.${stdenv.hostPlatform.system}.default
 #+end_src
 
 ****** COMMENT libinput
@@ -3574,7 +3574,7 @@ On MacOS, we use [[https://github.com/dwarvesf/hidden/][hidden Bar]] to work aro
 The [[https://apphousekitchen.com/][Al Dente]] app helps us to avoid overcharging our MacBook battery. Since I got a new battery in my MacBook Pro (2018, Intel), this is becoming a useful adddition. Apple Silicon machines apparently have /Optimized Battery Charging/ so we're only installing this for Intel-based Apple devices.
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
-(if pkgs.system == "x86_64-darwin" then "aldente" else null)
+(if pkgs.stdenv.hostPlatform.system == "x86_64-darwin" then "aldente" else null)
 #+end_src
 
 *** Hammerspoon
