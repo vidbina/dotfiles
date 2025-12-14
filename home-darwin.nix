@@ -57,14 +57,14 @@
   # No corresponding option in nix-darwin, so we config this with hm
   programs.git = {
     enable = true;
-    userName = "David Asabina";
-    userEmail = "vid@bina.me";
-    lfs.enable = true;
-    aliases = {
-      wdiff = "diff --word-diff --word-diff-regex='\\w+'";
-      glog = "log --oneline --graph --all --decorate";
-    };
-    extraConfig = {
+    settings = {
+      user.name = "David Asabina";
+      user.email = "vid@bina.me";
+      lfs.enable = true;
+      aliases = {
+        wdiff = "diff --word-diff --word-diff-regex='\\w+'";
+        glog = "log --oneline --graph --all --decorate";
+      };
       init = {
         defaultBranch = "main";
       };

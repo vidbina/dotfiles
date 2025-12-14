@@ -275,7 +275,9 @@ home.file = {
 # No corresponding option in nix-darwin, so we config this with hm
 programs.git = {
   enable = true;
-  <<nix-devtools-git>>
+  settings = {
+    <<nix-devtools-git>>
+  };
 };
 
 # NOTE: Copied from common.nix
@@ -1406,8 +1408,8 @@ ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 For developer tooling, we define our =userName= and =userEmail= which we will rely on in configuring git, for example.
 
 #+begin_src nix :noweb yes :noweb-ref nix-devtools-git
-userName = "David Asabina";
-userEmail = "vid@bina.me";
+user.name = "David Asabina";
+user.email = "vid@bina.me";
 #+end_src
 
 We all have parts of our configs that are for our eyes only and the
@@ -2181,27 +2183,25 @@ aliases = {
 Let's opt for naming our default branch "main", using nvim as our editor, using gpg2 are our GPG tool and setting git up to [[https://git-scm.com/docs/git-send-email][send patches by mail]].
 
 #+begin_src nix :noweb yes :noweb-ref nix-devtools-git
-extraConfig = {
-  init = {
-    defaultBranch = "main";
-  };
-
-  core = {
-    editor = "nvim";
-  };
-
-  gpg = {
-    program = "gpg2";
-  };
-
-  sendemail = {
-    annotate = true;
-    smtpServer = "msmtp";
-    smtpServerOption = "-a vidbina";
-  };
-
-  <<nix-devtools-git-conf>>
+init = {
+  defaultBranch = "main";
 };
+
+core = {
+  editor = "nvim";
+};
+
+gpg = {
+  program = "gpg2";
+};
+
+sendemail = {
+  annotate = true;
+  smtpServer = "msmtp";
+  smtpServerOption = "-a vidbina";
+};
+
+<<nix-devtools-git-conf>>
 #+end_src
 
 ****** Colors in Git

@@ -6,50 +6,48 @@
   # Tangling individual dev tools through nix-devtools noweb reference
   programs.git = {
     enable = true;
-    userName = "David Asabina";
-    userEmail = "vid@bina.me";
+    user.name = "David Asabina";
+    user.email = "vid@bina.me";
     lfs.enable = true;
     aliases = {
       wdiff = "diff --word-diff --word-diff-regex='\\w+'";
       glog = "log --oneline --graph --all --decorate";
     };
-    extraConfig = {
-      init = {
-        defaultBranch = "main";
-      };
+    init = {
+      defaultBranch = "main";
+    };
 
-      core = {
-        editor = "nvim";
-      };
+    core = {
+      editor = "nvim";
+    };
 
-      gpg = {
-        program = "gpg2";
-      };
+    gpg = {
+      program = "gpg2";
+    };
 
-      sendemail = {
-        annotate = true;
-        smtpServer = "msmtp";
-        smtpServerOption = "-a vidbina";
-      };
+    sendemail = {
+      annotate = true;
+      smtpServer = "msmtp";
+      smtpServerOption = "-a vidbina";
+    };
 
-      color = {
-        ui = true;
-        diff = {
-          meta = "yellow bold";
-          frag = "magenta bold";
-           old = "red";
-           new = "green";
-        };
-        grep = {
-          match = "yellow";
-          filename = "blue";
-          linenumber = "brightblack";
-        };
-        status = {
-          added = "yellow";
-          changed = "green";
-          untracked = "brightblack";
-        };
+    color = {
+      ui = true;
+      diff = {
+        meta = "yellow bold";
+        frag = "magenta bold";
+         old = "red";
+         new = "green";
+      };
+      grep = {
+        match = "yellow";
+        filename = "blue";
+        linenumber = "brightblack";
+      };
+      status = {
+        added = "yellow";
+        changed = "green";
+        untracked = "brightblack";
       };
     };
   };
