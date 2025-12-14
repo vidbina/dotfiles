@@ -2134,7 +2134,7 @@ programs.git = {
 ".config/git/ignore".source = ./git/ignore;
 #+end_src
 
-***** Graphite
+***** COMMENT Graphite
 
 Graphite is a new class of git-porcelain with a focus on [[https://graphite.dev/guides/understanding-and-managing-stacked-branches-in-git][git stacking]].
 
