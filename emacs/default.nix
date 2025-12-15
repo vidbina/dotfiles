@@ -23,7 +23,7 @@ in
 
     python312
 
-    libgccjit
+    # libgccjit # temporarily disabled due to SDK issues
 
     # Linux packages
     (writeScriptBin "e" ''

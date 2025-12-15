@@ -68,7 +68,7 @@
     pkgs.ollama
     pkgs.xxd
     pkgs.hexyl
-    pkgs.ghidra-bin
+    # pkgs.ghidra-bin # temporarily disabled due to SDK issues
     pkgs.graphviz
     pkgs.shellcheck
     pkgs.shfmt

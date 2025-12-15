@@ -39,7 +39,7 @@
     vim
     xxd
     yq
-    inputs.devenv.packages.${stdenv.hostPlatform.system}.default
+    devenv # Modern declarative approach via nixpkgs
 
     devbox
     pass
@@ -58,8 +58,8 @@
   ] else [
     # Intel-only packages
     # Darwin packages for Intel-only
-    gdb
-    ghidra-bin
+    # gdb # temporarily disabled due to SDK issues
+    # ghidra-bin # temporarily disabled due to SDK issues
   ]);
 
   environment.interactiveShellInit = lib.strings.concatStrings [
@@ -264,6 +264,7 @@
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
     "vscode"
     "claude-code"
+    "vscode-extension-anthropic-claude-code"
   ];
 
   nixpkgs.overlays = [

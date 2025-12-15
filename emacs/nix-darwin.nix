@@ -10,7 +10,7 @@
 
     python312
 
-    libgccjit
+    # libgccjit # temporarily disabled due to SDK issues
     ripgrep
   ];
 
@@ -27,8 +27,8 @@
     })
   ];
 
-  services.emacs = {
-    enable = false;
-    package = pkgs.my-emacs;
-  };
+  # services.emacs = {
+  #   enable = false;
+  #   package = pkgs.my-emacs;
+  # };
 }
