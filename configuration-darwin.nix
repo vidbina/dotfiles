@@ -39,7 +39,7 @@
     vim
     xxd
     yq
-    devenv # Modern declarative approach via nixpkgs
+    devenv
 
     devbox
     pass
