@@ -58,8 +58,8 @@
   ] else [
     # Intel-only packages
     # Darwin packages for Intel-only
-    # gdb # temporarily disabled due to SDK issues
-    # ghidra-bin # temporarily disabled due to SDK issues
+    gdb
+    ghidra-bin
   ]);
 
   environment.interactiveShellInit = lib.strings.concatStrings [
