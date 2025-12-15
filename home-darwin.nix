@@ -15,13 +15,9 @@
     pkgs.gh
     alacritty
     pkgs.wezterm
-    pkgs.claude-code
-    pkgs.gemini-cli
-    pkgs.codex
-    pkgs.ollama
     pkgs.xxd
     pkgs.hexyl
-    # pkgs.ghidra-bin # temporarily disabled due to SDK issues
+    pkgs.ghidra-bin
     pkgs.graphviz
     pkgs.shellcheck
     pkgs.shfmt
@@ -42,6 +38,10 @@
     pkgs.yq
     pkgs.sqlite-interactive
     pkgs.redis
+    pkgs.claude-code
+    pkgs.gemini-cli
+    pkgs.codex
+    pkgs.ollama
 
     # home-darwin-packages
     pywal
