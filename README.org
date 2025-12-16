@@ -1918,7 +1918,16 @@ programs.vscode = {
 
 ***** COMMENT VsCode Extensions
 
-As per <2025-12-16 Tue>, we're commenting these out due to build issues.
+As per <2025-12-16 Tue>, we're disabling Nix-managed VSCode extensions due to persistent build issues.
+
+**Issues encountered:**
+- Unfree license problems with Claude Code/ChatGPT extensions (despite proper allowUnfree configuration)
+- ZIP unpacking failures with multiple extensions (be5invis.toml, bierner.github-markdown-preview)
+- Build failures persist even with updated nix-vscode-extensions flake and proper nixpkgs follows configuration
+- The nix-vscode-extensions flake has inherent build reliability issues
+
+**Decision:** Install VSCode extensions manually through the marketplace for better reliability and automatic updates.
+VSCode program itself still managed declaratively with settings and keybindings.
 
 We get our vscode extensions from the nix-community nix-vscode-extensions package which we alias to the reference =my-vscode-extensions= for internal use:
 
