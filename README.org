@@ -1847,14 +1847,11 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
 ];
 #+end_src
 
-**** Allow some nixpkgs overlays inn ninx-darwin
+**** Allow some nixpkgs overlays inn nix-darwin
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 nixpkgs.overlays = [
-  (self: super: {
-    # nix-darwin overlays
-    <<darwin-overlays>>
-  })
+  <<darwin-overlays>>
 ];
 #+end_src
 
@@ -1906,7 +1903,7 @@ Our vscode configuration declaratively manages soem extensions, keybindings and 
 programs.vscode = {
   enable = true;
   profiles.default = {
-    extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
+    extensions = with pkgs.vscode-marketplace; [
       <<vscode-extensions>>
     ];
     keybindings = [
@@ -1919,12 +1916,14 @@ programs.vscode = {
 };
 #+end_src
 
-***** VsCode Extensions
+***** COMMENT VsCode Extensions
+
+As per <2025-12-16 Tue>, we're commenting these out due to build issues.
 
 We get our vscode extensions from the nix-community nix-vscode-extensions package which we alias to the reference =my-vscode-extensions= for internal use:
 
 #+begin_src nix :noweb-ref darwin-overlays
-my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.stdenv.hostPlatform.system};
+inputs.vscode-extensions.overlays.default
 #+end_src
 
 The extensions that we are interested in are the following:
@@ -3349,7 +3348,7 @@ wmgraphviz-vim
 
 We should define Nvim language plugins in the section where we install language related tooling, like language servers, etc.
 
-*** Neovim LSP Config
+*** COMMENT Neovim LSP Config
 
 Install the [[https://github.com/neovim/nvim-lspconfig][nvim-lspconfig]] package for the LSP client configurations for various languages:
 

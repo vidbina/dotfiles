@@ -267,10 +267,7 @@
   ];
 
   nixpkgs.overlays = [
-    (self: super: {
-      # nix-darwin overlays
-      my-vscode-extensions = inputs.vscode-extensions.extensions.${pkgs.stdenv.hostPlatform.system};
-    })
+
   ];
 
   environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];

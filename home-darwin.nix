@@ -120,32 +120,9 @@
   programs.vscode = {
     enable = true;
     profiles.default = {
-      # extensions = with pkgs.my-vscode-extensions.vscode-marketplace; [
-      #   bbenoist.nix
-      #   be5invis.toml
-      #   elmtooling.elm-ls-vscode # depends on hbenl.vscode-test-explorer
-      #   hbenl.vscode-test-explorer
-      #   ms-vscode.test-adapter-converter
-      #   hediet.vscode-drawio
-      #   mkhl.direnv
-      #   ms-azuretools.vscode-docker
-      #   ms-playwright.playwright
-      #   ms-python.python
-      #   tomoki1207.pdf
-      #   vscodevim.vim
-      #   opentofu.vscode-opentofu
-      #   dart-code.flutter
-      #   bierner.github-markdown-preview
-      #   bierner.markdown-checkbox
-      #   bierner.markdown-yaml-preamble
-      #   bierner.markdown-emoji
-      #   bierner.markdown-mermaid
-      #   bierner.markdown-footnotes
-      #   bierner.markdown-preview-github-styles
-      #   gruntfuggly.todo-tree
-      #   anthropic.claude-code
-      #   openai.chatgpt
-      # ];
+      extensions = with pkgs.vscode-marketplace; [
+
+      ];
       keybindings = [
         {
           "key" = "ctrl+tab";
@@ -157,8 +134,6 @@
         }
       ];
       userSettings = {
-        # https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview
-        "markdown.previewFrontMatter" = "show";
         "editor.cursorSurroundingLines" = 8;
 
         # https://code.visualstudio.com/docs/editor/extension-marketplace#_can-i-stop-vs-code-from-providing-extension-recommendations
