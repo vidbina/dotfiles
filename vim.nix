@@ -48,6 +48,7 @@
       set nofixeol
     '';
     extraLuaConfig = ''
+      -- Tangled from README.org
       require'nvim-treesitter.configs'.setup{
         highlight = {
           enable = true,

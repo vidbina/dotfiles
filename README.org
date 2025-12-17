@@ -3246,7 +3246,6 @@ set nofixeol
 - define Plug extensions, which are only relevant for the manual configuration scenario and not when you are using Nix to manage *vim
   #+begin_src vimrc :noweb-ref neovim-plugged
 call plug#begin("~/.local/share/nvim/plugged")
-  Plug 'neovim/nvim-lspconfig'
   Plug 'airblade/vim-gitgutter'
   Plug 'aklt/plantuml-syntax'
   Plug 'dense-analysis/ale'
@@ -3316,6 +3315,7 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
       <<neovim-config>>
     '';
     extraLuaConfig = ''
+      -- Tangled from README.org
       <<neovim-lua-config>>
     '';
   };
