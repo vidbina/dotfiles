@@ -47,8 +47,6 @@
     pywal
   ];
 
-  # NOTE: Copied from dev.nix
-  # TODO: Figure out how to re-use dev.nix config for Darwin and Linux
   home.file = {
     ".config/git/ignore".source = ./git/ignore;
     ".wezterm.lua".source = ./wezterm/wezterm.lua;

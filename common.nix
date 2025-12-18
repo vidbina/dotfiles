@@ -12,7 +12,6 @@ let
 in
 {
   imports = [
-    ./dev.nix
     ./vim.nix
   ]
   ++ (pathIfExists ./personal.nix);

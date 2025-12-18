@@ -34,7 +34,6 @@ digraph G {
   node_common_nix [shape=box, label="common.nix"]
   node_shell_nix [shape=box, label="shell.nix"]
   node_x_nix [shape=box, label="x.nix"]
-  node_dev_nix [shape=box, label="dev.nix"]
   node_mail_nix [shape=box, label="mail.nix"]
   node_vim_nix [shape=box, label="vim.nix"]
   node_multimedia_nix [shape=box, label="multimedia.nix"]
@@ -54,7 +53,6 @@ digraph G {
   node_this -> node_common_nix [label="tangles to"]
   node_this -> node_shell_nix [label="tangles to"]
   node_this -> node_x_nix [label="tangles to"]
-  node_this -> node_dev_nix [label="tangles to"]
   node_this -> node_mail_nix [label="tangles to"]
   node_this -> node_vim_nix [label="tangles to"]
   node_this -> node_multimedia_nix [label="tangles to"]
@@ -66,7 +64,6 @@ digraph G {
   node_this -> node_hammerspoon_init_lua [label="tangles to"]
   node_this -> node_configuration_darwin_nix [label="tangles to"]
 
-  node_dev_nix -> node_common_nix [label="imported by"]
   node_vim_nix -> node_common_nix [label="imported by"]
 
   node_vim_nix -> node_home_darwin_nix [label="imported by"]
@@ -266,8 +263,6 @@ home.packages = with pkgs; [
   <<home-darwin-packages>>
 ];
 
-# NOTE: Copied from dev.nix
-# TODO: Figure out how to re-use dev.nix config for Darwin and Linux
 home.file = {
   <<home-darwin-files>>
 };
@@ -1857,37 +1852,6 @@ nixpkgs.overlays = [
 
 ** Developer Tooling
 
-We will be tangling this literate configuration into the needed dev.nix file.
-
-#+begin_src nix :noweb-ref common-imports
-./dev.nix
-#+end_src
-
-For starters, we stub the general structure of the nix file and define the =<<nix-devtools>>= reference for us to direct our tool-specific configs into.
-
-#+begin_src nix :noweb yes :tangle dev.nix
-# Tangled from README.org
-# Please modify by editing README.org and re-tangling to generate this nix file.
-{ config, pkgs, ... }:
-
-{
-  <<nix-devtools>>
-
-  home.packages = [
-    <<dev-packages>>
-  ] ++
-  (if pkgs.stdenv.isLinux then [
-    <<dev-packages-linux>>
-  ] else [ ]);
-}
-#+end_src
-
-As an example, you can observe how we direct some comments into the previously defined reference. In the following sections, we will use this mechanism to tangle (basically "write") into parts of the dev.nix file.
-
-#+begin_src nix :noweb-ref nix-devtools
-# Tangling individual dev tools through nix-devtools noweb reference
-#+end_src
-
 *** Editors
 **** VsCode
 
@@ -2120,8 +2084,6 @@ pkgs.jujutsu
 
 **** Git
 
-We tangle the git-related configuration into [[file:dev.nix]] but if you want to manually set things up, check out the [[manual-git][manual git instructions]].
-
 :MANUAL:
 <<manual-git>>
 Configure your gitconfig by symlinking the [[file:gitconfig]] file in this repository into the home directory.
@@ -2319,15 +2281,12 @@ We install it by listing it in the nix-darwin config file:
 devbox
 #+end_src
 
-# but eventually we want to use the dev.nix file and reuse it between platforms (not clear that this design goal should be prioritized since repetition is fine as long as we centrally manage this config by tangling it from this README where repetition is minimal 🤷🏿‍♂️).
 
 # #+begin_src nix :noweb-ref dev-packages
 # pkgs.devbox
 # #+end_src
 
 ***** TODO Devenv
-
-Find out if the devenv install is moveable. The env.nix file does not have the =inputs= variable as an input so we'll either have to pass it along or find a different way to bring these packages into scope within dev.nix.
 
 See [[*Packages][Packages]] for the current installation of devenv.
 
@@ -2446,8 +2405,6 @@ On <2024-12-26 Thu> the App Store app only installs 1Password version 7 on my be
 
 Use [[https://www.nushell.sh/][NuShell]] for a more data-centric terminal experience, where it should be easier to query data in the shell.
 
-We still need to clean up my config to reuse the old dev.nix:
-
 #+begin_src nix :noweb-ref dev-packages
 pkgs.nushell
 #+end_src
@@ -2473,8 +2430,6 @@ alacritty
 #+end_src
 
 ****** Install through Nix
-
-We still need to clean up my config to reuse the old dev.nix:
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.wezterm
