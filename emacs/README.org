@@ -2392,7 +2392,7 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
    (prose-todo red-intense)))
 #+end_src
 
-*** Theme Magic
+*** COMMENT Theme Magic
 
 The [[https://github.com/jcaw/theme-magic][theme-magic]] package uses [[https://github.com/dylanaraps/pywal][pywal]] to update terminal emulator color schemes or themes. Using theme-magic allows one to syncs the terminal themes to the current Emacs theme.
 
@@ -8371,7 +8371,7 @@ javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(loca
 **** Python
 
 #+begin_src nix :noweb-ref nix-packages
-python312
+python3
 #+end_src
 
 **** ripgrep

@@ -21,7 +21,7 @@ in
     my-emacs
     mu
 
-    python312
+    python3
 
     libgccjit
 
