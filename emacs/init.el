@@ -889,7 +889,7 @@
 ;; Configure server socket for daemon mode on macOS
 ;; MUST be set before server starts
 (when (eq system-type 'darwin)
-  (let ((socket-path (format "/tmp/emacs-%d/server" (user-uid))))
+  (let ((socket-path (format "/tmp/my-emacs/socket")))
     (message "🔌 Setup socket on darwin at %s" socket-path)
     (setq server-socket-dir socket-path)
     ;; Create directory if it doesn't exist

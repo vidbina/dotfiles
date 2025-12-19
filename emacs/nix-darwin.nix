@@ -50,5 +50,6 @@
       config.environment.systemPath
     ];
   };
+  environment.variables.EMACS_SOCKET_NAME = "/tmp/my-emacs/socket/server";
 
 }
