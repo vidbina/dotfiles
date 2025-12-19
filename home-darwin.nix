@@ -136,6 +136,7 @@
       enable = true;
 
       lfs.enable = true;
+      signing.format = "ssh";
 
       settings = {
         alias = {

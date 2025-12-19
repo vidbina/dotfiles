@@ -2137,9 +2137,13 @@ sendemail = {
 };
 #+end_src
 
-***** TODO Explore =signing.format= setting for git
+***** WIP Explore =signing.format= setting for git
 
-https://nix-community.github.io/home-manager/options.xhtml#opt-programs.git.signing.format
+Observe the [[https://nix-community.github.io/home-manager/options.xhtml#opt-programs.git.signing.format][=git.signing.format=]] configuration options and note that with our current use of 1Password ssh signing, we should likely default to using ssh keys to sign commits. Hopefully this fixes the issue where git logs didn't reflect signing state of commits correctly.
+
+#+begin_src nix :noweb-ref home-darwin-programs-git
+signing.format = "ssh";
+#+end_src
 
 ***** Colors in Git
 
