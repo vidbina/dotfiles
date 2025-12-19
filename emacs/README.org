@@ -7961,13 +7961,17 @@ in
 }
 #+end_src
 
+Spotlight doesn't see Emacs even if it is installed as a service, so we have to install it regularly as a system package:
+
+#+begin_src nix :noweb-ref nix-packages
+my-emacs
+#+end_src
+
 **** TODO Cleanup config by specializing nix-packages in listing above and fixing emacs/default.nix for Linux
 
 Currently, I'm sloppily tangling package listing into the ref =nix-packages= which will break in Linux if I don't have a Linux-specific =my-emacs= overlay defined. In principle, the commenting of the following section, should not affect a Linux-specific config and now we tangle into both file:emacs/default.nix and file:emacs/nix-darwin.nix.x
 
-**** TODO Install Emacs (launchd) service through nix-darwin and package through (home-manager)
-
-WARNING: We're the launchd service temporarily because it's hogging the resources of my Macbook Pro Intel.
+**** TODO COMMENT Install Emacs (launchd) service through nix-darwin and package through (home-manager)
 
 In order to avoid having to figure out the mess with activation scripts, we can install the Emacs service through nix-darwin such that we have the long-running daemon available and simultaneously install the same Emacs as a home-manager package, such that we have the Spotlight-visible reference created for us (in the ~/Applications/Home Manager Apps directory). It is important to install the exact same version of Emacs in nix-darwin as well as home-manager to avoid version incompatibility issues.
 
@@ -7978,10 +7982,31 @@ services.emacs = {
 };
 #+end_src
 
-Because Spotlight doesn't see Emacs if it is only installed as a service, we also list it as a regularly-installed system package.
+<2025-12-19 Fri> Note that we disabled the service again because it keeps restarting with the following Console output for launchd.log.
 
-#+begin_src nix :noweb-ref nix-packages
-my-emacs
+#+begin_src log
+2025-12-19 14:01:08.795549 (gui/501/org.nixos.emacs [88609]) <Notice>: exited due to exit(255), ran for 25577ms
+2025-12-19 14:01:08.795571 (gui/501/org.nixos.emacs [88609]) <Notice>: service state: exited
+2025-12-19 14:01:08.795578 (gui/501/org.nixos.emacs [88609]) <Notice>: internal event: EXITED, code = 0
+2025-12-19 14:01:08.795583 (gui/501 [100002]) <Notice>: service inactive: org.nixos.emacs
+2025-12-19 14:01:08.795588 (gui/501/org.nixos.emacs [88609]) <Notice>: service state: not running
+2025-12-19 14:01:08.795593 (gui/501/org.nixos.emacs) <Notice>: internal event: WILL_SPAWN, code = 0
+2025-12-19 14:01:08.795630 (gui/501/org.nixos.emacs) <Notice>: service state: spawn scheduled
+2025-12-19 14:01:08.795633 (gui/501/org.nixos.emacs) <Notice>: service state: spawning
+2025-12-19 14:01:08.795667 (gui/501/org.nixos.emacs) <Notice>: launching: inefficient
+2025-12-19 14:01:08.796652 (gui/501/org.nixos.emacs [88688]) <Notice>: xpcproxy spawned with pid 88688
+2025-12-19 14:01:08.796682 (gui/501/org.nixos.emacs [88688]) <Notice>: internal event: SPAWNED, code = 0
+2025-12-19 14:01:08.796687 (gui/501/org.nixos.emacs [88688]) <Notice>: service state: xpcproxy
+2025-12-19 14:01:08.796706 (gui/501/org.nixos.emacs [88688]) <Notice>: internal event: SOURCE_ATTACH, code = 0
+2025-12-19 14:01:08.806396 (gui/501/org.nixos.emacs [88688]) <Notice>: service state: running
+2025-12-19 14:01:08.806408 (gui/501/org.nixos.emacs [88688]) <Notice>: internal event: INIT, code = 0
+2025-12-19 14:01:08.806429 (gui/501/org.nixos.emacs [88688]) <Notice>: Successfully spawned emacs[88688] because inefficient
+2025-12-19 14:01:08.808792 (pid/88688 [emacs]) <Notice>: uncorking exec source upfront
+2025-12-19 14:01:08.808815 (pid/88688 [emacs]) <Notice>: created
+2025-12-19 14:01:08.810017 (pid/88688 [emacs]) <Notice>: domain exec event
+2025-12-19 14:01:08.810025 (pid/88688 [emacs]) <Notice>: shutting down
+2025-12-19 14:01:08.810031 (pid/88688 [emacs]) <Notice>: cleaning up
+2025-12-19 14:01:08.810036 (system) <Notice>: removing child: pid/88688
 #+end_src
 
 **** COMMENT Install Emacs plus
