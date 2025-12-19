@@ -446,14 +446,14 @@ $$f(g(x))$$
 (defun vidbina/latex-formula-zoom-decrease ()
   (interactive)
   (if (eq 0 vidbina/latex-formula-zoom-step)
-      (error "🔍 Can not zoom LaTeX with factor zero")
+      (warn "🔍 Can not zoom LaTeX with factor zero")
     (vidbina/latex-formula-zoom (/ vidbina/latex-formula-zoom-step))
     ))
 
 (defun vidbina/latex-formula-zoom-reset (scale)
   (interactive (list (read-number "Reset to which scale? " 1 1)))
   (if (eq 0 vidbina/latex-formula-zoom-step)
-      (error "🔍 Can not zoom LaTeX with factor zero")
+      (warn "🔍 Can not zoom LaTeX with factor zero")
     (setq org-format-latex-options
           (plist-put org-format-latex-options :scale scale))
     ))
@@ -578,7 +578,7 @@ It's unclear if the use of =find-file= is a really bad idea. I've considered tha
                       (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
                       (print (format "🧬 Async Org-Babel: tangled"))
                       buffer-file-name)
-                  (error "🧬 Async Org-Babel: not visiting a file")))
+                  (warn "🧬 Async Org-Babel: not visiting a file")))
              `(lambda (result)
                 (message "🧬 Async Org-Babel: completed [%s]" result)))
 #+end_src
@@ -1808,7 +1808,7 @@ block."
                       (buffer-substring-no-properties (point-min) (point-max)))
                      result)
                 (unless (fboundp cmd)
-                  (error "No org-babel-execute function for %s!" lang))
+                  (warn "No org-babel-execute function for %s!" lang))
                 (message "executing %s code block%s..."
                          (capitalize lang)
                          (let ((name (nth 4 info)))
@@ -5361,7 +5361,7 @@ Here is an example text that we can just copy
              (let ((start-pos (region-beginning))
                    (end-pos (region-end)))
                (copy-region-as-kill start-pos end-pos)))
-    (error "Not in code-block")))
+    (warn "Not in code-block")))
 #+end_src
 
 **** WIP Open process buffer below active buffer

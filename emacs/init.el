@@ -77,7 +77,7 @@
                           (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
                           (print (format "🧬 Async Org-Babel: tangled"))
                           buffer-file-name)
-                      (error "🧬 Async Org-Babel: not visiting a file")))
+                      (warn "🧬 Async Org-Babel: not visiting a file")))
                  `(lambda (result)
                     (message "🧬 Async Org-Babel: completed [%s]" result))))
   ;; https://orgmode.org/manual/Structure-Templates.html
