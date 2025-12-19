@@ -1,5 +1,5 @@
 # Tangled from README.org
-{ pkgs, ... }:
+{ config, pkgs, username, ... }:
 
 {
   environment.systemPackages = with pkgs; [
@@ -27,5 +27,27 @@
     })
   ];
 
+  launchd.user.agents.my-emacs = {
+    serviceConfig = {
+      ProgramArguments = [
+        "${pkgs.my-emacs}/bin/emacs"
+        "--fg-daemon"
+      ];
+
+      # Enable logging for debugging
+      StandardOutPath = "/Users/${username}/Library/Logs/my-emacs.stdout.log";
+      StandardErrorPath = "/Users/${username}/Library/Logs/my-emacs.stderr.log";
+
+      # Keep daemon running
+      RunAtLoad = true;
+      KeepAlive = false;
+      ProcessType = "Interactive";
+      # EnrivonmentVariables = {}
+    };
+
+    path = [
+      config.environment.systemPath
+    ];
+  };
 
 }

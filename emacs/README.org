@@ -7967,7 +7967,7 @@ services.emacs = {
 
 #+begin_src nix :noweb yes :tangle nix-darwin.nix
 # Tangled from README.org
-{ pkgs, ... }:
+{ config, pkgs, username, ... }:
 
 {
   environment.systemPackages = with pkgs; [
@@ -7989,6 +7989,34 @@ Spotlight doesn't see Emacs even if it is installed as a service, so we have to 
 my-emacs
 #+end_src
 
+**** Custom Emacs service
+
+For debuggability's sake, I am defining my custome Emacs launchd agent that logs to a known path such that we can figure out what is going on when things break.
+
+#+begin_src nix :noweb-ref nix-darwin
+launchd.user.agents.my-emacs = {
+  serviceConfig = {
+    ProgramArguments = [
+      "${pkgs.my-emacs}/bin/emacs"
+      "--fg-daemon"
+    ];
+
+    # Enable logging for debugging
+    StandardOutPath = "/Users/${username}/Library/Logs/my-emacs.stdout.log";
+    StandardErrorPath = "/Users/${username}/Library/Logs/my-emacs.stderr.log";
+
+    # Keep daemon running
+    RunAtLoad = true;
+    KeepAlive = false;
+    ProcessType = "Interactive";
+    # EnrivonmentVariables = {}
+  };
+
+  path = [
+    config.environment.systemPath
+  ];
+};
+#+end_src
 **** COMMENT Darwin (macOS) launchd Emacs service
 
 #+begin_quote
