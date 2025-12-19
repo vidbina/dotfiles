@@ -240,6 +240,10 @@ Navigate to the "Full Disk Access" setting and enable access for the Terminal.
   ];
 
   <<home-darwin>>
+
+  programs = {
+    <<home-darwin-programs>>
+  };
 }
 #+end_src
 
@@ -258,36 +262,13 @@ home.stateVersion = "23.05";
 home.packages = with pkgs; [
   # dev-packages
   <<dev-packages>>
-  <<dev-packages-darwin>>
   # home-darwin-packages
   <<home-darwin-packages>>
 ];
 
 home.file = {
-  <<home-darwin-files>>
+  <<home-darwin-home-file>>
 };
-
-# No corresponding option in nix-darwin, so we config this with hm
-programs.git = {
-  enable = true;
-  settings = {
-    <<nix-devtools-git>>
-  };
-};
-
-# NOTE: Copied from common.nix
-programs.direnv = {
-  enable = true;
-  nix-direnv = {
-    enable = true;
-  };
-};
-
-# NOTE: Enabling zsh also in hm in order to bring direnv bootstrap into scope
-# See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
-programs.zsh.enable = true;
-
-<<home-darwin-config>>
 #+end_src
 
 ***** Sudo with TouchID
@@ -1320,15 +1301,6 @@ ln -s ${PATH_TO_DOTFILE}/redshift ${HOME}/.config/redshift
 ln -s ${PATH_TO_DOTFILE}/ghorg ${HOME}/.config/ghorg
 #+end_src
 
-*** Asciinema
-:PROPERTIES:
-:CUSTOM_ID: asciinema
-:END:
-
-#+begin_src shell
-ln -s ${PATH_TO_DOTFILE}/asciinema ${HOME}/.config/asciinema
-#+end_src
-
 *** TODO Compton
 :PROPERTIES:
 :CUSTOM_ID: todo-compton
@@ -1402,7 +1374,7 @@ ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 
 For developer tooling, we define our =userName= and =userEmail= which we will rely on in configuring git, for example.
 
-#+begin_src nix :noweb yes :noweb-ref nix-devtools-git
+#+begin_src nix :noweb yes :noweb-ref home-darwin-git
 user.name = "David Asabina";
 user.email = "vid@bina.me";
 #+end_src
@@ -1507,14 +1479,13 @@ All packages that are architecture agnostic are installed in all of our macOS ma
 We want to move this block of package definitions into the appropriate sections such that all config details are localised to the tool-specific section in our config. This block here, is a hack because I couldn't figure out how to use the common.nix in my nix-darwin setup, so we're definitely not DRY in this configuration setup.
 #+end_quote
 
-#+begin_src nix :noweb-ref nix-darwin-packages-common
+#+begin_src nix :noweb-ref dev-packages
 checkmake
 gh
 gleam
 gnumake
 gnupg
 gotop
-hexyl
 html-tidy
 htop
 httpie
@@ -1527,15 +1498,11 @@ pqrs
 nixpkgs-fmt
 redis
 shell-gpt
-shellcheck
-shfmt
 sqlite-interactive
 tree
 tree-sitter
 vim
-xxd
 yq
-devenv
 #+end_src
 
 Intel-only packages are listed separately such that we can use them on the macOS machine that still has a x86-based Intel chip but avoid trying to install them on ARM-based Apple machines.
@@ -1543,7 +1510,6 @@ Intel-only packages are listed separately such that we can use them on the macOS
 #+begin_src nix :noweb-ref nix-darwin-packages-intel
 # Darwin packages for Intel-only
 gdb
-ghidra-bin
 #+end_src
 
 #+begin_quote
@@ -1850,10 +1816,8 @@ nixpkgs.overlays = [
 ];
 #+end_src
 
-** Developer Tooling
-
-*** Editors
-**** VsCode
+** Editors
+*** VsCode
 
 Visual Studio Code is unfree software and needs to be added to the list of unfree packages that we want to tolerate:
 
@@ -1863,7 +1827,7 @@ Visual Studio Code is unfree software and needs to be added to the list of unfre
 
 Our vscode configuration declaratively manages soem extensions, keybindings and user settings:
 
-#+begin_src nix :noweb yes :noweb-ref home-darwin-config
+#+begin_src nix :noweb yes :noweb-ref home-darwin
 programs.vscode = {
   enable = true;
   profiles.default = {
@@ -1880,7 +1844,7 @@ programs.vscode = {
 };
 #+end_src
 
-***** COMMENT VsCode Extensions
+**** COMMENT VsCode Extensions
 
 As per <2025-12-16 Tue>, we're disabling Nix-managed VSCode extensions due to persistent build issues.
 
@@ -1918,7 +1882,7 @@ opentofu.vscode-opentofu
 dart-code.flutter
 #+end_src
 
-****** COMMENT GitHub CoPilot in VSCode
+***** COMMENT GitHub CoPilot in VSCode
 
 #+begin_src nix :noweb-ref vscode-extensions
 github.copilot
@@ -1929,7 +1893,7 @@ github.copilot-chat
 "vscode-extension-github-copilot"
 #+end_src
 
-****** COMMENT Remote Containers in VSCode
+***** COMMENT Remote Containers in VSCode
 
 #+begin_src nix :noweb-ref vscode-extensions
 ms-vscode-remote.remote-containers
@@ -1939,7 +1903,7 @@ ms-vscode-remote.remote-containers
 "vscode-extension-ms-vscode-remote-remote-containers"
 #+end_src
 
-****** Markdown Preview in VSCode
+***** Markdown Preview in VSCode
 
 See [[https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview][Matt Bierner's Markdown extensions]] for useful upgrades to VsCodes Markdown Preview capabilities. Just open the regular markdown preview through the command palette (cmd+shift+p on MacOS).
 
@@ -1962,7 +1926,7 @@ and enabling front-matter preview rendering in the config:
 "markdown.previewFrontMatter" = "show";
 #+end_src
 
-****** COMMENT Markdown Preview Enhanced in VSCode
+***** COMMENT Markdown Preview Enhanced in VSCode
 
 See [[https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced][Yiyi Wang's Markdown Preview Enchanced]] to preview markdown with more batteries included. Use the command palette and search for *Markdown Preview Enhanced* commands. I have disabled this because it doesn't do dark-mode well and that was more disruptive than not having callouts (as is the shortcoming of the standard previewer even with the Bierner extensions).
 
@@ -1970,7 +1934,7 @@ See [[https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-pre
 shd101wyy.markdown-preview-enhanced
 #+end_src
 
-****** COMMENT Org-mode in VsCode
+***** COMMENT Org-mode in VsCode
 
 On <2025-02-16 Sun>, I'm trying to rebuild my config and finding that this extension is no longer available through [[https://github.com/nix-community/nix-vscode-extensions?tab=readme-ov-file][vscode-extensions]], so I'm commenting it out for now.
 
@@ -1978,7 +1942,7 @@ On <2025-02-16 Sun>, I'm trying to rebuild my config and finding that this exten
 vscode-org-mode.org-mode
 #+end_src
 
-****** Show tree of TODO and FIXME comment
+***** Show tree of TODO and FIXME comment
 
 Outline comment tags like =TODO= and =FIXME= in a todo tree for quick access.
 
@@ -1986,7 +1950,7 @@ Outline comment tags like =TODO= and =FIXME= in a todo tree for quick access.
 gruntfuggly.todo-tree
 #+end_src
 
-***** VsCode Keybindings
+**** VsCode Keybindings
 
 The keybindings that we want are as follows:
 
@@ -2001,7 +1965,7 @@ The keybindings that we want are as follows:
 }
 #+end_src
 
-***** VsCode Settings
+**** VsCode Settings
 
 Define parts of the VsCode-specific fields are defined in the JSON format as follows:
 
@@ -2020,7 +1984,7 @@ Define parts of the VsCode-specific fields are defined in the JSON format as fol
 "window.autoDetectColorScheme" = true;
 #+end_src
 
-****** Colored guides in VSCode
+***** Colored guides in VSCode
 
 #+begin_src nix :noweb-ref vscode-settings
 # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
@@ -2028,7 +1992,7 @@ Define parts of the VsCode-specific fields are defined in the JSON format as fol
 "editor.guides.highlightActiveIndentation" = true;
 #+end_src
 
-****** Theme configuration in VSCode
+***** Theme configuration in VSCode
 
 #+begin_src nix :noweb-ref vscode-settings
 "workbench.colorTheme" = "Default High Contrast Light";
@@ -2036,7 +2000,7 @@ Define parts of the VsCode-specific fields are defined in the JSON format as fol
 "workbench.preferredLightColorTheme" = "Default High Contrast Light";
 #+end_src
 
-****** Disable single click previews
+***** Disable single click previews
 
 Pressing a file with a single click to get a preview tab is really annoying because another click may just replace the previous /preview/ file. I'd much rather just double-click to open files in their dedicated tabs and then do housekeeping later. Makes things a bit more explicit. See [[https://stackoverflow.com/a/48559054][StackOverflow]] for more.
 
@@ -2044,36 +2008,36 @@ Pressing a file with a single click to get a preview tab is really annoying beca
 "workbench.list.openMode" = "doubleClick";
 #+end_src
 
-**** Kakoune
+*** COMMENT Kakoune
 
 #+begin_src nix :noweb-ref dev-packages
-pkgs.kakoune
+kakoune
 #+end_src
 
-**** Zed
+*** Zed
 
 [[https://zed.dev/][Zed]] is shaping up to be one of the coolest new editors. An IDE that was designed with speed in mind and should be blazingly fast with decent LLM features, multiplayer support and coming from the makers of Atom (from which they learned key lessons about how to not build and editor) and Treesitter. At least, that's what I get from their website and videos.
 
-***** Install Zed from a homebrew cask
+**** Install Zed from a homebrew cask
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "zed"
 #+end_src
 
-***** COMMENT Install Zed from Nixpkgs
+**** COMMENT Install Zed from Nixpkgs
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.zed-editor
 #+end_src
 
-**** Cursor
+*** Cursor
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "cursor"
 #+end_src
 
-*** Version Control
-**** Jujutsu
+** Version Control
+*** Jujutsu
 
 Just watched https://www.youtube.com/watch?v=2otjrTzRfVk&t=534s and am trying to get on the jj bandwagon to taste its benefits:
 
@@ -2082,7 +2046,7 @@ pkgs.jujutsu
 #+end_src
 
 
-**** Git
+*** Git
 
 :MANUAL:
 <<manual-git>>
@@ -2099,64 +2063,61 @@ ln -s ./git/ignore ~/.config/git/ignore
 #+end_src
 :END:
 
-#+begin_src nix :noweb yes :noweb-ref nix-devtools
-programs.git = {
+#+begin_src nix :noweb yes :noweb-ref home-darwin-programs
+git = {
   enable = true;
-  <<nix-devtools-git>>
+
+  <<home-darwin-programs-git>>
+
+  settings = {
+    <<home-darwin-programs-git-settings>>
+  };
 };
 #+end_src
 
-#+begin_src nix :noweb-ref home-darwin-files
+**** Gitignore
+
+***** COMMENT Copied gitignore
+
+#+begin_src nix :noweb-ref home-darwin-home-file
 ".config/git/ignore".source = ./git/ignore;
-#+end_src
-
-***** COMMENT Graphite
-
-Graphite is a new class of git-porcelain with a focus on [[https://graphite.dev/guides/understanding-and-managing-stacked-branches-in-git][git stacking]].
-
-See the [[https://app.graphite.dev/core/get-started/][Getting Started]] page for instruction on how to set things up.
-
-#+begin_src nix :noweb-ref homebrew-brews :noweb yes
-"withgraphite/tap/graphite"
 #+end_src
 
 ***** Global Gitignore
 
-For convenience we define [[file:git/ignore]] which we want to automatically want to honor in every repo. Based on the instructions in =man gitignore= we stub the =XDG_HOME_CONFIG/.config/git/ignore= and the =~/.gitignore= files to reflect the content of [[file:git/ignore]].
+For convenience we define [[file:git/ignore]] which we want to automatically honor in every repo. Based on the instructions in =man gitignore= we stub the =XDG_HOME_CONFIG/.config/git/ignore= and the =~/.gitignore= files to reflect the content of [[file:git/ignore]].
 
-#+begin_src nix :noweb-ref nix-devtools
+#+begin_src nix :noweb-ref home-darwin-home-file
 # Set global gitignore
-home.file = {
-  ".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
-};
+".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
 #+end_src
 
 #+begin_comment
 Note that the =programs.git.ignores= setting in home manager can not coexist with the =home.file.".config/git/ignore"= home-manager option. I'm opting for the =home-file= approach since this simplifies updates to merely copying the output of the [[https://www.toptal.com/developers/gitignore][Toptal gitignore generator]]. 😉
 #+end_comment
 
-***** Git LFS
+**** Git LFS
 
 We want LFS enabled.
 
-#+begin_src nix :noweb-ref nix-devtools-git
+#+begin_src nix :noweb-ref home-darwin-programs-git
 lfs.enable = true;
 #+end_src
 
-***** Git Aliases
+**** Git Aliases
 
-#+begin_src nix :noweb-ref nix-devtools-git
-aliases = {
+#+begin_src nix :noweb-ref home-darwin-programs-git-settings
+alias = {
   wdiff = "diff --word-diff --word-diff-regex='\\w+'";
   glog = "log --oneline --graph --all --decorate";
 };
 #+end_src
 
-***** Git Extra Configuration
+**** Git Extra Configuration
 
 Let's opt for naming our default branch "main", using nvim as our editor, using gpg2 are our GPG tool and setting git up to [[https://git-scm.com/docs/git-send-email][send patches by mail]].
 
-#+begin_src nix :noweb yes :noweb-ref nix-devtools-git
+#+begin_src nix :noweb yes :noweb-ref home-darwin-programs-git-settings
 init = {
   defaultBranch = "main";
 };
@@ -2174,15 +2135,17 @@ sendemail = {
   smtpServer = "msmtp";
   smtpServerOption = "-a vidbina";
 };
-
-<<nix-devtools-git-conf>>
 #+end_src
 
-****** Colors in Git
+***** TODO Explore =signing.format= setting for git
+
+https://nix-community.github.io/home-manager/options.xhtml#opt-programs.git.signing.format
+
+***** Colors in Git
 
 For readability's sake, we set the colors that we display git diffs, greps and status payloads in.
 
-#+begin_src nix :noweb-ref nix-devtools-git-conf
+#+begin_src nix :noweb-ref home-darwin-programs-git-settings
 color = {
   ui = true;
   diff = {
@@ -2206,9 +2169,9 @@ color = {
 
 Since we are using pywal to sync terminal themes with Emacs, we set some baseline colors in git to harmonise these.
 
-***** TODO COMMENT Diff: Look into delta or difftastic
+**** TODO COMMENT Diff: Look into delta or difftastic
 
-#+begin_src nix :noweb-ref nix-devtools-git
+#+begin_src nix :noweb-ref home-darwin-programs-git
 delta = {
   enable = true;
 };
@@ -2216,29 +2179,29 @@ delta = {
 
 [2024-02-19 Mon] Note that difftastic use in a devenv resulted in outputs where some code keywords were highlighted in the same color as the terminal background and thus rendered visually invisible. Use of difftastic would likely require some customization of the used colorscheme in order for this to work.
 
-#+begin_src nix :noweb-ref nix-devtools-git
+#+begin_src nix :noweb-ref home-darwin-programs-git
 difftastic = {
   enable = true;
 };
 #+end_src
 
-***** GitHub
+**** GitHub
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.gh
 #+end_src
 
-*** Utils
+** Utils
 
-**** Android
+*** Android
 
-***** Android File Transfer
+**** Android File Transfer
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "android-file-transfer"
 #+end_src
 
-**** Coreutils
+*** Coreutils
 
 Sometimes we need GNU CLI utils, such as for dired in Emacs which expects the GNU ls variant which offers the =--dired= option. Install [[https://formulae.brew.sh/formula/coreutils][coreutils]] coreutils for this capability and note that for all utils that already have MacOS-native equivalents the GNU-equivalent will be prefixed with =g= such that the GNU =ls= tool is now accessed through =gls=:
 
@@ -2246,7 +2209,7 @@ Sometimes we need GNU CLI utils, such as for dired in Emacs which expects the GN
 "coreutils"
 #+end_src
 
-**** Windows Utils
+*** Windows Utils
 
 In order to build windows installation disks, we may need the wimlib util from time to time. See [[https://gist.github.com/acarril/8c15f600cf0397dd61161a470f50f669][acarril/bootable-win-on-mac gist]] for an example on how to build a Windows installation disk from MacOS.
 
@@ -2254,8 +2217,8 @@ In order to build windows installation disks, we may need the wimlib util from t
 "wimlib"
 #+end_src
 
-**** Package Managers
-***** Micromamba
+*** Package Managers
+**** Micromamba
 
 Micromamba is a statically-linked build of /[[https://github.com/mamba-org/mamba][Mamba]]/, the C++ rewrite of Conda, which was written in Python and is known to be pretty slow. Micromamba has everything it needs it its executable. No dynamic deps.
 
@@ -2269,28 +2232,31 @@ Micromamba is a statically-linked build of /[[https://github.com/mamba-org/mamba
 
 See [[https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html][installation instructions]] for additional guidance.
 
-**** Development Environments
+*** Development Environments
 
-***** Devbox
 
-Use [[https://www.jetify.com/devbox/docs/][Devbox]] for isolated dev envs without having to write Nix. 🙊
+**** Direnv
 
-We install it by listing it in the nix-darwin config file:
+#+begin_src nix :noweb yes :noweb-ref home-darwin-programs
+direnv = {
+  enable = true;
+  nix-direnv = {
+    enable = true;
+  };
+};
 
-#+begin_src nix :noweb-ref nix-darwin-packages-common
-devbox
+# NOTE: Enabling zsh also in hm in order to bring direnv bootstrap into scope
+# See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
+zsh.enable = true;
 #+end_src
 
+**** Devenv
 
-# #+begin_src nix :noweb-ref dev-packages
-# pkgs.devbox
-# #+end_src
+#+begin_src nix :noweb-ref dev-packages
+devenv
+#+end_src
 
-***** TODO Devenv
-
-See [[*Packages][Packages]] for the current installation of devenv.
-
-***** Xcode
+**** Xcode
 
 On MacOS, we need [[https://apps.apple.com/de/app/xcode/id497799835?l=en-GB&mt=12][Xcode]] installed to do things like natively compile C/C++ code.
 
@@ -2310,18 +2276,18 @@ After installation, remember to run the following:
 sudo xcodebuild -license accept
 #+end_src
 
-**** Password Managers
-***** Pass
+*** Password Managers
+**** Pass
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
 pass
 #+end_src
 
-***** COMMENT Bitwarden
+**** COMMENT Bitwarden
 
 For FLOSS friendly password managers with better GUIs, Bitwarden can be your friend. See this interesting [[https://www.reddit.com/r/Bitwarden/comments/15ssebq/bitwarden_vs_1password/][Reddit thread]] that highlights some differences to 1password in 2023.
 
-****** COMMENT Install with Nix
+***** COMMENT Install Bitwarden with Nix
 
 Note, bitwarden as packaged for nix is only availalble for the linux platform, not darwin.
 
@@ -2330,7 +2296,7 @@ bitwarden-cli
 bitwarden-desktop
 #+end_src
 
-****** COMMENT Install Bitwarden (for OSX) from homebrew cask
+***** COMMENT Install Bitwarden on MacOS from homebrew cask
 
 #+begin_src nix :noweb-ref homebrew-casks
 "bitwarden"
@@ -2340,20 +2306,20 @@ bitwarden-desktop
 "bitwarden-cli"
 #+end_src
 
-****** Install Bitwarden from Apple App Store
+***** Install Bitwarden from Apple App Store
 
 #+begin_src nix :noweb-ref homebrew-masapps :noweb yes
 "Bitwarden" = 1352778147;
 #+end_src
 
-***** 1Password
+**** 1Password
 
 #+begin_quote
 [!WARNING]
 On <2025-01-23 Thu> the nixpkgs for 1Password are [[https://github.com/NixOS/nixpkgs/blob/a8a41134c89e5f42a422e7e1cb929f5d21e09caa/pkgs/applications/misc/1password-gui/default.nix#L63-L64][marked as /broken/]] due some issue with having to be installed in =/Application/= which nix can't help us solve in an elegant manner as we'd have to refer to some obscure =/nix/store= path in our config.
 #+end_quote
 
-******* COMMENT Install 1Password with Nix
+****** COMMENT Install 1Password with Nix
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
 _1password-gui
@@ -2364,7 +2330,7 @@ _1password-gui
 "_1password-gui"
 #+end_src
 
-****** Install 1Password (for OSX) from homebrew cask
+***** Install 1Password on MacOS from homebrew cask
 
 We install 1Password from homebrew to bring in version 8 into scope since the App Store only lists version 1 as per <2024-12-27 Fri>.
 
@@ -2378,7 +2344,7 @@ Additionally, we also install the 1Password CLI:
 "1password-cli"
 #+end_src
 
-****** Install 1Password for Safari from Apple App Store
+***** Install 1Password for Safari from Apple App Store
 
 The 1Password extension for Safari is available from the [[https://apps.apple.com/de/app/1password-for-safari/id1569813296?l=en-GB&mt=12][Apple App Store]]:
 
@@ -2386,7 +2352,7 @@ The 1Password extension for Safari is available from the [[https://apps.apple.co
 "1Password for Safari" = 1569813296;
 #+end_src
 
-****** COMMENT Install 1Password from Apple App Store
+***** COMMENT Install 1Password from Apple App Store
 
 
 #+begin_quote
@@ -2400,50 +2366,35 @@ On <2024-12-26 Thu> the App Store app only installs 1Password version 7 on my be
 "1Password" = 1333542190;
 #+end_src
 
-**** Terminals
-***** COMMENT NuShell
+*** Terminals
 
-Use [[https://www.nushell.sh/][NuShell]] for a more data-centric terminal experience, where it should be easier to query data in the shell.
-
-#+begin_src nix :noweb-ref dev-packages
-pkgs.nushell
-#+end_src
-
-#+begin_src nix :noweb-ref nix-darwin-packages-common
-nushell
-#+end_src
-
-***** DONE Alacritty
+**** DONE Alacritty
 
 #+begin_src nix :noweb-ref dev-packages
 alacritty
 #+end_src
 
-***** WezTerm
+**** WezTerm
 
 [[https://wezfurlong.org/wezterm][WezTerm]] is a terminal emulator and multiplexer written in Rust, with hyperlink support, emoji support and since it's written in Rust... probably as blazingly fast as it gets.
 
-****** COMMENT Install WezTerm from homebrew cask
+***** COMMENT Install WezTerm from homebrew cask
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "wezterm"
 #+end_src
 
-****** Install through Nix
+***** Install through Nix
 
 #+begin_src nix :noweb-ref dev-packages
-pkgs.wezterm
-#+end_src
-
-#+begin_src nix :noweb-ref nix-darwin-packages-common
 wezterm
 #+end_src
 
-****** WezTerm Lua Config
+***** WezTerm Lua Config
 
 On nix-darwin, we load our WezTerm config from our dotfiles as follows:
 
-#+begin_src nix :noweb-ref home-darwin-files
+#+begin_src nix :noweb-ref home-darwin-home-file
 ".wezterm.lua".source = ./wezterm/wezterm.lua;
 #+end_src
 
@@ -2457,7 +2408,7 @@ local config = {}
 return config
 #+end_src
 
-****** Theme selection based on system dark-mode status
+***** Theme selection based on system dark-mode status
 
 We stub our WezTerm config to help with some theme-switching magic.
 
@@ -2482,7 +2433,7 @@ end
 config.color_scheme = scheme_for_appearance(get_appearance())
 #+end_src
 
-****** Set WebGPU as frontend
+***** Set WebGPU as frontend
 
 Additionally, we also provide enable the WebGpu front-end to solve a font [[https://www.reddit.com/r/wezterm/comments/1eze6zt/colored_blocks_instead_of_text/][rendering issue]].
 
@@ -2491,7 +2442,7 @@ Additionally, we also provide enable the WebGpu front-end to solve a font [[http
 config.front_end = 'WebGpu'
 #+end_src
 
-****** COMMENT Configure keys for theme reloading
+***** COMMENT Configure keys for theme reloading
 
 #+begin_src lua :noweb-ref wezterm-config
 -- reload config using the Cmd + Shift + r binding
@@ -2504,31 +2455,31 @@ config.keys = {
 }
 #+end_src
 
-***** Iterm2
+**** Iterm2
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "iterm2"
 #+end_src
 
-***** Kitty
+**** Kitty
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "kitty"
 #+end_src
 
-***** Warp
+**** Warp
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "warp"
 #+end_src
 
-***** Ghostty
+**** Ghostty
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "ghostty"
 #+end_src
 
-**** Networking
+*** Networking
 
 Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your MacOS.
 
@@ -2536,14 +2487,14 @@ Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your Mac
 "wireguard-tools"
 #+end_src
 
-**** Hex editors/viewers
+*** Hex editors/viewers
 
 #+begin_src nix :noweb-ref dev-packages
-pkgs.xxd
-pkgs.hexyl
+xxd
+hexyl
 #+end_src
 
-***** Bat
+**** Bat
 
 On NixOS, we install bat through the programs facility:
 
@@ -2558,7 +2509,7 @@ programs.bat = {
 
 On Darwin, we install it into our home-manager setup:
 
-#+begin_src nix :noweb-ref home-darwin-config
+#+begin_src nix :noweb-ref home-darwin
 programs.bat = {
   enable = true;
   config = {
@@ -2567,39 +2518,39 @@ programs.bat = {
 };
 #+end_src
 
-**** Reverse engineering
+*** COMMENT Reverse engineering
 
-#+begin_src nix :noweb-ref dev-packages
-pkgs.ghidra-bin
+#+begin_src nix :noweb-ref nix-darwin-packages-intel
+ghidra-bin
 #+end_src
 
-**** Diagramming
+*** Diagramming
 
-***** Kap
+**** Kap
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "kap"
 #+end_src
 
-***** Shottr
+**** Shottr
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "shottr"
 #+end_src
 
-***** Drawio
+**** Drawio
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "drawio"
 #+end_src
 
-***** Figma
+**** Figma
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "figma"
 #+end_src
 
-***** Rive
+**** Rive
 
 [[https://rive.app][Rive]], like Lottie provides tooling to animate assets for mobile apps but unlike Lottie owns the E2E stack where Lottie requires the use of multiple disconnected tools in order to author Lottie animations. Rive furthermore boasts support for state-aware animations.
 
@@ -2607,52 +2558,61 @@ pkgs.ghidra-bin
 "rive"
 #+end_src
 
-***** Graphviz
+**** Graphviz
 
-#+begin_src nix :noweb-ref dev-packages
-pkgs.graphviz
+#+begin_src nix :noweb-ref nix-packages-darwin-common
+graphviz
 #+end_src
 
-**** Shell
+*** Shell
 
 #+begin_src nix :noweb-ref dev-packages
-pkgs.shellcheck
-pkgs.shfmt
+shellcheck
+shfmt
 #+end_src
 
-****** Asciinema
+**** Asciinema
+:PROPERTIES:
+:CUSTOM_ID: asciinema
+:END:
 
 #+begin_src nix :noweb-ref dev-packages
-pkgs.asciinema
+asciinema
 #+end_src
 
-**** Study
-***** Exercism
+***** TODO Symlink config for Asciinema
+
+#+begin_src shell
+ln -s ${PATH_TO_DOTFILE}/asciinema ${HOME}/.config/asciinema
+#+end_src
+
+*** Study
+**** Exercism
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.exercism
 #+end_src
 
-**** HTML, Web
+*** HTML, Web
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.html-tidy
 #+end_src
 
-***** COMMENT Inspector
+**** COMMENT Inspector
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.wuzz # cURL-like TUI HTTP request inspection tool
 #+end_src
 
-***** Web Servers
+**** Web Servers
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.httpie
 pkgs.httplab
 #+end_src
 
-**** DONE GCC
+*** DONE GCC
 
 - State "TODO"       from              [2023-10-03 Tue 18:17] \\
   Verify that glibc is not available for Darwin and merge the separated configs or provide explanation.
@@ -2670,22 +2630,22 @@ pkgs.glibc
 pkgs.gdb
 #+end_src
 
-**** COMMENT Haskell
+*** COMMENT Haskell
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.ghc
 pkgs.ghcid
 #+end_src
 
-**** Gleam
+*** Gleam
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.gleam
 #+end_src
 
-**** LSP
+*** LSP
 
-***** Nixd Language Server
+**** Nixd Language Server
 
 Since I use Nix quite heavily to almost all my configuration management problems, it helps to have a Nix Language Server globally installed.
 
@@ -2701,51 +2661,51 @@ We also install nixfmt since I noticed some =formatting nixfmt command exited wi
 pkgs.nixfmt-rfc-style
 #+end_src
 
-***** Typescript Language Server
+**** Typescript Language Server
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.nodePackages.typescript-language-server
 #+end_src
 
-**** Tree-sitter
+*** Tree-sitter
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.tree-sitter
 #+end_src
 
-**** DSL
-***** jq, yq
+*** DSL
+**** jq, yq
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.jq
 pkgs.yq
 #+end_src
 
-**** DB
+*** DB
 
-***** SQLite
+**** SQLite
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.sqlite-interactive
 #+end_src
 
-***** Redis
+**** Redis
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.redis
 #+end_src
 
-**** Linux Hacking
+*** Linux Hacking
 
 I have issues with my touchpad often enough and also have issues with Chromium hanging here and there. It's time that I learned to dig into some of the Linux innards and do some good kernel watching.
 
-***** pidof
+**** pidof
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "pidof"
 #+end_src
 
-***** Linux-like Hardware Tinkering on MacOS
+**** Linux-like Hardware Tinkering on MacOS
 
 Instead of installing lsusb directly on MacOS, we install [[http://www.linux-usb.org/][usbutils]] ([[https://github.com/gregkh/usbutils][GitHub]]) which should contain the =lsusb= and =usbhid-dump= CLI tools.
 
@@ -2753,11 +2713,11 @@ Instead of installing lsusb directly on MacOS, we install [[http://www.linux-usb
 "usbutils"
 #+end_src
 
-***** Linux Input Debugging/Kernel Watching
+**** Linux Input Debugging/Kernel Watching
 
 See https://lwn.net/Articles/658948/
 
-****** COMMENT Linsk
+***** COMMENT Linsk
 
 In order to mount Linux partitions like ext4 under MacOS, we may want to use [[https://github.com/AlexSSD7/linsk][Linsk]].
 
@@ -2765,7 +2725,7 @@ In order to mount Linux partitions like ext4 under MacOS, we may want to use [[h
 inputs.linsk.packages.${stdenv.hostPlatform.system}.default
 #+end_src
 
-****** COMMENT libinput
+***** COMMENT libinput
 
 https://wayland.freedesktop.org/libinput/doc/latest/index.html
 
@@ -2773,7 +2733,7 @@ https://wayland.freedesktop.org/libinput/doc/latest/index.html
 pkgs.libinput
 #+end_src
 
-****** xinput
+***** xinput
 
 1. List xinputs
 
@@ -2787,7 +2747,7 @@ xinput --list
 xinput show-props ID
    #+end_src
 
-****** evemu
+***** evemu
 
 https://www.freedesktop.org/wiki/Evemu/
 https://wiki.ubuntu.com/Multitouch/Testing/Evemu
@@ -2806,7 +2766,7 @@ pkgs.evemu
 evemu-record /dev/input/event13 touchpad-debug.evemu
   #+end_src
 
-****** TODO Debug laggy/choppy touchpad
+***** TODO Debug laggy/choppy touchpad
 
 Recorded some data while I was observing the choppy behavior
 
@@ -2888,15 +2848,15 @@ I can also reproduce that this is related to the palm rejection on the side of t
 I also tried out the mtouch drivers instead of libinput but the problem persists. so I suppose that the problem is related to the firmware of the touchpad.
 #+end_quote
 
-****** CANCELED mtdiag-qt
+***** CANCELED mtdiag-qt
 
 https://github.com/bentiss/mtdiag-qt
 
-****** CANCELED mtview
+***** CANCELED mtview
 
 https://github.com/whot/mtview
 
-****** COMMENT mtr
+***** COMMENT mtr
 
 https://github.com/traviscross/mtr
 
@@ -2904,22 +2864,22 @@ https://github.com/traviscross/mtr
 pkgs.mtr
 #+end_src
 
-**** Virtualization
+*** Virtualization
 
-***** Docker
+**** Docker
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "docker"
 #+end_src
 
-***** UTM
+**** UTM
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "utm"
 #+end_src
 
-**** Calculators
-***** pcalc
+*** Calculators
+**** pcalc
 
 The [[https://github.com/alt-romes/programmer-calculator][pcalc]] util can come in handy when one needs to conduct conversions between bases (Like octal to binary, hex to binary, etc) and calculate operations (ADD, MOD, XOR, etc.) between different operands. I initially set out to install the PCalc calculation util https://pcalc.com/ to calculate logs and work with other advanced math functions, but somehow I hit a name collision here and ended up realising that the other pcalc may be useful to me too... someday, so, we're keeping it.
 
@@ -2929,21 +2889,21 @@ For MacOS, we just install pcalc using the brew:
 "pcalc"
 #+end_src
 
-**** Syncthing
+*** Syncthing
 
 Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup. As per [2022-05-05 Thu 12:08], the syncthing service in home-manager is only declarative to the extend of turning it on and providing extra CLI options to start the service with.
 
 Consult the [[https://docs.syncthing.net/intro/getting-started.html][Getting Started]] guide to learn how to set it up "imperatively" (i.e.: setting up peers and generating their IDs and copying the needed information over to the other syncthing peers to establish connections) through the portal.
 
-***** Syncthing Daemon on Darwin
+**** Syncthing Daemon on Darwin
 
-#+begin_src nix :noweb-ref home-darwin-config
+#+begin_src nix :noweb-ref home-darwin
 services.syncthing = {
   enable = true;
 };
 #+end_src
 
-****** DONE Issue: Syncthing not automatically started on macOS
+***** DONE Issue: Syncthing not automatically started on macOS
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2024-12-23 Mon 10:28] \\
   Checking on <2024-12-21 Sat>, I noticed that syncthings is running on tokyo23 (ARM) so we're good here.
@@ -3062,7 +3022,7 @@ sudo launchctl enable gui/501/org.nix-community.home.syncthing
 
 but for now, I just try a restart and see what happens. 🤞🏿
 
-***** COMMENT Syncthing Service on Linux
+**** COMMENT Syncthing Service on Linux
 
 #+begin_src nix :noweb-ref home-linux-services
 services.syncthing = {
@@ -3071,7 +3031,7 @@ services.syncthing = {
 };
 #+end_src
 
-***** TODO Set ignore file for Syncthing or move some sensitive stuff out of synced folders
+**** TODO Set ignore file for Syncthing or move some sensitive stuff out of synced folders
 
 Especially for things link mail indices and Org-roam databases, I may need to do this.
 
@@ -3362,7 +3322,7 @@ require'nvim-treesitter.configs'.setup{
 
 *** Link .emacs.d from dotfiles into home directory
 
-#+begin_src nix :noweb-ref home-darwin-config
+#+begin_src nix :noweb-ref home-darwin-home-file
 # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
 # TODO: Fix hack of hardcoded dotfiles path
 # NOTE: This repo must be checked out to ~/Code/vidbina/dotfiles
@@ -3370,7 +3330,7 @@ require'nvim-treesitter.configs'.setup{
 # does not seem to work on macOS.
 # See https://discourse.nixos.org/t/accessing-home-manager-config-in-flakes/19864/8
 # See https://github.com/nix-community/home-manager/issues/2085#issuecomment-861427318
-home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
+".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
 #+end_src
 
 *** TODO Tangle nix import of emacs/*.nix
@@ -3438,8 +3398,8 @@ I use [[https://www.hammerspoon.org/][Hammerspoon]] for some OSX-specific automa
 
 We link the hammerspoon directory into our homedir in order to set up the necessary Spoons and the init.lua:
 
-#+begin_src nix :noweb-ref home-darwin-config
-home.file.".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
+#+begin_src nix :noweb-ref home-darwin-home-file
+".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
 #+end_src
 
 We load the Spoons and define our own bindings and more in the init.lua file that we symlinked into our homedir previously:
@@ -5160,7 +5120,7 @@ Refer to [[file:emacs/README.org]] for an example of a literate config that tang
 
 - [X] configuration-darwin.nix
 - [ ] system/darwin.nix
-- [ ] direnv
+- [-] direnv
 - [ ] .xsession
 - [ ] .Xresources.d
 - [ ] .Xmodmap
@@ -5171,7 +5131,7 @@ Refer to [[file:emacs/README.org]] for an example of a literate config that tang
 - [X] Rofi (handled through Pywal since [2023-07-03 Mon])
 - [ ] Redshift (or Gammastep)
 - [ ] Ghorg
-- [ ] Asciinema
+- [-] Asciinema
 - [ ] Compton
 - [ ] Octave
 - [ ] Lein

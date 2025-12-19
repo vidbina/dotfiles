@@ -12,38 +12,7 @@
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
     # common Darwin packages
-    checkmake
-    gh
-    gleam
-    gnumake
-    gnupg
-    gotop
-    hexyl
-    html-tidy
-    htop
-    httpie
-    httplab
-    jq
-    kakoune
-    nodePackages.typescript-language-server
-    nodejs
-    pqrs
-    nixpkgs-fmt
-    redis
-    shell-gpt
-    shellcheck
-    shfmt
-    sqlite-interactive
-    tree
-    tree-sitter
-    vim
-    xxd
-    yq
-    devenv
-
-    devbox
     pass
-    wezterm
     pdftk
     hunspell
     hunspellDicts.nl_NL
@@ -59,7 +28,6 @@
     # Intel-only packages
     # Darwin packages for Intel-only
     gdb
-    ghidra-bin
   ]);
 
   environment.interactiveShellInit = lib.strings.concatStrings [
