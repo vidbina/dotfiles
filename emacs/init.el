@@ -873,14 +873,18 @@
   (message-sendmail-envelope-from 'header "Use From: header")
   (message-kill-buffer-on-exit t "Kill a buffer once a message is sent"))
 
-(message "💥 Debug on error is %s" debug-on-error)
+(message "💥 Debug on error is %s." debug-on-error)
 
 (load "~/.emacs.d/lang.el" t)
 (load "~/.emacs.d/personal.el" t)
 
+(message "🏅 Finale, just before customizations.")
+
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file t)
+
+(message "🪞 Customizations loaded.")
 
 ;; Configure server socket for daemon mode on macOS
 ;; MUST be set before server starts

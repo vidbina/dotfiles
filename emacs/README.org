@@ -4860,10 +4860,12 @@ The message.el package provides a more general interfaces for message sending, s
 To keep our init as general as possible we store private information and language configurations in separate files since these are inherently personal concerns. This configuration will try to load [[file:lang.el]] and [[file:personal.el]] if these exist.
 
 #+begin_src elisp :tangle init.el
-(message "💥 Debug on error is %s" debug-on-error)
+(message "💥 Debug on error is %s." debug-on-error)
 
 (load "~/.emacs.d/lang.el" t)
 (load "~/.emacs.d/personal.el" t)
+
+(message "🏅 Finale, just before customizations.")
 #+end_src
 
 ** Customizations
@@ -4874,6 +4876,8 @@ Furthermore we load customization since some configurations and changes to our E
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file t)
+
+(message "🪞 Customizations loaded.")
 #+end_src
 
 * Personal Details
@@ -5097,10 +5101,10 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (load-theme emacs-theme :no-confirm)
   (vidbina/theme-switch-update-cursor-styles)
   (pcase  system-type
-    ('darwin (error "No hsetroot on Darwin"))
+    ('darwin (warn "No hsetroot on Darwin"))
     ('gnu/linux (async-shell-command (format "hsetroot -solid '%s'" wallpaper-color) "*dotfile-helpers*")
                 (message "see *dotfile-helpers* for output of wallpaper color set"))
-    (_ (error "Skipping wallpaper color set on unknown sys"))))
+    (_ (warn "Skipping wallpaper color set on unknown sys"))))
 
 (defun vidbina/theme-switch-to-dark ()
   "Switch to the dark theme"
