@@ -28,7 +28,7 @@
   ];
 
   services.emacs = {
-    enable = false;
+    enable = true;
     package = pkgs.my-emacs;
   };
 }

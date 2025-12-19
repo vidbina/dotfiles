@@ -7973,7 +7973,7 @@ In order to avoid having to figure out the mess with activation scripts, we can 
 
 #+begin_src nix :noweb yes :noweb-ref nix-darwin
 services.emacs = {
-  enable = false;
+  enable = true;
   package = pkgs.my-emacs;
 };
 #+end_src
