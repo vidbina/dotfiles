@@ -40,8 +40,9 @@
 
       # Keep daemon running
       RunAtLoad = true;
-      KeepAlive = false;
+      KeepAlive = true;
       ProcessType = "Interactive";
+
       # EnrivonmentVariables = {}
     };
 
