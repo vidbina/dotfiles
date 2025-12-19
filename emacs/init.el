@@ -882,6 +882,17 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file t)
 
+;; Configure server socket for daemon mode on macOS
+;; MUST be set before server starts
+(when (eq system-type 'darwin)
+  (let ((socket-path (format "/tmp/emacs-%d/server" (user-uid))))
+    (message "🔌 Setup socket on darwin at %s" socket-path)
+    (setq server-socket-dir socket-path)
+    ;; Create directory if it doesn't exist
+    (unless (file-directory-p server-socket-dir)
+      (make-directory server-socket-dir t)
+      (set-file-modes server-socket-dir #o700))))
+
 ;; https://stackoverflow.com/a/42038174
 (when (string= system-type "darwin")
   (setq insert-directory-program "/opt/homebrew/bin/gls")
