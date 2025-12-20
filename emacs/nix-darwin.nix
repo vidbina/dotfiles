@@ -11,6 +11,16 @@
     python3
 
     libgccjit
+    (pkgs.writeShellScriptBin "gnoo" ''
+      # Check if daemon is running
+      if ${pkgs.my-emacs}/bin/emacsclient -e "(+ 1 1)" >/dev/null 2>&1; then
+        echo "Daemon running: connecting through emacsclient"
+        exec ${pkgs.my-emacs}/bin/emacsclient -n -c "$@"
+      else
+        echo "No daemon: starting regular Emacs"
+        exec ${pkgs.my-emacs}/bin/emacs "$@"
+      fi
+    '')
     ripgrep
   ];
 

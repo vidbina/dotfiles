@@ -8042,6 +8042,21 @@ Set the server-socket-directory in case we need a socket in server mode to conne
 environment.variables.EMACS_SOCKET_NAME = "/tmp/my-emacs/socket/server";
 #+end_src
 
+Adding a shell script to allow us to open this from Dock, Raycast, Spotlight or a terminal:
+
+#+begin_src nix :noweb-ref nix-darwin-packages
+(pkgs.writeShellScriptBin "gnoo" ''
+  # Check if daemon is running
+  if ${pkgs.my-emacs}/bin/emacsclient -e "(+ 1 1)" >/dev/null 2>&1; then
+    echo "Daemon running: connecting through emacsclient"
+    exec ${pkgs.my-emacs}/bin/emacsclient -n -c "$@"
+  else
+    echo "No daemon: starting regular Emacs"
+    exec ${pkgs.my-emacs}/bin/emacs "$@"
+  fi
+'')
+#+end_src
+
 **** COMMENT Darwin (macOS) launchd Emacs service
 
 #+begin_quote
