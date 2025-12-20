@@ -27,7 +27,7 @@
   nixpkgs.overlays = [
     # Overlay custom Emacs build into pkgs
     (self: super: {
-      my-emacs = pkgs.emacs30.pkgs.withPackages (epkgs: (
+      my-emacs = super.emacs30.pkgs.withPackages (epkgs: (
         with epkgs; [
           notmuch
           vterm
