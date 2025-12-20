@@ -13,7 +13,7 @@
       mkdir -p $out/Contents/Resources
 
       # Copy Emacs icon
-      cp ${pkgs.my-emacs}/share/icons/hicolor/scalable/apps/emacs.ico $out/Contents/Resources/ || true
+      cp ${pkgs.my-emacs}/share/icons/hicolor/128x128/apps/emacs.png $out/Contents/Resources/ || true
 
       # Create Info.plist
       cat > $out/Contents/Info.plist <<EOF
