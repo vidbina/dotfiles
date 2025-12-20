@@ -1438,7 +1438,6 @@ On macOS, nix-darwin provides the most batteries included nix experience. We can
   imports = [
     # import modules into our nix-darwin config
     <<nix-darwin-imports>>
-    ./emacs/nix-darwin.nix
     ./system/darwin
   ];
 
@@ -3323,6 +3322,18 @@ require'nvim-treesitter.configs'.setup{
 *** Make Neovim default editor
 
 ** Emacs
+
+We import Emacs into our file:configuration-darwin.nix from our emacs subdirectory:
+
+#+begin_src nix :noweb-ref nix-darwin-imports
+./emacs/nix-darwin.nix
+#+end_src
+
+and we import the home-manager related part of our config from
+
+#+begin_src nix :noweb-ref home-darwin-imports
+./emacs/hm.nix
+#+end_src
 
 *** Link .emacs.d from dotfiles into home directory
 

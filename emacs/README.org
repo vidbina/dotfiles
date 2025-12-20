@@ -7969,8 +7969,10 @@ services.emacs = {
 
 *** Darwin (macOS)
 
+We define a nix-darwin module which sets up system packages, overlays and more:
+
 #+begin_src nix :noweb yes :tangle nix-darwin.nix
-# Tangled from README.org
+# Tangled from emacs/README.org
 { config, pkgs, username, ... }:
 
 {
@@ -7984,6 +7986,17 @@ services.emacs = {
   ];
 
   <<nix-darwin>>
+}
+#+end_src
+
+and we prepare a home-manager importable file to cover the hm scope:
+
+#+begin_src nix :noweb yes :tangle hm.nix
+# Tangled from emacs/README.org
+{ config, pkgs, ... }:
+
+{
+  <<home>>
 }
 #+end_src
 
@@ -8042,7 +8055,7 @@ Set the server-socket-directory in case we need a socket in server mode to conne
 environment.variables.EMACS_SOCKET_NAME = "/tmp/my-emacs/socket/server";
 #+end_src
 
-Adding a shell script to allow us to open this from Dock, Raycast, Spotlight or a terminal:
+Adding a shell script to allow us to open this from the terminal:
 
 #+begin_src nix :noweb-ref nix-darwin-packages
 (pkgs.writeShellScriptBin "gnoo" ''
@@ -8055,6 +8068,50 @@ Adding a shell script to allow us to open this from Dock, Raycast, Spotlight or 
     exec ${pkgs.my-emacs}/bin/emacs "$@"
   fi
 '')
+#+end_src
+
+Scripts are not accessible from Dock, Raycast or Spotlight by default, so we provide an app bundle with an icon, to make the ergonomics even more streamlined here:
+
+#+begin_src nix :noweb-ref home
+home.file."Applications/Gnoo.app".source = pkgs.stdenv.mkDerivation {
+  name = "Gnoo.app";
+  buildInputs = [ pkgs.my-emacs ];
+
+  unpackPhase = "true";
+
+  installPhase = ''
+    mkdir -p $out/Contents/MacOS
+    mkdir -p $out/Contents/Resources
+
+    # Copy Emacs icon
+    cp ${pkgs.my-emacs}/share/icons/hicolor/scalable/apps/emacs.ico $out/Contents/Resources/ || true
+
+    # Create Info.plist
+    cat > $out/Contents/Info.plist <<EOF
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+      <key>CFBundleExecutable</key><string>Gnoo</string>
+      <key>CFBundleIconFile</key><string>emacs</string>
+      <key>CFBundleName</key><string>Gnoo</string>
+      <key>CFBundleDisplayName</key><string>Gnoo opens Emacs</string>
+    </dict>
+    </plist>
+    EOF
+
+    # Create launcher
+    cat > $out/Contents/MacOS/Gnoo <<'EOF'
+    #!/bin/sh
+    if ${pkgs.my-emacs}/bin/emacsclient -e "(+ 1 1)" >/dev/null 2>&1; then
+      exec ${pkgs.my-emacs}/bin/emacsclient -n -c "$@"
+    else
+      exec ${pkgs.my-emacs}/bin/emacs "$@"
+    fi
+    EOF
+    chmod +x $out/Contents/MacOS/Gnoo
+  '';
+};
 #+end_src
 
 **** COMMENT Darwin (macOS) launchd Emacs service

@@ -3,7 +3,6 @@
 { pkgs, lib, inputs, config, username, ... }: {
   imports = [
     # import modules into our nix-darwin config
-
     ./emacs/nix-darwin.nix
     ./system/darwin
   ];

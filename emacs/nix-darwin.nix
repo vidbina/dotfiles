@@ -1,4 +1,4 @@
-# Tangled from README.org
+# Tangled from emacs/README.org
 { config, pkgs, username, ... }:
 
 {
