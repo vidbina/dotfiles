@@ -35,6 +35,7 @@
       # Create launcher that calls the gnoo script
       cat > $out/Contents/MacOS/Gnoo <<'EOF'
       #!/bin/sh
+      export EMACS_SOCKET_NAME="/tmp/my-emacs/socket/server"
       exec /run/current-system/sw/bin/gnoo "$@"
       EOF
       chmod +x $out/Contents/MacOS/Gnoo

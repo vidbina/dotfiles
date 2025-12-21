@@ -8036,13 +8036,19 @@ launchd.user.agents.my-emacs = {
 };
 #+end_src
 
-Set the server-socket-directory in case we need a socket in server mode to connect to.
+***** Set Emacs Socket
 
-#+begin_src elisp :tangle init.el
+Set the server-socket-directory in case we need a socket in server mode to connect to and create the necessary files and directories:
+
+#+begin_src txt :noweb-ref emacs-socket-directory
+/tmp/my-emacs/socket
+#+end_src
+
+#+begin_src elisp :noweb yes :tangle init.el
 ;; Configure server socket for daemon mode on macOS
 ;; MUST be set before server starts
 (when (eq system-type 'darwin)
-  (let ((socket-path (format "/tmp/my-emacs/socket")))
+  (let ((socket-path (format "<<emacs-socket-directory>>")))
     (message "🔌 Setup socket on darwin at %s" socket-path)
     (setq server-socket-dir socket-path)
     ;; Create directory if it doesn't exist
@@ -8051,11 +8057,19 @@ Set the server-socket-directory in case we need a socket in server mode to conne
       (set-file-modes server-socket-dir #o700))))
 #+end_src
 
-#+begin_src nix :noweb-ref nix-darwin
-environment.variables.EMACS_SOCKET_NAME = "/tmp/my-emacs/socket/server";
+#+begin_src nix :noweb yes :noweb-ref nix-darwin
+environment.variables.EMACS_SOCKET_NAME = "<<emacs-socket-directory>>/server";
 #+end_src
 
-Adding a shell script to allow us to open this from the terminal:
+and in some cases, we'll need to export it, like when we are defining app bundles which may run shell commands that don't have visibility over the environment variables configured by nix-darwin modules:
+
+#+begin_src bash :noweb yes :noweb-ref emacs-shell-exports
+export EMACS_SOCKET_NAME="<<emacs-socket-directory>>/server"
+#+end_src
+
+***** Emacs shell alias
+
+We define a shell script to allow us to open this from the terminal, using the alias =gnoo= like =gnoo README.org=:
 
 #+begin_src nix :noweb-ref nix-darwin-packages
 (pkgs.writeShellScriptBin "gnoo" ''
@@ -8070,6 +8084,8 @@ Adding a shell script to allow us to open this from the terminal:
 '')
 #+end_src
 
+***** Emacs alias app bundle
+
 Scripts are not accessible from Dock, Raycast or Spotlight by default, so we provide an app bundle with an icon, to make the ergonomics even more streamlined here:
 
 #+begin_quote
@@ -8077,7 +8093,7 @@ Scripts are not accessible from Dock, Raycast or Spotlight by default, so we pro
 If the location of nix-darwin paths change such that gnoo (above) is no longer accessible through =/run/current-system/sw/bin/gnoo=, then the following app bundle will break.
 #+end_quote
 
-#+begin_src nix :noweb-ref home
+#+begin_src nix :noweb yes :noweb-ref home
 home.file."Applications/Gnoo.app".source = pkgs.stdenv.mkDerivation {
   name = "Gnoo.app";
   buildInputs = [ pkgs.my-emacs ];
@@ -8111,6 +8127,7 @@ home.file."Applications/Gnoo.app".source = pkgs.stdenv.mkDerivation {
     # Create launcher that calls the gnoo script
     cat > $out/Contents/MacOS/Gnoo <<'EOF'
     #!/bin/sh
+    <<emacs-shell-exports>>
     exec /run/current-system/sw/bin/gnoo "$@"
     EOF
     chmod +x $out/Contents/MacOS/Gnoo
