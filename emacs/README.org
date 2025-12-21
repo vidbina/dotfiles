@@ -8079,7 +8079,7 @@ If the location of nix-darwin paths change such that gnoo (above) is no longer a
 
 #+begin_src nix :noweb-ref home
 home.file."Applications/Gnoo.app".source = pkgs.stdenv.mkDerivation {
-  name = "gnoo-launcher";
+  name = "Gnoo.app";
   buildInputs = [ pkgs.my-emacs ];
 
   unpackPhase = "true";

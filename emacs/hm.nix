@@ -3,7 +3,7 @@
 
 {
   home.file."Applications/Gnoo.app".source = pkgs.stdenv.mkDerivation {
-    name = "gnoo-launcher";
+    name = "Gnoo.app";
     buildInputs = [ pkgs.my-emacs ];
 
     unpackPhase = "true";
