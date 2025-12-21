@@ -3,7 +3,7 @@
 
 {
   home.file."Applications/Gnoo.app".source = pkgs.stdenv.mkDerivation {
-    name = "Gnoo.app";
+    name = "gnoo-launcher";
     buildInputs = [ pkgs.my-emacs ];
 
     unpackPhase = "true";
@@ -23,20 +23,19 @@
       <dict>
         <key>CFBundleExecutable</key><string>Gnoo</string>
         <key>CFBundleIconFile</key><string>emacs</string>
+        <key>CFBundleIdentifier</key><string>com.vidbina.gnoo</string>
         <key>CFBundleName</key><string>Gnoo</string>
-        <key>CFBundleDisplayName</key><string>Gnoo opens Emacs</string>
+        <key>CFBundleDisplayName</key><string>Gnoo (Emacs)</string>
+        <key>CFBundlePackageType</key><string>APPL</string>
+        <key>CFBundleVersion</key><string>1.0</string>
       </dict>
       </plist>
       EOF
 
-      # Create launcher
+      # Create launcher that calls the gnoo script
       cat > $out/Contents/MacOS/Gnoo <<'EOF'
       #!/bin/sh
-      if ${pkgs.my-emacs}/bin/emacsclient -e "(+ 1 1)" >/dev/null 2>&1; then
-        exec ${pkgs.my-emacs}/bin/emacsclient -n -c "$@"
-      else
-        exec ${pkgs.my-emacs}/bin/emacs "$@"
-      fi
+      exec /run/current-system/sw/bin/gnoo "$@"
       EOF
       chmod +x $out/Contents/MacOS/Gnoo
     '';
