@@ -1,32 +1,32 @@
 stages:
+  - check
   - validate
 
 variables:
   EMACS_VERSION: "30.2"
 
-# Combined job: tangle, check parity, and validate Nix config
-# Uses a Nix image with Emacs for everything
-ci:
+# Stage 1: Fast checks with Emacs (tangle + parity)
+# Fails quickly if you forgot to tangle/commit (~10 seconds)
+check-parity:
+  stage: check
+  image: silex/emacs:${EMACS_VERSION}-alpine
+  before_script:
+    - apk add --no-cache make git
+  script:
+    - make tangle
+    - make check-parity
+  allow_failure: false
+
+# Stage 2: Validate Nix configuration (only runs if parity passes)
+# Takes longer due to Nix, but necessary for config validation
+validate-nix:
   stage: validate
   image: nixos/nix:latest
   before_script:
-    # Enable flakes and nix-command
     - mkdir -p ~/.config/nix
     - echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
-
-    # Install Emacs and make for tangling
-    - nix-env -iA nixpkgs.emacs nixpkgs.gnumake
-
   script:
-    # Run make tangle (generates config files from org)
-    - make tangle
-
-    # Check parity (ensure tangled files match commits, excluding .org)
-    - make check-parity
-
-    # Validate Nix configuration (fast, no build)
     - make validate
-
   allow_failure: false
 
 # Optional: Full build check (manual trigger or on main branch)
