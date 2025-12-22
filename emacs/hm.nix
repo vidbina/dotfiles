@@ -74,5 +74,9 @@
     /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier me.vidbina.Gnoo" $out/Contents/Info.plist || true
     /usr/libexec/PlistBuddy -c "Set :CFBundleName Gnoo" $out/Contents/Info.plist || true
     /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName 'Gnoo (Emacs)'" $out/Contents/Info.plist || true
+
+    # Set icon for document types (fixes icon in 1Password and other modals)
+    /usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:0:CFBundleTypeIconFile string document.icns" $out/Contents/Info.plist 2>/dev/null || \
+    /usr/libexec/PlistBuddy -c "Set :CFBundleDocumentTypes:0:CFBundleTypeIconFile document.icns" $out/Contents/Info.plist || true
   '';
 }
