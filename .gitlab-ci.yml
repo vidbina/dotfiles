@@ -23,13 +23,12 @@ check-parity:
 validate-nix:
   stage: validate
   image: nixos/nix:latest
-  cache:
-    key: nix-packages
-    paths:
-      - /nix/store/
   before_script:
     - mkdir -p ~/.config/nix
     - echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+    # Use public Nix caches to speed up downloads
+    - echo "substituters = https://cache.nixos.org https://nix-community.cachix.org" >> ~/.config/nix/nix.conf
+    - echo "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" >> ~/.config/nix/nix.conf
     # Install make to reuse Makefile (DRY)
     - nix-env -iA nixpkgs.gnumake
   script:
