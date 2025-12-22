@@ -57,14 +57,14 @@ ci: tangle check-parity validate
 # Use before merging/deploying (takes minutes depending on cache)
 .PHONY: nix-darwin-build
 nix-darwin-build:
-	${DARWIN_REBUILD} check --flake .#$(hostname)
+	${DARWIN_REBUILD} check --flake .#$(shell hostname)
 
 # Deploy nix-darwin configuration (builds and activates)
 # Actually switches your system to the new configuration
 # Use after testing with nix-darwin-build
 .PHONY: nix-darwin-switch
 nix-darwin-switch:
-	${DARWIN_REBUILD} switch --flake .#$(hostname)
+	${DARWIN_REBUILD} switch --flake .#$(shell hostname)
 
 # Default target - show help
 .PHONY: help
