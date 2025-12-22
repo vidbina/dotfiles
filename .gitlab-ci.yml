@@ -1,83 +1,44 @@
 stages:
-  - tangle
   - validate
-  - check-parity
 
 variables:
-  # Emacs version for tangling
   EMACS_VERSION: "30.2"
 
-# Stage 1: Tangle org files
-tangle:
-  stage: tangle
-  image: silex/emacs:${EMACS_VERSION}-alpine
-  script:
-    - |
-      emacs --batch \
-        --eval "(setq enable-local-variables :all)" \
-        --eval "(setq enable-local-eval t)" \
-        --eval "(setq org-confirm-babel-evaluate nil)" \
-        --eval "(require 'org)" \
-        --eval "(dolist (file '(\"README.org\" \"emacs/README.org\"))
-          (find-file file)
-          (hack-local-variables)
-          (org-babel-tangle)
-          (kill-buffer))"
-  artifacts:
-    paths:
-      - "**/*.nix"
-      - "**/*.el"
-      - "**/*.sh"
-    expire_in: 1 hour
-
-# Stage 2: Validate Nix configuration
-validate-nix:
+# Combined job: tangle, check parity, and validate Nix config
+# Uses a Nix image with Emacs for everything
+ci:
   stage: validate
   image: nixos/nix:latest
-  dependencies:
-    - tangle
   before_script:
     # Enable flakes and nix-command
     - mkdir -p ~/.config/nix
     - echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+
+    # Install Emacs and make for tangling
+    - nix-env -iA nixpkgs.emacs nixpkgs.gnumake
+
   script:
-    # Check flake validity
-    - nix flake check --no-build
+    # Run make tangle (generates config files from org)
+    - make tangle
 
-    # Try to evaluate darwin configuration (dry-run build)
-    - nix build .#darwinConfigurations.berlin-4corei7.system --dry-run
+    # Check parity (ensure tangled files match commits, excluding .org)
+    - make check-parity
 
-    # Optionally: evaluate home-manager config if you have it as a flake output
-    # - nix build .#homeConfigurations.USERNAME.activationPackage --dry-run
+    # Validate Nix configuration (fast, no build)
+    - make validate
+
   allow_failure: false
 
-# Stage 3: Check parity (tangled files match committed files)
-check-parity:
-  stage: check-parity
-  image: silex/emacs:${EMACS_VERSION}
-  dependencies:
-    - tangle
-  script:
-    - |
-      # Tangle fresh copies
-      emacs --batch \
-        --eval "(setq enable-local-variables :all)" \
-        --eval "(setq enable-local-eval t)" \
-        --eval "(setq org-confirm-babel-evaluate nil)" \
-        --eval "(require 'org)" \
-        --eval "(dolist (file '(\"README.org\" \"emacs/README.org\"))
-          (find-file file)
-          (hack-local-variables)
-          (org-babel-tangle)
-          (kill-buffer))"
-
-      # Check if any tangled files differ from committed versions
-      if git diff --exit-code; then
-        echo "✅ Parity check passed: tangled files match committed files"
-      else
-        echo "❌ Parity check failed: tangled files differ from committed files"
-        echo "Run 'make tangle' locally and commit the changes"
-        git diff
-        exit 1
-      fi
-  allow_failure: false
+# Optional: Full build check (manual trigger or on main branch)
+# Uncomment to enable thorough build validation before merge
+# build:
+#   stage: validate
+#   image: nixos/nix:latest
+#   when: manual
+#   before_script:
+#     - mkdir -p ~/.config/nix
+#     - echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+#     - nix-env -iA nixpkgs.gnumake
+#   script:
+#     - make nix-darwin-build
+#   allow_failure: false
