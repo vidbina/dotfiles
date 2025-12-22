@@ -1,7 +1,4 @@
-set tabstop=2    " tab stop to 2 spaces
-set shiftwidth=2 " shift width by 2 spaces
-set expandtab    " expand tabs to spaces
-
+" Tangled from README.org
 call plug#begin("~/.local/share/nvim/plugged")
   Plug 'airblade/vim-gitgutter'
   Plug 'aklt/plantuml-syntax'
@@ -19,9 +16,9 @@ call plug#begin("~/.local/share/nvim/plugged")
   Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
   Plug 'LnL7/vim-nix'
   Plug 'majutsushi/tagbar'
-  " https://github.com/neoclide/coc.nvim
-  " Load VSCode extensions and host language servers
-  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+  "https://github.com/neoclide/coc.nvim
+  "Load VSCode extensions and host language servers
+  "Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'preservim/nerdtree'
   Plug 'prettier/vim-prettier'
   Plug 'purescript-contrib/purescript-vim'
@@ -35,8 +32,18 @@ call plug#begin("~/.local/share/nvim/plugged")
   Plug 'wannesm/wmgraphviz.vim'
   Plug 'jeffkreeftmeijer/vim-dim', { 'branch': 'main' }
 call plug#end()
-
+set tabstop=2    " tab stop to 2 spaces
+set shiftwidth=2 " shift width by 2 spaces
+set expandtab    " expand tabs to spaces
+set mouse=a
+set number
+":map <ScrollWheelUp> <C-Y>
+":map <ScrollWheelDown> <C-E>
 colorscheme dim
+" https://vi.stackexchange.com/a/45130
+set notermguicolors
+set t_Co=16
+
 
 let g:vim_markdown_frontmatter = 1
 let g:vim_markdown_math = 1
@@ -44,11 +51,7 @@ let g:vim_markdown_fenced_languages = ['nix=nix', 'Dockerfile=dockerfile']
 let g:vim_markdown_new_list_item_indent = 2
 let g:vim_markdown_auto_insert_bullets = 0
 
-set mouse=a
-set number
-":map <ScrollWheelUp> <C-Y>
-":map <ScrollWheelDown> <C-E>
-
 set wrap
 set ignorecase
 set nofoldenable
+set nofixeol

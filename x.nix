@@ -2,6 +2,10 @@
 { config, pkgs, lib, options, ... }:
 
 {
+  imports = [
+    ./rofi/default.nix
+  ];
+
   home.packages = with pkgs; [
     brightnessctl
     neofetch

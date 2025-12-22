@@ -1,23 +1,38 @@
 *.html
-*.md
 *.pdf
 *.tex
 emacs/**/*-conflict-*
+emacs/**/*.dylib
+emacs/**/*.sqlite
 emacs/*cache*
 emacs/.*
+emacs/error*.txt
 emacs/eshell
 emacs/games
 emacs/history
 emacs/journal.org
 emacs/multisession
+emacs/ox-html.css
 emacs/persist
 emacs/personal*
 emacs/persp*
 emacs/project*
 emacs/request
+emacs/straight/modified
 emacs/transient
 ghorg
 org-roam.db
 personal.nix
 result
 xkb.dump*
+
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
+

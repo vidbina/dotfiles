@@ -1,6 +1,7 @@
 { config, pkgs, lib, options, ... }:
 
-{
+if pkgs.stdenv.isLinux
+then {
   programs.rofi = {
     enable = true;
     package = pkgs.rofi.override {
@@ -15,3 +16,4 @@
     };
   };
 }
+else { };

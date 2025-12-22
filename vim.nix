@@ -2,60 +2,63 @@
 { config, pkgs, ... }:
 
 {
+  home.sessionVariables.EDITOR = "nvim";
+
   programs.neovim = {
     enable = true;
-    # Warning: Just bailed on init.vim and opted for nix so, WIP!
 
-    #extraConfig = builtins.readFile (./. + "/nvim/init.vim");
-    plugins = with pkgs.vimPlugins; let
-      #sentinel-vim = pkgs.vimUtils.buildVimPlugin {
-      #  name = "sentinel-vim";
-      #  src = pkgs.fetchFromGitHub {
-      #    owner = "hashicorp";
-      #    repo = "sentinel.vim";
-      #    rev = "main";
-      #    sha256 = pkgs.lib.fakeSha256;
-      #  };
-      #};
-    in
-    [
-      #{
-      #  plugin = vim-plug;
-      #  optional = false;
-      #}
-
-      #'https://github.com/hrother/offlineimaprc.vim.git'
-      #'isRuslan/vim-es6'
-      #'jeffkreeftmeijer/vim-dim', { 'branch': 'main' }
-      #'sigmike/vim-taskjuggler'
-      #'vim-scripts/openvpn'
-      #ale
-      #vim-scala
-      coc-nvim
-      deoplete-notmuch
-      elm-vim
+    plugins = with pkgs.vimPlugins; [
+      # deoplete-notmuch
       goyo-vim
       neoformat
       nerdtree
-      nvim-treesitter
-      #orgmode
-      plantuml-syntax
-      #sentinel-vim
       tabular
       tagbar
-      typescript-vim
       vim-airline
+      vim-dim
       vim-fugitive
       vim-gitgutter
-      vim-graphql
-      vim-markdown
-      vim-nix
-      vim-prettier
-      vim-solidity
-      vim-terraform
-      wmgraphviz-vim
+      nvim-treesitter.withAllGrammars
     ];
     vimdiffAlias = true;
     withRuby = true;
+    extraConfig = ''
+      set tabstop=2    " tab stop to 2 spaces
+      set shiftwidth=2 " shift width by 2 spaces
+      set expandtab    " expand tabs to spaces
+      set mouse=a
+      set number
+      ":map <ScrollWheelUp> <C-Y>
+      ":map <ScrollWheelDown> <C-E>
+      colorscheme dim
+      " https://vi.stackexchange.com/a/45130
+      set notermguicolors
+      set t_Co=16
+
+
+      let g:vim_markdown_frontmatter = 1
+      let g:vim_markdown_math = 1
+      let g:vim_markdown_fenced_languages = ['nix=nix', 'Dockerfile=dockerfile']
+      let g:vim_markdown_new_list_item_indent = 2
+      let g:vim_markdown_auto_insert_bullets = 0
+
+      set wrap
+      set ignorecase
+      set nofoldenable
+      set nofixeol
+    '';
+    extraLuaConfig = ''
+      -- Tangled from README.org
+      require'nvim-treesitter.configs'.setup{
+        highlight = {
+          enable = true,
+          -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+          -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+          -- Using this option may slow down your editor, and you may see some duplicate highlights.
+          -- Instead of true it can also be a list of languages
+          additional_vim_regex_highlighting = false,
+        },
+      }
+    '';
   };
 }

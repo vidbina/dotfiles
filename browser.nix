@@ -18,22 +18,22 @@ in
     enable = true;
     package = pkgs-bleeding.chromium;
     commandLineArgs = [
-     # https://www.linuxuprising.com/2018/08/how-to-enable-hardware-accelerated.html
-     "--enable-accelerated-video-decode"
-     "--enable-logging=stderr"
-     "--ignore-gpu-blocklist"
-     "--use-gl=desktop"
-     "--enable-features=VaapiVideoEncoder,VaapiVideoDecoder"
-     "--disable-features=UseChromeOSDirectVideoDecoder"
+      # https://www.linuxuprising.com/2018/08/how-to-enable-hardware-accelerated.html
+      "--enable-accelerated-video-decode"
+      "--enable-logging=stderr"
+      "--ignore-gpu-blocklist"
+      "--use-gl=desktop"
+      "--enable-features=VaapiVideoEncoder,VaapiVideoDecoder"
+      "--disable-features=UseChromeOSDirectVideoDecoder"
 
-     # https://github.com/NixOS/nixpkgs/issues/209101
-     "--disable-gpu-vsync"
-     "--disable-frame-rate-limit"
+      # https://github.com/NixOS/nixpkgs/issues/209101
+      "--disable-gpu-vsync"
+      "--disable-frame-rate-limit"
 
-     # https://wiki.archlinux.org/title/chromium
-     "--ignore-gpu-blocklist"
-     "--enable-gpu-rasterization"
-     "--enable-zero-copy"
+      # https://wiki.archlinux.org/title/chromium
+      "--ignore-gpu-blocklist"
+      "--enable-gpu-rasterization"
+      "--enable-zero-copy"
     ];
 
     extensions = [

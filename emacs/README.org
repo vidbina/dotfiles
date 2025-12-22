@@ -62,7 +62,7 @@ Disable the tangle helper by running the following snippet with ~(org-ctrl-c-ctr
 
 ** <<install-hm>> Install with Home-Manager
 
-My Emacs version is pretty up-to-date as per [2023-07-04 Tue 17:35] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to [[nix-config-linux][rebuild Emacs from scratch]] whenever needed.
+My Emacs version is pretty up-to-date as per [2023-10-04 Wed 22:39] and was built entirely through my Nix configuration since I don't want to be bothered in terms on tooling in figuring out how to [[nix-emacs-build][rebuild Emacs from scratch]] whenever needed.
 
 #+begin_src elisp :results verbatim :exports both
 (emacs-version)
@@ -81,6 +81,13 @@ The good bit about home-manager is that is will go as far as setting up home dir
    2. or just my Emacs-related config:
       1. borrow ideas from [[file:default.nix]] (or [[file:default-darwin.nix]] for macOS users) and place them into your own home-manager configuration
 3. profit 💰
+
+For myself: Run the following shell commands in order to set up symlinks for the personal.el and lang.el files (to my example files).
+
+#+begin_src bash :results none
+ln -s personal-example.el personal.el
+ln -s lang.example.el lang.el
+#+end_src
 
 ** <<install-manual>> Install manually
 
@@ -163,7 +170,7 @@ For convenience's sake, let's start stubbing some of the files that we will be t
 
 *** lang.el
 
-⚠️ We only populate into an example file.
+⚠️ We only populate into an example file, named [[file:lang.example.el]].
 
 #+begin_src elisp :tangle lang.example.el :noweb yes
 <<tangle-providence>>
@@ -171,7 +178,7 @@ For convenience's sake, let's start stubbing some of the files that we will be t
 
 *** personal.el
 
-⚠️ We only populate into an example file.
+⚠️ We only populate into an example file, named [[file:personal-example.el]].
 
 #+begin_src elisp :tangle personal-example.el :noweb yes
 <<tangle-providence>>
@@ -381,6 +388,7 @@ For troubleshootings sake it is helpful to know how to use function =straight-de
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
 (use-package org
   :straight (:type built-in)
+  :after magit
   :init
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
@@ -438,14 +446,14 @@ $$f(g(x))$$
 (defun vidbina/latex-formula-zoom-decrease ()
   (interactive)
   (if (eq 0 vidbina/latex-formula-zoom-step)
-      (error "🔍 Can not zoom LaTeX with factor zero")
+      (warn "🔍 Can not zoom LaTeX with factor zero")
     (vidbina/latex-formula-zoom (/ vidbina/latex-formula-zoom-step))
     ))
 
 (defun vidbina/latex-formula-zoom-reset (scale)
   (interactive (list (read-number "Reset to which scale? " 1 1)))
   (if (eq 0 vidbina/latex-formula-zoom-step)
-      (error "🔍 Can not zoom LaTeX with factor zero")
+      (warn "🔍 Can not zoom LaTeX with factor zero")
     (setq org-format-latex-options
           (plist-put org-format-latex-options :scale scale))
     ))
@@ -502,6 +510,10 @@ state_done -> [*]
 #+RESULTS:
 [[file:images/org-default-workflow-states.png]]
 
+*** TODO Use GMT/UTC as timestamp TZ
+
+When travelling, the default Emacs config allows for timestamps to just be framed in the current system timezone which dynamically changes on macOS. Just to keep thing from breaking, we want to lock our system such that times are always framed in the same TZ.
+
 ** <<org-babel>> Org-Babel
 
 *** <<org-babel-tangle>> Asynchronous Tangle
@@ -516,7 +528,7 @@ Tangling sometimes takes a fair amount of time that we can't always afford to wa
 (defun org-babel-tangle-async (&optional arg target-file lang-re)
   "Call `org-babel-tangle' asynchronously"
   (interactive "P")
-  (message "🧬 Async Org-Babel start tangling %s" buffer-file-name)
+  (message "🧬 Async Org-Babel: start tangle [%s]" buffer-file-name)
   <<org-babel-tangle-async-start>>)
 #+end_src
 
@@ -540,6 +552,7 @@ It's unclear if the use of =find-file= is a really bad idea. I've considered tha
 
 #+begin_src elisp :noweb-ref org-babel-tangle-async-start
 (async-start `(lambda ()
+                (message "🧬 Async Org-Babel: lambda start")
                 (if (and (stringp ,buffer-file-name)
                          (file-exists-p ,buffer-file-name))
                     (progn
@@ -548,15 +561,26 @@ It's unclear if the use of =find-file= is a really bad idea. I've considered tha
                             enable-local-eval t
                             auto-save-default nil
                             org-babel-pre-tangle-hook '())
+                      (print (format "🧬 Async Org-Babel: exec from [%s] load from [%s]" exec-path load-path))
                       (package-initialize)
+                      (print (format "🧬 Async Org-Babel: package init completed"))
+
                       (find-file ,(buffer-file-name))
+                      (print (format "🧬 Async Org-Babel: file [%s] found" ,buffer-file-name))
                       (read-only-mode t)
                       (goto-char ,(point))
+                      (print (format "🧬 Async Org-Babel: point [%s] located" ,(point)))
+
+                      (print (format "🧬 Async Org-Babel: auto confirm babel eval"))
+                      (setq-local org-confirm-babel-evaluate nil)
+
+                      (print (format "🧬 Async Org-Babel:\n\targ [%s]\n\ttarget [%s]\n\tlang [%s]" ,arg , target-file ,lang-re))
                       (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
+                      (print (format "🧬 Async Org-Babel: tangled"))
                       buffer-file-name)
-                  (error "🧬 Async Org-Babel is not visiting a file")))
+                  (warn "🧬 Async Org-Babel: not visiting a file")))
              `(lambda (result)
-                (message "🧬 Async Org-Babel tangled %s" result)))
+                (message "🧬 Async Org-Babel: completed [%s]" result)))
 #+end_src
 
 **** TODO Contrast current with =org-export-async-start= implementation
@@ -1784,7 +1808,7 @@ block."
                       (buffer-substring-no-properties (point-min) (point-max)))
                      result)
                 (unless (fboundp cmd)
-                  (error "No org-babel-execute function for %s!" lang))
+                  (warn "No org-babel-execute function for %s!" lang))
                 (message "executing %s code block%s..."
                          (capitalize lang)
                          (let ((name (nth 4 info)))
@@ -2368,17 +2392,87 @@ In order to avoid overthinking themes, I've opted for Prot's [[https://gitlab.co
    (prose-todo red-intense)))
 #+end_src
 
-*** Theme Magic
+*** COMMENT Theme Magic
 
-Use [[https://github.com/jcaw/theme-magic][theme-magic]] to use pywal to update your system theme based on your current Emacs theme.
+The [[https://github.com/jcaw/theme-magic][theme-magic]] package uses [[https://github.com/dylanaraps/pywal][pywal]] to update terminal emulator color schemes or themes. Using theme-magic allows one to syncs the terminal themes to the current Emacs theme.
 
-#+begin_src elisp :tangle init.el
+#+begin_src elisp :noweb yes :tangle init.el
 (use-package theme-magic
   :straight (theme-magic :type git
                          :host github
                          :repo "jcaw/theme-magic")
   :config
-  (theme-magic-export-theme-mode))
+  (theme-magic-export-theme-mode)
+  <<theme-magic-config>>
+)
+#+end_src
+
+Run the =theme-magic-from-emacs= command to update your system theme to match your Emacs theme.
+
+#+begin_aside
+Note that on macOS, theme-magic works with iTerm2 out of the box. Other terminal emulators like Alacritty and Kitty may take additional configuration to set up.
+#+end_aside
+
+Pywal provides instructions on the [[https://github.com/dylanaraps/pywal/wiki/Installation#terminal-emulator][terminal emulators]] that are compatible and how to test them, note that the following terminals are known to not work well with pywal:
+- Konsole (the KDE standard)
+- Hyper (the web-based Vercel)
+- Terminal.app (the macOS standard)
+- Terminology (the Enlightenment EFL standard)
+- st (the suckless standard)
+
+#+begin_aside
+theme-magic--check-dependencies: Could not find ’python’ executable. Is Python installed and on the path?
+#+end_aside
+
+**** Improve theme output for Modus Themes
+
+See =theme-magic--preferred-extracted-colors= for an overview of the output.
+
+#+begin_src elisp :noweb-ref theme-magic-config
+(setq theme-magic--preferred-extracted-colors
+      '(
+        ;; background
+        (0 . ((modus-themes-get-color-value 'bg-main)
+              (modus-themes-get-color-value 'bg-dim)))
+
+        ;; error (red)
+        (1 . ((modus-themes-get-color-value 'red-intense)
+              (modus-themes-get-color-value 'err)
+              (modus-themes-get-color-value 'red)))
+
+        ;; warning (yellow)
+        (3 . ((modus-themes-get-color-value 'yellow-warmer)
+              (modus-themes-get-color-value 'warning)
+              (modus-themes-get-color-value 'yellow-intense)
+              (modus-themes-get-color-value 'bg-yellow-intense)))
+
+        ;; cyan
+        (6 . ((modus-themes-get-color-value 'cyan-intense)
+              (modus-themes-get-color-value 'cyan)))
+
+        ;; foreground
+        (7 . ((modus-themes-get-color-value 'fg-main)))
+
+        ;; alt/faded
+        (8 . ((modus-themes-get-color-value 'fg-dim)
+              (modus-themes-get-color-value 'fg-alt)))
+
+        ;; additionals, non primaries
+
+        ;; (green)
+        (2 . ((modus-themes-get-color-value 'green-intense)
+              (modus-themes-get-color-value 'green)
+              (modus-themes-get-color-value 'green-faint)))
+
+        ;; (blue)
+        (4 . ((modus-themes-get-color-value 'blue-warmer)
+              (modus-themes-get-color-value 'blue-intense)
+              (modus-themes-get-color-value 'blue)))
+
+        ;; (purple)
+        (5 . ((modus-themes-get-color-value 'magenta-intense)
+              (modus-themes-get-color-value 'magenta-warmer)
+              (modus-themes-get-color-value 'magenta)))))
 #+end_src
 
 ** COMMENT NΛNO: NANO Theme by Rougier
@@ -2413,14 +2507,16 @@ Probably a good holiday hacking effort.
 (use-package mu4e-dashboard
   :straight (mu4e-dashboard :type git
                             :host github
-                            :repo "rougier/mu4e-dashboard"))
+                            :repo "rougier/mu4e-dashboard")
+  :after mu4e)
 #+end_src
 
 #+begin_src elisp :tangle init.el
 (use-package mu4e-thread-folding
   :straight (mu4e-thread-folding :type git
                                  :host github
-                                 :repo "rougier/mu4e-thread-folding"))
+                                 :repo "rougier/mu4e-thread-folding")
+  :after mu4e)
 #+end_src
 
 *** svg-tag-mode
@@ -2854,16 +2950,19 @@ In order to provide point-specific behavior, we use the [[https://www.gnu.org/so
 #+begin_src elisp :tangle personal-example.el
 (defun vidbina/get-likely-current-directory ()
   (interactive)
-  (let* ((other-buffer (persp-get-scratch-buffer))
-         (other-directory (with-current-buffer other-buffer default-directory))
-         (file-name buffer-file-name))
-    (if (eq major-mode 'vterm-mode)
-        (progn
-          (message (format "📁 Finding Folder: in buffer %s directory %s" other-buffer other-directory))
-          other-directory)
-      (unless (eq file-name nil)
-        (message "📁 Not in vterm-mode, so just returning dir of buffer file")
-        (file-name-directory buffer-file-name)))))
+
+  (let ((file-buffers (seq-filter (lambda (x) (buffer-file-name x)) (persp-get-buffers))))
+    (cond
+     ;; If buffer has filename, use its directory
+     ((not (eq (buffer-file-name) nil))
+      (progn
+        (message "📁 Buffer has file name so, returning dir of buffer file")
+        (file-name-directory buffer-file-name)))
+     ;; If file buffers exist, pick the directory of the first one
+     ((> (length file-buffers) 0)
+      (file-name-directory (buffer-file-name (car file-buffers))))
+     ;; Otherwise, homedir
+     (t "~/"))))
 
 (defun vidbina/ffap-vterm-in-persp-mode ()
   "Handle FFAP within persp-mode"
@@ -3060,14 +3159,19 @@ Use =C-c C-a= to *add annotations* and =C-c C-d= to *delete* annotations.
 
 *** Magit: Git Porcelain
 
+Disabling magit in order to fall back on the Emacs default.
+
 #+begin_src elisp :tangle init.el
 ;; https://github.com/magit/magit.git
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit"
-                   :branch "main")
+                   :repo "magit/magit")
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x C-g" . magit-status))
   :custom
+  (with-editor-emacsclient-executable nil)
   (magit-display-buffer-function
    (lambda (buffer)
      ;; based on magit-display-buffer-same-window-except-diff-v1
@@ -3119,6 +3223,8 @@ pass edit api.github.com/vidbina^forge
 ⛔ Warning (straight): Packages "magit-section" and "magit" have incompatible recipes (:branch cannot be both nil and "main")
 ⛔ Warning (straight): Packages "git-commit" and "magit-section" have incompatible recipes (:branch cannot be both "main" and nil)
 #+end_quote
+
+The thread at https://github.com/radian-software/straight.el/issues/326 outlines that this issue is caused by us installing a package at a given version while a tightly coupled dependency is installed at a different version, thus creation a situation of incompatibility. My hunch is that this issue is caused by attempts to custom install magit without installing a matching magit-section or git-commit.
 
 *** Diff-hl: Diff highlighting in the left gutter of a buffer
 
@@ -4095,7 +4201,7 @@ You will find the following MTA options in Emacs:
 
 Read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mail-Methods.html][Mail Composition Methods (Emacs Manual)]] for more information on how to compose mail in Emacs.
 
-*** mu4e
+*** COMMENT mu4e
 
 mu4e is a Maildir-friendly mail client that uses mu as a backend.
 
@@ -4754,10 +4860,12 @@ The message.el package provides a more general interfaces for message sending, s
 To keep our init as general as possible we store private information and language configurations in separate files since these are inherently personal concerns. This configuration will try to load [[file:lang.el]] and [[file:personal.el]] if these exist.
 
 #+begin_src elisp :tangle init.el
-(message "💥 Debug on error is %s" debug-on-error)
+(message "💥 Debug on error is %s." debug-on-error)
 
-(load "~/.emacs.d/lang.el")
-(load "~/.emacs.d/personal.el")
+(load "~/.emacs.d/lang.el" t)
+(load "~/.emacs.d/personal.el" t)
+
+(message "🏅 Finale, just before customizations.")
 #+end_src
 
 ** Customizations
@@ -4767,7 +4875,9 @@ Furthermore we load customization since some configurations and changes to our E
 #+begin_src elisp :tangle init.el
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
+(load custom-file t)
+
+(message "🪞 Customizations loaded.")
 #+end_src
 
 * Personal Details
@@ -4986,28 +5096,27 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (vidbina/theme-switch-to-dark)
     (vidbina/theme-switch-to-light)))
 
+(defun vidbina/theme-param-set (mode-line-color wallpaper-color emacs-theme)
+  (setq zoom-window-mode-line-color mode-line-color)
+  (load-theme emacs-theme :no-confirm)
+  (vidbina/theme-switch-update-cursor-styles)
+  (pcase  system-type
+    ('darwin (warn "No hsetroot on Darwin"))
+    ('gnu/linux (async-shell-command (format "hsetroot -solid '%s'" wallpaper-color) "*dotfile-helpers*")
+                (message "see *dotfile-helpers* for output of wallpaper color set"))
+    (_ (warn "Skipping wallpaper color set on unknown sys"))))
+
 (defun vidbina/theme-switch-to-dark ()
   "Switch to the dark theme"
   (interactive)
-  (setq zoom-window-mode-line-color "DodgerBlue4")
-  (load-theme 'modus-vivendi :no-confirm)
-  (vidbina/theme-switch-update-cursor-styles)
-  ;; call commands
-  ;; hsetroot -solid '#000000'
-  (async-shell-command "hsetroot -solid '#000000'" "*dotfile-helpers*")
-  (message "see *dotfile-helpers* for output of wallpaper color set")
+  (vidbina/theme-param-set "DodgerBlue4" "#000000" 'modus-vivendi)
   (message "🌑 Theme is dark")
   (customize-save-variable 'vidbina/theme-should-be-dark t))
 
 (defun vidbina/theme-switch-to-light ()
   "Switch to the light theme"
   (interactive)
-  (setq zoom-window-mode-line-color "Gold")
-  (load-theme 'modus-operandi :no-confirm)
-  (vidbina/theme-switch-update-cursor-styles)
-  ;; call commands
-  (async-shell-command "hsetroot -solid '#ff9800'" "*dotfile-helpers*")
-  (message "see *dotfile-helpers* for output of wallpaper color set")
+  (vidbina/theme-param-set "Gold" "#ff9800" 'modus-operandi)
   (message "🌕 Theme is light")
   (customize-save-variable 'vidbina/theme-should-be-dark nil))
 
@@ -5074,7 +5183,8 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
 
 #+begin_src elisp :tangle personal-example.el
 (defun vidbina/browse-url-xsel (url &optional ignored)
-  (shell-command (format "echo \"%s\" | xsel -ib" url)))
+  (message "🌐 Browse: copy url [%s]" url)
+  (kill-new url))
 
 (setq browse-url-browser-function 'vidbina/browse-url-xsel)
 
@@ -5083,7 +5193,7 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
   (progn
     (when (derived-mode-p 'html-mode)
       (progn
-        (message (concat "Browse " buffer-file-name))
+        (message "🌐 Browse: open file [%s]" buffer-file-name)
         (browse-url (file-truename buffer-file-name))))))
 
 (add-hook 'after-save-hook 'vidbina/browse-to-current-file)
@@ -5099,8 +5209,9 @@ Here be dragons! 🐉 This is my personal collection of helpers that I use for l
       (notmuch-search-tag (list "-inbox"))
     (notmuch-search-tag (list "+inbox"))))
 
-(evil-collection-define-key 'normal 'notmuch-search-mode-map
-  "i" 'vidbina/notmuch-toggle-inbox)
+(if (fboundp 'evil-collection-define-key)
+ (evil-collection-define-key 'normal 'notmuch-search-mode-map
+  "i" 'vidbina/notmuch-toggle-inbox))
 #+end_src
 
 *** Mail Signature Helpers
@@ -5233,6 +5344,24 @@ Writing to the kill ring is done on a buffer-basis. Sometimes one just want to y
   (with-temp-buffer
     (insert object)
     (kill-region (point-min) (point-max))))
+#+end_src
+
+**** WIP Store code block into kill-ring
+
+#+begin_src txt
+Here is an example text that we can just copy
+#+end_src
+
+#+begin_src elisp :tangle personal-example.el
+(defun vidbina/copy-block ()
+  "Copies or yanks (vi) the contents of code block at point"
+  (interactive)
+  (if (org-in-src-block-p)
+      (progn (org-babel-mark-block)
+             (let ((start-pos (region-beginning))
+                   (end-pos (region-end)))
+               (copy-region-as-kill start-pos end-pos)))
+    (warn "Not in code-block")))
 #+end_src
 
 **** WIP Open process buffer below active buffer
@@ -5459,7 +5588,7 @@ Use the built-in ispell for spell checking.
 
 This configuration is derived from the article [[https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html][Setting up spell checking with multiple dictionaries in Emacs (by Alain M. Lafon from 200ok.ch)]].
 
-**** Ported use-package configuration
+**** COMMENT Ported use-package configuration
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html
@@ -5467,11 +5596,7 @@ This configuration is derived from the article [[https://200ok.ch/posts/2020-08-
   :straight (:type built-in)
   :custom
   (ispell-program-name "hunspell")
-  ;; Configure German, Swiss German, and two variants of English.
-  (ispell-dictionary "en_US,de_DE,nl")
-  ;; For saving words to the personal dictionary, don't infer it from
-  ;; the locale, otherwise it would save to ~/.hunspell_de_DE.
-  (ispell-personal-dictionary "~/.hunspell_personal")
+  (ispell-dictionary "en_US,de_DE,nl_NL,fr-toutesvariantes,es_ANY")
   (ispell-personal-dictionary "~/.hunspell_personal")
   :config
   ;; https://www.emacswiki.org/emacs/FlySpell#h5o-14
@@ -5624,6 +5749,15 @@ Some of the relevant keybindings are:
 - =C-c C-f= format region or buffer with =json-reformat=
 - =c-c P= copy path to object at point to the kill ring
 
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(json-mode . json-ts-mode)
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-languages
+(json . ("https://github.com/tree-sitter/tree-sitter-json"))
+#+end_src
+
 **** JSON Reformat
 
 [[https://github.com/gongo/json-reformat][JSON Reformat]] provides convenience helpers to reformat JSON in string or region.
@@ -5668,9 +5802,13 @@ Some of the relevant keybindings are:
                        :repo "yoshiki/yaml-mode"))
 #+end_src
 
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(yaml-mode . yaml-ts-mode)
+#+end_src
+
 **** YAML Formatter
 
-#+begin_src nix :noweb-ref nix-linux-packages
+#+begin_src nix :noweb-ref nix-packages
 yamllint
 #+end_src
 
@@ -5678,7 +5816,7 @@ yamllint
 
 We install the [[https://github.com/redhat-developer/yaml-language-server][YAML language server]] to offer LSP support for YAML files.
 
-#+begin_src nix :noweb-ref nix-linux-packages
+#+begin_src nix :noweb-ref nix-packages
 nodePackages.yaml-language-server
 #+end_src
 
@@ -5811,6 +5949,7 @@ The selected nomer is a poor choice if you think about it. 🤔 Plotting languag
                       :host github
                       :repo "NixOS/nix-mode")
 
+  :after magit
   :custom
   (nix-nixfmt-bin "nixpkgs-fmt"))
 #+end_src
@@ -5888,8 +6027,10 @@ hello
 
 The following example should fail because the shebang helper checks that the supplied argument is a valid string that can be expanded into a path:
 
-#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang (list "a")) :results verbatim
+#+begin_src org
+,#+begin_src bash :shebang (vidbina/ob-shell-nix-shebang (list "a")) :results none
 hello
+,#+end_src
 #+end_src
 
 ****** CANCELED COMMENT nix-develop ob-shell shebang generator
@@ -6238,6 +6379,14 @@ but I am trying to figure out how to spawn a nix shell interpreter in a Flake-ba
 
 *** Python
 
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(python-mode . python-ts-mode)
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-languages
+(python . ("https://github.com/tree-sitter/tree-sitter-python"))
+#+end_src
+
 **** Use pyright-langserver as default LSP for Python
 
 #+begin_src elisp
@@ -6298,7 +6447,17 @@ Inspired from https://robbmann.io/posts/emacs-eglot-pyrightconfig/
                      :repo "dominikh/go-mode.el"))
 #+end_src
 
-*** JavaScript (ECMAScript or ES)
+#+begin_src elisp :noweb-ref treesit-languages
+(go . ("https://github.com/tree-sitter/tree-sitter-go"))
+#+end_src
+
+*** JavaScript
+
+#+begin_src elisp :noweb-ref treesit-languages
+(javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+#+end_src
+
+**** Js-Comint: JavaScript Interpreter
 
 Since JavaScript is everywhere, let's make sure we can at least read it with ease.
 
@@ -6321,6 +6480,34 @@ Since JavaScript is everywhere, let's make sure we can at least read it with eas
 
 Superset of JavaScript that folks really should be using instead of just vanilla JS but we're not here to judge. 🤷🏿‍♂️
 
+Note that Emacs not bundles =typescript-ts-mode= so we may not need to install a separate package for this. As per <2024-10-22 Tue>, we are commenting-out all custom config regarding TypeScript.
+
+#+begin_src elisp :noweb-ref treesit-languages
+(typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
+(tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+#+end_src
+
+***** COMMENT TSI
+
+https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/#ensure-for-tsx-configure-for-tree-sitter-based-indentation
+
+#+begin_src elisp
+;; https://github.com/orzechowskid/tsi.el/
+;; great tree-sitter-based indentation for typescript/tsx, css, json
+(use-package tsi
+  :after tree-sitter
+  :straight (tsi :type git
+                 :host github
+                 :repo "orzechowskid/tsi.el")
+  ;; define autoload definitions which when actually invoked will cause package to be loaded
+  :commands (tsi-typescript-mode tsi-json-mode tsi-css-mode)
+  :init
+  (add-hook 'typescript-mode-hook (lambda () (tsi-typescript-mode 1)))
+  (add-hook 'json-mode-hook (lambda () (tsi-json-mode 1)))
+  (add-hook 'css-mode-hook (lambda () (tsi-css-mode 1)))
+  (add-hook 'scss-mode-hook (lambda () (tsi-scss-mode 1))))
+#+end_src
+
 ***** COMMENT Configure default LSP for TypeScript
 
 #+begin_src elisp :tangle lang.example.el
@@ -6332,7 +6519,7 @@ Superset of JavaScript that folks really should be using instead of just vanilla
          '(tsx-ts-mode . ("typescript-language-server" "--stdio")))))
 #+end_src
 
-**** PROTOTYPE Typescript-mode
+**** PROTOTYPE COMMENT Typescript-mode
 :LOGBOOK:
 - State "PROTOTYPE"  from "CANCELED"   [2023-07-04 Tue 20:44] \\
   Reopening typescript-mode as there seems to be a bit of a disconnect between major modes and the tree-sitter major modes that I really need to understand.
@@ -6349,11 +6536,28 @@ Development of this package has been halted, so we're stopping our use of this.
   (typescript-mode :type git
                    :host github
                    :repo "emacs-typescript/typescript.el")
-  :after flyspell
+  :after flyspell tree-sitter
   :delight
   (typescript-mode "ts")
   :custom
-  (typescript-indent-level 2))
+  (typescript-indent-level 2)
+
+  ;; https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/#ensure-for-tsx-configure-for-tree-sitter-based-indentation
+  :config
+  ;; we choose this instead of tsx-mode so that eglot can automatically figure out language for server
+  ;; see https://github.com/joaotavora/eglot/issues/624 and https://github.com/joaotavora/eglot#handling-quirky-servers
+  (define-derived-mode typescriptreact-mode typescript-mode
+    "TypeScript TSX")
+
+  ;; use our derived mode for tsx files
+  (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . typescriptreact-mode))
+  ;; by default, typescript-mode is mapped to the treesitter typescript parser
+  ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
+  (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx)))
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(typescript-mode . typescript-ts-mode)
 #+end_src
 
 ***** COMMENT Tide
@@ -6462,6 +6666,54 @@ Commenting this out since it bootstraps LSP-mode which we're avoiding as we're g
                       :repo "emacs-lsp/lsp-java"))
 #+end_src
 
+*** Gleam
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/gleam-lang/gleam-mode
+(use-package gleam-ts-mode
+  :straight (gleam-ts-mode :type git
+                           :host github
+                           :repo "gleam-lang/gleam-mode"))
+#+end_src
+
+For treesitter, we install the necessary grammar as mentioned in the [[https://github.com/tree-sitter/tree-sitter/pull/1876/files][PR listing the official Gleam grammar]]:
+
+#+begin_src elisp :noweb-ref treesit-languages
+(gleam . ("https://github.com/gleam-lang/tree-sitter-gleam"))
+#+end_src
+
+For the ease of use, we configure the Gleam-specific bit for =major-mode-remap-alist=:
+
+#+begin_src elisp :noweb-ref treesit-config-major-mode-remap
+(gleam-mode . gleam-ts-mode)
+#+end_src
+
+*** Lua
+
+In order to edit Lua code for our neovim configs, Hammerspoon and just good measure because Lua isn't that uncommon of a language to bump into, we install the [[https://github.com/immerrr/lua-mode][lua-mode package]].
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/immerrr/lua-mode
+(use-package lua-mode
+  :straight (lua-mode :type git
+                      :host github
+                      :repo "immerrr/lua-mode"))
+#+end_src
+
+#+begin_src elisp :noweb-ref treesit-languages
+(lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+#+end_src
+
+*** Vim
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/mcandre/vimrc-mode
+(use-package vimrc-mode
+  :straight (vimrc-mode :type git
+                      :host github
+                      :repo "mcandre/vimrc-mode"))
+#+end_src
+
 *** Clojure
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
@@ -6505,7 +6757,7 @@ Refer to the [[https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-cloju
                          :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
 #+end_src
 
-*** Swift
+*** COMMENT Swift
 
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/swift-emacs/swift-mode
@@ -6513,6 +6765,12 @@ Refer to the [[https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-cloju
   :straight (swift-mode :type git
                         :host github
                         :repo "swift-emacs/swift-mode"))
+#+end_src
+
+⚠️ The following configuration is broken because the repo does not list the grammar.json and parser.c files that treesitter needs but instead expect the files to be generated first.
+
+#+begin_src elisp :noweb-ref treesit-languages
+(swift . ("https://github.com/alex-pinkus/tree-sitter-swift"))
 #+end_src
 
 *** Haskell
@@ -6540,6 +6798,11 @@ In order to configure interactive mode, we follow the [[https://haskell.github.i
 #+end_src
 
 Please note that [[https://wiki.haskell.org/GHC/GHCi][GHCi]], [[https://github.com/ndmitchell/hlint][HLint]] and [[https://github.com/haskell/stylish-haskell][stylish-haskell]] are needed for this configuration to work.
+
+#+begin_src elisp :noweb-ref treesit-languages
+(haskell . ("https://github.com/tree-sitter/tree-sitter-haskell"))
+#+end_src
+
 
 **** Haskell Environment Configuration in Nix
 
@@ -6580,6 +6843,11 @@ To add another layer of convenience or complexity, depending on how you want to 
                       :repo "jcollard/elm-mode"))
 #+end_src
 
+
+#+begin_src elisp :noweb-ref treesit-languages
+(elm . ("https://github.com/elm-tooling/tree-sitter-elm"))
+#+end_src
+
 *** Rust
 
 #+begin_src elisp :tangle lang.example.el
@@ -6588,6 +6856,23 @@ To add another layer of convenience or complexity, depending on how you want to 
   :straight (rust-mode :type git
                        :host github
                        :repo "rust-lang/rust-mode"))
+#+end_src
+
+
+#+begin_src elisp :noweb-ref treesit-languages
+(rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+#+end_src
+
+*** AppleScript
+
+At times, I may need to edit AppleScript code for some machine-side automations which I may trigger with Hammerspoon.
+
+#+begin_src elisp :tangle lang.example.el
+;; https://github.com/emacsorphanage/applescript-mode
+(use-package applescript-mode
+  :straight (applescript-mode :type git
+                              :host github
+                              :repo "emacsorphanage/applescript-mode"))
 #+end_src
 
 ** Misc
@@ -6646,20 +6931,28 @@ See if treesitter is available in a buffer by running:
 
 - ⚠️ [2023-07-04 Tue 20:40] +I initally thought of test the [[https://lists.gnu.org/archive/html/emacs-devel/2022-11/msg01443.html][built-in/integrated tree-sitter in Emacs 29+]] as per the recommendation on the [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][elisp-tree-sitter README]] but am realising that my current build of Emacs may not have tree-sitter bundled into it. 😅+ Don't use bleeding edge Emacs but just use the stable-ish version 29 if you don't want to screw around.
 
-Fiddled around with this for a bit and stumbled into a variety of errors, so I triehich led to the the explicit definition of variable =treesit-language-source-alist= which treesit-auto needs to get the job done. While playing around, I noticed that I misunderstood how tree-sitter-langs and treesit-auto factor into the picture. My current understanding as per [2023-07-04 Tue 15:19] is that:
+Fiddled around with this for a bit and stumbled into a variety of errors, and after some sleuthing hich landed on the explicit definition of variable =treesit-language-source-alist= which treesit-auto needs to get the job done. While playing around, I noticed that I misunderstood how tree-sitter-langs and treesit-auto fit into the picture. My current understanding as per [2023-07-04 Tue 15:19] is that:
 - tree-sitter-langs provides lang bundles *that need to be installed*
+
+See https://emacs-tree-sitter.github.io/getting-started/ for instructions on how to get started with tree-sitter.
 
 #+begin_src elisp :noweb yes :tangle lang.example.el
 (use-package treesit
   :straight (:type built-in)
-  ;;:autoload treesit-install-language-grammar
-  :commands (treesit-install-language-grammar nf/treesit-install-all-languages)
   :init
   (setq treesit-language-source-alist
-        <<treesit-languages>>
-        )
+        '(
+          <<treesit-languages>>
+          ))
   :config
   <<treesit-config>>
+
+  (defun vidbina/treesit-install-all-languages ()
+    "Install all languages specified by `treesit-language-source-alist'."
+    (interactive)
+    ;; https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
+    (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist)))
+
   (defun nf/treesit-install-all-languages ()
     "Install all languages specified by `treesit-language-source-alist'."
     (interactive)
@@ -6698,15 +6991,21 @@ https://emacs-tree-sitter.github.io/installation/#installing-with-straight-dot-e
 
 **** tree-sitter major mode mappings
 
-#+begin_src elisp :noweb-ref treesit-config
+We define the major mode remap assoc list in order to tighten the treesitter config:
+
+#+begin_src elisp :noweb yes :noweb-ref treesit-config
 (setq major-mode-remap-alist
-      '((yaml-mode . yaml-ts-mode)
-        (bash-mode . bash-ts-mode)
-        (js2-mode . js-ts-mode)
-        (typescript-mode . typescript-ts-mode)
-        (json-mode . json-ts-mode)
-        (css-mode . css-ts-mode)
-        (python-mode . python-ts-mode)))
+      '(
+        <<treesit-config-major-mode-remap>>
+        ))
+#+end_src
+
+Individual language settings are tangled into our =setq= above in order to simplify splitting of this part of the config across the language-specific section. We do this for the first time for the Gleam setup.
+
+#+begin_src elisp :noweb yes :noweb-ref treesit-config-major-mode-remap
+(bash-mode . bash-ts-mode)
+(js2-mode . js-ts-mode)
+(css-mode . css-ts-mode)
 #+end_src
 
 **** tree-sitter extension mappings
@@ -6721,30 +7020,21 @@ See a listing of available grammars at https://tree-sitter.github.io/tree-sitter
 
 ***** alist of language mappings
 
-Just because =treesit-language-source-alist= needs this (for the treesit config), we define the /language to grammar repo/ mapping here for "reuse".
+Just because =treesit-language-source-alist= needs this (for the treesit config), we define the /language to grammar repo/ mapping here for "reuse". See [[https://www.masteringemacs.org/article/how-to-get-started-tree-sitter][Mastering Emacs]] for examples on how to set this up.
 
 #+begin_src elisp :noweb-ref treesit-languages
-'((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-  (c . ("https://github.com/tree-sitter/tree-sitter-c"))
-  (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
-  (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-  (go . ("https://github.com/tree-sitter/tree-sitter-go"))
-  (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-  (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-  (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-  (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
-  (make . ("https://github.com/alemuller/tree-sitter-make"))
-  (org . ("https://github.com/milisims/tree-sitter-org"))
-  (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
-  (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-  (php . ("https://github.com/tree-sitter/tree-sitter-php"))
-  (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
-  (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-  (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-  (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
-  (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-  (zig . ("https://github.com/GrayJack/tree-sitter-zig")))
+(bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+(c . ("https://github.com/tree-sitter/tree-sitter-c"))
+(cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+(css . ("https://github.com/tree-sitter/tree-sitter-css"))
+(html . ("https://github.com/tree-sitter/tree-sitter-html"))
+(make . ("https://github.com/alemuller/tree-sitter-make"))
+(org . ("https://github.com/milisims/tree-sitter-org"))
+(sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+(toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
 #+end_src
+
+The general rule-of-thumb is that a treesitter repo should contain a folder with a grammar.c file. We generally point our configuration to the repo, branch and directory that contains the standard treesitter filetree. For some repos, we may need to specify a subdirectory in the repo to find files such as grammar.js or grammar.json, parser.c and the other main treesitter files.
 
 ***** tree-sitter-langs: Bundle of tree-sitter grammars
 
@@ -6777,6 +7067,17 @@ Automatically installs treesitter grammars and calls the function ~treesit-insta
 
 Failing with =void-variable treesit-language-source-alist=
 
+**** COMMENT tree-sitter-indent
+
+#+begin_src elisp :tangle lang.example.el
+;; https://codeberg.org/FelipeLema/tree-sitter-indent.el
+(straight-use-package
+ '(tree-sitter-indent :type git
+                      :repo "https://codeberg.org/FelipeLema/tree-sitter-indent.el.git"
+                      :branch "main"
+                      :files ("tree-sitter-indent.el")))
+#+end_src
+
 *** Structural Editing
 
 Structural editing allows us to treat structural units of code with specific actions like movement, splicing and selection.
@@ -6798,6 +7099,8 @@ The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored
 
 **** Apheleia
 
+Apheleia helps to auto-format code upon saving. With this in place, we don't need to bother too much about editor-level indentation since we know it'll get fixed once we save anyways.
+
 #+begin_src elisp :tangle lang.example.el
 ;; https://github.com/radian-software/apheleia
 (use-package apheleia
@@ -6806,7 +7109,9 @@ The [[https://github.com/mickeynp/combobulate][combobulate]] package is authored
                          :repo "radian-software/apheleia")
   :ensure t
   :config
-  (apheleia-global-mode +1))
+  (apheleia-global-mode +1)
+  :delight
+  (apheleia-mode "👨🏿‍🏭"))
 #+end_src
 
 *** <<highlight-indent-guides>> Highlight Indent Guides
@@ -6832,6 +7137,17 @@ In order to simplify editing LISPs, [[https://github.com/emacsmirror/paredit][pa
                      :host github
                      :repo "emacsmirror/paredit")
   <<paredit-config>>)
+#+end_src
+
+One of the killer features of paredit is command =transpose-sexp= (keybinding: =C-M-t=) which swaps left-hand and right-hand sexps. In the example of the cursor being represented as =_=, we can transpose from =(a_ b c)= to =(b_ a c)=. Especially when one has multi-line complex sexps where starting and ending parens may be complicating the ability to just swap sexps by moving lines, this comes in handy.
+
+#+begin_src elisp
+(do-something-useful 'dry-run
+                     ;; Note how neither of the following lines can be swapped
+                     ;; without breaking elisp syntax.
+                     '((get-value a)
+                       (get-value b)
+                       (get-value c)))
 #+end_src
 
 **** Set lighter
@@ -6929,7 +7245,7 @@ When using changes to the path may go unnoticed to Emacs which results to shell 
 
 https://emacs.stackexchange.com/questions/53773/best-way-to-make-org-babel-blocks-aware-of-my-path-and-other-environment-variab
 
-**** Example Usage
+**** COMMENT Example Usage
 
 As a Nix ❄️ user, there are a few [[https://github.com/direnv/direnv/wiki/Nix][options]] available for managing direnv environments of which [[https://github.com/nix-community/nix-direnv][nix-direnv]] happened to be an easier and faster option. As an example, observe the following shell.nix:
 
@@ -7045,7 +7361,7 @@ hello
 #+end_src
 
 *** AI
-**** AIDE
+**** COMMENT AIDE
 
 In order to use OpenAI's GPT models directly inside of Emacs, we are using the AIDE package.
 
@@ -7190,7 +7506,7 @@ CODE
 
 **** GPTel
 
-#+begin_src elisp :tangle lang.example.el
+#+begin_src elisp :noweb yes :tangle lang.example.el
 ;; https://github.com/karthink/gptel
 (use-package gptel
   :straight (gptel :type git
@@ -7199,10 +7515,26 @@ CODE
   :config
   (setq gptel-default-mode 'org-mode)
   (setq gptel-api-key (lambda ()
-                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina"))))
+                        (auth-source-pass-get 'secret "openai.com/david@asabina.de/api-key-2023.04.18-emacs-vidbina")))
+
+  :custom
+  <<gptel-custom>>
+  )
 #+end_src
 
-**** Copilot
+***** Custom directives
+
+#+begin_src elisp :noweb-ref gptel-custom
+(gptel-directives
+ '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
+   (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+   (writing . "You are a large language model and a writing assistant. Respond concisely.")
+   (chat . "You are a large language model and a conversation partner. Respond concisely.")
+   (vid . "You are a technical analyst with a strong background in EE an CS. Respond concisely and assume that the reader has the same background which warrants the avoidance of explanation of technical concepts unless explicitly asked for.")
+   ))
+#+end_src
+
+**** COMMENT Copilot
 
 https://www.irfanhabib.com/2022-04-26-setting-up-github-copilot-in-emacs/
 
@@ -7569,69 +7901,18 @@ https://github.com/nnicandro/emacs-zmq
 (zmq-bind zmq-PUB "tcp://127.0.0.1:5555")
 #+end_src
 
-* <<nix-config>> Nix Home-manager Configuration
+* <<nix-config>> [0%] Nix Configuration
 
-[[https://github.com/nix-community/home-manager][Home-manager]] allows management of a user environment through Nix ❄️ -- the package-manager and language.
+We use Nix (the language) to define our Emacs builds for GNU/Linux and Darwin (macOS) systems. For both systems, we need to build and install Emacs and then setup the emacs configuration directory.
 
-** General
+** TODO <<nix-emacs-build>> Build Emacs
+- State "TODO"       from              [2023-10-04 Wed 21:28] \\
+  Refactor in order to DRY this up since we're having some conflicting information here and also some broken shit.
 
-We use Nix (the language) to define our Emacs builds for GNU/Linux and Darwin (macOS) systems. For both systems, we need to specify the inputs (sources), setup the emacs configuration directory and build and install Emacs.
+*** TODO GNU/Linux
 
-*** Nix Sources
-
-The Nix configuration will be importing the sources managed through [[https://github.com/nmattia/niv][niv]] and captured in the [[file:../nix/sources.nix]] file.
-
-#+begin_src nix :noweb-ref nix-let-bindings
-sources = import ../nix/sources.nix;
-#+end_src
-
-#+begin_center
-💡 I don't manage my home-configuration through [[https://nix-community.github.io/home-manager/index.html#ch-nix-flakes][Nix Flakes]] because parts of my home-manager  configuration depends on files that I can't track in Git for privacy reasons. Nix Flakes doesn't play ball well when files are in play that aren't tracked, so I opted out of Flake-based usage and opted for managing versions with niv.
-#+end_center
-
-*** Setup Emacs configuration directory
-
-We instruct home-manager to symlink the current directory into the [[file:~/.emacs.d]] destination.
-
-#+begin_src nix :noweb-ref nix-home-emacsdir-source
-home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
-#+end_src
-
-*** <<nix-overlays-source>> Overlays
-
-The [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] project is used to build the bundles of Emacs that we want on our systems.
-
-#+begin_src nix :noweb-ref nix-let-bindings
-emacs-overlay-src = sources."emacs-overlay";
-#+end_src
-
-Refer to the definitions for the [[nix-overlays-linux][Linux]] and [[nix-overlays-darwin][Darwin (macOS)]] overlays to understand what we're bundling into our Emacs builds.
-
-*** Install Emacs
-
-Home-manager enables the installation of Emacs through the =programs= facility. For the different systems that we use, we will define custom packages through [[nix-overlays-source][overlays]].
-
-#+begin_src nix :noweb-ref nix-home-programs
-programs.emacs = {
-  enable = true;
-  package = pkgs.my-emacs;
-};
-#+end_src
-
-**** Helpers
-
-#+begin_src nix :noweb-ref nix-let-bindings
-baseCommand = windowName:
-  builtins.concatStringsSep " " [
-    "emacsclient -a emacs"
-    ''-F "((name . \\\"${windowName}\\\"))"''
-    "-c"
-  ];
-#+end_src
-
-** <<nix-config-linux>> GNU/Linux
-
-On GNU/Linux 🐧, home-manager allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
+- State "TODO"       from              [2023-10-04 Wed 22:15] \\
+  Fix the GNU/Linux config since we haven't used this for a minute. Just spin up a VM in UTM or VirtualBox to quickly test this out.
 
 #+begin_src nix :noweb yes :tangle default.nix
 # Tangled from README.org
@@ -7646,6 +7927,10 @@ in
   home.packages = with pkgs; [
     cask
 
+    # General packages
+    <<nix-packages>>
+
+    # Linux packages
     <<nix-linux-packages>>
   ];
 
@@ -7653,38 +7938,1833 @@ in
 
   <<nix-linux-services>>
 
-  <<nix-linux-overlays>>
+  nixpkgs.overlays = [
+    <<nix-linux-overlays>>
+  ];
 
   <<nix-linux-mime>>
 }
 #+end_src
 
-*** <<nix-overlays-linux>> Overlays
+On GNU/Linux 🐧, [[https://github.com/nix-community/home-manager][home-manager]] allows for the installation of the Linux packages, configuration of systemd services, configuration of overlays and registration of XDG mimeApps entries in order to produce a "working environment". The complete GNU/Linux configuration looks as follows but is explained in the following subsections:
+
+#+begin_src nix :noweb-ref nix-home-programs
+programs.emacs = {
+  enable = true;
+  package = pkgs.my-emacs;
+};
+#+end_src
+
+For GNU/Linux, we can use the home-manager =services.emacs= attribute to enable the Emacs service:
+
+#+begin_src nix :noweb-ref nix-linux-services
+services.emacs = {
+  # Restart using `systemctl --user restart emacs`
+  enable = true;
+  package = pkgs.my-emacs;
+
+  client.enable = true;
+};
+#+end_src
+
+*** Darwin (macOS)
+
+We define a nix-darwin module which sets up system packages, overlays and more:
+
+#+begin_src nix :noweb yes :tangle nix-darwin.nix
+# Tangled from emacs/README.org
+{ config, pkgs, username, ... }:
+
+{
+  environment.systemPackages = with pkgs; [
+    <<nix-packages>>
+    <<nix-darwin-packages>>
+  ];
+
+  nixpkgs.overlays = [
+    <<nix-darwin-overlays>>
+  ];
+
+  <<nix-darwin>>
+}
+#+end_src
+
+and we prepare a home-manager importable file to cover the hm scope:
+
+#+begin_src nix :noweb yes :tangle hm.nix
+# Tangled from emacs/README.org
+{ config, pkgs, ... }:
+
+{
+  <<home>>
+}
+#+end_src
+
+Spotlight doesn't see Emacs even if it is installed as a service, so we have to install it regularly as a system package:
+
+#+begin_src nix :noweb-ref nix-packages
+my-emacs
+#+end_src
+
+**** Custom Emacs service
+
+For debuggability's sake, I am defining my custome Emacs launchd agent that logs to a known path such that we can figure out what is going on when things break.
+
+#+begin_src nix :noweb-ref nix-darwin
+launchd.user.agents.my-emacs = {
+  serviceConfig = {
+    ProgramArguments = [
+      "${pkgs.my-emacs}/Applications/Emacs.app/Contents/MacOS/Emacs"
+      "--fg-daemon"
+    ];
+
+    # Enable logging for debugging
+    StandardOutPath = "/Users/${username}/Library/Logs/my-emacs.stdout.log";
+    StandardErrorPath = "/Users/${username}/Library/Logs/my-emacs.stderr.log";
+
+    # Keep daemon running
+    RunAtLoad = true;
+    KeepAlive = true;
+    ProcessType = "Interactive";
+
+    # EnrivonmentVariables = {}
+  };
+
+  path = [
+    config.environment.systemPath
+  ];
+};
+#+end_src
+
+***** Set Emacs Socket
+
+Set the server-socket-directory in case we need a socket in server mode to connect to and create the necessary files and directories:
+
+#+begin_src txt :noweb-ref emacs-socket-directory
+/tmp/my-emacs/socket
+#+end_src
+
+#+begin_src elisp :noweb yes :tangle init.el
+;; Configure server socket for daemon mode on macOS
+;; MUST be set before server starts
+(when (eq system-type 'darwin)
+  (let ((socket-path (format "<<emacs-socket-directory>>")))
+    (message "🔌 Setup socket on darwin at %s" socket-path)
+    (setq server-socket-dir socket-path)
+    ;; Create directory if it doesn't exist
+    (unless (file-directory-p server-socket-dir)
+      (make-directory server-socket-dir t)
+      (set-file-modes server-socket-dir #o700))))
+#+end_src
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin
+environment.variables.EMACS_SOCKET_NAME = "<<emacs-socket-directory>>/server";
+#+end_src
+
+and in some cases, we'll need to export it, like when we are defining app bundles which may run shell commands that don't have visibility over the environment variables configured by nix-darwin modules:
+
+#+begin_src bash :noweb yes :noweb-ref emacs-shell-exports
+export EMACS_SOCKET_NAME="<<emacs-socket-directory>>/server"
+#+end_src
+
+***** Emacs shell alias
+
+We define a shell script to allow us to open this from the terminal, using the alias =gnoo= like =gnoo README.org=:
+
+#+begin_src nix :noweb-ref nix-darwin-packages
+(pkgs.writeShellScriptBin "gnoo" ''
+  # Check if daemon is running
+  if ${pkgs.my-emacs}/bin/emacsclient -e "(+ 1 1)" >/dev/null 2>&1; then
+    echo "Daemon running: connecting through emacsclient"
+    exec ${pkgs.my-emacs}/bin/emacsclient -n -c "$@"
+  else
+    echo "No daemon: starting regular Emacs"
+    exec ${pkgs.my-emacs}/bin/emacs "$@"
+  fi
+'')
+#+end_src
+
+***** Emacs alias app bundle
+
+Scripts are not accessible from Dock, Raycast or Spotlight by default, so we provide an app bundle with an icon, to make the ergonomics even more streamlined here.
+
+We use AppleScript to create a proper macOS app that handles file open events (for "Open With" and drag-and-drop):
+
+#+begin_quote
+[!WARNING]
+If the location of nix-darwin paths change such that gnoo (above) is no longer accessible through =/run/current-system/sw/bin/gnoo=, then the following app bundle will break.
+#+end_quote
+
+#+begin_src applescript :noweb yes :noweb-ref applescript-emacs
+property socketDir : "<<emacs-socket-directory>>"
+
+on makeGnooCmd(fileArgs)
+  set envVar to "EMACS_SOCKET_NAME=" & quoted form of (socketDir & "/server")
+  set baseCmd to envVar & " /run/current-system/sw/bin/gnoo"
+  if fileArgs is not "" then
+    return baseCmd & " " & fileArgs
+  else
+    return baseCmd
+  end if
+end makeGnooCmd
+
+on open fileList
+  set logFile to "/tmp/gnoo-applescript.log"
+  set timestamp to do shell script "date '+%Y-%m-%d %H:%M:%S'"
+
+  set filePaths to {}
+  repeat with aFile in fileList
+    set end of filePaths to POSIX path of aFile
+  end repeat
+
+  set fileArgs to ""
+  repeat with aPath in filePaths
+    set fileArgs to fileArgs & quoted form of aPath & " "
+  end repeat
+
+  set cmd to makeGnooCmd(fileArgs)
+
+  do shell script "echo '[" & timestamp & "] on open called with files: " & fileArgs & "' >> " & logFile
+  do shell script "echo '[" & timestamp & "] Command: " & cmd & "' >> " & logFile
+
+  try
+    do shell script cmd & " >> " & logFile & " 2>&1 &"
+    do shell script "echo '[" & timestamp & "] Command executed successfully' >> " & logFile
+  on error errMsg
+    do shell script "echo '[" & timestamp & "] Error: " & errMsg & "' >> " & logFile
+  end try
+end open
+
+on run
+  set logFile to "/tmp/gnoo-applescript.log"
+  set timestamp to do shell script "date '+%Y-%m-%d %H:%M:%S'"
+  set cmd to makeGnooCmd("")
+
+  do shell script "echo '[" & timestamp & "] on run called (no files)' >> " & logFile
+  do shell script "echo '[" & timestamp & "] Command: " & cmd & "' >> " & logFile
+
+  try
+    do shell script cmd & " >> " & logFile & " 2>&1 &"
+    do shell script "echo '[" & timestamp & "] Command executed successfully' >> " & logFile
+  on error errMsg
+    do shell script "echo '[" & timestamp & "] Error: " & errMsg & "' >> " & logFile
+  end try
+end run
+#+end_src
+
+#+begin_src nix :noweb yes :noweb-ref home
+home.file."Applications/Gnoo.app".source = pkgs.runCommand "Gnoo.app" {} ''
+  # Create AppleScript that handles file open events
+  cat > script.applescript <<'APPLESCRIPT'
+  <<applescript-emacs>>
+  APPLESCRIPT
+
+  # Compile AppleScript into app bundle using macOS system utility
+  /usr/bin/osacompile -o "$out" script.applescript
+
+  # Copy icons
+  mkdir -p $out/Contents/Resources
+  cp ${pkgs.my-emacs}/Applications/Emacs.app/Contents/Resources/Emacs.icns $out/Contents/Resources/ 2>/dev/null || true
+  cp ${pkgs.my-emacs}/Applications/Emacs.app/Contents/Resources/document.icns $out/Contents/Resources/ 2>/dev/null || true
+
+  # Update Info.plist to use our icon and metadata
+  /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile Emacs.icns" $out/Contents/Info.plist || true
+  /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier me.vidbina.Gnoo" $out/Contents/Info.plist || true
+  /usr/libexec/PlistBuddy -c "Set :CFBundleName Gnoo" $out/Contents/Info.plist || true
+  /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName 'Gnoo (Emacs)'" $out/Contents/Info.plist || true
+
+  # Set icon for document types (fixes icon in 1Password and other modals)
+  /usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:0:CFBundleTypeIconFile string document.icns" $out/Contents/Info.plist 2>/dev/null || \
+  /usr/libexec/PlistBuddy -c "Set :CFBundleDocumentTypes:0:CFBundleTypeIconFile document.icns" $out/Contents/Info.plist || true
+'';
+#+end_src
+
+****** COMMENT Minimal Emacs app plist
+
+#+begin_src xml :noweb-ref emacs-app-bundle-plist
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleExecutable</key><string>Gnoo</string>
+  <key>CFBundleIconFile</key><string>Emacs.icns</string>
+  <key>CFBundleIdentifier</key><string>me.vidbina.Gnoo</string>
+  <key>CFBundleName</key><string>Gnoo</string>
+  <key>CFBundleDisplayName</key><string>Gnoo (Emacs)</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleVersion</key><string>1.0</string>
+  <key>CFBundleTypeRole</key><string>Editor</string>
+</dict>
+</plist>
+#+end_src
+
+****** Extensive Emacs app plist copied from Emacs original plist with some modifications
+
+Here is the original Emacs plist for reference where Gnoo has replaced Emacs a few times where it made sense:
+
+#+begin_src xml :noweb-ref emacs-app-bundle-plist
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>English</string>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>text</string>
+	  <string>txt</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Plain text document</string>
+	<key>CFBundleTypeOSTypes</key>
+	<array>
+	  <string>TEXT</string>
+	  <string>utxt</string>
+	</array>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>html</string>
+	  <string>htm</string>
+	  <string>shtm</string>
+	  <string>shtml</string>
+	  <string>jsp</string>
+	  <string>asp</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>HTML document</string>
+	<key>CFBundleTypeOSTypes</key>
+	<array>
+	  <string>HTML</string>
+	</array>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>markdown</string>
+	  <string>mkdn</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Markdown document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>css</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>CSS style sheet</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>xhtml</string>
+	  <string>xhtm</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>XHTML document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>xml</string>
+	  <string>xsl</string>
+	  <string>xslt</string>
+	  <string>xbl</string>
+	  <string>xul</string>
+	  <string>rdf</string>
+	  <string>dtd</string>
+	  <string>xsd</string>
+	  <string>xsdl</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>XML document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>sgml</string>
+	  <string>sgm</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>SGML document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>yml</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>YAML document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>js</string>
+	  <string>JS</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>JavaScript script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>php</string>
+	  <string>php3</string>
+	  <string>php4</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>PHP script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>tcl</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Tcl script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>rb</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Ruby script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>py</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Python script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>pl</string>
+	  <string>pm</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Perl script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>sh</string>
+	  <string>csh</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Shell script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>h</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>C Header Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>c</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>C Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>hh</string>
+	  <string>hp</string>
+	  <string>hpp</string>
+	  <string>hxx</string>
+	  <string>h++</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>C++ Header Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>cc</string>
+	  <string>cp</string>
+	  <string>cpp</string>
+	  <string>cxx</string>
+	  <string>c++</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>C++ Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>m</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Objective-C Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>s</string>
+	  <string>asm</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Assembly Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>java</string>
+	  <string>jav</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Java Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>f</string>
+	  <string>for</string>
+	  <string>f77</string>
+	  <string>f90</string>
+	  <string>f95</string>
+	  <string>f99</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Fortran Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>pas</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Pascal Source file</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>ada</string>
+	  <string>adb</string>
+	  <string>ads</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Ada Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>el</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Emacs Lisp Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>hs</string>
+	  <string>lhs</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Haskell Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>lua</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Lua Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>pro</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>IDL Procedure File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>gp</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>gnuplot file</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>bib</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>BibTeX document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>tex</string>
+	  <string>ltx</string>
+	  <string>ctx</string>
+	  <string>dtx</string>
+	  <string>sty</string>
+	  <string>latex</string>
+	  <string>texi</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>TeX document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>org</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Org document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>json</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>JSON document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>*</string>
+	</array>
+	<key>CFBundleTypeName</key>
+	<string>All</string>
+	<key>CFBundleTypeOSTypes</key>
+	<array>
+	  <string>****</string>
+	</array>
+	<key>CFBundleTypeRole</key>
+	<string>Viewer</string>
+      </dict>
+    </array>
+
+    <!-- Export definitions so that macOS understands about the file types -->
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+      <dict>
+	<key>UTTypeConformsTo</key>
+	<array>
+	  <string>public.source-code</string>
+	</array>
+	<key>UTTypeDescription</key>
+	<string>Emacs Lisp Source File</string>
+	<key>UTTypeIdentifier</key>
+	<string>org.gnu.emacs-lisp</string>
+	<key>UTTypeReferenceURL</key>
+	<string>https://www.gnu.org/software/emacs/manual/html_node/elisp/</string>
+	<key>UTTypeTagSpecification</key>
+	<dict>
+	  <key>public.filename-extension</key>
+	  <array>
+	    <string>el</string>
+	  </array>
+	</dict>
+      </dict>
+      <dict>
+	<key>UTTypeConformsTo</key>
+	<array>
+	  <string>public.content</string>
+	</array>
+	<key>UTTypeDescription</key>
+	<string>Emacs Lisp Object File</string>
+	<key>UTTypeIdentifier</key>
+	<string>org.gnu.emacs-lisp-object</string>
+	<key>UTTypeReferenceURL</key>
+	<string>https://www.gnu.org/software/emacs/manual/html_node/elisp/</string>
+	<key>UTTypeTagSpecification</key>
+	<dict>
+	  <key>public.filename-extension</key>
+	  <array>
+	    <string>elc</string>
+	  </array>
+	</dict>
+      </dict>
+      <dict>
+	<key>UTTypeConformsTo</key>
+	<array>
+	  <string>public.plain-text</string>
+	</array>
+	<key>UTTypeDescription</key>
+	<string>Org document</string>
+	<key>UTTypeIdentifier</key>
+	<string>org.orgmode.org</string>
+	<key>UTTypeReferenceURL</key>
+	<string>https://orgmode.org</string>
+	<key>UTTypeTagSpecification</key>
+	<dict>
+	  <key>public.filename-extension</key>
+	  <array>
+	    <string>org</string>
+	  </array>
+	</dict>
+      </dict>
+    </array>
+
+    <key>NSServices</key>
+    <array>
+      <dict>
+	<key>NSMenuItem</key>
+	<dict>
+	  <key>default</key>
+	  <string>Gnoo.app/New Buffer Containing Selection</string>
+	</dict>
+	<key>NSMessage</key>
+	<string>requestService</string>
+	<key>NSUserData</key>
+	<string>open-selection</string>
+	<key>NSPortName</key>
+	<string>Gnoo</string>
+	<key>NSSendTypes</key>
+	<array>
+	  <string>NSStringPboardType</string>
+	</array>
+      </dict>
+      <dict>
+	<key>NSMenuItem</key>
+	<dict>
+	  <key>default</key>
+	  <string>Gnoo.app/Open Selected File</string>
+	</dict>
+	<key>NSMessage</key>
+	<string>requestService</string>
+	<key>NSUserData</key>
+	<string>open-file</string>
+	<key>NSPortName</key>
+	<string>Gnoo</string>
+	<key>NSSendTypes</key>
+	<array>
+	  <string>NSStringPboardType</string>
+	</array>
+      </dict>
+      <dict>
+	<key>NSMenuItem</key>
+	<dict>
+	  <key>default</key>
+	  <string>Gnoo.app/Email Selection</string>
+	</dict>
+	<key>NSMessage</key>
+	<string>requestService</string>
+	<key>NSUserData</key>
+	<string>mail-selection</string>
+	<key>NSPortName</key>
+	<string>Gnoo</string>
+	<key>NSSendTypes</key>
+	<array>
+	  <string>NSStringPboardType</string>
+	</array>
+      </dict>
+      <dict>
+	<key>NSMenuItem</key>
+	<dict>
+	  <key>default</key>
+	  <string>Gnoo.app/Send Email to Selected Address</string>
+	</dict>
+	<key>NSMessage</key>
+	<string>requestService</string>
+	<key>NSUserData</key>
+	<string>mail-to</string>
+	<key>NSPortName</key>
+	<string>Gnoo</string>
+	<key>NSSendTypes</key>
+	<array>
+	  <string>NSStringPboardType</string>
+	</array>
+      </dict>
+    </array>
+
+    <key>CFBundleExecutable</key>
+    <string>Gnoo</string>
+    <key>CFBundleGetInfoString</key>
+    <string>Alias to Emacs</string>
+    <key>CFBundleIconFile</key>
+    <string>Emacs.icns</string>
+    <key>CFBundleIdentifier</key>
+    <string>me.vidbina.Gnoo</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>Gnoo</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <!-- This should be the emacs version number. -->
+    <key>CFBundleShortVersionString</key>
+    <string>30.2</string>
+    <key>CFBundleSignature</key>
+    <string>EMAx</string>
+    <!-- This SHOULD be a build number. -->
+    <key>CFBundleVersion</key>
+    <string>9.0</string>
+    <key>NSPrincipalClass</key>
+    <string>EmacsApp</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+      <dict>
+	<key>CFBundleURLName</key>
+	<string>Email Address URL</string>
+	<key>CFBundleURLSchemes</key>
+	<array>
+	  <string>mailto</string>
+	</array>
+      </dict>
+    </array>
+    <key>NSAppleScriptEnabled</key>
+    <string>YES</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>Gnoo requires permission to send AppleEvents to other applications.</string>
+    <!-- For xwidget webkit to browse remote url,
+	 but this set no restriction at all.  Consult apple's documentation
+	 for detail information about NSApplicationDefinedMask. -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+      <key>NSAllowsArbitraryLoads</key>
+      <true/>
+    </dict>
+    <key>NSDesktopFolderUsageDescription</key>
+    <string>Gnoo requires permission to access the Desktop folder.</string>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>Gnoo requires permission to access the Documents folder.</string>
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>Gnoo requires permission to access the Downloads folder.</string>
+    <key>NSRemovableVolumesUsageDescription</key>
+    <string>Gnoo requires permission to access files on Removable Volumes.</string>
+  </dict>
+</plist>
+#+end_src
+
+****** COMMENT Copied but extensive Emacs app plist
+
+Here is the original Emacs plist for reference:
+
+#+begin_src xml :noweb-ref emacs-app-bundle-plist
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>English</string>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>text</string>
+	  <string>txt</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Plain text document</string>
+	<key>CFBundleTypeOSTypes</key>
+	<array>
+	  <string>TEXT</string>
+	  <string>utxt</string>
+	</array>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>html</string>
+	  <string>htm</string>
+	  <string>shtm</string>
+	  <string>shtml</string>
+	  <string>jsp</string>
+	  <string>asp</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>HTML document</string>
+	<key>CFBundleTypeOSTypes</key>
+	<array>
+	  <string>HTML</string>
+	</array>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>markdown</string>
+	  <string>mkdn</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Markdown document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>css</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>CSS style sheet</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>xhtml</string>
+	  <string>xhtm</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>XHTML document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>xml</string>
+	  <string>xsl</string>
+	  <string>xslt</string>
+	  <string>xbl</string>
+	  <string>xul</string>
+	  <string>rdf</string>
+	  <string>dtd</string>
+	  <string>xsd</string>
+	  <string>xsdl</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>XML document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>sgml</string>
+	  <string>sgm</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>SGML document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>yml</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>YAML document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>js</string>
+	  <string>JS</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>JavaScript script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>php</string>
+	  <string>php3</string>
+	  <string>php4</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>PHP script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>tcl</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Tcl script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>rb</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Ruby script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>py</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Python script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>pl</string>
+	  <string>pm</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Perl script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>sh</string>
+	  <string>csh</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Shell script</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>h</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>C Header Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>c</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>C Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>hh</string>
+	  <string>hp</string>
+	  <string>hpp</string>
+	  <string>hxx</string>
+	  <string>h++</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>C++ Header Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>cc</string>
+	  <string>cp</string>
+	  <string>cpp</string>
+	  <string>cxx</string>
+	  <string>c++</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>C++ Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>m</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Objective-C Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>s</string>
+	  <string>asm</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Assembly Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>java</string>
+	  <string>jav</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Java Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>f</string>
+	  <string>for</string>
+	  <string>f77</string>
+	  <string>f90</string>
+	  <string>f95</string>
+	  <string>f99</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Fortran Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>pas</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Pascal Source file</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>ada</string>
+	  <string>adb</string>
+	  <string>ads</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Ada Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>el</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Emacs Lisp Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>hs</string>
+	  <string>lhs</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Haskell Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>lua</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Lua Source File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>pro</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>IDL Procedure File</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>gp</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>gnuplot file</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>bib</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>BibTeX document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>tex</string>
+	  <string>ltx</string>
+	  <string>ctx</string>
+	  <string>dtx</string>
+	  <string>sty</string>
+	  <string>latex</string>
+	  <string>texi</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>TeX document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>org</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>Org document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>json</string>
+	</array>
+	<key>CFBundleTypeIconFile</key>
+	<string>document.icns</string>
+	<key>CFBundleTypeName</key>
+	<string>JSON document</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+      </dict>
+      <dict>
+	<key>CFBundleTypeExtensions</key>
+	<array>
+	  <string>*</string>
+	</array>
+	<key>CFBundleTypeName</key>
+	<string>All</string>
+	<key>CFBundleTypeOSTypes</key>
+	<array>
+	  <string>****</string>
+	</array>
+	<key>CFBundleTypeRole</key>
+	<string>Viewer</string>
+      </dict>
+    </array>
+
+    <!-- Export definitions so that macOS understands about the file types -->
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+      <dict>
+	<key>UTTypeConformsTo</key>
+	<array>
+	  <string>public.source-code</string>
+	</array>
+	<key>UTTypeDescription</key>
+	<string>Emacs Lisp Source File</string>
+	<key>UTTypeIdentifier</key>
+	<string>org.gnu.emacs-lisp</string>
+	<key>UTTypeReferenceURL</key>
+	<string>https://www.gnu.org/software/emacs/manual/html_node/elisp/</string>
+	<key>UTTypeTagSpecification</key>
+	<dict>
+	  <key>public.filename-extension</key>
+	  <array>
+	    <string>el</string>
+	  </array>
+	</dict>
+      </dict>
+      <dict>
+	<key>UTTypeConformsTo</key>
+	<array>
+	  <string>public.content</string>
+	</array>
+	<key>UTTypeDescription</key>
+	<string>Emacs Lisp Object File</string>
+	<key>UTTypeIdentifier</key>
+	<string>org.gnu.emacs-lisp-object</string>
+	<key>UTTypeReferenceURL</key>
+	<string>https://www.gnu.org/software/emacs/manual/html_node/elisp/</string>
+	<key>UTTypeTagSpecification</key>
+	<dict>
+	  <key>public.filename-extension</key>
+	  <array>
+	    <string>elc</string>
+	  </array>
+	</dict>
+      </dict>
+      <dict>
+	<key>UTTypeConformsTo</key>
+	<array>
+	  <string>public.plain-text</string>
+	</array>
+	<key>UTTypeDescription</key>
+	<string>Org document</string>
+	<key>UTTypeIdentifier</key>
+	<string>org.orgmode.org</string>
+	<key>UTTypeReferenceURL</key>
+	<string>https://orgmode.org</string>
+	<key>UTTypeTagSpecification</key>
+	<dict>
+	  <key>public.filename-extension</key>
+	  <array>
+	    <string>org</string>
+	  </array>
+	</dict>
+      </dict>
+    </array>
+
+    <key>NSServices</key>
+    <array>
+      <dict>
+	<key>NSMenuItem</key>
+	<dict>
+	  <key>default</key>
+	  <string>Emacs.app/New Buffer Containing Selection</string>
+	</dict>
+	<key>NSMessage</key>
+	<string>requestService</string>
+	<key>NSUserData</key>
+	<string>open-selection</string>
+	<key>NSPortName</key>
+	<string>Emacs</string>
+	<key>NSSendTypes</key>
+	<array>
+	  <string>NSStringPboardType</string>
+	</array>
+      </dict>
+      <dict>
+	<key>NSMenuItem</key>
+	<dict>
+	  <key>default</key>
+	  <string>Emacs.app/Open Selected File</string>
+	</dict>
+	<key>NSMessage</key>
+	<string>requestService</string>
+	<key>NSUserData</key>
+	<string>open-file</string>
+	<key>NSPortName</key>
+	<string>Emacs</string>
+	<key>NSSendTypes</key>
+	<array>
+	  <string>NSStringPboardType</string>
+	</array>
+      </dict>
+      <dict>
+	<key>NSMenuItem</key>
+	<dict>
+	  <key>default</key>
+	  <string>Emacs.app/Email Selection</string>
+	</dict>
+	<key>NSMessage</key>
+	<string>requestService</string>
+	<key>NSUserData</key>
+	<string>mail-selection</string>
+	<key>NSPortName</key>
+	<string>Emacs</string>
+	<key>NSSendTypes</key>
+	<array>
+	  <string>NSStringPboardType</string>
+	</array>
+      </dict>
+      <dict>
+	<key>NSMenuItem</key>
+	<dict>
+	  <key>default</key>
+	  <string>Emacs.app/Send Email to Selected Address</string>
+	</dict>
+	<key>NSMessage</key>
+	<string>requestService</string>
+	<key>NSUserData</key>
+	<string>mail-to</string>
+	<key>NSPortName</key>
+	<string>Emacs</string>
+	<key>NSSendTypes</key>
+	<array>
+	  <string>NSStringPboardType</string>
+	</array>
+      </dict>
+    </array>
+
+    <key>CFBundleExecutable</key>
+    <string>Emacs</string>
+    <key>CFBundleGetInfoString</key>
+    <string>Emacs 30.2 Copyright (C) 2025 Free Software Foundation, Inc.</string>
+    <key>CFBundleIconFile</key>
+    <string>Emacs.icns</string>
+    <key>CFBundleIdentifier</key>
+    <string>org.gnu.Emacs</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>Emacs</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <!-- This should be the emacs version number. -->
+    <key>CFBundleShortVersionString</key>
+    <string>30.2</string>
+    <key>CFBundleSignature</key>
+    <string>EMAx</string>
+    <!-- This SHOULD be a build number. -->
+    <key>CFBundleVersion</key>
+    <string>9.0</string>
+    <key>NSPrincipalClass</key>
+    <string>EmacsApp</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+      <dict>
+	<key>CFBundleURLName</key>
+	<string>Email Address URL</string>
+	<key>CFBundleURLSchemes</key>
+	<array>
+	  <string>mailto</string>
+	</array>
+      </dict>
+    </array>
+    <key>NSAppleScriptEnabled</key>
+    <string>YES</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>Emacs requires permission to send AppleEvents to other applications.</string>
+    <!-- For xwidget webkit to browse remote url,
+	 but this set no restriction at all.  Consult apple's documentation
+	 for detail information about `NSApplicationDefinedMask'. -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+      <key>NSAllowsArbitraryLoads</key>
+      <true/>
+    </dict>
+    <key>NSDesktopFolderUsageDescription</key>
+    <string>Emacs requires permission to access the Desktop folder.</string>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>Emacs requires permission to access the Documents folder.</string>
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>Emacs requires permission to access the Downloads folder.</string>
+    <key>NSRemovableVolumesUsageDescription</key>
+    <string>Emacs requires permission to access files on Removable Volumes.</string>
+  </dict>
+</plist>
+#+end_src
+
+
+**** COMMENT Darwin (macOS) launchd Emacs service
+
+#+begin_quote
+⚠️ [2024-01-09 Tue]: On Darwin, I haven't been able to get the Emacs daemon to work reliably. The =emacs --fd-daemon= doesn't spin up the server.
+#+end_quote
+
+On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd), so we bring in nix-darwin to reintroduce the capability to manage system services through launchd (as opposed to systemd in the GNU/Linux setup).
+
+We use the nix-darwin =services.emacs= attribute to accomplish the same:
+
+#+begin_src nix :noweb-ref nix-darwin
+# See https://itecnote.com/tecnote/why-emacsclient-cant-find-socket-after-executing-emacs-daemon/
+services.emacs = {
+  enable = true;
+  package = pkgs.my-emacs;
+};
+#+end_src
+
+**** TODO Cleanup config by specializing nix-packages in listing above and fixing emacs/default.nix for Linux
+
+Currently, I'm sloppily tangling package listing into the ref =nix-packages= which will break in Linux if I don't have a Linux-specific =my-emacs= overlay defined. In principle, the commenting of the following section, should not affect a Linux-specific config and now we tangle into both file:emacs/default.nix and file:emacs/nix-darwin.nix
+
+**** TODO Install Emacs with own service
+
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin
+#+end_src
+
+**** TODO COMMENT Install Emacs (launchd) service through nix-darwin and package through (home-manager)
+
+In order to avoid having to figure out the mess with activation scripts, we can install the Emacs service through nix-darwin such that we have the long-running daemon available and simultaneously install the same Emacs as a home-manager package, such that we have the Spotlight-visible reference created for us (in the ~/Applications/Home Manager Apps directory). It is important to install the exact same version of Emacs in nix-darwin as well as home-manager to avoid version incompatibility issues.
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin
+services.emacs = {
+  enable = true;
+  package = pkgs.my-emacs;
+};
+#+end_src
+
+<2025-12-19 Fri> Note that we disabled the service again because it keeps restarting with the following Console output for launchd.log.
+
+#+begin_src log
+2025-12-19 14:01:08.795549 (gui/501/org.nixos.emacs [88609]) <Notice>: exited due to exit(255), ran for 25577ms
+2025-12-19 14:01:08.795571 (gui/501/org.nixos.emacs [88609]) <Notice>: service state: exited
+2025-12-19 14:01:08.795578 (gui/501/org.nixos.emacs [88609]) <Notice>: internal event: EXITED, code = 0
+2025-12-19 14:01:08.795583 (gui/501 [100002]) <Notice>: service inactive: org.nixos.emacs
+2025-12-19 14:01:08.795588 (gui/501/org.nixos.emacs [88609]) <Notice>: service state: not running
+2025-12-19 14:01:08.795593 (gui/501/org.nixos.emacs) <Notice>: internal event: WILL_SPAWN, code = 0
+2025-12-19 14:01:08.795630 (gui/501/org.nixos.emacs) <Notice>: service state: spawn scheduled
+2025-12-19 14:01:08.795633 (gui/501/org.nixos.emacs) <Notice>: service state: spawning
+2025-12-19 14:01:08.795667 (gui/501/org.nixos.emacs) <Notice>: launching: inefficient
+2025-12-19 14:01:08.796652 (gui/501/org.nixos.emacs [88688]) <Notice>: xpcproxy spawned with pid 88688
+2025-12-19 14:01:08.796682 (gui/501/org.nixos.emacs [88688]) <Notice>: internal event: SPAWNED, code = 0
+2025-12-19 14:01:08.796687 (gui/501/org.nixos.emacs [88688]) <Notice>: service state: xpcproxy
+2025-12-19 14:01:08.796706 (gui/501/org.nixos.emacs [88688]) <Notice>: internal event: SOURCE_ATTACH, code = 0
+2025-12-19 14:01:08.806396 (gui/501/org.nixos.emacs [88688]) <Notice>: service state: running
+2025-12-19 14:01:08.806408 (gui/501/org.nixos.emacs [88688]) <Notice>: internal event: INIT, code = 0
+2025-12-19 14:01:08.806429 (gui/501/org.nixos.emacs [88688]) <Notice>: Successfully spawned emacs[88688] because inefficient
+2025-12-19 14:01:08.808792 (pid/88688 [emacs]) <Notice>: uncorking exec source upfront
+2025-12-19 14:01:08.808815 (pid/88688 [emacs]) <Notice>: created
+2025-12-19 14:01:08.810017 (pid/88688 [emacs]) <Notice>: domain exec event
+2025-12-19 14:01:08.810025 (pid/88688 [emacs]) <Notice>: shutting down
+2025-12-19 14:01:08.810031 (pid/88688 [emacs]) <Notice>: cleaning up
+2025-12-19 14:01:08.810036 (system) <Notice>: removing child: pid/88688
+#+end_src
+
+**** COMMENT Install Emacs plus
+
+https://github.com/d12frosted/homebrew-emacs-plus#options
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin
+homebrew = {
+  taps = [ "d12frosted/emacs-plus" ];
+  brews = [
+    {
+      name = "emacs-plus@30";
+      args = [
+        <<nix-darwin-emacs-mac-args>>
+      ];
+      link = true;
+    }
+  ];
+};
+#+end_src
+
+**** TODO COMMENT Install emacs-builds for macOS
+
+https://github.com/jimeh/emacs-builds
+
+**** TODO COMMENT Install standard Emacs
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin
+homebrew = {
+  casks = [
+    {
+      name = "emacs";
+    }
+  ];
+};
+#+end_src
+
+**** DONE COMMENT Experiment with the brew-based MacPorts variant
+
+See https://www.aidanscannell.com/post/setting-up-an-emacs-playground-on-mac/ which outlines some perks of the Emacs MacPorts build:
+- better WM handling, perhaps moot now that I'm not using Yabai but Amethyst
+- better Spotlight visibility of Emacs.
+
+#+begin_src nix :noweb yes :noweb-ref nix-darwin
+homebrew = {
+  taps = [ "railwaycat/emacsmacport" ];
+  brews = [
+    {
+      name = "emacs-mac";
+      args = [
+        <<nix-darwin-emacs-mac-args>>
+      ];
+      link = true;
+    }
+  ];
+};
+#+end_src
+
+Note how https://github.com/railwaycat/homebrew-emacsmacport/issues/52 outlines that services can be managed with brew which would be the reason to explore the brew approach because I'm disliking launchctl a lot atm.
+
+⚠️ Note that reinstalling Emacs through different methods may break Magit in the sense that =with-editor-emacsclient-executable= may be set to a emacsclient within the nix-store path which will be broken when the nix-version of Emacs is uninstalled and exchanged for the homebrew-managed version. You can customize this veriable by resetting it through the /Customize/ interface in order to trigger Emacs to repopulate this value.
+
+***** Disable Emacs titlebars
+
+Note that the =with-no-title-bars= arg resulted in unhandleable windows.
+
+#+begin_src :nix :noweb-ref nix-darwin-emacs-mac-args
+"with-no-title-bars" 
+#+end_src
+
+**** COMMENT Auto-dark mode on macOS
+
+In order to switch themes automatically when the macOS system theme changes, we can use [[https://github.com/LionyxML/auto-dark-emacs][auto-dark-emacs]].
+
+#+begin_src elisp :tangle init.el
+(when (eq system-type 'darwin)
+  (message "🌗 Setup auto-dark on darwin")
+  (use-package auto-dark
+    :after modus-themes
+    :straight (auto-dark :type git
+                         :host github
+                         :repo "LionyxML/auto-dark-emacs")
+    :hook (auto-dark-dark-mode-hook . vidbina/theme-switch-to-dark)
+    :hook (auto-dark-light-mode-hook . vidbina/theme-switch-to-light))
+    :config (auto-dark-mode t))
+#+end_src
+
+**** Account of lacking =--dired= support in =ls= for MacOS
+
+On MacOS the ls util does not support the =--dired= flag which may result in the following error:
+
+#+begin_src txt
+insert-directory: Listing directory failed but ‘access-file’ worked
+#+end_src
+
+Address this by using ls from coreutils instead of the MacOS-native variant.
+
+#+begin_src elisp :tangle init.el
+;; https://stackoverflow.com/a/42038174
+(when (string= system-type "darwin")
+  (setq insert-directory-program "/opt/homebrew/bin/gls")
+  (setq dired-use-ls-dired t))
+#+end_src
+
+
+*** Package overlays
+**** <<nix-overlays-linux>> GNU/Linux Overlays
 
 Using [[https://github.com/nix-community/emacs-overlay][emacs-overlay]], we define an Emacs build that bundles packages that are difficult to install just with straight on account of non-elisp dependencies such as system dependencies that may require special privileges of a specialized build process.
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlays
-nixpkgs.overlays = [
-  (import emacs-overlay-src)
+# Imports before overlaying
+<<nix-linux-overlay-imports>>
 
-  (self: super:
-    let
-      <<nix-linux-overlay-defs>>
-    in
-    {
-      my-emacs = (pkgs.buildEnv {
-        name = "my-emacs";
-        paths = [
-          <<nix-linux-overlay-emacs-paths>>
-        ];
-      });
-    })
-];
+# Overlay custom Emacs build into pkgs
+(self: super:
+  let
+    <<nix-linux-overlay-defs>>
+  in
+  {
+    my-emacs = (pkgs.buildEnv {
+      name = "my-emacs";
+      paths = [
+        <<nix-linux-overlay-emacs-paths>>
+      ];
+    });
+  })
 #+end_src
 
-**** emacs
-
 We bundle emacs through a bunch of helpers that set whatever flags we need set and also take case of factoring our wanted package repositories into the mix.
+
+#+begin_center
+🤔 Looking at the [[https://nixos.wiki/wiki/Emacs][NixOS Emacs wiki entry]], it may be worthwhile to revaluate what the difference between =emacsGit=, used in my GNU/Linux config, and =emacsPgtkGcc= (now known as =emacsPgtkNativeComp=) really is.
+#+end_center
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
 emacs = (pkgs.emacs-unstable.override {
@@ -7715,23 +9795,7 @@ pkgs.multimarkdown
 pkgs.python39
 #+end_src
 
-***** ripgrep
-
-We build ripgrep for Doom Emacs. I haven't even used Doom Emacs for a long time but the setting is still here and perhaps I can rely on this again for a faster grepping experience:
-
-#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
-ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-  withPCRE2 = true;
-});
-#+end_src
-
-We also add the custom ripgrep to our Emacs paths to factor it into the build:
-
-#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-emacs-paths
-ripgrep-for-doom-emacs
-#+end_src
-
-***** COMMENT Jupyter
+****** COMMENT Jupyter
 
 Jupyter for Emacs is probably here to allow me to run Python code from my buffers.
 
@@ -7747,6 +9811,54 @@ We also add the custom Jupyter package to our Emacs paths to factor it into the 
 jupyter-for-emacs
 #+end_src
 
+**** Darwin overlay <<nix-overlays-darwin>>
+
+#+begin_center
+🐉 This has not been sufficiently tested so use with caution. I'm using NixOS mainly, so anything Darwin-related has probably been run once on a MacBook that I haven't touched for a good 4 months at the time of writing (being [2022-06-30 Thu 18:31]).
+#+end_center
+
+In order to resolve an issue with Spotlight's ability to find Emacs, remember to also install Emacs as a system package in order to set up the links in the macOS Application directory.
+
+***** COMMENT Emacs 29
+
+For simplicity's sake, we're just assigning the standard v29 MacPort of Emacs in order to get things started.
+
+#+begin_src nix :noweb-ref nix-darwin-overlays
+# Overlay custom Emacs build into pkgs
+(self: super: {
+  my-emacs = pkgs.emacs29-macport.pkgs.withPackages (epkgs: (
+    with epkgs; [
+      notmuch
+      vterm
+      pdf-tools
+    ]
+  ));
+})
+#+end_src
+
+***** Emacs 30
+
+Since <2025-03-26 Wed>, we switch to Emacs 30 because of:
+
+#+begin_src text
+Known issues:
+ - CVE-2024-53920 CVE-2025-1244, please use newer versions such as emacs30
+#+end_src
+
+
+#+begin_src nix :noweb-ref nix-darwin-overlays
+# Overlay custom Emacs build into pkgs
+(self: super: {
+  my-emacs = super.emacs30.pkgs.withPackages (epkgs: (
+    with epkgs; [
+      notmuch
+      vterm
+      pdf-tools
+    ]
+  ));
+})
+#+end_src
+
 *** Packages
 :PROPERTIES:
 :header-args: :noweb-sep "\n\n"
@@ -7758,7 +9870,7 @@ When using home-manager, the =runPersonalMuInit= activation executes =mu init= w
 
 ***** mu: basic package
 
-#+begin_src nix :noweb-ref nix-linux-packages
+#+begin_src nix :noweb-ref nix-packages
 mu
 #+end_src
 
@@ -7777,6 +9889,15 @@ The overriden package may no longer be necessary at this point. Tried to build p
 **** Emacs Org-Protocol
 
 https://orgmode.org/worg/org-contrib/org-protocol.html
+
+#+begin_src nix :noweb-ref nix-let-bindings
+baseCommand = windowName:
+  builtins.concatStringsSep " " [
+    "emacsclient -a emacs"
+    ''-F "((name . \\\"${windowName}\\\"))"''
+    "-c"
+  ];
+#+end_src
 
 #+begin_src nix :noweb-ref nix-linux-packages
 (makeDesktopItem {
@@ -7818,7 +9939,7 @@ javascript:location.href='org-protocol://store-link://'+encodeURIComponent(locat
 javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(location.href) + '/' + encodeURIComponent(document.title) + '/' + encodeURIComponent(window.getSelection())
 #+end_src
 
-**** Emacs mu4e
+**** COMMENT Emacs mu4e
 
 #+begin_src nix :noweb yes :noweb-ref nix-linux-packages
 <<nix-linux-packages-desktop-emacs-mu4e>>
@@ -7896,16 +10017,46 @@ javascript:location.href = 'org-protocol://capture://' + encodeURIComponent(loca
 '')
 #+end_src
 
-*** Service
+**** Python
 
-#+begin_src nix :noweb-ref nix-linux-services
-services.emacs = {
-  # Restart using `systemctl --user restart emacs`
-  enable = true;
-  package = pkgs.my-emacs;
+#+begin_src nix :noweb-ref nix-packages
+python3
+#+end_src
 
-  client.enable = true;
-};
+**** ripgrep
+
+We build ripgrep for Doom Emacs. I haven't even used Doom Emacs for a long time but the setting is still here and perhaps I can rely on this again for a faster grepping experience:
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-defs
+ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
+  withPCRE2 = true;
+});
+#+end_src
+
+We also add the custom ripgrep to our Emacs paths to factor it into the build:
+
+#+begin_src nix :noweb yes :noweb-ref nix-linux-overlay-emacs-paths
+ripgrep-for-doom-emacs
+#+end_src
+
+only Darwin, the standard ripgrep is used until we find better reasons to invest in finding a different variant of ripgrep.
+
+#+begin_src nix :noweb-ref nix-darwin-packages
+ripgrep
+#+end_src
+
+**** GCC
+
+In order to deal with the following type of errors:
+
+#+begin_src text
+⛔ Warning (comp): libgccjit.so: error: error invoking gcc driver
+#+end_src
+
+we try to install libgccjit into Emacs:
+
+#+begin_src nix :noweb-ref nix-packages
+libgccjit
 #+end_src
 
 *** XDG mimeApps
@@ -7922,111 +10073,40 @@ xdg.mimeApps.defaultApplications = {
 };
 #+end_src
 
-** PROTOTYPE <<nix-config-darwin>> Darwin
+** COMMENT Nix Sources
 
-On Darwin 🍏, the home-manager configuration is simpler (and more restricted) than the GNU/Linux configuration. For starters, we don't have the ability to configure services (since Darwin doesn't support systemd).
+The Nix configuration will be importing the sources managed through [[https://github.com/nmattia/niv][niv]] and captured in the [[file:../nix/sources.nix]] file.
 
-#+begin_src nix :noweb yes :tangle default-darwin.nix
-# Tangled from README.org
-{ config, pkgs, lib, options, ... }:
-
-let
-  <<nix-let-bindings>>
-in
-{
-  <<nix-home-emacsdir-source>>
-
-  <<nix-home-programs>>
-
-  <<nix-darwin-overlays>>
-}
+#+begin_src nix :noweb-ref nix-let-bindings
+sources = import ../nix/sources.nix;
 #+end_src
 
-*** <<nix-overlays-darwin>> Overlays
-
 #+begin_center
-🐉 This has not been sufficiently tested so use with caution. I'm using NixOS mainly, so anything Darwin-related has probably been run once on a MacBook that I haven't touched for a good 4 months at the time of writing (being [2022-06-30 Thu 18:31]).
+💡 I don't manage my home-configuration through [[https://nix-community.github.io/home-manager/index.html#ch-nix-flakes][Nix Flakes]] because parts of my home-manager  configuration depends on files that I can't track in Git for privacy reasons. Nix Flakes doesn't play ball well when files are in play that aren't tracked, so I opted out of Flake-based usage and opted for managing versions with niv.
 #+end_center
 
-Using [[https://github.com/nix-community/emacs-overlay][emacs-overlay]], we compose a custom Emacs build that looks quite similar to the GNU/Linux configuration sans the graphical facilities and native compilation capabilities. Furthermore, the Darwin configuration has some =makeDesktopItem= packages bundled within it.
+*** <<nix-overlays-source>> Overlays
 
-#+begin_center
-🤔 Looking at the [[https://nixos.wiki/wiki/Emacs][NixOS Emacs wiki entry]], it may be worthwhile to revaluate what the difference between =emacsGit=, used in my GNU/Linux config, and =emacsPgtkGcc= (now known as =emacsPgtkNativeComp=) really is.
-#+end_center
+The [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] project is used to build the bundles of Emacs that we want on our systems.
 
-#+begin_src nix :noweb-ref nix-darwin-overlays
-nixpkgs.overlays = [
-  (import emacs-overlay-src)
+#+begin_src nix :noweb-ref nix-let-bindings
+emacs-overlay-src = sources."emacs-overlay";
+#+end_src
 
-  (self: super: {
-    my-emacs =
-      let
-        emacs = pkgs.emacs-pgtk;
-        emacsWithPackages = (pkgs.emacsPackagesFor emacs).emacsWithPackages;
-        bundled-emacs = emacsWithPackages (epkgs: (
-          with epkgs; [
-            notmuch
-            vterm
-            pdf-tools
-          ]
-        ) ++ (
-          with epkgs.melpaStablePackages; [
-          ]
-        ) ++ (
-          with epkgs.melpaPackages; [
-          ]
-        ));
-        ripgrep-for-doom-emacs = (pkgs.ripgrep.override {
-          withPCRE2 = true;
-        });
-        jupyter-for-emacs = (pkgs.python38.withPackages (ps: with ps; [
-          jupyter
-        ]));
-      in
-      (pkgs.buildEnv {
-        name = "my-emacs";
-        paths = [
-          bundled-emacs
-          pkgs.clang
-          pkgs.cmake
-          pkgs.coreutils
-          pkgs.fd
-          pkgs.multimarkdown
-          jupyter-for-emacs
-          ripgrep-for-doom-emacs
+#+begin_src nix :noweb-ref nix-linux-overlay-imports
+(import emacs-overlay-src)
+#+end_src
 
-          # for Emacs
-          (pkgs.makeDesktopItem {
-            name = "org-protocol";
-            exec = "${bundled-emacs}/bin/emacsclient --create-frame %u";
-            comment = "Org Protocol";
-            desktopName = "org-protocol";
-            type = "Application";
-            mimeTypes = [ "x-scheme-handler/org-protocol" ];
-          })
+Refer to the definitions for the [[nix-overlays-linux][Linux]] and [[nix-overlays-darwin][Darwin (macOS)]] overlays to understand what we're bundling into our Emacs builds.
 
-          # for Emacs
-          # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.5.html
-          # https://www.emacswiki.org/emacs/MailtoHandler
-          # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
-          (pkgs.makeDesktopItem {
-            name = "emacs-mu4e";
-            exec = ''
-              ${bundled-emacs}/bin/emacsclient --create-frame --eval "(browse-url-mail \"%u\")"
-            '';
-            comment = "Emacs mu4e";
-            desktopName = "emacs-mu4e";
-            type = "Application";
-            mimeTypes = [
-              # Email
-              "x-scheme-handler/mailto"
-              "message/rfc822"
-            ];
-          })
-        ];
-      });
-  })
-];
+** TODO Setup Emacs configuration directory
+
+- State "TODO"       from              [2023-10-04 Wed 16:07] \\
+  Fix mkOutOfStoreSymlink usage as the relative link used to work in my pre-Flake setup but is broken now.
+We instruct home-manager to symlink the current directory into the [[file:~/.emacs.d]] destination.
+
+#+begin_src nix :noweb-ref nix-home-emacsdir-source
+home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./.;
 #+end_src
 
 * Footnotes
@@ -8156,6 +10236,10 @@ Example of a keymap based off of https://github.com/zzkt/charybdis which is base
 For convenience, we call =delete-trailing-whitespace= as outlined in an [[https://www.mail-archive.com/emacs-orgmode@gnu.org/msg112517.html][emacs-orgmode mailing thread]] to automatically clean up trailing whitespaces that may be artifact from tangling noweb refs that
 1. contain line-breaks and are being indented or
 2. have no noweb-ref writes
+
+#+begin_src elisp :tangle init.el
+(message "🏁 End of the config")
+#+end_src
 
 ;;; Local Variables:
 ;;; eval: (add-hook 'org-babel-post-tangle-hook #'delete-trailing-whitespace)

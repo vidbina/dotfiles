@@ -12,24 +12,22 @@ let
 in
 {
   imports = [
-    ./rofi/default.nix
-
-    ./dev.nix
     ./vim.nix
   ]
   ++ (pathIfExists ./personal.nix);
 
   home.packages = [
-    pkgs-bleeding.niv
-    pkgs-bleeding.nixVersions.nix_2_13
-    pkgs.slack
+
     pkgs.discord
+    pkgs.slack
   ];
 
-  home.file.".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
+  home.file = {
+    ".config/ranger".source = config.lib.file.mkOutOfStoreSymlink ./ranger;
 
-  # TODO: Remove, likely not necessary
-  home.file.".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
+    # TODO: Remove, likely not necessary
+    ".direnvrc".source = config.lib.file.mkOutOfStoreSymlink ./direnv/direnvrc;
+  };
 
   #home.file.".profile".text = ''
   #  PATH=${toString ./bin}:$HOME/.nix-profile/bin:$PATH
@@ -41,7 +39,6 @@ in
   ];
 
   nix = {
-    package = pkgs-bleeding.nixVersions.nix_2_13;
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
@@ -55,18 +52,11 @@ in
     ];
 
     config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-      "slack"
       "discord"
       "discord-ptb"
       "discord-canary"
+      "slack"
     ];
-  };
-
-  programs.bat = {
-    enable = true;
-    config = {
-      theme = "base16";
-    };
   };
 
   # Let Home Manager install and manage itself.
@@ -83,8 +73,6 @@ in
     enable = true;
     extraConfig = builtins.readFile (./. + "/tmux.conf");
   };
-
-  home.sessionVariables.EDITOR = "nvim";
   manual = {
     # Use `home-manager-help`
     html.enable = false;
@@ -147,9 +135,17 @@ in
       #source ${./zsh/zstyle.zsh}
       source ${pkgs.fzf}/share/fzf/completion.zsh
       source ${pkgs.fzf}/share/fzf/key-bindings.zsh
+      # enable gh completion
+      eval "$(gh completion -s zsh)"
     '';
   };
   programs.pywal = {
     enable = true;
+  };
+  programs.bat = {
+    enable = true;
+    config = {
+      theme = "base16";
+    };
   };
 }

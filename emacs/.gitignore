@@ -5,6 +5,7 @@ bookmarks
 custom.el
 elpa
 emojis
+forge-database.sqlite
 lang.el
 personal.el
 perspective

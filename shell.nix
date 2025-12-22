@@ -18,8 +18,7 @@ pkgs.mkShell rec {
   name = "home-manager-shell";
 
   buildInputs = with pkgs; [
-    pkgs-bleeding.niv
-    pkgs-bleeding.nixVersions.nix_2_13
+
     (import hm-src { inherit pkgs; }).home-manager
     cacert # to resolve CA cert issue
     hello

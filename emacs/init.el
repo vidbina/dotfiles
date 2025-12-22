@@ -32,6 +32,7 @@
 ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/
 (use-package org
   :straight (:type built-in)
+  :after magit
   :init
   (setq org-adapt-indentation nil ; https://orgmode.org/manual/Hard-indentation.html
         org-hide-leading-stars nil
@@ -47,9 +48,10 @@
   (defun org-babel-tangle-async (&optional arg target-file lang-re)
     "Call `org-babel-tangle' asynchronously"
     (interactive "P")
-    (message "🧬 Async Org-Babel start tangling %s" buffer-file-name)
+    (message "🧬 Async Org-Babel: start tangle [%s]" buffer-file-name)
     (run-hooks 'org-babel-pre-tangle-hook)
     (async-start `(lambda ()
+                    (message "🧬 Async Org-Babel: lambda start")
                     (if (and (stringp ,buffer-file-name)
                              (file-exists-p ,buffer-file-name))
                         (progn
@@ -58,15 +60,26 @@
                                 enable-local-eval t
                                 auto-save-default nil
                                 org-babel-pre-tangle-hook '())
+                          (print (format "🧬 Async Org-Babel: exec from [%s] load from [%s]" exec-path load-path))
                           (package-initialize)
+                          (print (format "🧬 Async Org-Babel: package init completed"))
+
                           (find-file ,(buffer-file-name))
+                          (print (format "🧬 Async Org-Babel: file [%s] found" ,buffer-file-name))
                           (read-only-mode t)
                           (goto-char ,(point))
+                          (print (format "🧬 Async Org-Babel: point [%s] located" ,(point)))
+
+                          (print (format "🧬 Async Org-Babel: auto confirm babel eval"))
+                          (setq-local org-confirm-babel-evaluate nil)
+
+                          (print (format "🧬 Async Org-Babel:\n\targ [%s]\n\ttarget [%s]\n\tlang [%s]" ,arg , target-file ,lang-re))
                           (org-babel-tangle ,arg ,target-file ,lang-re) ; tangle! (ref:org-babel-tangle-call)
+                          (print (format "🧬 Async Org-Babel: tangled"))
                           buffer-file-name)
-                      (error "🧬 Async Org-Babel is not visiting a file")))
+                      (warn "🧬 Async Org-Babel: not visiting a file")))
                  `(lambda (result)
-                    (message "🧬 Async Org-Babel tangled %s" result))))
+                    (message "🧬 Async Org-Babel: completed [%s]" result))))
   ;; https://orgmode.org/manual/Structure-Templates.html
   (require 'org-tempo)
   ;; https://www.reddit.com/r/emacs/comments/c1b70i/best_way_to_include_source_code_blocks_in_a_latex/
@@ -361,13 +374,6 @@
      (prose-todo red-intense)))
   )
 
-(use-package theme-magic
-  :straight (theme-magic :type git
-                         :host github
-                         :repo "jcaw/theme-magic")
-  :config
-  (theme-magic-export-theme-mode))
-
 ;; https://github.com/domtronn/all-the-icons.el
 (use-package all-the-icons
   :straight (all-the-icons :type git
@@ -541,9 +547,12 @@
 (use-package magit
   :straight (magit :type git
                    :host github
-                   :repo "magit/magit"
-                   :branch "main")
+                   :repo "magit/magit")
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x C-g" . magit-status))
   :custom
+  (with-editor-emacsclient-executable nil)
   (magit-display-buffer-function
    (lambda (buffer)
      ;; based on magit-display-buffer-same-window-except-diff-v1
@@ -847,73 +856,6 @@
                            :host github
                            :repo "alpha22jp/atomic-chrome"))
 
-;; https://www.djcbsoftware.nl/code/mu/mu4e.html
-(use-package mu4e
-  :after (:all
-          message
-          sendmail)
-  :straight (:type built-in)
-  :demand t
-  :bind (("C-c M 4" . mu4e))
-  :hook (
-         ;; https://www.djcbsoftware.nl/code/mu/mu4e/Dired.html
-         (dired-mode . turn-on-gnus-dired-mode))
-  :config
-  ;; https://www.djcbsoftware.nl/code/mu/mu4e/Attaching-files-with-dired.html
-  (require 'gnus-dired)
-  ;; make the `gnus-dired-mail-buffers' function also work on
-  ;; message-mode derived modes, such as mu4e-compose-mode
-  (defun gnus-dired-mail-buffers ()
-    "Return a list of active message buffers."
-    (let (buffers)
-      (save-current-buffer
-        (dolist (buffer (buffer-list t))
-          (set-buffer buffer)
-          (when (and (derived-mode-p 'message-mode)
-                     (null message-sent-message-via))
-            (push (buffer-name buffer) buffers))))
-      (nreverse buffers)))
-  (add-hook 'mu4e-compose-mode-hook #'(lambda () (auto-save-mode -1)))
-  (setq mu4e-contexts
-        `( ,(make-mu4e-context
-             :name "Sample"
-             :enter-func (lambda () (mu4e-message "Into SAMPLE mu4e context"))
-             :leave-func (lambda () (mu4e-message "Out of SAMPLE mu4e context"))
-             :vars '(( user-mail-address . "foo@example.com")))))
-  :custom
-  (mail-user-agent 'mu4e-user-agent "Set mu4e a default MUA")
-  (mu4e-compose-format-flowed t "Compose messages as format=flowed")
-  (mu4e-sent-messages-behavior 'delete "Switch this behavior to 'sent within the appropriate contexts where directory mu4e-sent-folder is correctly set")
-  (gnus-dired-mail-mode 'mu4e-user-agent)
-  (mu4e-use-fancy-chars nil "Use fancy unicode characters for mu4e marks")
-  (mu4e-headers-fields '((:flags . 6) (:human-date . 12) (:from . 20) (:subject)))
-  (mu4e-headers-date-format "%F")
-  (mu4e-sent-messages-behavior 'delete)
-  (mu4e-context-policy 'ask-if-none)
-  (mu4e-compose-context-policy 'ask-if-none)
-  (mu4e-index-update-in-background t "Index in background")
-  (mu4e-mu-debug t "Run mu in debug mode")
-  (mu4e-index-cleanup nil)
-  (mu4e-index-lazy-check t)
-  (mu4e-get-mail-command "true" "Noop during retrieval and just handle indexing")
-  (mu4e-update-interval 300 "Auto index every 5 minutes"))
-
-(defun draft-auto-save-buffer-name-handler (operation &rest args)
-  "for `make-auto-save-file-name' set '.' in front of the file name; do nothing for other operations"
-  (if
-      (and buffer-file-name (eq operation 'make-auto-save-file-name))
-      (concat (file-name-directory buffer-file-name)
-              "."
-              (file-name-nondirectory buffer-file-name))
-    (let ((inhibit-file-name-handlers
-           (cons 'draft-auto-save-buffer-name-handler
-                 (and (eq inhibit-file-name-operation operation)
-                      inhibit-file-name-handlers)))
-          (inhibit-file-name-operation operation))
-      (apply operation args))))
-
-(add-to-list 'file-name-handler-alist '("Drafts/cur/" . draft-auto-save-buffer-name-handler))
-
 (use-package sendmail
   :straight (:type built-in)
   :custom
@@ -931,11 +873,33 @@
   (message-sendmail-envelope-from 'header "Use From: header")
   (message-kill-buffer-on-exit t "Kill a buffer once a message is sent"))
 
-(message "💥 Debug on error is %s" debug-on-error)
+(message "💥 Debug on error is %s." debug-on-error)
 
-(load "~/.emacs.d/lang.el")
-(load "~/.emacs.d/personal.el")
+(load "~/.emacs.d/lang.el" t)
+(load "~/.emacs.d/personal.el" t)
+
+(message "🏅 Finale, just before customizations.")
 
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Customizations.html
 (setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
+(load custom-file t)
+
+(message "🪞 Customizations loaded.")
+
+;; Configure server socket for daemon mode on macOS
+;; MUST be set before server starts
+(when (eq system-type 'darwin)
+  (let ((socket-path (format "/tmp/my-emacs/socket")))
+    (message "🔌 Setup socket on darwin at %s" socket-path)
+    (setq server-socket-dir socket-path)
+    ;; Create directory if it doesn't exist
+    (unless (file-directory-p server-socket-dir)
+      (make-directory server-socket-dir t)
+      (set-file-modes server-socket-dir #o700))))
+
+;; https://stackoverflow.com/a/42038174
+(when (string= system-type "darwin")
+  (setq insert-directory-program "/opt/homebrew/bin/gls")
+  (setq dired-use-ls-dired t))
+
+(message "🏁 End of the config")

@@ -64,7 +64,7 @@ in
     aspellDicts.nl
     sc-im
     visidata
-    qrencode
     libreoffice
+    qrencode
   ];
 }

@@ -1,0 +1,50 @@
+stages:
+  - check
+  - validate
+
+variables:
+  EMACS_VERSION: "30.2"
+
+# Stage 1: Fast checks with Emacs (tangle + parity)
+# Fails quickly if you forgot to tangle/commit (~10 seconds)
+check-parity:
+  stage: check
+  image: silex/emacs:${EMACS_VERSION}-alpine
+  before_script:
+    - apk add --no-cache make git
+  script:
+    - make tangle
+    - make check-parity
+  allow_failure: false
+
+# Stage 2: Validate Nix configuration (only runs if parity passes)
+# Note: --dry-run only evaluates config (architecture-agnostic)
+# Works on Linux runners even for darwin configs
+validate-nix:
+  stage: validate
+  image: nixos/nix:latest
+  before_script:
+    - mkdir -p ~/.config/nix
+    - echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+    # Use public Nix caches to speed up downloads
+    - echo "substituters = https://cache.nixos.org https://nix-community.cachix.org" >> ~/.config/nix/nix.conf
+    - echo "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" >> ~/.config/nix/nix.conf
+    # Install make to reuse Makefile (DRY)
+    - nix-env -iA nixpkgs.gnumake
+  script:
+    - make validate
+  allow_failure: false
+
+# Optional: Full build check (manual trigger or on main branch)
+# Uncomment to enable thorough build validation before merge
+# build:
+#   stage: validate
+#   image: nixos/nix:latest
+#   when: manual
+#   before_script:
+#     - mkdir -p ~/.config/nix
+#     - echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+#     - nix-env -iA nixpkgs.gnumake
+#   script:
+#     - make nix-darwin-build
+#   allow_failure: false

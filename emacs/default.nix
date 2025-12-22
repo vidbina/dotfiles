@@ -2,8 +2,6 @@
 { config, pkgs, lib, options, ... }:
 
 let
-  sources = import ../nix/sources.nix;
-  emacs-overlay-src = sources."emacs-overlay";
   baseCommand = windowName:
     builtins.concatStringsSep " " [
       "emacsclient -a emacs"
@@ -17,10 +15,17 @@ in
   home.packages = with pkgs; [
     cask
 
+    # General packages
     yamllint
     nodePackages.yaml-language-server
+    my-emacs
     mu
 
+    python3
+
+    libgccjit
+
+    # Linux packages
     (writeScriptBin "e" ''
       exec emacsclient -a emacs -c "$@"
     '')
@@ -42,34 +47,6 @@ in
       ];
       terminal = false;
     })
-
-    # https://www.emacswiki.org/emacs/MailtoHandler
-    # https://dev.spacekookie.de/kookie/nomicon/commit/9e5896496cfd5da5754018887f7ad3b256b3ad80.diff
-    (makeDesktopItem {
-      name = "emacs-mu4e";
-      exec = "emacs-mu4e %u";
-      comment = "Emacs mu4e";
-      desktopName = "emacs-mu4e";
-      type = "Application";
-      categories = [
-        "Network"
-        "Email"
-      ];
-      mimeTypes = [
-        # Email
-        "x-scheme-handler/mailto"
-        "message/rfc822"
-      ];
-      terminal = false;
-    })
-
-    (writeScriptBin "emacs-mu4e" ''
-      set -e
-      target_path=$@
-      echo "Target: $target_path"
-
-      exec emacsclient -a emacs -c -F "((name . \"emacs-mu4e\"))" -e "(vidbina-mime-handle-open-message-in-mu4e \"emacs-mu4e\" \"$target_path\")"
-    '')
 
     # https://emacs.stackexchange.com/questions/13927/how-to-set-emacs-as-the-default-file-manager
     (makeDesktopItem {
@@ -112,8 +89,10 @@ in
   };
 
   nixpkgs.overlays = [
-    (import emacs-overlay-src)
+    # Imports before overlaying
 
+
+    # Overlay custom Emacs build into pkgs
     (self: super:
       let
         emacs = (pkgs.emacs-unstable.override {
