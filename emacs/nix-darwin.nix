@@ -5,6 +5,7 @@
   environment.systemPackages = with pkgs; [
     yamllint
     nodePackages.yaml-language-server
+    graphviz
     my-emacs
     mu
 

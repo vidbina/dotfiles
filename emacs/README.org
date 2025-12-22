@@ -5857,6 +5857,10 @@ nodePackages.yaml-language-server
                                        '((dot . t)))))
 #+end_src
 
+#+begin_src nix :noweb-ref nix-packages
+graphviz
+#+end_src
+
 *** Gnuplot
 
 #+begin_src elisp :tangle lang.example.el

@@ -18,6 +18,7 @@ in
     # General packages
     yamllint
     nodePackages.yaml-language-server
+    graphviz
     my-emacs
     mu
 
