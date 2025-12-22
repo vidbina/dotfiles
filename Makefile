@@ -9,6 +9,8 @@ DARWIN_REBUILD = sudo darwin-rebuild
 test:
 	${NIX_SHELL} --command "make nix-build"
 
+# Tangle all org files to generate configuration files
+# Respects local variables in org files (e.g., trailing whitespace cleanup hooks)
 .PHONY: tangle
 tangle:
 	@echo "📝 Tangling org files..."
@@ -26,18 +28,21 @@ tangle:
 	@echo "✅ Tangling complete"
 
 # Check parity between tangled and committed files
+# Fails if org files were modified but tangled outputs weren't committed
+# Use this in CI/CD to enforce literate config discipline
+# Note: Only checks tangled outputs (.org files are excluded from diff)
 .PHONY: check-parity
-check-parity: tangle
+check-parity:
 	@echo "🔄 Checking parity..."
-	@if git diff --exit-code; then \
-		echo "✅ Parity check passed"; \
-	else \
+	@if ! git diff --exit-code -- ':!*.org'; then \
 		echo "❌ Parity check failed - run 'make tangle' and commit"; \
-		git diff; \
 		exit 1; \
 	fi
+	@echo "✅ Parity check passed"
 
-# Validate Nix configuration
+# Validate Nix configuration (fast, no actual build)
+# Only checks that config evaluates correctly - catches syntax/reference errors
+# Use this for quick feedback during development (~5-10 seconds)
 .PHONY: validate
 validate:
 	@echo "🔍 Validating Nix configuration..."
@@ -45,15 +50,22 @@ validate:
 	@nix build .#darwinConfigurations.berlin-4corei7.system --dry-run
 	@echo "✅ Validation complete"
 
-
-# Run all checks (CI simulation)
-ci: check-parity validate
+# Run all checks locally (simulates CI pipeline)
+# Fast checks: tangle, parity, validation (no actual build)
+# Use before committing changes
+ci: tangle check-parity validate
 	@echo "✅ All CI checks passed"
 
+# Build nix-darwin configuration (thorough but slower)
+# Actually builds packages - catches compilation errors that validate misses
+# Use before merging/deploying (takes minutes depending on cache)
 .PHONY: nix-darwin-build
 nix-darwin-build:
 	${DARWIN_REBUILD} check --flake .#$(hostname)
 
+# Deploy nix-darwin configuration (builds and activates)
+# Actually switches your system to the new configuration
+# Use after testing with nix-darwin-build
 .PHONY: nix-darwin-switch
 nix-darwin-switch:
 	${DARWIN_REBUILD} switch --flake .#$(hostname)
