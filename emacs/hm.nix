@@ -8,8 +8,8 @@
     property socketDir : "/tmp/my-emacs/socket"
 
     on makeGnooCmd(fileArgs)
-      set exportCmd to "export EMACS_SOCKET_NAME=" & quoted form of (socketDir & "/server")
-      set baseCmd to exportCmd & " /run/current-system/sw/bin/gnoo"
+      set envVar to "EMACS_SOCKET_NAME=" & quoted form of (socketDir & "/server")
+      set baseCmd to envVar & " /run/current-system/sw/bin/gnoo"
       if fileArgs is not "" then
         return baseCmd & " " & fileArgs
       else
@@ -18,6 +18,9 @@
     end makeGnooCmd
 
     on open fileList
+      set logFile to "/tmp/gnoo-applescript.log"
+      set timestamp to do shell script "date '+%Y-%m-%d %H:%M:%S'"
+
       set filePaths to {}
       repeat with aFile in fileList
         set end of filePaths to POSIX path of aFile
@@ -28,11 +31,33 @@
         set fileArgs to fileArgs & quoted form of aPath & " "
       end repeat
 
-      do shell script makeGnooCmd(fileArgs) & "> /dev/null 2>&1 &"
+      set cmd to makeGnooCmd(fileArgs)
+
+      do shell script "echo '[" & timestamp & "] on open called with files: " & fileArgs & "' >> " & logFile
+      do shell script "echo '[" & timestamp & "] Command: " & cmd & "' >> " & logFile
+
+      try
+        do shell script cmd & " >> " & logFile & " 2>&1 &"
+        do shell script "echo '[" & timestamp & "] Command executed successfully' >> " & logFile
+      on error errMsg
+        do shell script "echo '[" & timestamp & "] Error: " & errMsg & "' >> " & logFile
+      end try
     end open
 
     on run
-      do shell script makeGnooCmd("") & " > /dev/null 2>&1 &"
+      set logFile to "/tmp/gnoo-applescript.log"
+      set timestamp to do shell script "date '+%Y-%m-%d %H:%M:%S'"
+      set cmd to makeGnooCmd("")
+
+      do shell script "echo '[" & timestamp & "] on run called (no files)' >> " & logFile
+      do shell script "echo '[" & timestamp & "] Command: " & cmd & "' >> " & logFile
+
+      try
+        do shell script cmd & " >> " & logFile & " 2>&1 &"
+        do shell script "echo '[" & timestamp & "] Command executed successfully' >> " & logFile
+      on error errMsg
+        do shell script "echo '[" & timestamp & "] Error: " & errMsg & "' >> " & logFile
+      end try
     end run
     APPLESCRIPT
 
