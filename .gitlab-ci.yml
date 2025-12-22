@@ -18,13 +18,20 @@ check-parity:
   allow_failure: false
 
 # Stage 2: Validate Nix configuration (only runs if parity passes)
-# Takes longer due to Nix, but necessary for config validation
+# Note: --dry-run only evaluates config (architecture-agnostic)
+# Works on Linux runners even for darwin configs
 validate-nix:
   stage: validate
   image: nixos/nix:latest
+  cache:
+    key: nix-packages
+    paths:
+      - /nix/store/
   before_script:
     - mkdir -p ~/.config/nix
     - echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+    # Install make to reuse Makefile (DRY)
+    - nix-env -iA nixpkgs.gnumake
   script:
     - make validate
   allow_failure: false
