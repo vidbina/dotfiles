@@ -116,7 +116,8 @@ The files of this configuration are as follows:
 - [[file:personal-example.el]] :: reference for [[file:personal.el]] where you can add your personally sensitive configuration.
 - [[file:personal.el]] :: optional configuration file for personal setting which can be populated by copying [[file:personal-example.el]] for to get started and modifying the code as necessary
 - [[file:default.nix]] :: Nix home-manager configuration for GNU/Linux systems
-- [[file:default-darwin.nix]] :: Nix home-manager configuration for Darwin system (macOS)
+- [[file:nix-darwin.nix]] :: nix-darwin configuration for Darwin system (macOS)
+- [[file:hm.nix]] :: home-manager configuration for Darwin system (macOS)
 
 #+begin_src dot :file images/conf-setup.png :exports results
 digraph G {
@@ -131,15 +132,17 @@ digraph G {
     node_init -> node_lang [label="loads"]
   }
 
-  node_this [shape=box, label="README.org"]
+  node_this [shape=box, label="emacs/README.org"]
   node_personal_example [shape=box, label="personal-example.el"]
   node_default_nix [shape=box, style=dotted, label="default.nix"]
-  node_default_darwin_nix [shape=box, style=dotted, label="default-darwin.nix"]
+  node_nix_darwin_nix [shape=box, style=dotted, label="nix-darwin.nix"]
+  node_hm_nix [shape=box, style=dotted, label="hm.nix"]
 
   node_this -> node_earlyinit [label="tangles to"]
   node_this -> node_init [label="tangles to"]
   node_this -> node_default_nix [label="tangles to", style=dotted]
-  node_this -> node_default_darwin_nix [label="tangles to", style=dotted]
+  node_this -> node_nix_darwin_nix [label="tangles to", style=dotted]
+  node_this -> node_hm_nix [label="tangles to", style=dotted]
   node_personal_example -> node_personal [style=dotted]
 }
 #+end_src

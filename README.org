@@ -25,6 +25,7 @@ digraph G {
 
   // not defined in this file but referenced here
   node_emacs_nix_darwin_nix [shape=box, label="emacs/nix-darwin.nix"]
+  node_emacs_hm_nix [shape=box, label="emacs/hm.nix"]
   node_emacs_default_nix [shape=box, label="emacs/default.nix"]
   node_rofi_default_nix [shape=box, label="rofi/default.nix"]
   node_system_darwin_default_nix [shape=box, label="system/darwin/default.nix"]
@@ -67,6 +68,7 @@ digraph G {
   node_vim_nix -> node_common_nix [label="imported by"]
 
   node_vim_nix -> node_home_darwin_nix [label="imported by"]
+  node_emacs_hm_nix -> node_home_darwin_nix [label="imported by"]
 
   node_common_nix -> node_home_linux_nix [label="imported by"]
   node_doc_nix -> node_home_linux_nix [label="imported by"]
