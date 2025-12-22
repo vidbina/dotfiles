@@ -8014,7 +8014,7 @@ For debuggability's sake, I am defining my custome Emacs launchd agent that logs
 launchd.user.agents.my-emacs = {
   serviceConfig = {
     ProgramArguments = [
-      "${pkgs.my-emacs}/bin/emacs"
+      "${pkgs.my-emacs}/Applications/Emacs.app/Contents/MacOS/Emacs"
       "--fg-daemon"
     ];
 

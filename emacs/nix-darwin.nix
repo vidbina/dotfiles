@@ -40,7 +40,7 @@
   launchd.user.agents.my-emacs = {
     serviceConfig = {
       ProgramArguments = [
-        "${pkgs.my-emacs}/bin/emacs"
+        "${pkgs.my-emacs}/Applications/Emacs.app/Contents/MacOS/Emacs"
         "--fg-daemon"
       ];
 
