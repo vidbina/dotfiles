@@ -12,16 +12,17 @@ test:
 .PHONY: tangle
 tangle:
 	@echo "📝 Tangling org files..."
-	@emacs --batch \
-		--eval "(setq enable-local-variables :all)" \
-		--eval "(setq enable-local-eval t)" \
-		--eval "(setq org-confirm-babel-evaluate nil)" \
-		--eval "(require 'org)" \
-		--eval "(dolist (file '(\"README.org\" \"emacs/README.org\")) \
-			(find-file file) \
-			(hack-local-variables) \
-			(org-babel-tangle) \
-			(kill-buffer))"
+	emacs --batch \
+	  --eval "(setq enable-local-variables :all)" \
+	  --eval "(setq enable-local-eval t)" \
+	  --eval "(setq org-confirm-babel-evaluate nil)" \
+	  --eval "(require 'org)" \
+	  --eval "(dolist (file '(\"README.org\" \"emacs/README.org\")) \
+	    (find-file file) \
+	    (message \"📌 Tangling file %s\" file) \
+	    (hack-local-variables) \
+	    (org-babel-tangle) \
+	    (kill-buffer))"
 	@echo "✅ Tangling complete"
 
 # Check parity between tangled and committed files

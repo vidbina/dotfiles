@@ -101,7 +101,7 @@ Org-mode in Emacs is used such that I can read my config as a literate configura
 
 
 
-#+begin_src makefile :tangle Makefile
+#+begin_src makefile :noweb yes :tangle Makefile
 SHELL = /usr/bin/env sh
 
 HOME_MANAGER = home-manager
@@ -116,16 +116,7 @@ test:
 .PHONY: tangle
 tangle:
 	@echo "📝 Tangling org files..."
-	@emacs --batch \
-		--eval "(setq enable-local-variables :all)" \
-		--eval "(setq enable-local-eval t)" \
-		--eval "(setq org-confirm-babel-evaluate nil)" \
-		--eval "(require 'org)" \
-		--eval "(dolist (file '(\"README.org\" \"emacs/README.org\")) \
-			(find-file file) \
-			(hack-local-variables) \
-			(org-babel-tangle) \
-			(kill-buffer))"
+	<<emacs-batch-tangle>>
 	@echo "✅ Tangling complete"
 
 # Check parity between tangled and committed files
@@ -228,17 +219,17 @@ help:
 
 Observe the following snippet which can be used without opening Emacs yourself directly but still tangling any of the files:
 
-#+begin_src bash
+#+begin_src bash :noweb-ref emacs-batch-tangle
 emacs --batch \
   --eval "(setq enable-local-variables :all)" \
   --eval "(setq enable-local-eval t)" \
   --eval "(setq org-confirm-babel-evaluate nil)" \
   --eval "(require 'org)" \
-  --eval "(dolist (file '(\"README.org\" \"emacs/README.org\"))
-    (find-file file)
-    (message \"📌 Tangling file %s\" file)
-    (hack-local-variables)
-    (org-babel-tangle)
+  --eval "(dolist (file '(\"README.org\" \"emacs/README.org\")) \
+    (find-file file) \
+    (message \"📌 Tangling file %s\" file) \
+    (hack-local-variables) \
+    (org-babel-tangle) \
     (kill-buffer))"
 #+end_src
 
