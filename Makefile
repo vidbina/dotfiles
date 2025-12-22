@@ -4,11 +4,6 @@ HOME_MANAGER = home-manager
 NIX_SHELL = nix-shell
 DARWIN_REBUILD = sudo darwin-rebuild
 
-.PHONY: rebuild
-
-test:
-	${NIX_SHELL} --command "make nix-build"
-
 # Tangle all org files to generate configuration files
 # Respects local variables in org files (e.g., trailing whitespace cleanup hooks)
 .PHONY: tangle
@@ -53,6 +48,7 @@ validate:
 # Run all checks locally (simulates CI pipeline)
 # Fast checks: tangle, parity, validation (no actual build)
 # Use before committing changes
+.PHONY: ci
 ci: tangle check-parity validate
 	@echo "✅ All CI checks passed"
 
@@ -75,8 +71,8 @@ nix-darwin-switch:
 help:
 	@echo "Available targets:"
 	@echo "  make tangle            - Tangle all org files to generate config files"
-	@echo "  make validate          - Validate Nix configuration without building"
 	@echo "  make check-parity      - Check tangled files match committed files"
+	@echo "  make validate          - Validate Nix configuration without building"
 	@echo "  make ci                - Run all CI checks locally"
 	@echo "  make nix-darwin-build  - Build nix-darwin config"
 	@echo "  make nix-darwin-switch - Switch nix-darwin config"

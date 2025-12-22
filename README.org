@@ -99,7 +99,7 @@ digraph G {
 Org-mode in Emacs is used such that I can read my config as a literate configuration and tangle the necessary config files directly from Emacs. The pro of this setup is that it provides me context, the big con, is that you need Emacs to compile the target files if you want to make changes. Making changes in the target files directly, will result to overwrites when anyone retangles the config. For files tangled from Emacs, I've tried to add a notice at the start of those files to make sure you have a reminder when visiting a tangled file to head back to the source to make changes.
 #+end_quote
 
-
+For convenience's sake, we have a Makefile with the makerules defined for key steps/actions:
 
 #+begin_src makefile :noweb yes :tangle Makefile
 SHELL = /usr/bin/env sh
@@ -107,11 +107,6 @@ SHELL = /usr/bin/env sh
 HOME_MANAGER = home-manager
 NIX_SHELL = nix-shell
 DARWIN_REBUILD = sudo darwin-rebuild
-
-.PHONY: rebuild
-
-test:
-	${NIX_SHELL} --command "make nix-build"
 
 # Tangle all org files to generate configuration files
 # Respects local variables in org files (e.g., trailing whitespace cleanup hooks)
@@ -147,6 +142,7 @@ validate:
 # Run all checks locally (simulates CI pipeline)
 # Fast checks: tangle, parity, validation (no actual build)
 # Use before committing changes
+.PHONY: ci
 ci: tangle check-parity validate
 	@echo "✅ All CI checks passed"
 
@@ -169,8 +165,8 @@ nix-darwin-switch:
 help:
 	@echo "Available targets:"
 	@echo "  make tangle            - Tangle all org files to generate config files"
-	@echo "  make validate          - Validate Nix configuration without building"
 	@echo "  make check-parity      - Check tangled files match committed files"
+	@echo "  make validate          - Validate Nix configuration without building"
 	@echo "  make ci                - Run all CI checks locally"
 	@echo "  make nix-darwin-build  - Build nix-darwin config"
 	@echo "  make nix-darwin-switch - Switch nix-darwin config"
