@@ -8086,43 +8086,68 @@ We define a shell script to allow us to open this from the terminal, using the a
 
 ***** Emacs alias app bundle
 
-Scripts are not accessible from Dock, Raycast or Spotlight by default, so we provide an app bundle with an icon, to make the ergonomics even more streamlined here:
+Scripts are not accessible from Dock, Raycast or Spotlight by default, so we provide an app bundle with an icon, to make the ergonomics even more streamlined here.
+
+We use AppleScript to create a proper macOS app that handles file open events (for "Open With" and drag-and-drop):
 
 #+begin_quote
 [!WARNING]
 If the location of nix-darwin paths change such that gnoo (above) is no longer accessible through =/run/current-system/sw/bin/gnoo=, then the following app bundle will break.
 #+end_quote
 
+#+begin_src applescript :noweb yes :noweb-ref applescript-emacs
+property socketDir : "<<emacs-socket-directory>>"
+
+on makeGnooCmd(fileArgs)
+  set exportCmd to "export EMACS_SOCKET_NAME=" & quoted form of (socketDir & "/server")
+  set baseCmd to exportCmd & " /run/current-system/sw/bin/gnoo"
+  if fileArgs is not "" then
+    return baseCmd & " " & fileArgs
+  else
+    return baseCmd
+  end if
+end makeGnooCmd
+
+on open fileList
+  set filePaths to {}
+  repeat with aFile in fileList
+    set end of filePaths to POSIX path of aFile
+  end repeat
+
+  set fileArgs to ""
+  repeat with aPath in filePaths
+    set fileArgs to fileArgs & quoted form of aPath & " "
+  end repeat
+
+  do shell script makeGnooCmd(fileArgs) & "> /dev/null 2>&1 &"
+end open
+
+on run
+  do shell script makeGnooCmd("") & " > /dev/null 2>&1 &"
+end run
+#+end_src
+
 #+begin_src nix :noweb yes :noweb-ref home
-home.file."Applications/Gnoo.app".source = pkgs.stdenv.mkDerivation {
-  name = "Gnoo.app";
-  buildInputs = [ pkgs.my-emacs ];
+home.file."Applications/Gnoo.app".source = pkgs.runCommand "Gnoo.app" {} ''
+  # Create AppleScript that handles file open events
+  cat > script.applescript <<'APPLESCRIPT'
+  <<applescript-emacs>>
+  APPLESCRIPT
 
-  unpackPhase = "true";
+  # Compile AppleScript into app bundle using macOS system utility
+  /usr/bin/osacompile -o "$out" script.applescript
 
-  installPhase = ''
-    mkdir -p $out/Contents/MacOS
-    mkdir -p $out/Contents/Resources
+  # Copy icons
+  mkdir -p $out/Contents/Resources
+  cp ${pkgs.my-emacs}/Applications/Emacs.app/Contents/Resources/Emacs.icns $out/Contents/Resources/ 2>/dev/null || true
+  cp ${pkgs.my-emacs}/Applications/Emacs.app/Contents/Resources/document.icns $out/Contents/Resources/ 2>/dev/null || true
 
-    # Copy Emacs icon
-    cp ${pkgs.my-emacs}/share/icons/hicolor/128x128/apps/emacs.png $out/Contents/Resources/ || true
-    cp ${pkgs.my-emacs}/Applications/Emacs.app/Contents/Resources/Emacs.icns $out/Contents/Resources/ || true
-    cp ${pkgs.my-emacs}/Applications/Emacs.app/Contents/Resources/document.icns $out/Contents/Resources/ || true
-
-    # Create Info.plist
-    cat > $out/Contents/Info.plist <<EOF
-    <<emacs-app-bundle-plist>>
-    EOF
-
-    # Create launcher that calls the gnoo script
-    cat > $out/Contents/MacOS/Gnoo <<'EOF'
-    #!/bin/sh
-    <<emacs-shell-exports>>
-    exec /run/current-system/sw/bin/gnoo "$@"
-    EOF
-    chmod +x $out/Contents/MacOS/Gnoo
-  '';
-};
+  # Update Info.plist to use our icon and metadata
+  /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile Emacs.icns" $out/Contents/Info.plist || true
+  /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier me.vidbina.Gnoo" $out/Contents/Info.plist || true
+  /usr/libexec/PlistBuddy -c "Set :CFBundleName Gnoo" $out/Contents/Info.plist || true
+  /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName 'Gnoo (Emacs)'" $out/Contents/Info.plist || true
+'';
 #+end_src
 
 ****** COMMENT Minimal Emacs app plist
