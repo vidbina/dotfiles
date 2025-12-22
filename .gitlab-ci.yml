@@ -10,7 +10,7 @@ variables:
 # Stage 1: Tangle org files
 tangle:
   stage: tangle
-  image: silex/emacs:${EMACS_VERSION}
+  image: silex/emacs:${EMACS_VERSION}-alpine
   script:
     - |
       emacs --batch \
