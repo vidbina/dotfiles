@@ -1,9 +1,9 @@
 SHELL = /usr/bin/env sh
 
-.PHONY: all clean test
-
 HOME_MANAGER = home-manager
 NIX_SHELL = nix-shell
+
+.PHONY: all clean test
 
 all:
 	${NIX_SHELL} --command "make nix-switch"
