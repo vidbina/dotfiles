@@ -174,57 +174,6 @@ help:
 .DEFAULT_GOAL := help
 #+end_src
 
-#+begin_src makefile
-.PHONY: tangle validate check-parity help
-
-# Tangle all org files
-tangle:
-	@echo "📝 Tangling org files..."
-	@emacs --batch \
-		--eval "(setq enable-local-variables :all)" \
-		--eval "(setq enable-local-eval t)" \
-		--eval "(setq org-confirm-babel-evaluate nil)" \
-		--eval "(require 'org)" \
-		--eval "(dolist (file '(\"README.org\" \"emacs/README.org\")) \
-			(find-file file) \
-			(hack-local-variables) \
-			(org-babel-tangle) \
-			(kill-buffer))"
-	@echo "✅ Tangling complete"
-
-# Validate Nix configuration
-validate:
-	@echo "🔍 Validating Nix configuration..."
-	@nix flake check --no-build
-	@nix build .#darwinConfigurations.berlin-4corei7.system --dry-run
-	@echo "✅ Validation complete"
-
-# Check parity between tangled and committed files
-check-parity: tangle
-	@echo "🔄 Checking parity..."
-	@if git diff --exit-code; then \
-		echo "✅ Parity check passed"; \
-	else \
-		echo "❌ Parity check failed - run 'make tangle' and commit"; \
-		git diff; \
-		exit 1; \
-	fi
-
-# Run all checks (CI simulation)
-ci: tangle validate check-parity
-	@echo "✅ All CI checks passed"
-
-# Default target - show help
-help:
-	@echo "Available targets:"
-	@echo "  make tangle       - Tangle all org files to generate config files"
-	@echo "  make validate     - Validate Nix configuration without building"
-	@echo "  make check-parity - Check tangled files match committed files"
-	@echo "  make ci           - Run all CI checks locally"
-
-.DEFAULT_GOAL := help
-#+end_src
-
 Observe the following snippet which can be used without opening Emacs yourself directly but still tangling any of the files:
 
 #+begin_src bash :noweb-ref emacs-batch-tangle
