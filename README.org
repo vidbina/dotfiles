@@ -99,6 +99,22 @@ digraph G {
 Org-mode in Emacs is used such that I can read my config as a literate configuration and tangle the necessary config files directly from Emacs. The pro of this setup is that it provides me context, the big con, is that you need Emacs to compile the target files if you want to make changes. Making changes in the target files directly, will result to overwrites when anyone retangles the config. For files tangled from Emacs, I've tried to add a notice at the start of those files to make sure you have a reminder when visiting a tangled file to head back to the source to make changes.
 #+end_quote
 
+Observe the following snippet which can be used without opening Emacs yourself directly but still tangling any of the files:
+
+#+begin_src bash
+emacs --batch \
+  --eval "(setq enable-local-variables :all)" \
+  --eval "(setq enable-local-eval t)" \
+  --eval "(setq org-confirm-babel-evaluate nil)" \
+  --eval "(require 'org)" \
+  --eval "(dolist (file '(\"README.org\" \"emacs/README.org\"))
+    (find-file file)
+    (message \"📌 Tangling file %s\" file)
+    (hack-local-variables)
+    (org-babel-tangle)
+    (kill-buffer))"
+#+end_src
+
 ** The easy way with home-manager
 
 *** Configuring macOS with home-manager using nix-darwin
