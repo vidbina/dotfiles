@@ -8007,12 +8007,6 @@ and we prepare a home-manager importable file to cover the hm scope:
 }
 #+end_src
 
-Spotlight doesn't see Emacs even if it is installed as a service, so we have to install it regularly as a system package:
-
-#+begin_src nix :noweb-ref nix-packages
-my-emacs
-#+end_src
-
 **** Custom Emacs service
 
 For debuggability's sake, I am defining my custome Emacs launchd agent that logs to a known path such that we can figure out what is going on when things break.

@@ -6,7 +6,6 @@
     yamllint
     nodePackages.yaml-language-server
     graphviz
-    my-emacs
     mu
 
     python3
