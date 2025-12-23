@@ -11,6 +11,14 @@
     python3
 
     libgccjit
+    # Expose emacs CLI tool for local scripts and Makefiles
+    (pkgs.writeShellScriptBin "emacs" ''
+      exec ${pkgs.my-emacs}/bin/emacs "$@"
+    '')
+    # Expose emacsclient CLI tool for daemon interaction
+    (pkgs.writeShellScriptBin "emacsclient" ''
+      exec ${pkgs.my-emacs}/bin/emacsclient "$@"
+    '')
     (pkgs.writeShellScriptBin "e" ''
       # Check if daemon is running
       if ${pkgs.my-emacs}/bin/emacsclient -e "(+ 1 1)" >/dev/null 2>&1; then

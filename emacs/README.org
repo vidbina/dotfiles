@@ -8068,6 +8068,36 @@ and in some cases, we'll need to export it, like when we are defining app bundle
 export EMACS_SOCKET_NAME="<<emacs-socket-directory>>/server"
 #+end_src
 
+***** Emacs CLI tools
+
+We need to expose the =emacs= and =emacsclient= binaries for local scripts and Makefiles (e.g., =make tangle=), but we don't want to add =my-emacs= to =environment.systemPackages= because that would create =/run/current-system/sw/Applications/Emacs.app=, which shows up as clutter in Spotlight and Raycast.
+
+#+begin_quote
+[!NOTE]
+Why separate wrappers instead of adding =my-emacs= to systemPackages?
+
+- Adding =my-emacs= to =environment.systemPackages= creates =Applications/= symlinks that appear in Raycast/Spotlight as duplicate "Nix Apps" entries
+- We already have our custom =~/Applications/Emacs.app= (AppleScript wrapper) for GUI launching
+- Local scripts and Makefiles need the CLI tools (=emacs=, =emacsclient=) available in PATH
+- These wrappers provide clean separation: CLI tools in PATH without GUI app clutter
+#+end_quote
+
+Instead, we create minimal wrapper scripts that only expose the CLI tools:
+
+#+begin_src nix :noweb-ref nix-darwin-packages
+# Expose emacs CLI tool for local scripts and Makefiles
+(pkgs.writeShellScriptBin "emacs" ''
+  exec ${pkgs.my-emacs}/bin/emacs "$@"
+'')
+#+end_src
+
+#+begin_src nix :noweb-ref nix-darwin-packages
+# Expose emacsclient CLI tool for daemon interaction
+(pkgs.writeShellScriptBin "emacsclient" ''
+  exec ${pkgs.my-emacs}/bin/emacsclient "$@"
+'')
+#+end_src
+
 ***** Emacs shell alias
 
 We define a shell script to allow us to open this from the terminal through the short-hand =e=:
