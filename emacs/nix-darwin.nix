@@ -12,7 +12,7 @@
     python3
 
     libgccjit
-    (pkgs.writeShellScriptBin "gnoo" ''
+    (pkgs.writeShellScriptBin "e" ''
       # Check if daemon is running
       if ${pkgs.my-emacs}/bin/emacsclient -e "(+ 1 1)" >/dev/null 2>&1; then
         echo "Daemon running: connecting through emacsclient"
@@ -62,5 +62,5 @@
     ];
   };
   environment.variables.EMACS_SOCKET_NAME = "/tmp/my-emacs/socket/server";
-
+  environment.shellAliases.emacs = "e";
 }
