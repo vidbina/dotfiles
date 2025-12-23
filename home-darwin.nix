@@ -37,6 +37,7 @@
 
     pkgs.jujutsu
     pkgs.gh
+    pkgs.glab
     devenv
     alacritty
     wezterm

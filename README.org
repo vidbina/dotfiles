@@ -2287,6 +2287,12 @@ difftastic = {
 pkgs.gh
 #+end_src
 
+**** GitLab
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.glab
+#+end_src
+
 ** Utils
 
 *** Android
