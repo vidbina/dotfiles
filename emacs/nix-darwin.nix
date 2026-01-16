@@ -5,13 +5,21 @@
   environment.systemPackages = with pkgs; [
     yamllint
     nodePackages.yaml-language-server
-    my-emacs
+    graphviz
     mu
 
     python3
 
     libgccjit
-    (pkgs.writeShellScriptBin "gnoo" ''
+    # Expose emacs CLI tool for local scripts and Makefiles
+    (pkgs.writeShellScriptBin "emacs" ''
+      exec ${pkgs.my-emacs}/bin/emacs "$@"
+    '')
+    # Expose emacsclient CLI tool for daemon interaction
+    (pkgs.writeShellScriptBin "emacsclient" ''
+      exec ${pkgs.my-emacs}/bin/emacsclient "$@"
+    '')
+    (pkgs.writeShellScriptBin "e" ''
       # Check if daemon is running
       if ${pkgs.my-emacs}/bin/emacsclient -e "(+ 1 1)" >/dev/null 2>&1; then
         echo "Daemon running: connecting through emacsclient"
@@ -61,5 +69,5 @@
     ];
   };
   environment.variables.EMACS_SOCKET_NAME = "/tmp/my-emacs/socket/server";
-
+  environment.shellAliases.emacs = "e";
 }

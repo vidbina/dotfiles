@@ -2,23 +2,23 @@
 { config, pkgs, ... }:
 
 {
-  home.file."Applications/Gnoo.app".source = pkgs.runCommand "Gnoo.app" {} ''
+  home.file."Applications/Emacs.app".source = pkgs.runCommand "Emacs.app" {} ''
     # Create AppleScript that handles file open events
     cat > script.applescript <<'APPLESCRIPT'
     property socketDir : "/tmp/my-emacs/socket"
 
-    on makeGnooCmd(fileArgs)
+    on makeEmacsCmd(fileArgs)
       set envVar to "EMACS_SOCKET_NAME=" & quoted form of (socketDir & "/server")
-      set baseCmd to envVar & " /run/current-system/sw/bin/gnoo"
+      set baseCmd to envVar & " /run/current-system/sw/bin/e"
       if fileArgs is not "" then
         return baseCmd & " " & fileArgs
       else
         return baseCmd
       end if
-    end makeGnooCmd
+    end makeEmacsCmd
 
     on open fileList
-      set logFile to "/tmp/gnoo-applescript.log"
+      set logFile to "/tmp/my-emacs-applescript.log"
       set timestamp to do shell script "date '+%Y-%m-%d %H:%M:%S'"
 
       set filePaths to {}
@@ -31,7 +31,7 @@
         set fileArgs to fileArgs & quoted form of aPath & " "
       end repeat
 
-      set cmd to makeGnooCmd(fileArgs)
+      set cmd to makeEmacsCmd(fileArgs)
 
       do shell script "echo '[" & timestamp & "] on open called with files: " & fileArgs & "' >> " & logFile
       do shell script "echo '[" & timestamp & "] Command: " & cmd & "' >> " & logFile
@@ -45,9 +45,9 @@
     end open
 
     on run
-      set logFile to "/tmp/gnoo-applescript.log"
+      set logFile to "/tmp/my-emacs-applescript.log"
       set timestamp to do shell script "date '+%Y-%m-%d %H:%M:%S'"
-      set cmd to makeGnooCmd("")
+      set cmd to makeEmacsCmd("")
 
       do shell script "echo '[" & timestamp & "] on run called (no files)' >> " & logFile
       do shell script "echo '[" & timestamp & "] Command: " & cmd & "' >> " & logFile
@@ -71,9 +71,9 @@
 
     # Update Info.plist to use our icon and metadata
     /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile Emacs.icns" $out/Contents/Info.plist || true
-    /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier me.vidbina.Gnoo" $out/Contents/Info.plist || true
-    /usr/libexec/PlistBuddy -c "Set :CFBundleName Gnoo" $out/Contents/Info.plist || true
-    /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName 'Gnoo (Emacs)'" $out/Contents/Info.plist || true
+    /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier me.vidbina.Emacs" $out/Contents/Info.plist || true
+    /usr/libexec/PlistBuddy -c "Set :CFBundleName Emacs" $out/Contents/Info.plist || true
+    /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName 'Emacs (Emacs)'" $out/Contents/Info.plist || true
 
     # Set icon for document types (fixes icon in 1Password and other modals)
     /usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:0:CFBundleTypeIconFile string document.icns" $out/Contents/Info.plist 2>/dev/null || \
