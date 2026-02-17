@@ -1840,17 +1840,9 @@ homebrew = {
   masApps = {
     <<homebrew-masapps>>
   };
+  enableZshIntegration = true;
 };
 #+end_src
-
-and init it in our shells:
-
-#+begin_src nix :noweb-ref nix-darwin-interactive-shellinit
-''
-  eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
-''
-#+end_src
-
 
 As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefers pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility as demonstrated through the following snippet:
 

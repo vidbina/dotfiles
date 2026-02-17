@@ -30,9 +30,7 @@
   ]);
 
   environment.interactiveShellInit = lib.strings.concatStrings [
-    ''
-      eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
-    ''
+
   ];
 
   # General nix-darwin settings
@@ -226,6 +224,7 @@
       "Amphetamine"= 937984704;
       "Perplexity" = 6714467650;
     };
+    enableZshIntegration = true;
   };
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
