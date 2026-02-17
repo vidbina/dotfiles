@@ -3330,7 +3330,7 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
     extraConfig = ''
       <<neovim-config>>
     '';
-    extraLuaConfig = ''
+    initLua = ''
       -- Tangled from README.org
       <<neovim-lua-config>>
     '';
