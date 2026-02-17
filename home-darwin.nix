@@ -119,6 +119,7 @@
         "workbench.preferredDarkColorTheme" = "Default High Contrast";
         "workbench.preferredLightColorTheme" = "Default High Contrast Light";
         "workbench.list.openMode" = "doubleClick";
+        "claudeCode.preferredLocation" = "panel";
       };
     };
   };

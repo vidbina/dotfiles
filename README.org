@@ -5137,9 +5137,12 @@ Note that claude-code is unfree.
 "claude-code"
 #+end_src
 
-**** COMMENT Claude Code for VSCode
+**** Claude Code for VSCode
 
-For vscode and vscode-derived editors, we want to enable the official Claude Code extension:
+For vscode and vscode-derived editors, we want to enable the official Claude Code extension. On <2026-02-07 Sat>, we isolated and commented out just the installation part of this config in order to manage this extension manually in vscode.
+
+***** COMMENT Install vscode extension for Claude Code with nix
+
 
 #+begin_src nix :noweb-ref vscode-extensions
 anthropic.claude-code
@@ -5147,6 +5150,14 @@ anthropic.claude-code
 
 #+begin_src nix :noweb-ref darwin-unfree
 "vscode-extension-anthropic-claude-code"
+#+end_src
+
+***** Configure vscode extension for Claude Code
+
+We prefer Claude Code in a panel, so let's set that up so it will be honored in our settings:
+
+#+begin_src nix :noweb-ref vscode-settings
+"claudeCode.preferredLocation" = "panel";
 #+end_src
 
 *** Gemini
