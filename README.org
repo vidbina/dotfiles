@@ -1599,6 +1599,8 @@ yq
 
 Intel-only packages are listed separately such that we can use them on the macOS machine that still has a x86-based Intel chip but avoid trying to install them on ARM-based Apple machines.
 
+**** COMMENT Intel-only MacOS Packages
+
 #+begin_src nix :noweb-ref nix-darwin-packages-intel
 # Darwin packages for Intel-only
 gdb

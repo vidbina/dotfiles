@@ -25,8 +25,7 @@
 
   ] else [
     # Intel-only packages
-    # Darwin packages for Intel-only
-    gdb
+
   ]);
 
   environment.interactiveShellInit = lib.strings.concatStrings [
