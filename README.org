@@ -1777,6 +1777,18 @@ defaults.CustomUserPreferences = {
 };
 #+end_src
 
+***** Displays have separate Spaces
+
+To simplify working with apps in full screen, it is easiest if displays have their own spaces such that we can manage displays in isolation. This means no longer full-screening all displays to blank when a single display needs to present 1 app in full-screen mode.
+
+#+begin_src nix :noweb-ref darwin-system
+defaults.CustomUserPreferences = {
+  "com.apple.spaces" = {
+    spansDisplays = true;
+  };
+};
+#+end_src
+
 **** COMMENT Configure Darwin system activation scripts
 
 #+begin_src nix :noweb-ref darwin-system

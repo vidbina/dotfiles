@@ -153,6 +153,12 @@
         TrackpadThreeFingerTapGesture = 2;
       };
     };
+
+    defaults.CustomUserPreferences = {
+      "com.apple.spaces" = {
+        spansDisplays = true;
+      };
+    };
   };
 
   homebrew = {
