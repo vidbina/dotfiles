@@ -11,7 +11,6 @@
 
   home.packages = with pkgs; [
     # dev-packages
-    checkmake
     gh
     gleam
     gnumake

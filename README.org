@@ -1572,7 +1572,6 @@ We want to move this block of package definitions into the appropriate sections 
 #+end_quote
 
 #+begin_src nix :noweb-ref dev-packages
-checkmake
 gh
 gleam
 gnumake
