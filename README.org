@@ -1572,7 +1572,6 @@ We want to move this block of package definitions into the appropriate sections 
 #+end_quote
 
 #+begin_src nix :noweb-ref dev-packages
-checkmake
 gh
 gleam
 gnumake
@@ -1589,7 +1588,6 @@ nodejs
 pqrs
 nixpkgs-fmt
 redis
-shell-gpt
 sqlite-interactive
 tree
 tree-sitter
@@ -1598,6 +1596,8 @@ yq
 #+end_src
 
 Intel-only packages are listed separately such that we can use them on the macOS machine that still has a x86-based Intel chip but avoid trying to install them on ARM-based Apple machines.
+
+**** COMMENT Intel-only MacOS Packages
 
 #+begin_src nix :noweb-ref nix-darwin-packages-intel
 # Darwin packages for Intel-only
@@ -1775,6 +1775,18 @@ defaults.CustomUserPreferences = {
 };
 #+end_src
 
+***** Displays have separate Spaces
+
+To simplify working with apps in full screen, it is easiest if displays have their own spaces such that we can manage displays in isolation. This means no longer full-screening all displays to blank when a single display needs to present 1 app in full-screen mode.
+
+#+begin_src nix :noweb-ref darwin-system
+defaults.CustomUserPreferences = {
+  "com.apple.spaces" = {
+    spansDisplays = true;
+  };
+};
+#+end_src
+
 **** COMMENT Configure Darwin system activation scripts
 
 #+begin_src nix :noweb-ref darwin-system
@@ -1840,17 +1852,9 @@ homebrew = {
   masApps = {
     <<homebrew-masapps>>
   };
+  enableZshIntegration = true;
 };
 #+end_src
-
-and init it in our shells:
-
-#+begin_src nix :noweb-ref nix-darwin-interactive-shellinit
-''
-  eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
-''
-#+end_src
-
 
 As outlined in [[https://apple.stackexchange.com/a/125471][this StackExchange answer]], brew prefers pre-compiled binaries (so called /bottles/). CLI tools are typically installed through the standard homebrews **brews** facility as demonstrated through the following snippet:
 
@@ -3330,7 +3334,7 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
     extraConfig = ''
       <<neovim-config>>
     '';
-    extraLuaConfig = ''
+    initLua = ''
       -- Tangled from README.org
       <<neovim-lua-config>>
     '';

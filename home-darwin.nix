@@ -11,7 +11,6 @@
 
   home.packages = with pkgs; [
     # dev-packages
-    checkmake
     gh
     gleam
     gnumake
@@ -28,7 +27,6 @@
     pqrs
     nixpkgs-fmt
     redis
-    shell-gpt
     sqlite-interactive
     tree
     tree-sitter

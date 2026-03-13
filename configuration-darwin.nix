@@ -25,14 +25,11 @@
 
   ] else [
     # Intel-only packages
-    # Darwin packages for Intel-only
-    gdb
+
   ]);
 
   environment.interactiveShellInit = lib.strings.concatStrings [
-    ''
-      eval "''$(${config.homebrew.brewPrefix}/brew shellenv)";
-    ''
+
   ];
 
   # General nix-darwin settings
@@ -156,6 +153,12 @@
         TrackpadThreeFingerTapGesture = 2;
       };
     };
+
+    defaults.CustomUserPreferences = {
+      "com.apple.spaces" = {
+        spansDisplays = true;
+      };
+    };
   };
 
   homebrew = {
@@ -226,6 +229,7 @@
       "Amphetamine"= 937984704;
       "Perplexity" = 6714467650;
     };
+    enableZshIntegration = true;
   };
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [

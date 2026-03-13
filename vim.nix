@@ -47,7 +47,7 @@
       set nofoldenable
       set nofixeol
     '';
-    extraLuaConfig = ''
+    initLua = ''
       -- Tangled from README.org
       require'nvim-treesitter.configs'.setup{
         highlight = {
