@@ -28,7 +28,6 @@
     pqrs
     nixpkgs-fmt
     redis
-    shell-gpt
     sqlite-interactive
     tree
     tree-sitter
