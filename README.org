@@ -1782,7 +1782,7 @@ To simplify working with apps in full screen, it is easiest if displays have the
 #+begin_src nix :noweb-ref darwin-system
 defaults.CustomUserPreferences = {
   "com.apple.spaces" = {
-    spansDisplays = true;
+    "spans-displays" = false;
   };
 };
 #+end_src

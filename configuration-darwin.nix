@@ -156,7 +156,7 @@
 
     defaults.CustomUserPreferences = {
       "com.apple.spaces" = {
-        spansDisplays = true;
+        "spans-displays" = false;
       };
     };
   };
