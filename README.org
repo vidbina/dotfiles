@@ -3400,7 +3400,10 @@ vim.keymap.set('n', '<Leader>i', function() vim.diagnostic.open_float(nil, {focu
 
 See =:h mapleader= for info on the leader key which is set to backslack (=\=) by default. When different, try to run =:echo mapleader= from inside of vim to find out.
 
-*** Neovim Treesitter
+*** COMMENT Neovim Treesitter
+
+Removing on <2026-03-14 Sat> becuause of =module 'nvim-treesitter.configs' not found= error.
+
 
 #+begin_src nix :noweb-ref nvim-packages
 nvim-treesitter.withAllGrammars
