@@ -2584,6 +2584,20 @@ config.keys = {
 "ghostty"
 #+end_src
 
+**** Cmux
+
+https://cmux.com/
+
+#+begin_quote
+Native macOS app built on Ghostty. Vertical tabs, notification rings when agents need attention, split panes, and a socket API for automation.
+#+end_quote
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"cmux"
+#+end_src
+
+Just trying this because Theo won't stop switching tools and I have some spare time to try out some stuff. https://www.youtube.com/watch?v=EUE8N6mqtGg
+
 *** Networking
 
 Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your MacOS.

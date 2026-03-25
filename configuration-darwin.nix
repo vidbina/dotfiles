@@ -194,6 +194,7 @@
       "kitty"
       "warp"
       "ghostty"
+      "cmux"
       "kap"
       "shottr"
       "drawio"
