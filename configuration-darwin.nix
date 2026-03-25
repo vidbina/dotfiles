@@ -198,6 +198,7 @@
       "shottr"
       "drawio"
       "figma"
+      "framer"
       "rive"
       "docker"
       "utm"
