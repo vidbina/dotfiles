@@ -2994,7 +2994,7 @@ pkgs.mtr
 **** Docker
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
-"docker"
+"docker-desktop"
 #+end_src
 
 **** UTM

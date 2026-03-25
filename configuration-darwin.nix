@@ -201,7 +201,7 @@
       "figma"
       "framer"
       "rive"
-      "docker"
+      "docker-desktop"
       "utm"
       "raycast"
       (if pkgs.stdenv.hostPlatform.system == "x86_64-darwin" then "aldente" else null)
