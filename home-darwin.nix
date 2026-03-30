@@ -53,7 +53,7 @@
     pkgs.gnumake
     pkgs.gleam
     pkgs.nixd
-    pkgs.nixfmt-rfc-style
+    pkgs.nixfmt
     pkgs.nodePackages.typescript-language-server
     pkgs.tree-sitter
     pkgs.jq
