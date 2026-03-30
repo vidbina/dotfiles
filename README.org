@@ -2077,6 +2077,9 @@ Define parts of the VsCode-specific fields are defined in the JSON format as fol
 "vim.highlightedyank.enable" = true;
 
 "window.autoDetectColorScheme" = true;
+
+# Make the time-out a bit longer to allow for us to get that direnv stuff done
+"application.shellEnvironmentResolutionTimeout" = 20; # original was 10
 #+end_src
 
 ***** Colored guides in VSCode

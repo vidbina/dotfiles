@@ -110,6 +110,9 @@
         "vim.highlightedyank.enable" = true;
 
         "window.autoDetectColorScheme" = true;
+
+        # Make the time-out a bit longer to allow for us to get that direnv stuff done
+        "application.shellEnvironmentResolutionTimeout" = 20; # original was 10
         # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
         "editor.guides.bracketPairs" = true;
         "editor.guides.highlightActiveIndentation" = true;
