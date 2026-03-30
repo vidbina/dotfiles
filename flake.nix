@@ -35,6 +35,7 @@
           # Fresh Nix install (2026) uses GID 350 for nixbld (changed from 30000 for Sequoia compat)
           extraModules = [
             {
+              networking.hostName = "berlin26-m5pro.vidbina";
               ids.gids.nixbld = 350;
               system.stateVersion = 5;
             }
