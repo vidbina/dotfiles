@@ -168,6 +168,8 @@
     };
     onActivation = {
       autoUpdate = false; # same as default
+      # run `brew update` manually when adding new casks
+
       cleanup = "uninstall";
       extraFlags = [
         "--verbose"
