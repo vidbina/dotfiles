@@ -3808,7 +3808,15 @@ in
 }
 #+end_src
 
-*** COMMENT Chrome
+*** Chrome
+
+Install Chrome through homebrew:
+
+#+begin_src nix :noweb-ref homebrew-casks
+"google-chrome"
+#+end_src
+
+**** COMMENT Previous config
 
 We just want to try the unfree Google Chrome, to test whether this works with Twitch:
 

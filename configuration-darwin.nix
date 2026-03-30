@@ -213,6 +213,7 @@ with lib;
       "spotify"
       "tidal"
       "steam"
+      "google-chrome"
       "firefox@developer-edition"
       "discord"
       "signal"
