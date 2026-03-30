@@ -1527,7 +1527,9 @@ On macOS, nix-darwin provides the most batteries included nix experience. We can
 #+begin_src nix :noweb yes :tangle configuration-darwin.nix
 # Tangled from README.org
 # This is a nix-darwin config
-{ pkgs, lib, inputs, config, username, ... }: {
+{ pkgs, lib, inputs, config, username, ... }:
+with lib;
+{
   imports = [
     # import modules into our nix-darwin config
     <<nix-darwin-imports>>
@@ -1734,7 +1736,7 @@ system = {
 
 # Used for backwards compatibility, please read the changelog before changing.
 # $ darwin-rebuild changelog
-  stateVersion = 4;
+  stateVersion = mkDefault 4;
 
   <<darwin-system>>
 };

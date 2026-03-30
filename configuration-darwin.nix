@@ -1,6 +1,8 @@
 # Tangled from README.org
 # This is a nix-darwin config
-{ pkgs, lib, inputs, config, username, ... }: {
+{ pkgs, lib, inputs, config, username, ... }:
+with lib;
+{
   imports = [
     # import modules into our nix-darwin config
     ./emacs/nix-darwin.nix
@@ -140,7 +142,7 @@
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
-    stateVersion = 4;
+    stateVersion = mkDefault 4;
 
     primaryUser = "vidbina";
     defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
