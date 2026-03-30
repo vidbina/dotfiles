@@ -3,8 +3,7 @@ SHELL = /usr/bin/env sh
 HOME_MANAGER = home-manager
 NIX_SHELL = nix-shell
 DARWIN_REBUILD = sudo darwin-rebuild
-# Use short hostname (strips domain suffix) to match flake config names
-HOSTNAME := $(shell hostname -s)
+HOSTNAME := $(shell hostname)
 
 # Tangle all org files to generate configuration files
 # Respects local variables in org files (e.g., trailing whitespace cleanup hooks)
