@@ -32,16 +32,25 @@
           name = "berlin26-m5pro";
           system = "aarch64-darwin";
           username = "vidbina";
+          # Fresh Nix install (2026) uses GID 350 for nixbld (changed from 30000 for Sequoia compat)
+          extraModules = [
+            {
+              ids.gids.nixbld = 350;
+              system.stateVersion = 5;
+            }
+          ];
         }
         {
           name = "tokyo23-m2";
           system = "aarch64-darwin";
           username = "vidbina";
+          extraModules = [ ];
         }
         {
           name = "berlin-4corei7";
           system = "x86_64-darwin";
           username = "vidbina";
+          extraModules = [ ];
         }
       ];
 
@@ -68,7 +77,7 @@
               home-manager.users.${machine.username} = import ./home-darwin.nix;
               home-manager.verbose = true;
             }
-          ];
+          ] ++ machine.extraModules;
         };
     in
     {
