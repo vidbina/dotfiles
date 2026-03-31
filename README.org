@@ -3521,9 +3521,13 @@ On MacOS, we use [[https://github.com/dwarvesf/hidden/][hidden Bar]] to work aro
 
 *** Raycast
 
+We use [[https://www.raycast.com/][Raycast]] as our default Launcher and set it up to replace Spotlight, following the instructions on https://manual.raycast.com/hotkey which are tricky to enforce declaratively in a clean manner.
+
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "raycast"
 #+end_src
+
+I've transfered my Raycast settings through the *Export settings & data* option which produces a .rayconfig file which I import on another machine. This is a pretty simple way to manage synchronization of Raycast configuration since this doesn't change too often.
 
 *** Nightlight
 
