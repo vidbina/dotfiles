@@ -1471,9 +1471,14 @@ ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 
 For developer tooling, we define our =userName= and =userEmail= which we will rely on in configuring git, for example.
 
-#+begin_src nix :noweb yes :noweb-ref home-darwin-git
+#+begin_src nix :noweb yes :noweb-ref home-darwin-programs-git-settings
 user.name = "David Asabina";
-user.email = "vid@bina.me";
+
+# NOTE: We avoid setting userEmail in order to have the git CLI fail
+# and explicitly ask for this when not set to avoid commits under
+# wrong addresses.
+# Recommendation: configure email on a per-folder basis, not globally.
+#user.email = "vid@bina.me";
 #+end_src
 
 We all have parts of our configs that are for our eyes only and the

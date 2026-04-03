@@ -134,6 +134,13 @@
       signing.format = "ssh";
 
       settings = {
+        user.name = "David Asabina";
+
+        # NOTE: We avoid setting userEmail in order to have the git CLI fail
+        # and explicitly ask for this when not set to avoid commits under
+        # wrong addresses.
+        # Recommendation: configure email on a per-folder basis, not globally.
+        #user.email = "vid@bina.me";
         alias = {
           wdiff = "diff --word-diff --word-diff-regex='\\w+'";
           glog = "log --oneline --graph --all --decorate";
