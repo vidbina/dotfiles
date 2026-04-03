@@ -27,7 +27,7 @@
       ...
     }:
     let
-      machines = import ./machines.example.nix;
+      machines = import ./machines.nix;
 
       darwinConfigurationFor =
         machine:
@@ -54,7 +54,8 @@
               home-manager.users.${machine.username} = import ./home-darwin.nix;
               home-manager.verbose = true;
             }
-          ] ++ machine.extraModules;
+          ]
+          ++ machine.extraModules;
         };
     in
     {

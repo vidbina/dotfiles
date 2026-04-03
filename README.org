@@ -36,7 +36,7 @@ digraph G {
   node_shell_nix [shape=box, label="shell.nix"]
   node_x_nix [shape=box, label="x.nix"]
   node_mail_nix [shape=box, label="mail.nix"]
-  node_machines_example_nix [shape=box, label="machines.example.nix"]
+  node_machines_nix [shape=box, label="machines.nix"]
   node_vim_nix [shape=box, label="vim.nix"]
   node_multimedia_nix [shape=box, label="multimedia.nix"]
   node_browser_nix [shape=box, label="browser.nix"]
@@ -68,8 +68,8 @@ digraph G {
 
   node_vim_nix -> node_common_nix [label="imported by"]
 
-  node_this -> node_machines_example_nix [label="tangles to"]
-  node_machines_example_nix -> node_flake_nix [label="imported by (via machines.nix symlink)"]
+  node_this -> node_machines_nix [label="tangles to"]
+  node_machines_nix -> node_flake_nix [label="imported by"]
   node_vim_nix -> node_home_darwin_nix [label="imported by"]
   node_emacs_hm_nix -> node_home_darwin_nix [label="imported by"]
 
@@ -1523,10 +1523,10 @@ primaryUser = username;
 
 *** Machine Definitions
 
-Machine-specific configuration lives in =machines.example.nix= which is
+Machine-specific configuration lives in =machines.nix= which is
 tangled from this file and imported directly by =flake.nix=.
 
-#+begin_src nix :tangle machines.example.nix
+#+begin_src nix :tangle machines.nix
 # Per-machine configuration. Copy or symlink to machines.nix.
 # This is the single place to configure user and path settings.
 [
