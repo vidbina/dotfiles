@@ -1523,12 +1523,8 @@ primaryUser = username;
 
 *** Machine Definitions
 
-Machine-specific configuration lives in =machines.nix= which is gitignored.
-Copy or symlink the example file to get started:
-
-#+begin_example
-ln -s machines.example.nix machines.nix
-#+end_example
+Machine-specific configuration lives in =machines.example.nix= which is
+tangled from this file and imported directly by =flake.nix=.
 
 #+begin_src nix :tangle machines.example.nix
 # Per-machine configuration. Copy or symlink to machines.nix.

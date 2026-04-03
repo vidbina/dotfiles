@@ -27,7 +27,7 @@
       ...
     }:
     let
-      machines = import ./machines.nix;
+      machines = import ./machines.example.nix;
 
       darwinConfigurationFor =
         machine:
