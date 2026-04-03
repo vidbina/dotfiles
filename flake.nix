@@ -27,33 +27,7 @@
       ...
     }:
     let
-      machines = [
-        {
-          name = "berlin26-m5pro";
-          system = "aarch64-darwin";
-          username = "vidbina";
-          # Fresh Nix install (2026) uses GID 350 for nixbld (changed from 30000 for Sequoia compat)
-          extraModules = [
-            {
-              networking.hostName = "berlin26-m5pro";
-              ids.gids.nixbld = 350;
-              system.stateVersion = 5;
-            }
-          ];
-        }
-        {
-          name = "tokyo23-m2";
-          system = "aarch64-darwin";
-          username = "vidbina";
-          extraModules = [ ];
-        }
-        {
-          name = "berlin-4corei7";
-          system = "x86_64-darwin";
-          username = "vidbina";
-          extraModules = [ ];
-        }
-      ];
+      machines = import ./machines.nix;
 
       darwinConfigurationFor =
         machine:
@@ -63,8 +37,7 @@
           # See https://github.com/LnL7/nix-darwin#using-flake-inputs
           specialArgs = {
             inherit inputs;
-            # TODO: Refactor to DRY-up shared specialArgs use across configs
-            inherit (machine) username;
+            inherit (machine) username dotfilesPath;
           };
 
           modules = [
@@ -75,6 +48,9 @@
               home-manager.backupFileExtension = "backup";
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = {
+                inherit (machine) username dotfilesPath;
+              };
               home-manager.users.${machine.username} = import ./home-darwin.nix;
               home-manager.verbose = true;
             }

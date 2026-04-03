@@ -1,9 +1,8 @@
 # Tangled from README.org
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, dotfilesPath, ... }:
 
 {
   imports = [
-    ./dotfiles.nix
     ./vim.nix
     ./emacs/hm.nix
   ];
@@ -73,7 +72,7 @@
     # Set global gitignore
     ".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
     ".wezterm.lua".source = ./wezterm/wezterm.lua;
-    ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.dotfiles.path}/emacs";
+    ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/emacs";
     ".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
   };
   programs.vscode = {

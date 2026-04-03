@@ -36,7 +36,7 @@ digraph G {
   node_shell_nix [shape=box, label="shell.nix"]
   node_x_nix [shape=box, label="x.nix"]
   node_mail_nix [shape=box, label="mail.nix"]
-  node_dotfiles_nix [shape=box, label="dotfiles.nix"]
+  node_machines_example_nix [shape=box, label="machines.example.nix"]
   node_vim_nix [shape=box, label="vim.nix"]
   node_multimedia_nix [shape=box, label="multimedia.nix"]
   node_browser_nix [shape=box, label="browser.nix"]
@@ -68,7 +68,8 @@ digraph G {
 
   node_vim_nix -> node_common_nix [label="imported by"]
 
-  node_dotfiles_nix -> node_home_darwin_nix [label="imported by"]
+  node_this -> node_machines_example_nix [label="tangles to"]
+  node_machines_example_nix -> node_flake_nix [label="imported by (via machines.nix symlink)"]
   node_vim_nix -> node_home_darwin_nix [label="imported by"]
   node_emacs_hm_nix -> node_home_darwin_nix [label="imported by"]
 
@@ -328,7 +329,7 @@ Navigate to the "Full Disk Access" setting and enable access for the Terminal.
 
 #+begin_src nix :noweb yes :tangle home-darwin.nix
 # Tangled from README.org
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, dotfilesPath, ... }:
 
 {
   imports = [
@@ -341,34 +342,6 @@ Navigate to the "Full Disk Access" setting and enable access for the Terminal.
     <<home-darwin-programs>>
   };
 }
-#+end_src
-
-***** Dotfiles Module
-
-We define a dotfiles module to abstract away the configuration details that apply more generally, like username, email, etc.
-
-#+begin_src nix :noweb yes :tangle dotfiles.nix
-# Tangled from README.org
-
-# Home-manager module that defines the dotfiles.path option.
-# mkOutOfStoreSymlink needs a real filesystem path (not a /nix/store path),
-# and flakes can't discover the checkout location at evaluation time.
-# This option centralizes the assumed path and makes it overridable.
-{ config, lib, ... }:
-
-{
-  options.dotfiles.path = lib.mkOption {
-    type = lib.types.str;
-    default = "${config.home.homeDirectory}/Code/vidbina/dotfiles";
-    description = "Absolute path to the dotfiles repository checkout on disk.";
-  };
-}
-#+end_src
-
-We need to remember to import this module into our nix-darwin configuration.
-
-#+begin_src nix :noweb-ref home-darwin-imports
-./dotfiles.nix
 #+end_src
 
 ***** DONE Darwin Home-manager Config
@@ -1546,6 +1519,49 @@ users.users.${username} = {
 
 #+begin_src nix :noweb-ref darwin-system
 primaryUser = username;
+#+end_src
+
+*** Machine Definitions
+
+Machine-specific configuration lives in =machines.nix= which is gitignored.
+Copy or symlink the example file to get started:
+
+#+begin_example
+ln -s machines.example.nix machines.nix
+#+end_example
+
+#+begin_src nix :tangle machines.example.nix
+# Per-machine configuration. Copy or symlink to machines.nix.
+# This is the single place to configure user and path settings.
+[
+  {
+    name = "berlin26-m5pro";
+    system = "aarch64-darwin";
+    username = "vidbina";
+    dotfilesPath = "/Users/vidbina/Code/vidbina/dotfiles";
+    extraModules = [
+      {
+        networking.hostName = "berlin26-m5pro";
+        ids.gids.nixbld = 350;
+        system.stateVersion = 5;
+      }
+    ];
+  }
+  {
+    name = "tokyo23-m2";
+    system = "aarch64-darwin";
+    username = "vidbina";
+    dotfilesPath = "/Users/vidbina/Code/vidbina/dotfiles";
+    extraModules = [ ];
+  }
+  {
+    name = "berlin-4corei7";
+    system = "x86_64-darwin";
+    username = "vidbina";
+    dotfilesPath = "/Users/vidbina/Code/vidbina/dotfiles";
+    extraModules = [ ];
+  }
+]
 #+end_src
 
 ** nix-darwin
@@ -3500,7 +3516,7 @@ and we import the home-manager related part of our config from
 *** Link .emacs.d from dotfiles into home directory
 
 #+begin_src nix :noweb-ref home-darwin-home-file
-".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.dotfiles.path}/emacs";
+".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/emacs";
 #+end_src
 
 *** TODO Tangle nix import of emacs/*.nix

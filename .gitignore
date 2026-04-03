@@ -22,6 +22,7 @@ emacs/straight/modified
 emacs/transient
 ghorg
 org-roam.db
+machines.nix
 personal.nix
 result
 xkb.dump*
