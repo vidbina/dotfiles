@@ -190,7 +190,7 @@ with lib;
       "usbutils"
       "pcalc"
       "smudge/smudge/nightlight"
-      "opencode"
+      "anomalyco/tap/opencode"
     ];
     casks = builtins.filter (x: x != null) [
       "zed"

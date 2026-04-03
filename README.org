@@ -5356,8 +5356,12 @@ openai.chatgpt
 
 Just in case the internet fails, we want to have a OSS coding tool that can wield local models. Enter https://opencode.ai/!
 
+#+begin_src nix :noweb-ref homebrew-taps :noweb yes
+"anomalyco/tap"
+#+end_src
+
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
-"opencode"
+"anomalyco/tap/opencode"
 #+end_src
 
 *** Ollama
