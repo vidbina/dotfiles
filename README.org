@@ -36,6 +36,7 @@ digraph G {
   node_shell_nix [shape=box, label="shell.nix"]
   node_x_nix [shape=box, label="x.nix"]
   node_mail_nix [shape=box, label="mail.nix"]
+  node_dotfiles_nix [shape=box, label="dotfiles.nix"]
   node_vim_nix [shape=box, label="vim.nix"]
   node_multimedia_nix [shape=box, label="multimedia.nix"]
   node_browser_nix [shape=box, label="browser.nix"]
@@ -67,6 +68,7 @@ digraph G {
 
   node_vim_nix -> node_common_nix [label="imported by"]
 
+  node_dotfiles_nix -> node_home_darwin_nix [label="imported by"]
   node_vim_nix -> node_home_darwin_nix [label="imported by"]
   node_emacs_hm_nix -> node_home_darwin_nix [label="imported by"]
 
@@ -339,6 +341,34 @@ Navigate to the "Full Disk Access" setting and enable access for the Terminal.
     <<home-darwin-programs>>
   };
 }
+#+end_src
+
+***** Dotfiles Module
+
+We define a dotfiles module to abstract away the configuration details that apply more generally, like username, email, etc.
+
+#+begin_src nix :noweb yes :tangle dotfiles.nix
+# Tangled from README.org
+
+# Home-manager module that defines the dotfiles.path option.
+# mkOutOfStoreSymlink needs a real filesystem path (not a /nix/store path),
+# and flakes can't discover the checkout location at evaluation time.
+# This option centralizes the assumed path and makes it overridable.
+{ config, lib, ... }:
+
+{
+  options.dotfiles.path = lib.mkOption {
+    type = lib.types.str;
+    default = "${config.home.homeDirectory}/Code/vidbina/dotfiles";
+    description = "Absolute path to the dotfiles repository checkout on disk.";
+  };
+}
+#+end_src
+
+We need to remember to import this module into our nix-darwin configuration.
+
+#+begin_src nix :noweb-ref home-darwin-imports
+./dotfiles.nix
 #+end_src
 
 ***** DONE Darwin Home-manager Config
@@ -1509,13 +1539,13 @@ Note that the same configuration above is adapted for macOS by setting =home.hom
 *** Configure user for MacOS
 
 #+begin_src nix :noweb-ref nix-darwin
-users.users.vidbina = {
-  home = "/Users/vidbina";
+users.users.${username} = {
+  home = "/Users/${username}";
 };
 #+end_src
 
 #+begin_src nix :noweb-ref darwin-system
-primaryUser = "vidbina";
+primaryUser = username;
 #+end_src
 
 ** nix-darwin
@@ -1638,7 +1668,7 @@ nix = {
 # Adding trusted users for devenv to use Cachix
 trusted-users = [
   "root"
-  "vidbina"
+  username
 ];
 #+end_src
 
@@ -3470,14 +3500,7 @@ and we import the home-manager related part of our config from
 *** Link .emacs.d from dotfiles into home directory
 
 #+begin_src nix :noweb-ref home-darwin-home-file
-# home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
-# TODO: Fix hack of hardcoded dotfiles path
-# NOTE: This repo must be checked out to ~/Code/vidbina/dotfiles
-# A hardcoded .emacs.d source is used because mkOutOfStoreSymlink ./emacs
-# does not seem to work on macOS.
-# See https://discourse.nixos.org/t/accessing-home-manager-config-in-flakes/19864/8
-# See https://github.com/nix-community/home-manager/issues/2085#issuecomment-861427318
-".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
+".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.dotfiles.path}/emacs";
 #+end_src
 
 *** TODO Tangle nix import of emacs/*.nix

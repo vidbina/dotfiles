@@ -1,3 +1,5 @@
+# Tangled from README.org
+
 # Home-manager module that defines the dotfiles.path option.
 # mkOutOfStoreSymlink needs a real filesystem path (not a /nix/store path),
 # and flakes can't discover the checkout location at evaluation time.
