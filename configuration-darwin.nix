@@ -40,8 +40,8 @@ with lib;
     reattach = true;
     touchIdAuth = true;
   };
-  users.users.vidbina = {
-    home = "/Users/vidbina";
+  users.users.${username} = {
+    home = "/Users/${username}";
   };
   nix = {
     enable = true;
@@ -53,7 +53,7 @@ with lib;
       # Adding trusted users for devenv to use Cachix
       trusted-users = [
         "root"
-        "vidbina"
+        username
       ];
     };
   };
@@ -144,7 +144,7 @@ with lib;
   # $ darwin-rebuild changelog
     stateVersion = mkDefault 4;
 
-    primaryUser = "vidbina";
+    primaryUser = username;
     defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
 
     defaults.CustomUserPreferences = {
