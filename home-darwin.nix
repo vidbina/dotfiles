@@ -72,6 +72,7 @@
     # Set global gitignore
     ".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
     ".wezterm.lua".source = ./wezterm/wezterm.lua;
+    ".config/ghostty/config.ghostty".source = config.lib.file.mkOutOfStoreSymlink ./ghostty/config.ghostty;
     ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/emacs";
     ".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
   };

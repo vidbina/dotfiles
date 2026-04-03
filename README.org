@@ -2638,6 +2638,12 @@ config.keys = {
 "ghostty"
 #+end_src
 
+We set up some reasonable defaults such as themes, which can be examined through =ghostty +list-themes= and greedy app quiting behavior after closing the last tab.
+
+#+begin_src nix :noweb-ref home-darwin-home-file
+".config/ghostty/config.ghostty".source = config.lib.file.mkOutOfStoreSymlink ./ghostty/config.ghostty;
+#+end_src
+
 **** Cmux
 
 https://cmux.com/
