@@ -178,6 +178,9 @@ with lib;
       ];
       upgrade = false; # same as default
     };
+    taps = [
+      "anomalyco/tap"
+    ];
     brews = [
       "coreutils"
       "wimlib"

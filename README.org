@@ -1895,6 +1895,9 @@ homebrew = {
     ];
     upgrade = false; # same as default
   };
+  taps = [
+    <<homebrew-taps>>
+  ];
   brews = [
     <<homebrew-brews>>
   ];
