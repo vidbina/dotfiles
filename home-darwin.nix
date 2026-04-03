@@ -186,5 +186,7 @@
     # NOTE: Enabling zsh also in hm in order to bring direnv bootstrap into scope
     # See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
     zsh.enable = true;
+    zoxide.enable = true;
+    fzf.enable = true;
   };
 }

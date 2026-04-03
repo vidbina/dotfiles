@@ -2740,9 +2740,33 @@ graphviz
 
 *** Shell
 
+**** Linters for shell scripts
+
 #+begin_src nix :noweb-ref dev-packages
 shellcheck
 shfmt
+#+end_src
+
+**** Zoxide
+
+The [[https://github.com/ajeetdsouza/zoxide][zoxide]] CLI tool is smarter alternative to =cd= which allows us to enter directories quickly by using partial phrases, like running =z dot= instead of =cd ~/Code/vidbina/dotfiles=, if that entry is in the shell's history to be matched against the phrase =dot=.
+
+#+begin_src nix :noweb yes :noweb-ref home-darwin-programs
+zoxide.enable = true;
+#+end_src
+
+**** Fzf
+
+The [[https://github.com/junegunn/fzf][fzf]] CLI and TUI tool and library that is a popular fuzzy finder and used under the hood of a lot of other tools. Use it as a filter to find matches through
+
+#+begin_src bash
+echo $SOMETHING | fzf --filter="something"
+#+end_src
+
+or use the interactive picker by not specifying a filter.
+
+#+begin_src nix :noweb yes :noweb-ref home-darwin-programs
+fzf.enable = true;
 #+end_src
 
 **** Asciinema
