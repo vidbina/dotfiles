@@ -1,9 +1,12 @@
 ---
-name: quicksearch
-description: "Use this skill when the user asks you to quickly research, investigate, look into, find out about, compare, summarize, or get up-to-speed on a topic that benefits from fresh information from the web. Trigger for prompts like 'research X', 'what are the best Y for Z', 'compare A vs B', 'find me sources on...', 'is it true that...', 'what's the current state of...', 'dig into...', or any question where a good answer requires fetching and synthesizing web content. Also trigger when the user invokes `/research`. This skill batches any necessary clarifying questions into ONE up-front round before executing, so the user can answer them, walk away, and return to a finished artifact instead of being pinged for follow-ups throughout. Do NOT trigger for narrow factual questions answerable from training data, for code lookups better served by Grep/Glob, when the user provides specific URLs to fetch (just fetch them), or when the user explicitly says 'no web search' / 'from what you know'."
+name: qsearch
+description: "Use this skill when the user asks you to quickly research, investigate, look into, find out about, compare, summarize, or get up-to-speed on a topic that benefits from fresh information from the web. Trigger for prompts like 'research X', 'qsearch Y', 'what are the best Y for Z', 'compare A vs B', 'find me sources on...', 'is it true that...', 'what's the current state of...', 'dig into...', or any question where a good answer requires fetching and synthesizing web content. Also trigger when the user invokes `/qsearch`. This skill batches any necessary clarifying questions into ONE up-front round before executing, so the user can answer them, walk away, and return to a finished artifact instead of being pinged for follow-ups throughout. Do NOT trigger for narrow factual questions answerable from training data, for code lookups better served by Grep/Glob, when the user provides specific URLs to fetch (just fetch them), or when the user explicitly says 'no web search' / 'from what you know'."
+allowed-tools: WebSearch WebFetch AskUserQuestion
 ---
 
-# quicksearch
+# qsearch
+
+*(short for "quicksearch" — rhymes with "research", which is exactly what it does)*
 
 Perform a focused piece of web research and return structured findings. The defining design principle of this skill is:
 
@@ -13,7 +16,12 @@ The user should be able to kick this off, answer a small batch of up-front quest
 
 ## Tools
 
-This skill assumes `WebSearch` and `WebFetch` are available and expects to use them. If neither is available in the current session, stop at the end of Phase 3 and tell the user the plan without executing it.
+This skill declares `WebSearch`, `WebFetch`, and `AskUserQuestion` in `allowed-tools` so it can run without triggering per-use permission prompts — critical for the walk-away UX.
+
+- `WebSearch` and `WebFetch` are the primary research engines (Phase 4).
+- `AskUserQuestion` is the one-shot batch-clarification tool (Phase 2).
+
+If `WebSearch` and `WebFetch` are unavailable in the current session (e.g. policy restriction, offline environment), stop at the end of Phase 3 and return the research plan without executing it — do not attempt to answer from memory alone, and do not silently degrade to training-data facts as if they were fresh sources.
 
 ## Phase 1 — Interpret
 
