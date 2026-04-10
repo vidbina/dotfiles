@@ -5298,6 +5298,16 @@ Note that claude-code is unfree.
 "claude-code"
 #+end_src
 
+***** Skills, agents, and slash commands
+
+I manage my Claude Code skills (and eventually agents and slash commands) from this repo under =claude/=. The =claude/skills/= directory is symlinked into =~/.claude/skills= as an out-of-store symlink so that editing a =SKILL.md= is immediately visible to Claude without needing a =home-manager switch= between iterations.
+
+Only the specific subpaths I own are symlinked — runtime state like =history.jsonl=, =sessions/=, =projects/=, =todos/=, and =shell-snapshots/= stays untouched under =~/.claude/=. If I want to add =agents/= or =commands/= later, they each get their own =home.file= entry alongside this one rather than symlinking =~/.claude= as a whole.
+
+#+begin_src nix :noweb-ref home-darwin-home-file
+".claude/skills".source = config.lib.file.mkOutOfStoreSymlink ./claude/skills;
+#+end_src
+
 **** Claude Code for VSCode
 
 For vscode and vscode-derived editors, we want to enable the official Claude Code extension. On <2026-02-07 Sat>, we isolated and commented out just the installation part of this config in order to manage this extension manually in vscode.
