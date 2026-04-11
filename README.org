@@ -2148,8 +2148,8 @@ Define parts of the VsCode-specific fields are defined in the JSON format as fol
 ***** Theme configuration in VSCode
 
 #+begin_src nix :noweb-ref vscode-settings
-"workbench.preferredDarkColorTheme" = "Experimental Dark";
-"workbench.preferredLightColorTheme" = "Experimental Light";
+"workbench.preferredDarkColorTheme" = "Dark Modern";
+"workbench.preferredLightColorTheme" = "Light Modern";
 #+end_src
 
 ***** Disable single click previews
