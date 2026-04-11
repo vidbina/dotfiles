@@ -5305,8 +5305,10 @@ I manage my Claude Code skills (and eventually agents and slash commands) from t
 Only the specific subpaths I own are symlinked — runtime state like =history.jsonl=, =sessions/=, =projects/=, =todos/=, and =shell-snapshots/= stays untouched under =~/.claude/=. If I want to add =agents/= or =commands/= later, they each get their own =home.file= entry alongside this one rather than symlinking =~/.claude= as a whole.
 
 #+begin_src nix :noweb-ref home-darwin-home-file
-".claude/skills".source = config.lib.file.mkOutOfStoreSymlink ./claude/skills;
+".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/skills";
 #+end_src
+
+Note the =${dotfilesPath}/...= interpolation rather than a relative path literal =./claude/skills=. Under a flake-based nix-darwin setup, =./claude/skills= gets coerced to a store path at evaluation time — the "out of store" symlink ends up pointing into =/nix/store/...-source/claude/skills=, which defeats the whole purpose of live editing. Using a string-interpolated absolute path via the =dotfilesPath= module argument (defined in =machines.nix= per host) sidesteps this coercion and produces a symlink that points at the real working tree. The same fix is already applied for =~/.emacs.d=; other =mkOutOfStoreSymlink= uses in this config (=ranger=, =direnvrc=, =git/ignore=, =ghostty=, =hammerspoon=) still use the broken pattern and should be migrated in a follow-up.
 
 **** Claude Code for VSCode
 

@@ -75,7 +75,7 @@
     ".config/ghostty/config.ghostty".source = config.lib.file.mkOutOfStoreSymlink ./ghostty/config.ghostty;
     ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/emacs";
     ".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
-    ".claude/skills".source = config.lib.file.mkOutOfStoreSymlink ./claude/skills;
+    ".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/skills";
   };
   programs.vscode = {
     enable = true;
