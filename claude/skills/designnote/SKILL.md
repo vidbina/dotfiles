@@ -63,12 +63,37 @@ The `allowed-tools` declaration pre-approves tool *categories*. For scoped file 
 
 ## Phase 0 — Preflight
 
-Before anything else, verify the repo follows the convention:
+### Verify repo convention
 
 - `docs/design-notes/` exists and is writable. If not, stop and ask: "This repo doesn't have `docs/design-notes/`. Bootstrap it from the kb convention, or bail?" Do not silently create the directory.
 - Read the repo's `CLAUDE.md` / `AGENTS.md` at the root for project-specific HITL policies (especially around git and external dependencies).
 - Note whether `docs/TODO.md` exists (it may not — the skill degrades gracefully).
 - Note whether `docs/decisions/` exists (read-only awareness; the skill never writes there).
+
+### Permission preflight
+
+Read the Claude Code settings files that may exist (in override order):
+
+1. `~/.claude/settings.json`
+2. `.claude/settings.json` (workspace)
+3. `.claude/settings.local.json` (local override)
+
+Check `permissions.allow` for entries matching `Write(docs/design-notes/**)` and `Edit(docs/design-notes/**)`. If either grant is missing, warn the user:
+
+> The following permissions are not pre-approved in your Claude Code settings:
+> - `Write(docs/design-notes/**)` (needed to create new notes)
+> - `Edit(docs/design-notes/**)` (needed to extend existing notes)
+>
+> Each write will trigger a permission prompt, breaking the walk-away UX.
+>
+> To fix, add to your settings:
+> ```jsonc
+> { "permissions": { "allow": ["Write(docs/design-notes/**)", "Edit(docs/design-notes/**)"] } }
+> ```
+
+Offer two options via `AskUserQuestion`: **Proceed with prompts** / **Bail — I'll configure first**. If the grants are present, skip this entirely.
+
+### Tool availability
 
 If `WebSearch`, `WebFetch`, `Task`, or the Linear MCP tools are unavailable for policy or environment reasons, degrade gracefully: produce a note based on existing context only, and flag in the Status Log that web/Linear/subagent research was skipped.
 
