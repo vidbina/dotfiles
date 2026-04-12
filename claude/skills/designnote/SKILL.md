@@ -18,6 +18,26 @@ The defining design principles of this skill are:
 
 The user should be able to kick this off, answer a small batch of up-front questions, walk away, and return to a design note they can review, edit, and then hand off to the `linearissue` skill for execution.
 
+## How this fits the broader workflow
+
+```
+prompt
+  │
+  ▼
+designnote skill  →  design note (with action items in canonical sections)   ← you are here
+  │
+  ▼
+[HITL gate: human reviews, edits, greenlights the note]
+  │
+  ▼
+linearissue       →  proposes tickets in chat → confirms via AskUserQuestion → creates tickets
+  │
+  ▼
+Linear: LIN-NNN annotations written back into the note
+```
+
+This skill produces the artifact that `linearissue` consumes. The two skills share no runtime state — the design note file is the only interface between them. After `designnote` finishes, the human reviews and edits the note. Only then does `linearissue` read it.
+
 ## Context on the artifact
 
 A design note is a markdown file in `docs/design-notes/` following the convention:
