@@ -5396,6 +5396,14 @@ We still need to clean up my config to reuse the old dev.nix:
 pkgs.ollama
 #+end_src
 
+*** llama.cpp
+
+See https://github.com/ggml-org/llama.cpp
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.llama-cpp
+#+end_src
+
 *** COMMENT LM Studio
 
 #+begin_comment
