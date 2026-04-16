@@ -1633,7 +1633,7 @@ httpie
 httplab
 jq
 kakoune
-nodePackages.typescript-language-server
+typescript-language-server
 nodejs
 pqrs
 nixpkgs-fmt
@@ -2876,7 +2876,7 @@ pkgs.nixfmt
 **** Typescript Language Server
 
 #+begin_src nix :noweb-ref dev-packages
-pkgs.nodePackages.typescript-language-server
+pkgs.typescript-language-server
 #+end_src
 
 *** Tree-sitter

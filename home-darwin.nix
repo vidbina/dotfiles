@@ -22,7 +22,7 @@
     httplab
     jq
     kakoune
-    nodePackages.typescript-language-server
+    typescript-language-server
     nodejs
     pqrs
     nixpkgs-fmt
@@ -54,7 +54,7 @@
     pkgs.gleam
     pkgs.nixd
     pkgs.nixfmt
-    pkgs.nodePackages.typescript-language-server
+    pkgs.typescript-language-server
     pkgs.tree-sitter
     pkgs.jq
     pkgs.yq

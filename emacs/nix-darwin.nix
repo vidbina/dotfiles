@@ -4,7 +4,7 @@
 {
   environment.systemPackages = with pkgs; [
     yamllint
-    nodePackages.yaml-language-server
+    yaml-language-server
     graphviz
     mu
 
