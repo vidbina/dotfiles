@@ -5396,6 +5396,121 @@ We still need to clean up my config to reuse the old dev.nix:
 pkgs.ollama
 #+end_src
 
+**** Recommended models for offline use
+
+Reference picks for this machine — written down so I don't have to re-research this every time the internet goes sideways. Deeper rationale, benchmarks, and trade-offs live in [[https://linear.app/asabina/issue/VID-597/pick-local-llms-for-offline-work][VID-597]].
+
+Target hardware: MacBook Pro 16" M5 Pro, 64 GB unified memory.
+
+***** Prerequisites
+
+- Ollama =>= 0.19= for the MLX backend on Apple Silicon (released March 2026, requires >32 GB unified memory). Verify with =ollama --version=.
+- Default usable VRAM is ~48 GB (macOS reserves ~25%). To push it to ~56 GB before loading a >40 GB model, close apps and run:
+  #+begin_src sh
+  sudo sysctl iogpu.wired_limit_mb=57344  # reverts on reboot
+  #+end_src
+
+***** Install set
+
+Pull in priority order. Disk footprint of the full set is ~128 GB; typically only one or two are loaded at a time.
+
+#+begin_src sh
+# 1. Daily driver: coder + agent. ALWAYS LOADED.
+#    30.5B total / 3.3B active MoE, 256k context. Fast despite the size.
+ollama pull qwen3-coder:30b-a3b-q4_K_M     # ~19 GB
+
+# 1b. Agentic coding alternative (released 2026-04-16, Apache 2.0).
+#     35B/3B MoE, same efficiency class as #1. Stronger on repo-level and frontend
+#     workflows. Run alongside #1 for a week; drop whichever underperforms on real tasks.
+#     If one has to go later, qwen3:32b is the more likely cut.
+ollama pull qwen3.6:35b-a3b-q4_K_M         # ~24 GB
+
+# 2. Reasoning workhorse (DeepSeek-R1 distilled into Qwen2.5-32B base)
+ollama pull deepseek-r1:32b                # ~20 GB
+
+# 3. Stretch coder for hard problems (load on demand only).
+#    80B/3B MoE, frontier-tier SWE-Bench scores. Verify exact tag with:
+#      ollama search qwen3-coder
+ollama pull qwen3-coder:80b-a3b-q4_K_M     # ~45 GB, needs sysctl bump
+
+# 4. Small fast generalist for shell helpers, autocomplete, quick Q&A
+ollama pull qwen3:8b                       # ~5 GB
+
+# 5. (Optional) Best-in-class tool-calling generalist (#2 on BFCL v3, 75.7%)
+ollama pull qwen3:32b                      # ~20 GB
+#+end_src
+
+***** Why these picks
+
+| Need                  | Pick                                                | Notes                                                                                          |
+|-----------------------+-----------------------------------------------------+------------------------------------------------------------------------------------------------|
+| Coding (daily)        | =qwen3-coder:30b-a3b-q4_K_M=                        | MoE → 30B-quality at 3B-speed. 256k context. Strong SWE-Bench scores.                         |
+| Agentic coding        | =qwen3.6:35b-a3b-q4_K_M=                            | Released 2026-04-16. Same efficiency class, stronger on repo-level + frontend workflows.       |
+| Coding (hard)         | =qwen3-coder:80b-a3b-q4_K_M=                        | SWE-Bench Verified ~70% (Feb 2026 release).                                                   |
+| Reasoning             | =deepseek-r1:32b=                                   | R1-Distill-Qwen-32B. Best reasoning-per-GB locally.                                           |
+| Reasoning (max)       | =deepseek-r1:70b= /(optional)/                      | ~40 GB Q4. Skip unless 32B feels short.                                                       |
+| Tool calling / agents | =qwen3:32b= /or/ =qwen3-coder:30b-a3b=              | Qwen3-32B is BFCL v3 #2 (75.7%). Coder also handles tool calls well.                         |
+| Generalist (fast)     | =qwen3:8b=                                          | Cheap to keep resident.                                                                        |
+
+Models that *don't* fit on 64 GB and shouldn't be attempted: Qwen3-Coder-480B-A35B (~250 GB), DeepSeek-V3.x / R1 full (671B), GLM-4.5 full (~355B). GLM-4.5-Air /might/ fit at Q4 (~50–55 GB) but is uncomfortably tight — defer.
+
+***** MoE memory math (the gotcha)
+
+For Mixture-of-Experts models, *total* parameters live in RAM, but only *active* parameters drive throughput. So Qwen3-Coder-80B-A3B is "80B in RAM, 3B-speed inference" — that's the entire reason it's worth the footprint on this machine.
+
+***** Engine choice
+
+- *Default to ollama.* Since 0.19 (March 2026) it uses MLX on Apple Silicon, so the historical "ollama is slow" trade-off is largely gone.
+- Reach for raw =mlx-lm= / LM Studio only when benchmarking or hosting a single high-throughput inference endpoint (~130 tok/s vs ~71 for llama.cpp on large models).
+- Stay on GGUF/ollama for anything talking the OpenAI API, Continue.dev, agent integrations, or juggling multiple models.
+
+**** Auto-start the daemon via launchd
+
+Manual =ollama serve= is how we end up with a stale 0.15.6 daemon still running 6 days after a =darwin-rebuild switch= — the binary on PATH gets upgraded but the long-lived process keeps holding a file descriptor to the old store path. We can't trust ourselves to remember; let nix-darwin own the daemon's lifecycle.
+
+This block tangles into =configuration-darwin.nix= via the =nix-darwin= noweb-ref:
+
+#+begin_src nix :noweb-ref nix-darwin
+launchd.user.agents.ollama = {
+  serviceConfig = {
+    ProgramArguments = [
+      "${pkgs.ollama}/bin/ollama"
+      "serve"
+    ];
+
+    # Start at login, restart on any exit
+    RunAtLoad = true;
+    KeepAlive = true;
+    # Headless daemon, not a foreground app
+    ProcessType = "Background";
+
+    # Logs land here; truncate manually if they grow
+    StandardOutPath = "/Users/${username}/Library/Logs/ollama.stdout.log";
+    StandardErrorPath = "/Users/${username}/Library/Logs/ollama.stderr.log";
+  };
+
+  # launchd's default PATH is /usr/bin:/bin:/usr/sbin:/sbin which is too narrow
+  path = [
+    config.environment.systemPath
+  ];
+};
+#+end_src
+
+After the next =make nix-darwin-switch=:
+
+#+begin_src sh
+# launchd starts the new daemon, but the stale 0.15.6 one is still bound to :11434.
+# Kill it once; KeepAlive will respawn the new 0.20.7 binary instantly.
+pkill -f "ollama serve"
+
+# Verify
+launchctl list | grep ollama                     # expect: org.nixos.ollama loaded
+curl -s localhost:11434/api/version              # expect: {"version":"0.20.7"} (or newer)
+ollama --version                                  # client and server should match
+#+end_src
+
+Logs are at =~/Library/Logs/ollama.{stdout,stderr}.log=. After this point, =ollama serve= should never need to be typed again — every reboot, login, or crash is handled by launchd.
+
 *** llama.cpp
 
 See https://github.com/ggml-org/llama.cpp

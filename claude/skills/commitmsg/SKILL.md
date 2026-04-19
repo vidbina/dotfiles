@@ -34,7 +34,7 @@ Search for commit convention documentation. Check these sources in order, collec
 
    Where `{kb-symlink}` is whichever of `./kb` or `./knowledge-base` exists (check `./kb` first).
 
-   If the symlink doesn't exist, that's fine — the repo's own docs are sufficient. Don't search for the kb at hardcoded absolute paths.
+   If neither symlink exists, that's fine — the repo's own docs are sufficient. Setting up the kb symlink is a human operation; the skill never creates it.
 
 3. **Git history (implicit convention):** `git log --oneline -20` — if the docs are sparse, the recent commit history itself reveals the de facto convention (prefixes in use, tag patterns, message length norms).
 
