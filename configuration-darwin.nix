@@ -253,4 +253,27 @@ with lib;
   ];
 
   environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];
+  launchd.user.agents.ollama = {
+    serviceConfig = {
+      ProgramArguments = [
+        "${pkgs.ollama}/bin/ollama"
+        "serve"
+      ];
+
+      # Start at login, restart on any exit
+      RunAtLoad = true;
+      KeepAlive = true;
+      # Headless daemon, not a foreground app
+      ProcessType = "Background";
+
+      # Logs land here; truncate manually if they grow
+      StandardOutPath = "/Users/${username}/Library/Logs/ollama.stdout.log";
+      StandardErrorPath = "/Users/${username}/Library/Logs/ollama.stderr.log";
+    };
+
+    # launchd's default PATH is /usr/bin:/bin:/usr/sbin:/sbin which is too narrow
+    path = [
+      config.environment.systemPath
+    ];
+  };
 }
