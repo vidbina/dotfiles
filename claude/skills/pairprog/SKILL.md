@@ -320,7 +320,7 @@ If the branch looks complete relative to the ticket scope:
 
 1. **Draft the PR pitch in chat.** Show the proposed title, body (summary of changes, test plan), and target branch. Format it so the navigator can review before anything is created.
 2. **Ask:** "Ready to create this PR via `gh`?" with options: **Yes, create it** / **Edit first** / **Not yet — more work needed**
-3. On approval, create the PR using `gh pr create` via `Bash`.
+3. On approval, push the branch (`git push -u origin {branch}`) then create the PR using `gh pr create` via `Bash`.
 4. On "Edit first," let the navigator adjust the pitch, then create.
 5. On "Not yet," skip. The navigator will create it when ready.
 
