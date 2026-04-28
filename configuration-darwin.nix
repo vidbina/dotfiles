@@ -1,6 +1,8 @@
 # Tangled from README.org
 # This is a nix-darwin config
-{ pkgs, lib, inputs, config, username, ... }: {
+{ pkgs, lib, inputs, config, username, ... }:
+with lib;
+{
   imports = [
     # import modules into our nix-darwin config
     ./emacs/nix-darwin.nix
@@ -38,8 +40,8 @@
     reattach = true;
     touchIdAuth = true;
   };
-  users.users.vidbina = {
-    home = "/Users/vidbina";
+  users.users.${username} = {
+    home = "/Users/${username}";
   };
   nix = {
     enable = true;
@@ -51,7 +53,7 @@
       # Adding trusted users for devenv to use Cachix
       trusted-users = [
         "root"
-        "vidbina"
+        username
       ];
     };
   };
@@ -140,9 +142,9 @@
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
-    stateVersion = 4;
+    stateVersion = mkDefault 4;
 
-    primaryUser = "vidbina";
+    primaryUser = username;
     defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
 
     defaults.CustomUserPreferences = {
@@ -156,7 +158,7 @@
 
     defaults.CustomUserPreferences = {
       "com.apple.spaces" = {
-        spansDisplays = true;
+        "spans-displays" = false;
       };
     };
   };
@@ -168,12 +170,17 @@
     };
     onActivation = {
       autoUpdate = false; # same as default
+      # run `brew update` manually when adding new casks
+
       cleanup = "uninstall";
       extraFlags = [
         "--verbose"
       ];
       upgrade = false; # same as default
     };
+    taps = [
+      "anomalyco/tap"
+    ];
     brews = [
       "coreutils"
       "wimlib"
@@ -183,6 +190,8 @@
       "usbutils"
       "pcalc"
       "smudge/smudge/nightlight"
+      "anomalyco/tap/opencode"
+      "pi-coding-agent"
     ];
     casks = builtins.filter (x: x != null) [
       "zed"
@@ -194,12 +203,14 @@
       "kitty"
       "warp"
       "ghostty"
+      "cmux"
       "kap"
       "shottr"
       "drawio"
       "figma"
+      "framer"
       "rive"
-      "docker"
+      "docker-desktop"
       "utm"
       "raycast"
       (if pkgs.stdenv.hostPlatform.system == "x86_64-darwin" then "aldente" else null)
@@ -207,6 +218,7 @@
       "spotify"
       "tidal"
       "steam"
+      "google-chrome"
       "firefox@developer-edition"
       "discord"
       "signal"
@@ -242,4 +254,27 @@
   ];
 
   environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];
+  launchd.user.agents.ollama = {
+    serviceConfig = {
+      ProgramArguments = [
+        "${pkgs.ollama}/bin/ollama"
+        "serve"
+      ];
+
+      # Start at login, restart on any exit
+      RunAtLoad = true;
+      KeepAlive = true;
+      # Headless daemon, not a foreground app
+      ProcessType = "Background";
+
+      # Logs land here; truncate manually if they grow
+      StandardOutPath = "/Users/${username}/Library/Logs/ollama.stdout.log";
+      StandardErrorPath = "/Users/${username}/Library/Logs/ollama.stderr.log";
+    };
+
+    # launchd's default PATH is /usr/bin:/bin:/usr/sbin:/sbin which is too narrow
+    path = [
+      config.environment.systemPath
+    ];
+  };
 }

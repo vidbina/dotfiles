@@ -1,5 +1,5 @@
 # Tangled from README.org
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, dotfilesPath, ... }:
 
 {
   imports = [
@@ -22,7 +22,7 @@
     httplab
     jq
     kakoune
-    nodePackages.typescript-language-server
+    typescript-language-server
     nodejs
     pqrs
     nixpkgs-fmt
@@ -53,8 +53,8 @@
     pkgs.gnumake
     pkgs.gleam
     pkgs.nixd
-    pkgs.nixfmt-rfc-style
-    pkgs.nodePackages.typescript-language-server
+    pkgs.nixfmt
+    pkgs.typescript-language-server
     pkgs.tree-sitter
     pkgs.jq
     pkgs.yq
@@ -64,6 +64,7 @@
     pkgs.gemini-cli
     pkgs.codex
     pkgs.ollama
+    pkgs.llama-cpp
     # home-darwin-packages
     pywal
   ];
@@ -72,15 +73,10 @@
     # Set global gitignore
     ".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink ./git/ignore;
     ".wezterm.lua".source = ./wezterm/wezterm.lua;
-    # home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
-    # TODO: Fix hack of hardcoded dotfiles path
-    # NOTE: This repo must be checked out to ~/Code/vidbina/dotfiles
-    # A hardcoded .emacs.d source is used because mkOutOfStoreSymlink ./emacs
-    # does not seem to work on macOS.
-    # See https://discourse.nixos.org/t/accessing-home-manager-config-in-flakes/19864/8
-    # See https://github.com/nix-community/home-manager/issues/2085#issuecomment-861427318
-    ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
+    ".config/ghostty/config.ghostty".source = config.lib.file.mkOutOfStoreSymlink ./ghostty/config.ghostty;
+    ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/emacs";
     ".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
+    ".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/skills";
   };
   programs.vscode = {
     enable = true;
@@ -110,12 +106,14 @@
         "vim.highlightedyank.enable" = true;
 
         "window.autoDetectColorScheme" = true;
+
+        # Make the time-out a bit longer to allow for us to get that direnv stuff done
+        "application.shellEnvironmentResolutionTimeout" = 20; # original was 10
         # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
         "editor.guides.bracketPairs" = true;
         "editor.guides.highlightActiveIndentation" = true;
-        "workbench.colorTheme" = "Default High Contrast Light";
-        "workbench.preferredDarkColorTheme" = "Default High Contrast";
-        "workbench.preferredLightColorTheme" = "Default High Contrast Light";
+        "workbench.preferredDarkColorTheme" = "Dark 2026";
+        "workbench.preferredLightColorTheme" = "Light 2026";
         "workbench.list.openMode" = "doubleClick";
         "claudeCode.preferredLocation" = "panel";
       };
@@ -139,6 +137,13 @@
       signing.format = "ssh";
 
       settings = {
+        user.name = "David Asabina";
+
+        # NOTE: We avoid setting userEmail in order to have the git CLI fail
+        # and explicitly ask for this when not set to avoid commits under
+        # wrong addresses.
+        # Recommendation: configure email on a per-folder basis, not globally.
+        #user.email = "vid@bina.me";
         alias = {
           wdiff = "diff --word-diff --word-diff-regex='\\w+'";
           glog = "log --oneline --graph --all --decorate";
@@ -191,5 +196,7 @@
     # NOTE: Enabling zsh also in hm in order to bring direnv bootstrap into scope
     # See https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4205285#gistcomment-4205285
     zsh.enable = true;
+    zoxide.enable = true;
+    fzf.enable = true;
   };
 }

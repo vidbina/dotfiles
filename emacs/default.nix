@@ -17,7 +17,7 @@ in
 
     # General packages
     yamllint
-    nodePackages.yaml-language-server
+    yaml-language-server
     graphviz
     mu
 

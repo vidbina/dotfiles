@@ -26,7 +26,6 @@ hs.hotkey.bind(
    end
 )
 cheatsheet = cheatsheet .."\n" .. strBaseBinding .. " R = reload"
-
 -- https://www.hammerspoon.org/go/#drawing-on-the-screen
 mouseCircle = nil
 mouseCircleTimer = nil
@@ -59,75 +58,3 @@ function mouseHighlight()
 end
 hs.hotkey.bind(hsBaseBinding, "D", mouseHighlight)
 cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " D = mouse highlight"
-
-hs.loadSpoon("Caffeine")
-isCaffeinated = false
-hs.hotkey.bind(
-   hsBaseBinding,
-   "Z",
-   function()
-      if not isCaffeinated then
-         hs.alert.show("Buzzed! Flattie mode! ☕")
-         spoon.Caffeine:start()
-      else
-         hs.alert.show("Letting that buzz wear off. 🥱")
-         spoon.Caffeine:stop()
-      end
-      isCaffeinated = not isCaffeinated
-   end
-)
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " Z = ☕"
-
-hs.loadSpoon("KSheet")
-spoon.KSheet:bindHotkeys(
-   {
-      toggle = {hsBaseBinding, "K"}
-   }
-)
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = KSheet"
-
-hs.loadSpoon("HSKeybindings")
-isShowingHSKeybindings = false
-hs.hotkey.bind(
-   hsBaseBinding,
-   "/",
-   function()
-      if not isShowingHSKeybindings then
-         hs.alert.show("Showing HSKeybindings")
-         spoon.HSKeybindings:show()
-      else
-         hs.alert.show("Hiding HSKeybindings")
-         spoon.HSKeybindings:hide()
-      end
-      isShowingHSKeybindings = not isShowingHSKeybindings
-   end
-)
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = HSKeybindings"
-
-hs.hotkey.bind(
-   hsBaseBinding,
-   ".",
-   function()
-      hs.alert.show("Inspecting Hammerspoon")
-      hs.alert.show("displayIdle: " .. (hs.caffeinate.get("displayIdle") and "On" or "Off"))
-      hs.alert.show("systemIdle: " .. (hs.caffeinate.get("systemIdle") and "On" or "Off"))
-      hs.alert.show("system: " .. (hs.caffeinate.get("system") and "On" or "Off"))
-   end
-)
-
-hs.hotkey.bind(
-   hsBaseBinding,
-   "return",
-   function()
-      if hs.application.find("iTerm") then
-         hs.osascript.applescript([[
-            tell application "iTerm"
-            create window with default profile
-            end tell
-         ]])
-      else
-         hs.application.open("iTerm")
-      end
-   end
-)
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " ⏎ = iTerm2 👨🏿‍💻"

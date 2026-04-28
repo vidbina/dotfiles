@@ -36,6 +36,7 @@ digraph G {
   node_shell_nix [shape=box, label="shell.nix"]
   node_x_nix [shape=box, label="x.nix"]
   node_mail_nix [shape=box, label="mail.nix"]
+  node_machines_nix [shape=box, label="machines.nix"]
   node_vim_nix [shape=box, label="vim.nix"]
   node_multimedia_nix [shape=box, label="multimedia.nix"]
   node_browser_nix [shape=box, label="browser.nix"]
@@ -67,6 +68,8 @@ digraph G {
 
   node_vim_nix -> node_common_nix [label="imported by"]
 
+  node_this -> node_machines_nix [label="tangles to"]
+  node_machines_nix -> node_flake_nix [label="imported by"]
   node_vim_nix -> node_home_darwin_nix [label="imported by"]
   node_emacs_hm_nix -> node_home_darwin_nix [label="imported by"]
 
@@ -109,6 +112,7 @@ SHELL = /usr/bin/env sh
 HOME_MANAGER = home-manager
 NIX_SHELL = nix-shell
 DARWIN_REBUILD = sudo darwin-rebuild
+HOSTNAME := $(shell hostname)
 
 # Tangle all org files to generate configuration files
 # Respects local variables in org files (e.g., trailing whitespace cleanup hooks)
@@ -153,14 +157,14 @@ ci: tangle check-parity validate
 # Use before merging/deploying (takes minutes depending on cache)
 .PHONY: nix-darwin-build
 nix-darwin-build:
-	${DARWIN_REBUILD} check --flake .#$(shell hostname)
+	${DARWIN_REBUILD} check --flake .#${HOSTNAME}
 
 # Deploy nix-darwin configuration (builds and activates)
 # Actually switches your system to the new configuration
 # Use after testing with nix-darwin-build
 .PHONY: nix-darwin-switch
 nix-darwin-switch:
-	${DARWIN_REBUILD} switch --flake .#$(shell hostname)
+	${DARWIN_REBUILD} switch --flake .#${HOSTNAME}
 
 # Default target - show help
 .PHONY: help
@@ -325,7 +329,7 @@ Navigate to the "Full Disk Access" setting and enable access for the Terminal.
 
 #+begin_src nix :noweb yes :tangle home-darwin.nix
 # Tangled from README.org
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, dotfilesPath, ... }:
 
 {
   imports = [
@@ -1467,9 +1471,14 @@ ln -s ${PATH_TO_DOTFILE}/emacs ${HOME}/.emacs.d
 
 For developer tooling, we define our =userName= and =userEmail= which we will rely on in configuring git, for example.
 
-#+begin_src nix :noweb yes :noweb-ref home-darwin-git
+#+begin_src nix :noweb yes :noweb-ref home-darwin-programs-git-settings
 user.name = "David Asabina";
-user.email = "vid@bina.me";
+
+# NOTE: We avoid setting userEmail in order to have the git CLI fail
+# and explicitly ask for this when not set to avoid commits under
+# wrong addresses.
+# Recommendation: configure email on a per-folder basis, not globally.
+#user.email = "vid@bina.me";
 #+end_src
 
 We all have parts of our configs that are for our eyes only and the
@@ -1508,13 +1517,52 @@ Note that the same configuration above is adapted for macOS by setting =home.hom
 *** Configure user for MacOS
 
 #+begin_src nix :noweb-ref nix-darwin
-users.users.vidbina = {
-  home = "/Users/vidbina";
+users.users.${username} = {
+  home = "/Users/${username}";
 };
 #+end_src
 
 #+begin_src nix :noweb-ref darwin-system
-primaryUser = "vidbina";
+primaryUser = username;
+#+end_src
+
+*** Machine Definitions
+
+Machine-specific configuration lives in =machines.nix= which is
+tangled from this file and imported directly by =flake.nix=.
+
+#+begin_src nix :tangle machines.nix
+# Per-machine configuration. Copy or symlink to machines.nix.
+# This is the single place to configure user and path settings.
+[
+  {
+    name = "berlin26-m5pro";
+    system = "aarch64-darwin";
+    username = "vidbina";
+    dotfilesPath = "/Users/vidbina/Code/vidbina/dotfiles";
+    extraModules = [
+      {
+        networking.hostName = "berlin26-m5pro";
+        ids.gids.nixbld = 350;
+        system.stateVersion = 5;
+      }
+    ];
+  }
+  {
+    name = "tokyo23-m2";
+    system = "aarch64-darwin";
+    username = "vidbina";
+    dotfilesPath = "/Users/vidbina/Code/vidbina/dotfiles";
+    extraModules = [ ];
+  }
+  {
+    name = "berlin-4corei7";
+    system = "x86_64-darwin";
+    username = "vidbina";
+    dotfilesPath = "/Users/vidbina/Code/vidbina/dotfiles";
+    extraModules = [ ];
+  }
+]
 #+end_src
 
 ** nix-darwin
@@ -1527,7 +1575,9 @@ On macOS, nix-darwin provides the most batteries included nix experience. We can
 #+begin_src nix :noweb yes :tangle configuration-darwin.nix
 # Tangled from README.org
 # This is a nix-darwin config
-{ pkgs, lib, inputs, config, username, ... }: {
+{ pkgs, lib, inputs, config, username, ... }:
+with lib;
+{
   imports = [
     # import modules into our nix-darwin config
     <<nix-darwin-imports>>
@@ -1583,7 +1633,7 @@ httpie
 httplab
 jq
 kakoune
-nodePackages.typescript-language-server
+typescript-language-server
 nodejs
 pqrs
 nixpkgs-fmt
@@ -1635,7 +1685,7 @@ nix = {
 # Adding trusted users for devenv to use Cachix
 trusted-users = [
   "root"
-  "vidbina"
+  username
 ];
 #+end_src
 
@@ -1734,7 +1784,7 @@ system = {
 
 # Used for backwards compatibility, please read the changelog before changing.
 # $ darwin-rebuild changelog
-  stateVersion = 4;
+  stateVersion = mkDefault 4;
 
   <<darwin-system>>
 };
@@ -1782,7 +1832,7 @@ To simplify working with apps in full screen, it is easiest if displays have the
 #+begin_src nix :noweb-ref darwin-system
 defaults.CustomUserPreferences = {
   "com.apple.spaces" = {
-    spansDisplays = true;
+    "spans-displays" = false;
   };
 };
 #+end_src
@@ -1837,12 +1887,17 @@ homebrew = {
   };
   onActivation = {
     autoUpdate = false; # same as default
+    # run `brew update` manually when adding new casks
+
     cleanup = "uninstall";
     extraFlags = [
       "--verbose"
     ];
     upgrade = false; # same as default
   };
+  taps = [
+    <<homebrew-taps>>
+  ];
   brews = [
     <<homebrew-brews>>
   ];
@@ -2077,6 +2132,9 @@ Define parts of the VsCode-specific fields are defined in the JSON format as fol
 "vim.highlightedyank.enable" = true;
 
 "window.autoDetectColorScheme" = true;
+
+# Make the time-out a bit longer to allow for us to get that direnv stuff done
+"application.shellEnvironmentResolutionTimeout" = 20; # original was 10
 #+end_src
 
 ***** Colored guides in VSCode
@@ -2090,9 +2148,8 @@ Define parts of the VsCode-specific fields are defined in the JSON format as fol
 ***** Theme configuration in VSCode
 
 #+begin_src nix :noweb-ref vscode-settings
-"workbench.colorTheme" = "Default High Contrast Light";
-"workbench.preferredDarkColorTheme" = "Default High Contrast";
-"workbench.preferredLightColorTheme" = "Default High Contrast Light";
+"workbench.preferredDarkColorTheme" = "Dark 2026";
+"workbench.preferredLightColorTheme" = "Light 2026";
 #+end_src
 
 ***** Disable single click previews
@@ -2584,6 +2641,26 @@ config.keys = {
 "ghostty"
 #+end_src
 
+We set up some reasonable defaults such as themes, which can be examined through =ghostty +list-themes= and greedy app quiting behavior after closing the last tab.
+
+#+begin_src nix :noweb-ref home-darwin-home-file
+".config/ghostty/config.ghostty".source = config.lib.file.mkOutOfStoreSymlink ./ghostty/config.ghostty;
+#+end_src
+
+**** Cmux
+
+https://cmux.com/
+
+#+begin_quote
+Native macOS app built on Ghostty. Vertical tabs, notification rings when agents need attention, split panes, and a socket API for automation.
+#+end_quote
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"cmux"
+#+end_src
+
+Just trying this because Theo won't stop switching tools and I have some spare time to try out some stuff. https://www.youtube.com/watch?v=EUE8N6mqtGg
+
 *** Networking
 
 Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your MacOS.
@@ -2655,6 +2732,12 @@ ghidra-bin
 "figma"
 #+end_src
 
+**** Framer
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"framer"
+#+end_src
+
 **** Rive
 
 [[https://rive.app][Rive]], like Lottie provides tooling to animate assets for mobile apps but unlike Lottie owns the E2E stack where Lottie requires the use of multiple disconnected tools in order to author Lottie animations. Rive furthermore boasts support for state-aware animations.
@@ -2671,9 +2754,33 @@ graphviz
 
 *** Shell
 
+**** Linters for shell scripts
+
 #+begin_src nix :noweb-ref dev-packages
 shellcheck
 shfmt
+#+end_src
+
+**** Zoxide
+
+The [[https://github.com/ajeetdsouza/zoxide][zoxide]] CLI tool is smarter alternative to =cd= which allows us to enter directories quickly by using partial phrases, like running =z dot= instead of =cd ~/Code/vidbina/dotfiles=, if that entry is in the shell's history to be matched against the phrase =dot=.
+
+#+begin_src nix :noweb yes :noweb-ref home-darwin-programs
+zoxide.enable = true;
+#+end_src
+
+**** Fzf
+
+The [[https://github.com/junegunn/fzf][fzf]] CLI and TUI tool and library that is a popular fuzzy finder and used under the hood of a lot of other tools. Use it as a filter to find matches through
+
+#+begin_src bash
+echo $SOMETHING | fzf --filter="something"
+#+end_src
+
+or use the interactive picker by not specifying a filter.
+
+#+begin_src nix :noweb yes :noweb-ref home-darwin-programs
+fzf.enable = true;
 #+end_src
 
 **** Asciinema
@@ -2763,13 +2870,13 @@ pkgs.nixd
 We also install nixfmt since I noticed some =formatting nixfmt command exited with 65280= errors when navigating nix code in Zed.
 
 #+begin_src nix :noweb-ref dev-packages
-pkgs.nixfmt-rfc-style
+pkgs.nixfmt
 #+end_src
 
 **** Typescript Language Server
 
 #+begin_src nix :noweb-ref dev-packages
-pkgs.nodePackages.typescript-language-server
+pkgs.typescript-language-server
 #+end_src
 
 *** Tree-sitter
@@ -2974,7 +3081,7 @@ pkgs.mtr
 **** Docker
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
-"docker"
+"docker-desktop"
 #+end_src
 
 **** UTM
@@ -3400,7 +3507,10 @@ vim.keymap.set('n', '<Leader>i', function() vim.diagnostic.open_float(nil, {focu
 
 See =:h mapleader= for info on the leader key which is set to backslack (=\=) by default. When different, try to run =:echo mapleader= from inside of vim to find out.
 
-*** Neovim Treesitter
+*** COMMENT Neovim Treesitter
+
+Removing on <2026-03-14 Sat> becuause of =module 'nvim-treesitter.configs' not found= error.
+
 
 #+begin_src nix :noweb-ref nvim-packages
 nvim-treesitter.withAllGrammars
@@ -3440,14 +3550,7 @@ and we import the home-manager related part of our config from
 *** Link .emacs.d from dotfiles into home directory
 
 #+begin_src nix :noweb-ref home-darwin-home-file
-# home.file.".emacs.d".source = config.lib.file.mkOutOfStoreSymlink ./emacs;
-# TODO: Fix hack of hardcoded dotfiles path
-# NOTE: This repo must be checked out to ~/Code/vidbina/dotfiles
-# A hardcoded .emacs.d source is used because mkOutOfStoreSymlink ./emacs
-# does not seem to work on macOS.
-# See https://discourse.nixos.org/t/accessing-home-manager-config-in-flakes/19864/8
-# See https://github.com/nix-community/home-manager/issues/2085#issuecomment-861427318
-".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Code/vidbina/dotfiles/emacs";
+".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/emacs";
 #+end_src
 
 *** TODO Tangle nix import of emacs/*.nix
@@ -3491,9 +3594,13 @@ On MacOS, we use [[https://github.com/dwarvesf/hidden/][hidden Bar]] to work aro
 
 *** Raycast
 
+We use [[https://www.raycast.com/][Raycast]] as our default Launcher and set it up to replace Spotlight, following the instructions on https://manual.raycast.com/hotkey which are tricky to enforce declaratively in a clean manner.
+
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "raycast"
 #+end_src
+
+I've transfered my Raycast settings through the *Export settings & data* option which produces a .rayconfig file which I import on another machine. This is a pretty simple way to manage synchronization of Raycast configuration since this doesn't change too often.
 
 *** Nightlight
 
@@ -3519,11 +3626,25 @@ We link the hammerspoon directory into our homedir in order to set up the necess
 ".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
 #+end_src
 
-We load the Spoons and define our own bindings and more in the init.lua file that we symlinked into our homedir previously:
+We load the Spoons and define our own bindings and more in the init.lua file that we symlinked into our homedir previously. Each capability is its own noweb ref — =COMMENT= a heading to disable it without deleting code. See [[https://zzamboni.org/post/my-hammerspoon-configuration-with-commentary/][zzamboni's config]] for inspiration.
 
 #+begin_src lua :noweb yes :tangle hammerspoon/init.lua
 -- Tangled from README.org
 
+<<hs-core>>
+<<hs-mouse-highlight>>
+<<hs-caffeine>>
+<<hs-ksheet>>
+<<hs-hskeybindings>>
+<<hs-inspect>>
+<<hs-terminal-launcher>>
+#+end_src
+
+**** Core
+
+Base binding setup (=⌃⌥⌘=), cheatsheet variable, help (=⌃⌥⌘ H=) and [[https://www.hammerspoon.org/go/#simple-configuration-reloading][config reload]] (=⌃⌥⌘ R=).
+
+#+begin_src lua :noweb-ref hs-core
 hsBaseBinding = {"alt", "cmd", "ctrl"}
 strBaseBinding = "⌃⌥⌘"
 
@@ -3550,7 +3671,13 @@ hs.hotkey.bind(
    end
 )
 cheatsheet = cheatsheet .."\n" .. strBaseBinding .. " R = reload"
+#+end_src
 
+**** Mouse highlight
+
+[[https://www.hammerspoon.org/go/#drawing-on-the-screen][Draw a red circle]] around the cursor for 1 second (=⌃⌥⌘ D=).
+
+#+begin_src lua :noweb-ref hs-mouse-highlight
 -- https://www.hammerspoon.org/go/#drawing-on-the-screen
 mouseCircle = nil
 mouseCircleTimer = nil
@@ -3583,7 +3710,13 @@ function mouseHighlight()
 end
 hs.hotkey.bind(hsBaseBinding, "D", mouseHighlight)
 cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " D = mouse highlight"
+#+end_src
 
+**** COMMENT Caffeine
+
+Toggle sleep prevention via the [[https://www.hammerspoon.org/Spoons/Caffeine.html][Caffeine Spoon]] (=⌃⌥⌘ Z=). Disabled — redundant with Amphetamine.
+
+#+begin_src lua :noweb-ref hs-caffeine
 hs.loadSpoon("Caffeine")
 isCaffeinated = false
 hs.hotkey.bind(
@@ -3601,7 +3734,13 @@ hs.hotkey.bind(
    end
 )
 cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " Z = ☕"
+#+end_src
 
+**** COMMENT KSheet
+
+Show current app's shortcuts via the [[https://www.hammerspoon.org/Spoons/KSheet.html][KSheet Spoon]] (=⌃⌥⌘ K=). Disabled — Raycast covers this.
+
+#+begin_src lua :noweb-ref hs-ksheet
 hs.loadSpoon("KSheet")
 spoon.KSheet:bindHotkeys(
    {
@@ -3609,7 +3748,13 @@ spoon.KSheet:bindHotkeys(
    }
 )
 cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = KSheet"
+#+end_src
 
+**** COMMENT HSKeybindings
+
+List Hammerspoon's own hotkeys via the [[https://www.hammerspoon.org/Spoons/HSKeybindings.html][HSKeybindings Spoon]] (=⌃⌥⌘ /=). Disabled — mostly useful for debugging HS itself.
+
+#+begin_src lua :noweb-ref hs-hskeybindings
 hs.loadSpoon("HSKeybindings")
 isShowingHSKeybindings = false
 hs.hotkey.bind(
@@ -3627,7 +3772,13 @@ hs.hotkey.bind(
    end
 )
 cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " K = HSKeybindings"
+#+end_src
 
+**** COMMENT Inspect
+
+Show caffeinate state (=⌃⌥⌘ .=). Disabled — only useful alongside the Caffeine spoon.
+
+#+begin_src lua :noweb-ref hs-inspect
 hs.hotkey.bind(
    hsBaseBinding,
    ".",
@@ -3638,32 +3789,30 @@ hs.hotkey.bind(
       hs.alert.show("system: " .. (hs.caffeinate.get("system") and "On" or "Off"))
    end
 )
+#+end_src
 
+**** COMMENT iTerm launcher
+
+Open or create an iTerm window (=⌃⌥⌘ ⏎=). Disabled — switched to Ghostty which has its own keybindings.
+
+#+begin_src lua :noweb-ref hs-terminal-launcher
 hs.hotkey.bind(
    hsBaseBinding,
    "return",
    function()
       if hs.application.find("iTerm") then
          hs.osascript.applescript([[
-            <<applescript-open-iterm>>
+            tell application "iTerm"
+            create window with default profile
+            end tell
          ]])
       else
          hs.application.open("iTerm")
       end
    end
 )
-cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " ⏎ = iTerm2 👨🏿‍💻"
+cheatsheet = cheatsheet .. "\n" .. strBaseBinding .. " ⏎ = iTerm 👨🏿‍💻"
 #+end_src
-
-For our iTerm2 function, we define the AppleScript separately:
-
-#+begin_src applescript :noweb-ref applescript-open-iterm
-tell application "iTerm"
-create window with default profile
-end tell
-#+end_src
-
-See [[https://zzamboni.org/post/my-hammerspoon-configuration-with-commentary/][zzamboni's config]] for inspiration.
 
 ** Multimedia
 
@@ -3779,7 +3928,15 @@ in
 }
 #+end_src
 
-*** COMMENT Chrome
+*** Chrome
+
+Install Chrome through homebrew:
+
+#+begin_src nix :noweb-ref homebrew-casks
+"google-chrome"
+#+end_src
+
+**** COMMENT Previous config
 
 We just want to try the unfree Google Chrome, to test whether this works with Twitch:
 
@@ -5141,6 +5298,18 @@ Note that claude-code is unfree.
 "claude-code"
 #+end_src
 
+***** Skills, agents, and slash commands
+
+I manage my Claude Code skills (and eventually agents and slash commands) from this repo under =claude/=. The =claude/skills/= directory is symlinked into =~/.claude/skills= as an out-of-store symlink so that editing a =SKILL.md= is immediately visible to Claude without needing a =home-manager switch= between iterations.
+
+Only the specific subpaths I own are symlinked — runtime state like =history.jsonl=, =sessions/=, =projects/=, =todos/=, and =shell-snapshots/= stays untouched under =~/.claude/=. If I want to add =agents/= or =commands/= later, they each get their own =home.file= entry alongside this one rather than symlinking =~/.claude= as a whole.
+
+#+begin_src nix :noweb-ref home-darwin-home-file
+".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/skills";
+#+end_src
+
+Note the =${dotfilesPath}/...= interpolation rather than a relative path literal =./claude/skills=. Under a flake-based nix-darwin setup, =./claude/skills= gets coerced to a store path at evaluation time — the "out of store" symlink ends up pointing into =/nix/store/...-source/claude/skills=, which defeats the whole purpose of live editing. Using a string-interpolated absolute path via the =dotfilesPath= module argument (defined in =machines.nix= per host) sidesteps this coercion and produces a symlink that points at the real working tree. The same fix is already applied for =~/.emacs.d=; other =mkOutOfStoreSymlink= uses in this config (=ranger=, =direnvrc=, =git/ignore=, =ghostty=, =hammerspoon=) still use the broken pattern and should be migrated in a follow-up.
+
 **** Claude Code for VSCode
 
 For vscode and vscode-derived editors, we want to enable the official Claude Code extension. On <2026-02-07 Sat>, we isolated and commented out just the installation part of this config in order to manage this extension manually in vscode.
@@ -5195,6 +5364,18 @@ https://marketplace.visualstudio.com/items?itemName=openai.chatgpt
 openai.chatgpt
 #+end_src
 
+*** OpenCode
+
+Just in case the internet fails, we want to have a OSS coding tool that can wield local models. Enter https://opencode.ai/!
+
+#+begin_src nix :noweb-ref homebrew-taps :noweb yes
+"anomalyco/tap"
+#+end_src
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"anomalyco/tap/opencode"
+#+end_src
+
 *** Ollama
 
 [[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
@@ -5213,6 +5394,135 @@ We still need to clean up my config to reuse the old dev.nix:
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.ollama
+#+end_src
+
+**** Recommended models for offline use
+
+Reference picks for this machine — written down so I don't have to re-research this every time the internet goes sideways. Deeper rationale, benchmarks, and trade-offs live in [[https://linear.app/asabina/issue/VID-597/pick-local-llms-for-offline-work][VID-597]].
+
+Target hardware: MacBook Pro 16" M5 Pro, 64 GB unified memory.
+
+***** Prerequisites
+
+- Ollama =>= 0.19= for the MLX backend on Apple Silicon (released March 2026, requires >32 GB unified memory). Verify with =ollama --version=.
+- Default usable VRAM is ~48 GB (macOS reserves ~25%). To push it to ~56 GB before loading a >40 GB model, close apps and run:
+  #+begin_src sh
+  sudo sysctl iogpu.wired_limit_mb=57344  # reverts on reboot
+  #+end_src
+
+***** Install set
+
+Pull in priority order. Disk footprint of the full set is ~128 GB; typically only one or two are loaded at a time.
+
+#+begin_src sh
+# 1. Daily driver: coder + agent. ALWAYS LOADED.
+#    30.5B total / 3.3B active MoE, 256k context. Fast despite the size.
+ollama pull qwen3-coder:30b-a3b-q4_K_M     # ~19 GB
+
+# 1b. Agentic coding alternative (released 2026-04-16, Apache 2.0).
+#     35B/3B MoE, same efficiency class as #1. Stronger on repo-level and frontend
+#     workflows. Run alongside #1 for a week; drop whichever underperforms on real tasks.
+#     If one has to go later, qwen3:32b is the more likely cut.
+ollama pull qwen3.6:35b-a3b-q4_K_M         # ~24 GB
+
+# 2. Reasoning workhorse (DeepSeek-R1 distilled into Qwen2.5-32B base)
+ollama pull deepseek-r1:32b                # ~20 GB
+
+# 3. Stretch coder for hard problems (load on demand only).
+#    80B/3B MoE, frontier-tier SWE-Bench scores. Verify exact tag with:
+#      ollama search qwen3-coder
+ollama pull qwen3-coder:80b-a3b-q4_K_M     # ~45 GB, needs sysctl bump
+
+# 4. Small fast generalist for shell helpers, autocomplete, quick Q&A
+ollama pull qwen3:8b                       # ~5 GB
+
+# 5. (Optional) Best-in-class tool-calling generalist (#2 on BFCL v3, 75.7%)
+ollama pull qwen3:32b                      # ~20 GB
+#+end_src
+
+***** Why these picks
+
+| Need                  | Pick                                                | Notes                                                                                          |
+|-----------------------+-----------------------------------------------------+------------------------------------------------------------------------------------------------|
+| Coding (daily)        | =qwen3-coder:30b-a3b-q4_K_M=                        | MoE → 30B-quality at 3B-speed. 256k context. Strong SWE-Bench scores.                         |
+| Agentic coding        | =qwen3.6:35b-a3b-q4_K_M=                            | Released 2026-04-16. Same efficiency class, stronger on repo-level + frontend workflows.       |
+| Coding (hard)         | =qwen3-coder:80b-a3b-q4_K_M=                        | SWE-Bench Verified ~70% (Feb 2026 release).                                                   |
+| Reasoning             | =deepseek-r1:32b=                                   | R1-Distill-Qwen-32B. Best reasoning-per-GB locally.                                           |
+| Reasoning (max)       | =deepseek-r1:70b= /(optional)/                      | ~40 GB Q4. Skip unless 32B feels short.                                                       |
+| Tool calling / agents | =qwen3:32b= /or/ =qwen3-coder:30b-a3b=              | Qwen3-32B is BFCL v3 #2 (75.7%). Coder also handles tool calls well.                         |
+| Generalist (fast)     | =qwen3:8b=                                          | Cheap to keep resident.                                                                        |
+
+Models that *don't* fit on 64 GB and shouldn't be attempted: Qwen3-Coder-480B-A35B (~250 GB), DeepSeek-V3.x / R1 full (671B), GLM-4.5 full (~355B). GLM-4.5-Air /might/ fit at Q4 (~50–55 GB) but is uncomfortably tight — defer.
+
+***** MoE memory math (the gotcha)
+
+For Mixture-of-Experts models, *total* parameters live in RAM, but only *active* parameters drive throughput. So Qwen3-Coder-80B-A3B is "80B in RAM, 3B-speed inference" — that's the entire reason it's worth the footprint on this machine.
+
+***** Engine choice
+
+- *Default to ollama.* Since 0.19 (March 2026) it uses MLX on Apple Silicon, so the historical "ollama is slow" trade-off is largely gone.
+- Reach for raw =mlx-lm= / LM Studio only when benchmarking or hosting a single high-throughput inference endpoint (~130 tok/s vs ~71 for llama.cpp on large models).
+- Stay on GGUF/ollama for anything talking the OpenAI API, Continue.dev, agent integrations, or juggling multiple models.
+
+**** Auto-start the daemon via launchd
+
+Manual =ollama serve= is how we end up with a stale 0.15.6 daemon still running 6 days after a =darwin-rebuild switch= — the binary on PATH gets upgraded but the long-lived process keeps holding a file descriptor to the old store path. We can't trust ourselves to remember; let nix-darwin own the daemon's lifecycle.
+
+This block tangles into =configuration-darwin.nix= via the =nix-darwin= noweb-ref:
+
+#+begin_src nix :noweb-ref nix-darwin
+launchd.user.agents.ollama = {
+  serviceConfig = {
+    ProgramArguments = [
+      "${pkgs.ollama}/bin/ollama"
+      "serve"
+    ];
+
+    # Start at login, restart on any exit
+    RunAtLoad = true;
+    KeepAlive = true;
+    # Headless daemon, not a foreground app
+    ProcessType = "Background";
+
+    # Logs land here; truncate manually if they grow
+    StandardOutPath = "/Users/${username}/Library/Logs/ollama.stdout.log";
+    StandardErrorPath = "/Users/${username}/Library/Logs/ollama.stderr.log";
+  };
+
+  # launchd's default PATH is /usr/bin:/bin:/usr/sbin:/sbin which is too narrow
+  path = [
+    config.environment.systemPath
+  ];
+};
+#+end_src
+
+After the next =make nix-darwin-switch=:
+
+#+begin_src sh
+# launchd starts the new daemon, but the stale 0.15.6 one is still bound to :11434.
+# Kill it once; KeepAlive will respawn the new 0.20.7 binary instantly.
+pkill -f "ollama serve"
+
+# Verify
+launchctl list | grep ollama                     # expect: org.nixos.ollama loaded
+curl -s localhost:11434/api/version              # expect: {"version":"0.20.7"} (or newer)
+ollama --version                                  # client and server should match
+#+end_src
+
+Logs are at =~/Library/Logs/ollama.{stdout,stderr}.log=. After this point, =ollama serve= should never need to be typed again — every reboot, login, or crash is handled by launchd.
+
+*** llama.cpp
+
+See https://github.com/ggml-org/llama.cpp
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.llama-cpp
+#+end_src
+
+*** Pi (coding agent)
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"pi-coding-agent"
 #+end_src
 
 *** COMMENT LM Studio

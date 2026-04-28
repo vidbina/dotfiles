@@ -3,6 +3,7 @@ SHELL = /usr/bin/env sh
 HOME_MANAGER = home-manager
 NIX_SHELL = nix-shell
 DARWIN_REBUILD = sudo darwin-rebuild
+HOSTNAME := $(shell hostname)
 
 # Tangle all org files to generate configuration files
 # Respects local variables in org files (e.g., trailing whitespace cleanup hooks)
@@ -57,14 +58,14 @@ ci: tangle check-parity validate
 # Use before merging/deploying (takes minutes depending on cache)
 .PHONY: nix-darwin-build
 nix-darwin-build:
-	${DARWIN_REBUILD} check --flake .#$(shell hostname)
+	${DARWIN_REBUILD} check --flake .#${HOSTNAME}
 
 # Deploy nix-darwin configuration (builds and activates)
 # Actually switches your system to the new configuration
 # Use after testing with nix-darwin-build
 .PHONY: nix-darwin-switch
 nix-darwin-switch:
-	${DARWIN_REBUILD} switch --flake .#$(shell hostname)
+	${DARWIN_REBUILD} switch --flake .#${HOSTNAME}
 
 # Default target - show help
 .PHONY: help
