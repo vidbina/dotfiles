@@ -88,7 +88,7 @@ In parallel:
 
 - **Git history:** `git log --oneline -50` — look for patterns: conventional commits, prefixes, tags, co-author lines, scope usage, message length
 - **Repo docs:** read CONTRIBUTING.md, CLAUDE.md, AGENTS.md, README.md for any existing commit guidance
-- **Org kb:** check for `./kb` or `./knowledge-base` symlink. If present, read `templates/AGENTS.md` and `templates/README.md` for the org-level commit convention. If absent, check whether one should be set up (the org convention is to symlink `./kb` or `./knowledge-base` → the shared kb repo) and mention it to the user.
+- **Org kb:** check for `./kb` or `./knowledge-base` symlink. If present, read `templates/AGENTS.md` and `templates/README.md` for the org-level commit convention. If absent, mention that the org convention is to symlink `./kb` or `./knowledge-base` → the shared kb repo, but setting that up is the user's responsibility — the skill never creates symlinks.
 
 Synthesize: what convention is the repo already following (even if undocumented)? Does it match the org kb template? Are there inconsistencies?
 
