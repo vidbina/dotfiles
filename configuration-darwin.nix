@@ -191,6 +191,7 @@ with lib;
       "pcalc"
       "smudge/smudge/nightlight"
       "anomalyco/tap/opencode"
+      "pi-coding-agent"
     ];
     casks = builtins.filter (x: x != null) [
       "zed"
