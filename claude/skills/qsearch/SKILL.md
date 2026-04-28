@@ -1,7 +1,7 @@
 ---
 name: qsearch
 description: "Use this skill when the user asks you to quickly research, investigate, look into, find out about, compare, summarize, or get up-to-speed on a topic that benefits from fresh information from the web. Trigger for prompts like 'research X', 'qsearch Y', 'what are the best Y for Z', 'compare A vs B', 'find me sources on...', 'is it true that...', 'what's the current state of...', 'dig into...', or any question where a good answer requires fetching and synthesizing web content. Also trigger when the user invokes `/qsearch`. This skill batches any necessary clarifying questions into ONE up-front round before executing, so the user can answer them, walk away, and return to a finished artifact instead of being pinged for follow-ups throughout. Do NOT trigger for narrow factual questions answerable from training data, for code lookups better served by Grep/Glob, when the user provides specific URLs to fetch (just fetch them), or when the user explicitly says 'no web search' / 'from what you know'."
-allowed-tools: WebSearch WebFetch AskUserQuestion
+allowed-tools: WebSearch WebFetch AskUserQuestion Glob Grep Read Write mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_documents mcp__claude_ai_Linear__get_document mcp__claude_ai_Linear__create_document
 ---
 
 # qsearch
@@ -16,10 +16,13 @@ The user should be able to kick this off, answer a small batch of up-front quest
 
 ## Tools
 
-This skill declares `WebSearch`, `WebFetch`, and `AskUserQuestion` in `allowed-tools` so it can run without triggering per-use permission prompts — critical for the walk-away UX.
+This skill declares these tool categories in `allowed-tools`:
 
-- `WebSearch` and `WebFetch` are the primary research engines (Phase 4).
-- `AskUserQuestion` is the one-shot batch-clarification tool (Phase 2).
+- `WebSearch` and `WebFetch` — the primary research engines (Phase 4).
+- `AskUserQuestion` — the one-shot batch-clarification tool (Phase 2) and persistence confirmation (Phase 6).
+- `Glob`, `Grep`, `Read` — discover context in the calling directory (README, CLAUDE.md) to infer persistence target.
+- `Write` — persist the report as a markdown file when the user confirms.
+- Linear MCP tools (`list_projects`, `get_project`, `list_documents`, `get_document`, `create_document`) — persist the report as a Linear doc when the user confirms.
 
 If `WebSearch` and `WebFetch` are unavailable in the current session (e.g. policy restriction, offline environment), stop at the end of Phase 3 and return the research plan without executing it — do not attempt to answer from memory alone, and do not silently degrade to training-data facts as if they were fresh sources.
 
@@ -133,6 +136,64 @@ Restate the locked decisions from Phase 2 in a compact form so the user can cour
 > - **D3 (shape):** ranked shortlist of 5 *(assumed)* → say "table" / "prose" / etc. to reshape
 > - **D4 (depth):** ~8 sources *(assumed)* → say "deep dive" for more
 
+## Phase 6 — Persist
+
+After printing the report to chat (Phase 5), offer to persist it as a named research report. This phase is the only exception to the "no more questions after Phase 2" rule — persistence is a post-delivery HITL gate, not a mid-research interruption.
+
+### Report naming convention
+
+Reports follow a fixed title scheme:
+
+```
+Report: [Topic] [YYYY.Qn] [Scope]
+```
+
+| Token | What it is | Notes |
+| :--- | :--- | :--- |
+| `Report:` | Type prefix | Always literal; signals a point-in-time research artifact |
+| `[Topic]` | Subject of the sweep | Title-cased, noun phrase, as short as unambiguous |
+| `[YYYY.Qn]` | Period of the sweep | Quarter preferred; use `YYYY.MM` only if running multiple sweeps per quarter |
+| `[Scope]` | Geographic or domain qualifier | Single word or short phrase; narrows what was covered |
+
+Examples:
+
+- `Report: PM Startup Landscape 2026.Q2 Global`
+- `Report: EV Charging Infrastructure 2026.Q3 Europe`
+- `Report: B2B SaaS Pricing Models 2026.Q1 US`
+
+### Markdown filename equivalent
+
+When persisting as a file, convert to kebab-case and drop the colon:
+
+- `report-pm-startup-landscape-2026-q2-global.md`
+- `report-ev-charging-infrastructure-2026-q3-europe.md`
+
+Rules: drop `Report:` colon, lowercase everything, spaces → hyphens, period separator `.` between year and quarter becomes `-` (i.e. `2026.Q2` → `2026-q2`), no underscores.
+
+### Infer the persistence target
+
+Best-effort inference from the calling directory context. Check in this order:
+
+1. **Linear project signal:** Read `README.md` and `CLAUDE.md` in the working directory. If either contains a Linear project URL (e.g., `https://linear.app/{org}/project/{slug}`), default to creating a Linear doc in that project.
+2. **No Linear signal:** default to a markdown file in the current working directory.
+3. **Neither is clear:** ask explicitly.
+
+This inference is best-effort. If the signal is ambiguous (multiple project URLs, or a URL that looks stale), fall back to asking rather than guessing wrong.
+
+### Confirm before writing
+
+Use `AskUserQuestion` with the inferred target and proposed title:
+
+- If Linear: "Save as **Report: PM Startup Landscape 2026.Q2 Global** in the {project-name} Linear project?" with options: **Yes** / **Save as local file instead** / **Skip — don't persist**
+- If file: "Save as **report-pm-startup-landscape-2026-q2-global.md** in the current directory?" with options: **Yes** / **Save as Linear doc instead** / **Skip — don't persist**
+
+If the user skips, stop. The chat output is the deliverable.
+
+### Write
+
+- **Linear doc:** Use `create_document` with the report title and the full report content (adapted for Linear markdown — no front matter, inline metadata instead). If a `README: [Topic]` series doc exists in the target project, check it for any required internal structure or provenance block format and follow it.
+- **Markdown file:** Use `Write` to create the file with the kebab-case filename. Include a YAML front matter block with `title`, `date`, `scope`, and `sources` count.
+
 ## Anti-patterns
 
 - **Don't trickle questions across multiple turns.** All asking happens in one `AskUserQuestion` batch in Phase 2, then never again. Multi-round clarification defeats the walk-away UX.
@@ -145,3 +206,6 @@ Restate the locked decisions from Phase 2 in a compact form so the user can cour
 - **Don't skip Phase 2** on the grounds that "the request seemed clear." It rarely is — walking the rubric is the whole reason this skill exists.
 - **Don't cite a source you didn't actually read.** If a search snippet is all you have, either fetch the page or don't cite it as a source.
 - **Don't mix phases.** Phase 1 is interpretation, Phase 2 is clarification + commitment, Phase 3 is the plan. Don't start planning in Phase 1 or researching in Phase 3.
+- **Don't persist without showing the output first.** The report prints to chat before any persistence question is asked. The user must see what they're saving.
+- **Don't persist without confirmation.** Phase 6 always asks. Never silently write a file or create a Linear doc.
+- **Don't hardcode the persistence target.** Infer from directory context, fall back to asking. The inference is best-effort, not a hard rule.
