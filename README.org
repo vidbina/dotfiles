@@ -3437,6 +3437,7 @@ https://developpaper.com/complete-guide-to-getting-started-with-coc-nvim/
       <<nvim-packages>>
     ];
     vimdiffAlias = true;
+    withPython3 = false; # disable Python bundled into nvim
     withRuby = true;
     extraConfig = ''
       <<neovim-config>>
