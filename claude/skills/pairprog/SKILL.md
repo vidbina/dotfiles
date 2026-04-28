@@ -279,7 +279,7 @@ Accommodate without friction. The navigator steers.
 When mid-session adaptation happens, comment the change to Linear with a recognizable marker:
 
 ```markdown
-🔀 **Plan adjusted** (pairprog)
+🚨 **Plan adjusted** (pairprog)
 
 Step 3 (Silent token refresh middleware) replaced with:
 Step 3a: Explicit re-login flow on token expiry
@@ -288,9 +288,9 @@ Reason: Navigator decided silent refresh adds complexity without clear UX benefi
 ```
 
 Use these emojis for mid-session events:
-- 🔀 — plan change (step reordered, replaced, or approach changed)
+- 🚨 — plan change (step reordered, replaced, or approach changed)
 - ⏭️ — step skipped
-- ➕ — step added
+- 🌟 — step added
 - 🚧 — blocker discovered mid-implementation
 - ⚠️ — conflict between plan and reality (code doesn't behave as expected, API doesn't work as documented, etc.)
 
