@@ -15,6 +15,8 @@ The defining design principles of this skill are:
 > **Confirm in chat, not via files.** The skill prints proposed tickets in the conversation, confirms with one `AskUserQuestion`, and creates on approval. One invocation, one session.
 >
 > **Idempotent re-runs.** A note that's already been linearized has inline `Linear: LIN-NNN` annotations. The skill detects them and updates instead of duplicating.
+>
+> **Issues are minimal anchors; comments carry the thinking.** A ticket's title and description are a stable, concise anchor — what the work is, nothing more. Scope crystallization (additions, reductions, pushback, context, reasoning) happens through comments, which are immutable and preserve the history of thinking. Keep descriptions short and pragmatic. Never use them as a context dump from the design note — the backlink to the note is enough. This principle applies in both filing mode and iteration mode.
 
 ## How this fits the broader workflow
 
@@ -170,7 +172,7 @@ If the user bails, stop. Print nothing further.
 For each confirmed ticket:
 
 1. **Existing detection.** If the note's source-anchor area already has an inline `Linear: LIN-NNN` annotation, or if a Linear search by source anchor URL in the description footer finds an existing ticket, treat as **update**. Otherwise **create**.
-2. **Create:** call `save_issue` with team, project, title, description (including the source-anchor footer), priority, parent (if dependency-hinted as a sub-task — but default to flat unless the note structure clearly implies sub-tasking).
+2. **Create:** call `save_issue` with team, project, title, description (including the source-anchor footer), priority, parent (if dependency-hinted as a sub-task — but default to flat unless the note structure clearly implies sub-tasking). Keep the description to 2–4 sentences maximum: one sentence on what the work is, one sentence on why it matters (if not obvious), and the source-anchor backlink. Do not copy prose, context, or reasoning from the design note into the description — the backlink is the bridge. If there is important context that should accompany the ticket, post it as a comment after creation instead.
 3. **Update:** call `save_issue` with `id` set to the existing `LIN-NNN`, updating only fields that have meaningfully changed (description content, priority). Don't touch state, assignee, or labels unless explicitly indicated.
 4. **Capture** the returned ticket ID and URL.
 
@@ -213,6 +215,7 @@ Print:
 - **Don't interpret non-canonical sections creatively.** Only known sections and explicit `→ ticket` markers count. If a note has work in a non-canonical section, ask in Phase 3.
 - **Don't infer parallel-safety from nothing.** If the note doesn't mention file scope or parallelism, leave parallel-safety unset. Don't fabricate predictions.
 - **Don't bundle unrelated action items into a single ticket.** One action item = one ticket. If items are tightly coupled, the note should reflect that and the skill can model them as parent/sub-tasks — but only if the note is structured that way.
+- **Don't over-fill descriptions.** A description is a minimal anchor — 2–4 sentences max. Do not copy prose, reasoning, or context from the design note into it. The backlink to the note is the bridge; if extra context is needed, post it as a comment after creation. Stuffing descriptions creates maintenance debt and obscures the signal.
 - **Don't ask more than one round of clarification** (the "Exclude some" follow-up is the only permitted second question). If something surfaces during creation that should have been asked, note it in the summary and stop.
 - **Don't follow URLs unbounded.** Use `WebFetch` only to enrich descriptions for URLs *already referenced in the note*, not to search the web. This skill is deterministic; research belongs in `designnote`.
 
