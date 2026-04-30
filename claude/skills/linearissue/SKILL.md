@@ -1,6 +1,6 @@
 ---
 name: linearissue
-description: "Use this skill when the user asks you to turn a design note's action items into Linear issues — filing tickets from a note, linearizing the todos in a note, creating Linear issues from pending work in a design note, or shipping a note's action items to Linear for execution. Trigger for prompts like 'file tickets from this note', 'linearize X', 'create Linear issues for the action items in X', 'turn this note into tickets', 'ship this to Linear', 'file these TODOs from the design note', 'make tickets from X', 'linearissue this note', 'create issues from X.md'. Also trigger when the user invokes `/linearissue`. The skill reads a specific design note (or the most recent TODO/WIP note if not specified), parses its action items from canonical sections (## Action items, ## Next Action, ## Trigger Points, and inline checklists), prints a proposed-tickets summary in chat, confirms via AskUserQuestion, then creates the Linear issues and appends bidirectional cross-references back into the note. It refuses to run on DONE, SUPERSEDED, CANCELED, DEPRECATED notes, or anything in `ARCHIVE/`. Do NOT trigger for ad-hoc ticket creation not derived from a note (use the Linear MCP directly), for updating existing tickets in arbitrary ways (use the Linear MCP directly), for creating Linear documents (that's the designnote skill's strategy-routing path), for filing tickets from `docs/decisions/` ADRs (decisions are made; they don't spawn tickets), or for any operation that would also commit to git."
+description: "Use this skill when the user asks you to turn a design note's action items into Linear issues, OR when the user wants to iterate on an existing Linear issue. Filing mode triggers: 'file tickets from this note', 'linearize X', 'create Linear issues for the action items in X', 'turn this note into tickets', 'ship this to Linear', 'file these TODOs from the design note', 'make tickets from X', 'linearissue this note', 'create issues from X.md'. Iteration mode triggers: user passes a Linear issue URL (e.g. https://linear.app/...) or issue ID (e.g. VID-123) with a follow-on prompt like 'help me refine this', 'roast this scope', 'add context about X', 'what questions should we answer first', 'sharpen the description', or any request to think about, improve, or comment on an existing issue. Also trigger when the user invokes `/linearissue`. Do NOT trigger for creating Linear documents (that's the designnote skill's strategy-routing path), for filing tickets from `docs/decisions/` ADRs (decisions are made; they don't spawn tickets), or for any operation that would also commit to git."
 allowed-tools: Glob Grep Read Edit WebFetch AskUserQuestion mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__save_comment mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_issue_statuses mcp__claude_ai_Linear__list_issue_labels
 ---
 
@@ -56,7 +56,14 @@ The skill does not declare `Write` — it never creates new files. It only edits
 
 ## Phase 0 — Preflight
 
-### Parse invocation
+### Parse invocation and detect mode
+
+Examine the first argument (or the full prompt if no explicit argument):
+
+- **Iteration mode** — if the input contains a Linear issue URL (`https://linear.app/...`) or a bare issue identifier matching the pattern `[A-Z]+-\d+` (e.g. `VID-123`, `Z-419`), enter **iteration mode**. Capture the issue ID and the rest of the prompt as the user's intent. Skip to the [Iteration mode](#iteration-mode) section below; do not run the filing-mode phases.
+- **Filing mode** — otherwise, treat the input as a design note path or infer one. Continue with the filing-mode phases below.
+
+### Filing mode: parse invocation
 
 - **Note path** (positional or inferred). If not specified, default to *the most recently modified* file in `docs/design-notes/` whose filename state token is `TODO`, `WIP`, or `REVIEW`. If multiple match, ask in Phase 2.
 - Optional flags: `--team`, `--project` (override note-derived routing).
@@ -202,6 +209,64 @@ Print:
 - Any failures
 - **Suggested commit message** following the repo's convention from `CLAUDE.md` (e.g., `chore(notes): file tickets from {slug} [ai:claude]`). **Do not commit** — git is HITL.
 
+## Iteration mode
+
+Entered when Phase 0 detects a Linear URL or issue ID. The filing-mode phases (1–3) are skipped entirely.
+
+### Load the issue
+
+Fetch in parallel:
+- `get_issue` — title, description, status, labels, priority
+- `list_comments` — full comment thread, ordered by `createdAt`
+
+Print a compact header so the user can confirm you're looking at the right thing:
+
+```
+Iterating on: VID-123 — {title}
+Status: {status} | Priority: {priority}
+{N} comments
+```
+
+### Understand the intent
+
+Read the user's prompt. Classify what they're asking for:
+
+- **Analytical** — "roast this", "what's missing", "does this make sense", "what questions should we answer first" → produce analysis in chat, then offer to post it as a comment
+- **Additive** — "add context about X", "note that we've decided Y" → draft a comment with the new context
+- **Refinement** — "sharpen the description", "the title is off" → propose a new title and/or description (keep it minimal — anchor principle applies)
+- **Mixed** — any combination of the above
+
+For mixed intents, address all of them in a single pass rather than asking for clarification upfront.
+
+### Draft the response
+
+Produce one or both of:
+
+1. **Comment draft** — the primary output in almost all cases. Write it as you would a thoughtful comment from a collaborator: direct, specific, actionable. Scope crystallization, analysis, questions, and context all belong here.
+2. **Anchor update** — only if the intent is explicitly to fix the title or description. Draft the new title and/or description. Keep to 2–4 sentences. Do not migrate comment-appropriate content into the description.
+
+Print both drafts in chat before asking for confirmation. Make it easy to scan.
+
+### Confirm and write
+
+Issue one `AskUserQuestion` with:
+- **Always:** "Post this comment?" — **Yes** / **Edit first** / **Skip**
+- **Only if an anchor update was drafted:** "Apply the title/description update?" — **Yes** / **Edit first** / **Skip**
+
+Both questions can be batched into a single `AskUserQuestion` call.
+
+On "Edit first": ask what to change, revise, re-present, confirm again.
+
+On approval, write in this order:
+1. `save_issue` for any title/description changes (only if confirmed)
+2. `save_comment` for the comment (only if confirmed)
+
+### Summary
+
+Print:
+- What was posted/updated and the issue URL
+- If nothing was written (user skipped both): note that and stop cleanly
+
 ## Anti-patterns
 
 - **Don't run on `DONE`/`SUPERSEDED`/`CANCELED`/`DEPRECATED` notes** or anything in `ARCHIVE/`. Historical notes are read-only.
@@ -216,6 +281,9 @@ Print:
 - **Don't infer parallel-safety from nothing.** If the note doesn't mention file scope or parallelism, leave parallel-safety unset. Don't fabricate predictions.
 - **Don't bundle unrelated action items into a single ticket.** One action item = one ticket. If items are tightly coupled, the note should reflect that and the skill can model them as parent/sub-tasks — but only if the note is structured that way.
 - **Don't over-fill descriptions.** A description is a minimal anchor — 2–4 sentences max. Do not copy prose, reasoning, or context from the design note into it. The backlink to the note is the bridge; if extra context is needed, post it as a comment after creation. Stuffing descriptions creates maintenance debt and obscures the signal.
+- **Don't default to description updates in iteration mode.** The user's intent is almost always to add a comment. Only propose a title/description change when the prompt explicitly targets the anchor (e.g. "the title is wrong", "rewrite the description"). When in doubt, put it in a comment.
+- **Don't run filing-mode phases in iteration mode.** If a Linear URL or issue ID was detected, skip straight to the iteration phase. Do not look for design notes, parse action items, or propose ticket creation.
+- **Don't silently rewrite comment history.** The skill can only add new comments via `save_comment`. It cannot edit or delete existing comments. If a prior comment is wrong, post a follow-up — don't attempt to alter the record.
 - **Don't ask more than one round of clarification** (the "Exclude some" follow-up is the only permitted second question). If something surfaces during creation that should have been asked, note it in the summary and stop.
 - **Don't follow URLs unbounded.** Use `WebFetch` only to enrich descriptions for URLs *already referenced in the note*, not to search the web. This skill is deterministic; research belongs in `designnote`.
 
