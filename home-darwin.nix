@@ -77,6 +77,7 @@
     ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/emacs";
     ".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
     ".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/skills";
+    ".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/settings.json";
   };
   programs.vscode = {
     enable = true;
