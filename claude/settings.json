@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Glob",
+      "Grep",
+      "Read",
+      "Bash(gh pr list*)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr checks*)",
+      "Bash(gh pr status*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh run list*)",
+      "Bash(gh run view*)",
+      "Bash(gh run download*)",
+      "Bash(gh issue list*)",
+      "Bash(gh issue view*)",
+      "Bash(gh issue status*)",
+      "Bash(gh repo view*)",
+      "Bash(gh repo list*)",
+      "Bash(gh release list*)",
+      "Bash(gh release view*)",
+      "Bash(gh api*)"
+    ]
+  }
+}
