@@ -22,6 +22,7 @@
     inputs@{
       self,
       nixpkgs,
+      flake-utils,
       nix-darwin,
       home-manager,
       ...
@@ -58,7 +59,18 @@
           ++ machine.extraModules;
         };
     in
-    {
+    flake-utils.lib.eachSystem [ "x86_64-darwin" "aarch64-darwin" ] (
+      system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+      in
+      {
+        devShells.default = pkgs.mkShell {
+          packages = [ pkgs.emacs ];
+        };
+      }
+    )
+    // {
       darwinConfigurations = builtins.listToAttrs (
         map (machine: {
           inherit (machine) name;

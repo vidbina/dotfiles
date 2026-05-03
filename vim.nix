@@ -20,6 +20,7 @@
       vim-gitgutter
     ];
     vimdiffAlias = true;
+    withPython3 = false; # disable Python bundled into nvim
     withRuby = true;
     extraConfig = ''
       set tabstop=2    " tab stop to 2 spaces
