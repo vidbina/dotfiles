@@ -230,6 +230,7 @@ with lib;
       "obsidian" # best-in-class with mobile app support
       "linear-linear"
       "claude"
+      "anthropics/tap/ant"
       (if pkgs.stdenv.hostPlatform.system == "aarch64-darwin" then "chatgpt" else null)
     ];
     masApps = {

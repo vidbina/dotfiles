@@ -5323,6 +5323,14 @@ Pay attention to what ends up making its way to =~/.claude/settings.json= as you
 #+end_quote
 
 
+**** Anthropic Tools
+
+In order to use [[https://platform.claude.com/docs/en/managed-agents/quickstart#homebrew-(macos)]Claude Managed Agents] for background work, we're installing ant:
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"anthropics/tap/ant"
+#+end_src
+
 **** Claude Code for VSCode
 
 For vscode and vscode-derived editors, we want to enable the official Claude Code extension. On <2026-02-07 Sat>, we isolated and commented out just the installation part of this config in order to manage this extension manually in vscode.
