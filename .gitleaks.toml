@@ -8,5 +8,5 @@ title = "dotfiles gitleaks config"
 id = "claude-settings-secrets"
 description = "Possible secret in claude/settings.json"
 path = '''claude/settings\.json'''
-regex = '''(?i)(api[_-]?key|secret|token|password|credential)\s*[=:]\s*["']?[A-Za-z0-9+/=_\-]{20,}'''
+regex = '''(?i)(api[_-]?key|secret|token|password|credential)["']*\s*[=:]\s*["']?[A-Za-z0-9+/=_\-]{20,}'''
 tags = ["secret", "claude"]
