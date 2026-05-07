@@ -1,0 +1,25 @@
+{
+  "workspaceId": "wrkspc_01NWo31ZpJLwkJeAcTeyaQxm",
+  "antProfile": "default",
+  "skills": [
+    "commitmsg",
+    "designnote",
+    "linearissue",
+    "pairprog",
+    "pr",
+    "qsearch",
+    "troubleshoot",
+    "untypo"
+  ],
+  "tools": {
+    "linear": {
+      "apiKey": { "op": "op://Employee/linear.app/api-key" }
+    },
+    "github": {
+      "token": { "op": "op://Employee/github.com/fine-grained-pat" }
+    },
+    "anthropic": {
+      "apiKey": { "op": "op://Employee/console.anthropic.com/agents-on-mbp-m5pro" }
+    }
+  }
+}
