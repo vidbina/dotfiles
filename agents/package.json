@@ -18,7 +18,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.95.1"
+    "@anthropic-ai/sdk": "^0.95.1",
+    "gray-matter": "^4.0.3"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

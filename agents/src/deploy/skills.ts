@@ -9,8 +9,9 @@
 
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
+import matter from 'gray-matter';
 import { loadWorkspace, repoPath } from '../workspace.js';
-import { resolveWorkspaceSecrets } from '../tools/secrets.js';
+import { resolveSecret } from '../tools/secrets.js';
 
 interface RemoteSkill {
   id: string;
@@ -31,6 +32,21 @@ async function listRemoteSkills(apiKey: string): Promise<Map<string, RemoteSkill
   return new Map(data.map((s) => [s.display_title, s]));
 }
 
+/**
+ * If SKILL.md has an `api_description` field, substitute it for `description` before upload.
+ * The verbose Claude Code description stays untouched in the source file.
+ * Fails loudly if neither field fits within the API's 1024-char limit.
+ */
+function prepareSkillMd(content: string, skillName: string): string {
+  const { data, content: body } = matter(content);
+  const desc = (data['api_description'] ?? data['description']) as string | undefined;
+  if (!desc) throw new Error(`${skillName}: no description or api_description in SKILL.md`);
+  if (desc.length > 1024) throw new Error(`${skillName}: api_description exceeds 1024 chars (${desc.length})`);
+  const frontmatter: Record<string, unknown> = { ...data, description: desc };
+  delete frontmatter['api_description'];
+  return matter.stringify(body, frontmatter);
+}
+
 async function uploadSkill(
   apiKey: string,
   skillName: string,
@@ -42,7 +58,8 @@ async function uploadSkill(
   if (!existingId) form.append('display_title', skillName);
 
   for (const file of files) {
-    const content = await readFile(join(skillPath, file));
+    const raw = await readFile(join(skillPath, file));
+    const content = file === 'SKILL.md' ? prepareSkillMd(raw.toString(), skillName) : raw;
     form.append('files[]', new Blob([content]), `${skillName}/${file}`);
   }
 
@@ -69,8 +86,8 @@ export async function deploySkills(workspaceAlias: string): Promise<void> {
   console.log(`Deploying skills to workspace: ${workspaceAlias}`);
 
   const workspace = await loadWorkspace(workspaceAlias);
-  const secrets = await resolveWorkspaceSecrets(workspace.tools);
-  const apiKey = secrets.anthropicApiKey;
+  if (!workspace.tools.anthropic) throw new Error('workspace.json missing tools.anthropic');
+  const apiKey = await resolveSecret(workspace.tools.anthropic.apiKey, 'ANTHROPIC_API_KEY');
   if (!apiKey) throw new Error('No Anthropic API key resolved — set ANTHROPIC_API_KEY or configure tools.anthropic in workspace.json');
 
   const remote = await listRemoteSkills(apiKey);
