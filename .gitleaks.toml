@@ -1,0 +1,12 @@
+# Gitleaks configuration — targeted at claude/settings.json
+# Only scan for secrets in files we care about; avoid broad entropy false positives.
+# See: https://github.com/gitleaks/gitleaks
+
+title = "dotfiles gitleaks config"
+
+[[rules]]
+id = "claude-settings-secrets"
+description = "Possible secret in claude/settings.json"
+path = '''claude/settings\.json'''
+regex = '''(?i)(api[_-]?key|secret|token|password|credential)["']*\s*[=:]\s*["']?[A-Za-z0-9+/=_\-]{20,}'''
+tags = ["secret", "claude"]

@@ -12,6 +12,8 @@
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    git-hooks.url = "github:cachix/git-hooks.nix";
+    git-hooks.inputs.nixpkgs.follows = "nixpkgs";
     linsk.url = "github:vidbina/linsk/vid/init-nix-flake";
     linsk.inputs.nixpkgs.follows = "nixpkgs";
     vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
@@ -25,6 +27,7 @@
       flake-utils,
       nix-darwin,
       home-manager,
+      git-hooks,
       ...
     }:
     let
@@ -63,10 +66,24 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        pre-commit-check = git-hooks.lib.${system}.run {
+          src = ./.;
+          hooks.gitleaks = {
+            enable = true;
+            name = "gitleaks";
+            entry = "gitleaks git --pre-commit --redact --staged --verbose";
+            language = "system";
+            pass_filenames = false;
+            stages = [ "pre-commit" ];
+          };
+        };
       in
       {
+        checks.pre-commit-check = pre-commit-check;
         devShells.default = pkgs.mkShell {
-          packages = [ pkgs.emacs ];
+          packages = [ pkgs.emacs pkgs.gitleaks ];
+          inherit (pre-commit-check) shellHook;
+          buildInputs = pre-commit-check.enabledPackages;
         };
       }
     )

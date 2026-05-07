@@ -5311,6 +5311,18 @@ Only the specific subpaths I own are symlinked — runtime state like =history.j
 
 Note the =${dotfilesPath}/...= interpolation rather than a relative path literal =./claude/skills=. Under a flake-based nix-darwin setup, =./claude/skills= gets coerced to a store path at evaluation time — the "out of store" symlink ends up pointing into =/nix/store/...-source/claude/skills=, which defeats the whole purpose of live editing. Using a string-interpolated absolute path via the =dotfilesPath= module argument (defined in =machines.nix= per host) sidesteps this coercion and produces a symlink that points at the real working tree. The same fix is already applied for =~/.emacs.d=; other =mkOutOfStoreSymlink= uses in this config (=ranger=, =direnvrc=, =git/ignore=, =ghostty=, =hammerspoon=) still use the broken pattern and should be migrated in a follow-up.
 
+We also track our Claude settings file such that we can reproduce our setup relatively quickly on our next machine. Note that imperative changes, like plugins installation through the =/plugin= Claude command will trigger changes here that we will need to track in Claude.
+
+#+begin_src nix :noweb-ref home-darwin-home-file
+".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/settings.json";
+#+end_src
+
+#+begin_quote org
+[!WARNING]
+Pay attention to what ends up making its way to =~/.claude/settings.json= as you don't ever want secrets to make it into this repo.
+#+end_quote
+
+
 **** Claude Code for VSCode
 
 For vscode and vscode-derived editors, we want to enable the official Claude Code extension. On <2026-02-07 Sat>, we isolated and commented out just the installation part of this config in order to manage this extension manually in vscode.

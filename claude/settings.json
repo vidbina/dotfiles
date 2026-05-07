@@ -21,5 +21,17 @@
       "Bash(gh release view*)",
       "Bash(gh api*)"
     ]
+  },
+  "extraKnownMarketplaces": {
+    "obsidian-skills": {
+      "source": {
+        "source": "github",
+        "repo": "kepano/obsidian-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "obsidian@obsidian-skills": true
   }
 }
+{"apiKey": "sk-ant-api03-FAKEFAKEFAKEFAKEFAKEFAKE1234567890abcdef"}
