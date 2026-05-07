@@ -14,7 +14,10 @@ export async function resolveSecret(value: SecretValue, envVar?: string): Promis
   if (envVar && process.env[envVar]) return process.env[envVar]!;
   if (typeof value === 'string') return value;
   const ref = value as SecretRef;
-  const { stdout } = await execFileAsync('op', ['read', ref.op]);
+  const args = ['read', ref.op];
+  const account = process.env['OP_ACCOUNT'];
+  if (account) args.push('--account', account);
+  const { stdout } = await execFileAsync('op', args);
   return stdout.trim();
 }
 

@@ -18,7 +18,7 @@ export interface WorkspaceConfig {
   tools: WorkspaceTools;
 }
 
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 export function repoPath(...parts: string[]): string {
   return join(repoRoot, ...parts);
