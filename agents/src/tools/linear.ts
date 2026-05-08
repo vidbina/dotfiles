@@ -26,7 +26,7 @@ async function gql(
   });
   if (!res.ok) throw new Error(`Linear HTTP ${res.status}: ${await res.text()}`);
   const body = (await res.json()) as { data: unknown; errors?: unknown[] };
-  if (body.errors?.length) throw new Error(`Linear GQL errors: ${JSON.stringify(body.errors)}`);
+  if (body.errors?.length) throw new Error(`GraphQL errors: ${JSON.stringify(body.errors)}`);
   return body.data;
 }
 

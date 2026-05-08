@@ -37,11 +37,15 @@ async function listRemoteSkills(apiKey: string): Promise<Map<string, RemoteSkill
  * The verbose Claude Code description stays untouched in the source file.
  * Fails loudly if neither field fits within the API's 1024-char limit.
  */
-function prepareSkillMd(content: string, skillName: string): string {
+export function prepareSkillMd(content: string, skillName: string): string {
   const { data, content: body } = matter(content);
-  const desc = (data['api_description'] ?? data['description']) as string | undefined;
+  const apiDesc = data['api_description'] as string | undefined;
+  const desc = (apiDesc ?? data['description']) as string | undefined;
   if (!desc) throw new Error(`${skillName}: no description or api_description in SKILL.md`);
-  if (desc.length > 1024) throw new Error(`${skillName}: api_description exceeds 1024 chars (${desc.length})`);
+  if (desc.length > 1024) {
+    if (apiDesc) throw new Error(`${skillName}: api_description exceeds 1024 chars (${desc.length})`);
+    throw new Error(`${skillName}: description exceeds 1024 chars — add an api_description field with a shorter version`);
+  }
   const frontmatter: Record<string, unknown> = { ...data, description: desc };
   delete frontmatter['api_description'];
   return matter.stringify(body, frontmatter);

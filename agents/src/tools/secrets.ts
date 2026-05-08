@@ -1,8 +1,14 @@
 import { execFile } from 'child_process';
-import { promisify } from 'util';
 import type { SecretRef, SecretValue, WorkspaceTools } from '../workspace.js';
 
-const execFileAsync = promisify(execFile);
+function execFilePromise(cmd: string, args: string[]): Promise<string> {
+  return new Promise((resolve, reject) => {
+    execFile(cmd, args, (err, stdout) => {
+      if (err) reject(err);
+      else resolve(stdout as string);
+    });
+  });
+}
 
 /**
  * Resolve a secret value. Priority:
@@ -17,7 +23,7 @@ export async function resolveSecret(value: SecretValue, envVar?: string): Promis
   const args = ['read', ref.op];
   const account = process.env['OP_ACCOUNT'];
   if (account) args.push('--account', account);
-  const { stdout } = await execFileAsync('op', args);
+  const stdout = await execFilePromise('op', args);
   return stdout.trim();
 }
 
