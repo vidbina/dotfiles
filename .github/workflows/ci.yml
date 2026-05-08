@@ -32,10 +32,7 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          # Keep in sync with agents/package.json packageManager and devenv.nix.
-          # pnpm/action-setup reads package.json from the repo root, not working-directory,
-          # so we must state the version explicitly here.
-          version: '10.33.2'
+          package_json_file: agents/package.json
           run_install: false
 
       - uses: actions/setup-node@v4
