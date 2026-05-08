@@ -1,4 +1,8 @@
 {
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); echo \"$(echo \"$input\" | jq -r '.cwd')\""
+  },
   "permissions": {
     "allow": [
       "Glob",
@@ -34,4 +38,3 @@
     "obsidian@obsidian-skills": true
   }
 }
-{"apiKey": "sk-ant-api03-FAKEFAKEFAKEFAKEFAKEFAKE1234567890abcdef"}
