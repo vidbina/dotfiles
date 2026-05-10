@@ -1,6 +1,7 @@
 ---
 name: commitmsg
 description: "Use this skill when the user asks for a commit message suggestion based on their current uncommitted changes — or when the user invokes `/commitmsg`. Trigger for prompts like 'suggest a commit message', 'commitmsg', 'what should I commit this as', 'draft a commit', 'write a commit message for this'. The skill reads the repo's own docs (CONTRIBUTING.md, AGENTS.md, README.md) and the org knowledge base (via `./kb` or `./knowledge-base` symlink if present) for commit conventions, inspects the uncommitted diff and recent git history, and prints a suggested commit message in chat. It never commits, stages, or modifies files in normal mode. It also has a setup mode (`--setup`) that inspects git history, repo docs, and the org kb to draft or update the commit convention section in the repo's docs — run this once per repo to bootstrap the convention. Do NOT trigger for actually committing (the user runs git commit themselves), for amending or rebasing (those are direct git operations), for generating changelogs or release notes (different task), or for reviewing code (use a review skill or do it directly)."
+api_description: "Generate a commit message for the current staged diff, following the repo's documented conventions. Reads CONTRIBUTING.md, recent git history, and any org knowledge base for style. Never commits, stages, or modifies files."
 allowed-tools: Bash Glob Grep Read Write Edit AskUserQuestion
 ---
 
