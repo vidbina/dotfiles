@@ -1,8 +1,4 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "input=$(cat); echo \"$(echo \"$input\" | jq -r '.cwd')\""
-  },
   "permissions": {
     "allow": [
       "Glob",
@@ -26,6 +22,13 @@
       "Bash(gh api*)"
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); echo \"$(echo \"$input\" | jq -r '.cwd')\""
+  },
+  "enabledPlugins": {
+    "obsidian@obsidian-skills": true
+  },
   "extraKnownMarketplaces": {
     "obsidian-skills": {
       "source": {
@@ -34,7 +37,6 @@
       }
     }
   },
-  "enabledPlugins": {
-    "obsidian@obsidian-skills": true
-  }
+  "editorMode": "vim",
+  "preferredNotifChannel": "ghostty"
 }
