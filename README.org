@@ -2689,16 +2689,49 @@ Symlink the config into the expected XDG path. Using =${dotfilesPath}= to avoid 
 
 The =bordersrc= is a shell script that =borders= reads on startup to configure border appearance. Since nix-darwin manages the service lifecycle, there is no trailing =&= — the service manager handles daemonization.
 
+Active color is the strong pink from [[https://asabina.de][asabina.de]] — =rgb(255, 85, 131)= → =0xffff5583= in JankyBorders' =0xAARRGGBB= format. This color is vivid enough to be legible on both light and dark backgrounds, so a single value works across themes.
+
 #+begin_src bash :tangle borders/bordersrc :tangle-mode (identity #o755) :mkdirp yes :shebang "#!/bin/bash"
 # Tangled from README.org — edit there, not here.
 # https://github.com/FelixKratz/JankyBorders
 
 borders \
-  active_color=0xffe1e3e4 \
+  active_color=0xffff5583 \
   inactive_color=0xff494d64 \
   width=5.0 \
   style=round
 #+end_src
+
+***** Light/dark theme switching
+
+JankyBorders does not natively watch for macOS appearance changes — it reads =bordersrc= once at startup. Two options for dynamic switching:
+
+****** Option A — single vivid color (current approach, simplest)
+
+The pink =0xffff5583= pops on both dark and light backgrounds. No switching logic needed. If the inactive color looks off in light mode, adjust =inactive_color= to a mid-grey like =0xff9ca0a8=.
+
+****** Option B — theme-aware restart via launchd WatchPaths
+
+Add a launchd agent that watches =~/Library/Preferences/.GlobalPreferences.plist= (where macOS writes =AppleInterfaceStyle= on theme change) and restarts the borders service when it changes.
+
+The =bordersrc= script detects the current theme at runtime:
+
+#+begin_src bash :eval no
+# detect dark mode: `defaults read -g AppleInterfaceStyle` returns "Dark" or exits non-zero in light mode
+if defaults read -g AppleInterfaceStyle 2>/dev/null | grep -q Dark; then
+  ACTIVE=0xffff5583    # pink on dark
+  INACTIVE=0xff494d64
+else
+  ACTIVE=0xffff5583    # same pink reads fine on light too
+  INACTIVE=0xff9ca0a8  # lighter inactive for light mode
+fi
+
+borders active_color=$ACTIVE inactive_color=$INACTIVE width=5.0 style=round
+#+end_src
+
+The WatchPaths agent would trigger =brew services restart borders= on plist change. This is more moving parts than Option A warrants unless the inactive color becomes a real issue in light mode.
+
+Stick with Option A for now; revisit if the inactive border is visually distracting in light mode.
 
 *** Networking
 

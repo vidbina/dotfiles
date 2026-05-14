@@ -3,7 +3,7 @@
 # https://github.com/FelixKratz/JankyBorders
 
 borders \
-  active_color=0xffe1e3e4 \
+  active_color=0xffff5583 \
   inactive_color=0xff494d64 \
   width=5.0 \
   style=round
