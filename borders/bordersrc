@@ -1,0 +1,9 @@
+#!/bin/bash
+# Tangled from README.org — edit there, not here.
+# https://github.com/FelixKratz/JankyBorders
+
+borders \
+  active_color=0xffff5583 \
+  inactive_color=0xff494d64 \
+  width=5.0 \
+  style=round

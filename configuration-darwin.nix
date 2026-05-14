@@ -179,12 +179,18 @@ with lib;
       upgrade = false; # same as default
     };
     taps = [
+      "FelixKratz/formulae"
       "anomalyco/tap"
     ];
     brews = [
       "coreutils"
       "wimlib"
       "micromamba"
+      {
+        name = "FelixKratz/formulae/borders";
+        start_service = true;
+        restart_service = "changed";
+      }
       "wireguard-tools"
       "pidof"
       "usbutils"
