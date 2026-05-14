@@ -2661,6 +2661,45 @@ Native macOS app built on Ghostty. Vertical tabs, notification rings when agents
 
 Just trying this because Theo won't stop switching tools and I have some spare time to try out some stuff. https://www.youtube.com/watch?v=EUE8N6mqtGg
 
+*** Window Management
+
+**** JankyBorders
+
+[[https://github.com/FelixKratz/JankyBorders][JankyBorders]] draws a colored border around the active window on macOS, making it immediately obvious which window has keyboard focus — particularly useful when long pauses or accidental touch/click events may silently shift focus without visual feedback. It renders borders without the Accessibility API, which makes it faster than alternatives that do. Requires macOS 14+.
+
+#+begin_src nix :noweb-ref homebrew-taps :noweb yes
+"FelixKratz/formulae"
+#+end_src
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"FelixKratz/formulae/borders"
+#+end_src
+
+Symlink the config into the expected XDG path. Using =${dotfilesPath}= to avoid the nix store coercion issue (see Claude section note).
+
+#+begin_src nix :noweb-ref home-darwin-home-file
+".config/borders/bordersrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/borders/bordersrc";
+#+end_src
+
+The =bordersrc= is a shell script that =borders= reads on startup to configure border appearance:
+
+#+begin_src bash :tangle borders/bordersrc :tangle-mode (identity #o755) :mkdirp yes :shebang "#!/bin/bash"
+# Tangled from README.org — edit there, not here.
+# https://github.com/FelixKratz/JankyBorders
+
+borders \
+  active_color=0xffe1e3e4 \
+  inactive_color=0xff494d64 \
+  width=5.0 \
+  style=round &
+#+end_src
+
+After =nix-darwin-switch=, start the service manually once to verify, or add to login items:
+
+#+begin_src bash :eval no
+borders &
+#+end_src
+
 *** Networking
 
 Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your MacOS.
