@@ -37,4 +37,6 @@
   "enabledPlugins": {
     "obsidian@obsidian-skills": true
   }
+  "editorMode": "vim",
+  "preferredNotifChannel": "ghostty"
 }
