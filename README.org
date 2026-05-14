@@ -3675,6 +3675,15 @@ We use [[https://www.raycast.com/][Raycast]] as our default Launcher and set it 
 
 I've transfered my Raycast settings through the *Export settings & data* option which produces a .rayconfig file which I import on another machine. This is a pretty simple way to manage synchronization of Raycast configuration since this doesn't change too often.
 
+**** Window Tiling
+
+Raycast includes a built-in window tiling manager (Settings → Window Management). No declarative path has been found yet — the relevant =com.raycast.macos= preference keys are not publicly documented, so this must be configured manually.
+
+Manual setup:
+
+1. Open Raycast Settings → Window Management
+2. Set *Gap* to *Small* (8 pt gaps work well; Tiny causes bottom-screen trimming when [[*JankyBorders][JankyBorders]] borders are active, because the border overlay adds ~5 px that Raycast's geometry doesn't account for)
+
 *** Nightlight
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
