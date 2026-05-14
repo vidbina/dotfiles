@@ -186,7 +186,11 @@ with lib;
       "coreutils"
       "wimlib"
       "micromamba"
-      "FelixKratz/formulae/borders"
+      {
+        name = "FelixKratz/formulae/borders";
+        start_service = true;
+        restart_service = "changed";
+      }
       "wireguard-tools"
       "pidof"
       "usbutils"

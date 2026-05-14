@@ -2671,8 +2671,14 @@ Just trying this because Theo won't stop switching tools and I have some spare t
 "FelixKratz/formulae"
 #+end_src
 
+nix-darwin can manage the borders service via launchd using the object form of the brew entry. =restart_service = "changed"= restarts borders when the formula is newly installed or upgraded.
+
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
-"FelixKratz/formulae/borders"
+{
+  name = "FelixKratz/formulae/borders";
+  start_service = true;
+  restart_service = "changed";
+}
 #+end_src
 
 Symlink the config into the expected XDG path. Using =${dotfilesPath}= to avoid the nix store coercion issue (see Claude section note).
@@ -2681,7 +2687,7 @@ Symlink the config into the expected XDG path. Using =${dotfilesPath}= to avoid 
 ".config/borders/bordersrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/borders/bordersrc";
 #+end_src
 
-The =bordersrc= is a shell script that =borders= reads on startup to configure border appearance:
+The =bordersrc= is a shell script that =borders= reads on startup to configure border appearance. Since nix-darwin manages the service lifecycle, there is no trailing =&= — the service manager handles daemonization.
 
 #+begin_src bash :tangle borders/bordersrc :tangle-mode (identity #o755) :mkdirp yes :shebang "#!/bin/bash"
 # Tangled from README.org — edit there, not here.
@@ -2691,13 +2697,7 @@ borders \
   active_color=0xffe1e3e4 \
   inactive_color=0xff494d64 \
   width=5.0 \
-  style=round &
-#+end_src
-
-After =nix-darwin-switch=, start the service manually once to verify, or add to login items:
-
-#+begin_src bash :eval no
-borders &
+  style=round
 #+end_src
 
 *** Networking
