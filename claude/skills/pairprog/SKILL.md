@@ -105,6 +105,8 @@ Post a single comment to the ticket with the full assessment using `save_comment
 ```markdown
 **Assessment** (pairprog)
 
+*[ai:claude-code]*
+
 **Clear and ready:**
 - Add Google OAuth callback endpoint
 - Store refresh tokens in existing session table
@@ -135,6 +137,8 @@ Subagents are read-only investigators. They don't write production code.
 
 ```markdown
 **Spike: Google OAuth library compatibility** (pairprog)
+
+*[ai:claude-code]*
 
 **Verdict:** Feasible ✓
 
@@ -220,6 +224,8 @@ After the navigator approves (or adjusts) the plan, post it as a comment:
 ```markdown
 **Plan** (pairprog)
 
+*[ai:claude-code]*
+
 - [ ] Step 1: Add Google OAuth callback route
 - [ ] Step 2: Token storage in session metadata (parallel with 3)
 - [ ] Step 3: Silent token refresh middleware (parallel with 2)
@@ -248,6 +254,8 @@ After each step is committed (by the navigator in checkpoint mode, or auto-commi
 
 ```markdown
 **Step 1 complete** (pairprog)
+
+*[ai:claude-code]*
 
 Added Google OAuth callback route in `src/routes/auth.ts` and `src/config/oauth.ts`.
 Test added in `src/routes/__tests__/auth.test.ts` — passing.
@@ -331,6 +339,8 @@ Post a final session summary comment:
 
 ```markdown
 **Session complete** (pairprog)
+
+*[ai:claude-code]*
 
 **Completed:**
 - [x] Step 1: OAuth callback route

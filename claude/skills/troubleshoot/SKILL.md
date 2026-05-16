@@ -168,6 +168,8 @@ If the operator selects Linear comment, post:
 ```markdown
 **Troubleshoot findings** (troubleshoot)
 
+*[ai:claude-code]*
+
 **Root cause:**
 <one-sentence hypothesis>
 

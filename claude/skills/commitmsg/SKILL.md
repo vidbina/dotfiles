@@ -67,9 +67,14 @@ Analyze the changes:
 Apply the convention found in Step 1 to format the message. If the convention specifies:
 - A prefix format (e.g., `feat:`, `fix:`) — use it
 - A tag (e.g., `[ai:claude]`) — include it
-- A co-author line — include it
 - A max length — respect it
 - A body/footer structure — follow it
+
+**Always** include a `Co-Authored-By` trailer, regardless of whether the repo convention specifies one. This is the git-native AI provenance signal and renders distinctly in forge UIs (GitHub, GitLab show it as a secondary author avatar):
+
+```
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+```
 
 Print the suggested message in a fenced code block so the user can copy it.
 

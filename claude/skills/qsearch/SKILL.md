@@ -191,8 +191,8 @@ If the user skips, stop. The chat output is the deliverable.
 
 ### Write
 
-- **Linear doc:** Use `create_document` with the report title and the full report content (adapted for Linear markdown — no front matter, inline metadata instead). If a `README: [Topic]` series doc exists in the target project, check it for any required internal structure or provenance block format and follow it.
-- **Markdown file:** Use `Write` to create the file with the kebab-case filename. Include a YAML front matter block with `title`, `date`, `scope`, and `sources` count.
+- **Linear doc:** Use `create_document` with the report title and the full report content (adapted for Linear markdown — no front matter, inline metadata instead). Start the document body with `*[ai:claude-code]*` so readers know before diving in. If a `README: [Topic]` series doc exists in the target project, check it for any required internal structure or provenance block format and follow it.
+- **Markdown file:** Use `Write` to create the file with the kebab-case filename. Include a YAML front matter block with `title`, `date`, `scope`, and `sources` count. On the first line of the document body (after the front matter), add `> *Authored by Claude Code.*` so the attribution is visible before the content.
 
 ## Anti-patterns
 
