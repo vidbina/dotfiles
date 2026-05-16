@@ -180,7 +180,7 @@ If the user bails, stop. Print nothing further.
 For each confirmed ticket:
 
 1. **Existing detection.** If the note's source-anchor area already has an inline `Linear: LIN-NNN` annotation, or if a Linear search by source anchor URL in the description footer finds an existing ticket, treat as **update**. Otherwise **create**.
-2. **Create:** call `save_issue` with team, project, title, description (including the source-anchor footer), priority, parent (if dependency-hinted as a sub-task — but default to flat unless the note structure clearly implies sub-tasking). Keep the description to 2–4 sentences maximum: one sentence on what the work is, one sentence on why it matters (if not obvious), and the source-anchor backlink. Do not copy prose, context, or reasoning from the design note into the description — the backlink is the bridge. If there is important context that should accompany the ticket, post it as a comment after creation instead.
+2. **Create:** call `save_issue` with team, project, title, description (including the source-anchor footer), priority, parent (if dependency-hinted as a sub-task — but default to flat unless the note structure clearly implies sub-tasking). Keep the description to 2–4 sentences maximum: one sentence on what the work is, one sentence on why it matters (if not obvious), and the source-anchor backlink. Prepend `*[ai:claude-code]*` as the first line of the description so authorship is visible before the content. Do not copy prose, context, or reasoning from the design note into the description — the backlink is the bridge. If there is important context that should accompany the ticket, post it as a comment after creation instead.
 3. **Update:** call `save_issue` with `id` set to the existing `LIN-NNN`, updating only fields that have meaningfully changed (description content, priority). Don't touch state, assignee, or labels unless explicitly indicated.
 4. **Capture** the returned ticket ID and URL.
 
@@ -243,7 +243,7 @@ For mixed intents, address all of them in a single pass rather than asking for c
 
 Produce one or both of:
 
-1. **Comment draft** — the primary output in almost all cases. Write it as you would a thoughtful comment from a collaborator: direct, specific, actionable. Scope crystallization, analysis, questions, and context all belong here.
+1. **Comment draft** — the primary output in almost all cases. Write it as you would a thoughtful comment from a collaborator: direct, specific, actionable. Scope crystallization, analysis, questions, and context all belong here. Always open the comment with `*[ai:claude-code]*` so readers know before the content.
 2. **Anchor update** — only if the intent is explicitly to fix the title or description. Draft the new title and/or description. Keep to 2–4 sentences. Do not migrate comment-appropriate content into the description.
 
 Print both drafts in chat before asking for confirmation. Make it easy to scan.

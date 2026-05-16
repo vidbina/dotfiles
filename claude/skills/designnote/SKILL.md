@@ -204,6 +204,8 @@ Two modes: **create new** or **extend existing**.
 
    # Design Note: Human-Readable Title
 
+   > *Authored by Claude Code.*
+
    ## Status Log
 
    | Status | Date       | Author | Related Tickets | Notes                         |
