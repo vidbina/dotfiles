@@ -109,6 +109,23 @@ git worktree prune
 - Each slot accumulates its own session history; nothing carries across slots automatically
 - Slot names are opaque: use `git branch --show-current` or your prompt to know what's checked out
 
+### Linear tickets as handover context
+
+Linear ticket comments are the async handover protocol between Claude sessions across worktrees.
+
+**Role split:**
+- `dotfiles/` (main) — orchestrator/dispatcher: high-level view, spawns work, posts context
+- `dotfiles--a/` (slot) — focused worker: picks up one ticket, implements, posts completion
+
+**Handover flow:**
+1. Orchestrator (or end of a slot session) posts a `**Handover**` comment to the Linear ticket with: current state, what's done, what's next, any relevant commands
+2. Worker session opens in the slot: `cd ../dotfiles--a && claude --continue` (or `-n <name>`)
+3. Worker reads the ticket comment to orient itself, then proceeds
+
+**Why Linear comments, not session files:** Comments are durable, visible outside the terminal, accessible from mobile, and tied to the ticket — not to a specific machine path or session ID. A cancelled session can always be resumed by any Claude instance that can read the ticket.
+
+**Naming convention for handover comments:** Start with `**Handover**` so they're scannable in the comment thread. End with a clear "Next step" section.
+
 ## Commit message conventions
 
 - **Format:** `<type>(<scope>): <subject> [ai:claude]` — the `[ai:claude]` tag always goes at the end of the subject line for AI-authored commits
