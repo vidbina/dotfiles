@@ -73,3 +73,10 @@ This prevents:
 - Overwhelming the conversation
 - Loss of important information
 - Need to repeat expensive operations
+
+## Commit message conventions
+
+- **Format:** `<type>(<scope>): <subject> [ai:claude]` — the `[ai:claude]` tag always goes at the end of the subject line for AI-authored commits
+- **No ticket ID in subject:** the branch name already encodes the ticket (e.g. `vidbina/vid-616-...`); don't repeat it in the commit subject
+- **Always include:** `Co-Authored-By: Claude Code <noreply@anthropic.com>` trailer in the commit body
+- **Commit via nix develop:** pre-commit hooks require tools only available in the dev shell — always use `nix develop --command git commit`
