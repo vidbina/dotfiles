@@ -18,6 +18,26 @@
 - **Read tool**: For examining specific files
 - **Glob tool**: For finding files by pattern
 
+## 🔥 CRITICAL RULE: ALWAYS PREFER DECLARATIVE SYSTEM CHANGES
+
+This repo uses literate config — `README.org` is the system config. Editing it IS the system change, expressed declaratively and version-controlled. The user runs `darwin-rebuild switch` (or `make switch`) to apply, as part of their normal workflow.
+
+### ⚠️ MANDATORY for ALL package/service/config changes:
+- **NEVER** run or suggest imperative installs (`brew install`, `gh extension install`, `pip install`, `npm install -g`, `cargo install`, etc.) — these bypass version control and leave ghost state
+- **ALWAYS** make the change in `README.org` (via the appropriate `noweb-ref` block) or the relevant nix module — that IS the install
+
+### Declarative paths in this repo:
+- **Homebrew brews:** `#+begin_src nix :noweb-ref homebrew-brews` in `README.org`
+- **Homebrew casks:** `#+begin_src nix :noweb-ref homebrew-casks` in `README.org`
+- **Nix packages:** `#+begin_src nix :noweb-ref dev-packages` or system/home-manager modules
+- **Services:** use nix-darwin launchd via object-form brew entry (`start_service = true`) or home-manager service modules
+
+### ❌ Never do imperatively:
+- `brew install <pkg>` → add to `homebrew-brews` noweb-ref instead
+- `brew install --cask <pkg>` → add to `homebrew-casks` noweb-ref instead
+- `gh extension install <ext>` → check if a standalone cask or nix package exists; prefer that
+- `pip install`, `npm install -g`, `cargo install` → use nix packages or home-manager
+
 ## Best Practices
 
 ### For Long Command Output:
@@ -53,3 +73,10 @@ This prevents:
 - Overwhelming the conversation
 - Loss of important information
 - Need to repeat expensive operations
+
+## Commit message conventions
+
+- **Format:** `<type>(<scope>): <subject> [ai:claude]` — the `[ai:claude]` tag always goes at the end of the subject line for AI-authored commits
+- **No ticket ID in subject:** the branch name already encodes the ticket (e.g. `vidbina/vid-616-...`); don't repeat it in the commit subject
+- **Always include:** `Co-Authored-By: Claude Code <noreply@anthropic.com>` trailer in the commit body
+- **Commit via nix develop:** pre-commit hooks require tools only available in the dev shell — always use `nix develop --command git commit`

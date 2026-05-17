@@ -27,7 +27,8 @@
     "command": "input=$(cat); echo \"$(echo \"$input\" | jq -r '.cwd')\""
   },
   "enabledPlugins": {
-    "obsidian@obsidian-skills": true
+    "obsidian@obsidian-skills": true,
+    "pyright-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "obsidian-skills": {

@@ -202,6 +202,7 @@ with lib;
     casks = builtins.filter (x: x != null) [
       "zed"
       "cursor"
+      "copilot-cli"
       "android-file-transfer"
       "1password"
       "1password-cli"
