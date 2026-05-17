@@ -2347,6 +2347,14 @@ difftastic = {
 pkgs.gh
 #+end_src
 
+***** GitHub Copilot CLI
+
+[[https://formulae.brew.sh/cask/copilot-cli][copilot-cli]] provides the =gh copilot= extension as a standalone binary. We install it via Homebrew cask rather than =gh extension install github/gh-copilot= (imperative) or nix (nix unstable trails at 1.0.44 vs latest 1.0.48; nixpkgs 25.11 is even further back at 0.0.362). After the next =darwin-rebuild switch=, =gh copilot= will be available on PATH.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"copilot-cli"
+#+end_src
+
 **** GitLab
 
 #+begin_src nix :noweb-ref dev-packages
