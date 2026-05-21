@@ -5443,6 +5443,14 @@ We prefer Claude Code in a panel, so let's set that up so it will be honored in 
 "claudeCode.preferredLocation" = "panel";
 #+end_src
 
+*** Superwhisper
+
+[[https://superwhisper.com][Superwhisper]] is a macOS voice dictation tool built on Whisper with direct Claude Code and Claude Desktop integration (v2.13.0+, April 2026). It uses macOS accessibility APIs for context-aware transcription across modes ranging from fully offline (local Whisper/Parakeet) to cloud-assisted LLM post-processing. Selected in [[https://linear.app/asabina/issue/VID-640][VID-640]] research as the best fit for a Claude-heavy workflow.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"superwhisper"
+#+end_src
+
 *** Gemini
 
 #+begin_src nix :noweb-ref dev-packages

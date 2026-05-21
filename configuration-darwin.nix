@@ -238,6 +238,7 @@ with lib;
       "linear-linear"
       "claude"
       "anthropics/tap/ant"
+      "superwhisper"
       (if pkgs.stdenv.hostPlatform.system == "aarch64-darwin" then "chatgpt" else null)
     ];
     masApps = {
