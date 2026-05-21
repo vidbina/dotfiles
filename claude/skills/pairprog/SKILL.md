@@ -248,6 +248,8 @@ For each step:
    - **Checkpoint mode:** Pause for the navigator's feedback. If the navigator says "looks good," they commit. If they want changes, iterate.
    - **Yolo mode:** Invoke the `commitmsg` skill's methodology (read repo convention, draft message) and auto-commit. Print the commit hash and message. Continue to the next step.
 
+   **Yolo commit discipline:** Commit immediately after each step passes quality checks — before starting the next step. Do not batch changes across steps and commit at the end. Committing on the go preserves the cleanest atomic boundary: each step's files haven't yet been mixed with the next step's. When a step spans multiple files (implementation + its tests), include all of them in the same commit. If the step also updates docs/config (env var examples, changelogs), bundle those in the same commit too — one logical concern, one commit.
+
 ### Comment step completions to Linear
 
 After each step is committed (by the navigator in checkpoint mode, or auto-committed in yolo mode), post a brief comment:
