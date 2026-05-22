@@ -224,6 +224,7 @@ with lib;
       "obs" # for streaming
       "spotify"
       "tidal"
+      "iina"
       "steam"
       "google-chrome"
       "firefox@developer-edition"
