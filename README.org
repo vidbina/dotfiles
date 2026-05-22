@@ -3977,6 +3977,14 @@ As per <2024-11-26 Tue>, I'm moving back to Spotify after many years with TIDAL.
 "tidal"
 #+end_src
 
+*** IINA
+
+[[https://iina.io][IINA]] is a lightweight macOS-native media player built on mpv. Selected in [[https://linear.app/asabina/issue/VID-644][VID-644]] as the recommended GUI player for wav and general audio/video file playback.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"iina"
+#+end_src
+
 *** V4l utils
 
 https://linuxtv.org/projects.php
