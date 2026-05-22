@@ -96,7 +96,7 @@ with lib;
           vterm_printf "51;A";
       }
       setopt PROMPT_SUBST
-      PROMPT="%{"$'\e[5m'"%}%S%B↪%b%s%{"$'\e[25m'"%} %(?.%F{green}√.%F{red}%?)%f" # error state — blinking standout ↪ anchors prompt in buffer
+      PROMPT="%K{205} %k%S%B↪%b%s %(?.%F{green}√.%F{red}%?)%f" # 256-color pink block (#FF5FAF) + standout ↪: two adjacent visual signals anchor the prompt in busy output
       PROMPT="$PROMPT → %F{yellow}%~%f" # pwd
       PROMPT="$PROMPT @ %F{magenta}%D{%Y.%m.%d} %B%F{blue}%T%f%b" # date/time
       PROMPT="$PROMPT"$'\n'
