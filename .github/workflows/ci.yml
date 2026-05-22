@@ -5,8 +5,37 @@ on:
     branches: [main]
   pull_request: # all branches — stacked PRs get CI too
 
+# Cancel in-progress runs for the same branch when a new push arrives.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      dotfiles: ${{ steps.filter.outputs.dotfiles }}
+      agents: ${{ steps.filter.outputs.agents }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            dotfiles:
+              - '**/*.org'
+              - 'flake.nix'
+              - 'flake.lock'
+              - 'Makefile'
+              - '.github/workflows/**'
+            agents:
+              - 'agents/**'
+              - '.github/workflows/**'
+
   dotfiles:
+    needs: changes
+    if: needs.changes.outputs.dotfiles == 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +52,8 @@ jobs:
         run: nix develop --command make ci
 
   agents:
+    needs: changes
+    if: needs.changes.outputs.agents == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
