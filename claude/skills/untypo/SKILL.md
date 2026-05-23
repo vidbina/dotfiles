@@ -82,7 +82,7 @@ I went to the store yesterday and bought their new bread. It's really good.
 
 ## Reminders
 
-- Never add or remove content. Length in ≈ length out, modulo fixes.
+- Never add or remove content. Input length ≈ output length, modulo fixes.
 - Never explain beyond the footnotes. No introduction, no summary, no "let me know if…".
 - Both sections, in order. No extra headings, no meta-commentary.
 - If the input is already clean, say so with `No corrections needed.` and stop.
