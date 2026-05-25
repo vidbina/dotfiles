@@ -5,6 +5,7 @@
 #+STARTUP: overview
 
 These dotfiles make my life slightly more convenient. Not promising they'll do the same for yours though. 😉
+# ci-test: org file change — verifies literate-config workflow fires on .org edits
 
 * Usage
 
