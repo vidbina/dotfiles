@@ -1,7 +1,7 @@
 ---
 name: qsearch
 description: "Use this skill when the user asks you to quickly research, investigate, look into, find out about, compare, summarize, or get up-to-speed on a topic that benefits from fresh information from the web. Trigger for prompts like 'research X', 'qsearch Y', 'what are the best Y for Z', 'compare A vs B', 'find me sources on...', 'is it true that...', 'what's the current state of...', 'dig into...', or any question where a good answer requires fetching and synthesizing web content. Also trigger when the user invokes `/qsearch`. This skill batches any necessary clarifying questions into ONE up-front round before executing, so the user can answer them, walk away, and return to a finished artifact instead of being pinged for follow-ups throughout. Do NOT trigger for narrow factual questions answerable from training data, for code lookups better served by Grep/Glob, when the user provides specific URLs to fetch (just fetch them), or when the user explicitly says 'no web search' / 'from what you know'."
-allowed-tools: WebSearch WebFetch AskUserQuestion Glob Grep Read Write mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_documents mcp__claude_ai_Linear__get_document mcp__claude_ai_Linear__create_document
+allowed-tools: WebSearch WebFetch AskUserQuestion Glob Grep Read Write mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_documents mcp__claude_ai_Linear__get_document mcp__claude_ai_Linear__create_document
 ---
 
 # qsearch
@@ -140,6 +140,14 @@ Restate the locked decisions from Phase 2 in a compact form so the user can cour
 
 After printing the report to chat (Phase 5), offer to persist it as a named research report. This phase is the only exception to the "no more questions after Phase 2" rule — persistence is a post-delivery HITL gate, not a mid-research interruption.
 
+### Ticket-scoped invocations
+
+If a ticket ID was explicitly part of the invocation (e.g. `qsearch VID-524`), read the ticket with `get_issue` before starting Phase 1. If the ticket does not look like a research-scoped ticket (e.g. it describes implementation work, a bug fix, or a feature rather than investigation), flag this before proceeding:
+
+> "VID-524 looks like an implementation ticket, not a research one. Running qsearch against it will produce a report but won't map naturally to the ticket's scope. Options: (a) proceed anyway, (b) I suggest creating a research sub-issue or blocking research ticket first — do you want me to outline that structure?"
+
+Offer the options via `AskUserQuestion`. If the navigator proceeds, continue normally. If they want a research sub-issue, outline a proposed ticket title/description in chat for review — do not create it automatically.
+
 ### Report naming convention
 
 Reports follow a fixed title scheme:
@@ -193,6 +201,12 @@ If the user skips, stop. The chat output is the deliverable.
 
 - **Linear doc:** Use `create_document` with the report title and the full report content (adapted for Linear markdown — no front matter, inline metadata instead). Start the document body with `*[ai:claude-code]*` so readers know before diving in. If a `README: [Topic]` series doc exists in the target project, check it for any required internal structure or provenance block format and follow it.
 - **Markdown file:** Use `Write` to create the file with the kebab-case filename. Include a YAML front matter block with `title`, `date`, `scope`, and `sources` count. On the first line of the document body (after the front matter), add `> *Authored by Claude Code.*` so the attribution is visible before the content.
+
+### Ticket status transition
+
+After the report is delivered to chat and persistence is handled (or skipped): if a ticket ID was explicitly part of the invocation (e.g. `qsearch VID-524`), call `save_issue` with `id: {ticket-id}` and `state: "In Review"`. Findings are ready for operator evaluation — the ticket should reflect that. No comment needed; the report itself is the artifact.
+
+Only apply this when a ticket ID was explicitly in the invocation. Do not transition on open-ended research queries with no ticket context.
 
 ## Anti-patterns
 

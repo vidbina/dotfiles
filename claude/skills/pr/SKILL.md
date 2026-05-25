@@ -1,7 +1,7 @@
 ---
 name: pr
 description: "Use this skill when the user wants to create a pull request for the current branch. Trigger for prompts like 'create a PR', 'open a PR', 'make a pull request', 'pr this', 'ship it', or when the user invokes `/pr`. Also invoked by other skills (/pairprog, /troubleshoot) at wrap-up. The skill detects the correct base branch automatically — if the current branch is stacked on another feature branch rather than main, it uses that branch as the base. It reads the Linear ticket (if any) and recent commits to draft a title and body, pitches the draft in chat for the operator to review, and creates the PR via `gh pr create` on approval. DX-first: fast, good defaults, minimal ceremony. Do NOT trigger for reviewing existing PRs, for merging, or for anything other than creating a new PR."
-allowed-tools: Bash Glob Grep Read AskUserQuestion mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__list_comments
+allowed-tools: Bash Glob Grep Read AskUserQuestion mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_comments
 ---
 
 # pr
@@ -103,6 +103,7 @@ Use `AskUserQuestion` to get the response. Options:
 1. **Push if needed:** if the branch isn't on origin yet, run `git push -u origin <branch>`. Print the push result.
 2. **Create:** run `gh pr create --base <base> --title "<title>" --body "<body>"` via `Bash`.
 3. **Print the PR URL** returned by `gh`.
+4. **Transition the ticket:** if a ticket ID was extracted from the branch name in Phase 1, call `save_issue` with `id: {ticket-id}` and `state: "In Review"`. This is unconditional — a PR being open means the work is ready for review.
 
 Done. No further action — merging, labeling, and assignment are human operations.
 
