@@ -69,6 +69,30 @@ Once the ticket ID is known and the branch is checked out, fetch all of these in
 - **Codebase orientation:** Use `Task` with `subagent_type: Explore` to understand the areas of the codebase most likely relevant to the ticket (based on ticket title/description keywords).
 - **Repo conventions:** Read `CLAUDE.md` / `AGENTS.md` / `CONTRIBUTING.md` at the repo root for development workflow, testing, and quality requirements.
 
+### Branch fit check
+
+After loading context, compare the files the planned work will touch against the branch's stated purpose (derived from the ticket title/description and existing commits on the branch). Classify any mismatches:
+
+**Category A — Opportunistic feature/code work (scope creep)**
+
+Detected when a planned change touches files unrelated to the current branch's purpose (e.g. fixing an unrelated bug, adding a feature that belongs on a different ticket).
+
+- **Checkpoint mode:** Surface to the navigator before doing anything. Present three options via `AskUserQuestion`: (a) continue on the current branch, (b) navigator cuts a new branch, (c) file a ticket and defer. Wait for the answer before proceeding.
+- **Yolo mode:** Create a local `tmp/<slugified-title>` branch and continue work there. Do **not** push it. At session wrap-up, surface it: "I branched off `tmp/<slug>` for this out-of-scope work — file a ticket and rename it, or drop it?" On drop: run `git branch -D tmp/<slug>` and log what was discarded.
+
+Guards: never push a `tmp/` branch. Never cut a named branch or file a ticket autonomously — both are HITL actions.
+
+**Category B — Agent meta-corrections**
+
+Detected when the navigator corrects agent behaviour mid-session and the fix touches `AGENTS.md`, `CONTRIBUTING.md`, or skill files in the repo (e.g. `claude/skills/**`).
+
+- Do it in place on the current branch. No escalation needed — the correction request is the approval.
+- Isolate in its own commit with a `docs(agents):` or `docs(contributing):` subject so the PR diff shows the mixing explicitly.
+
+**Why the distinction matters:** Category B corrections must take effect immediately — deferring them to another branch means working with broken instructions for the rest of the session. Category A has no such urgency and should always be routed properly.
+
+If no mismatch is detected, proceed without comment.
+
 ### Transition to In Progress
 
 After the branch is checked out and the ticket is loaded, call `save_issue` with `id: {ticket-id}` and `state: "In Progress"`. Do this unconditionally — picking up the branch is the signal that work has started. No comment needed; the state change speaks for itself.
@@ -248,10 +272,11 @@ This checklist serves as the resumption point if the session is interrupted.
 For each step:
 
 1. **Announce** what you're about to do. "Starting Step 1 — adding the OAuth callback route."
-2. **Implement** the change. Use `Edit` / `Write` for code changes.
-3. **Run quality checks** if the repo has them (lint, typecheck, test). Use `Bash` for this. If a check fails, fix it before presenting.
-4. **Present the change.** Print a concise summary of what changed and why. Don't dump the full diff — describe the intent and highlight non-obvious decisions.
-5. **Checkpoint.**
+2. **Branch fit check.** Before touching any files, verify this step's files fit the branch purpose. Apply the Category A / Category B protocols from the Phase 0 branch fit check if a mismatch is detected.
+3. **Implement** the change. Use `Edit` / `Write` for code changes.
+4. **Run quality checks** if the repo has them (lint, typecheck, test). Use `Bash` for this. If a check fails, fix it before presenting.
+5. **Present the change.** Print a concise summary of what changed and why. Don't dump the full diff — describe the intent and highlight non-obvious decisions.
+6. **Checkpoint.**
    - **Checkpoint mode:** Pause for the navigator's feedback. If the navigator says "looks good," they commit. If they want changes, iterate.
    - **Yolo mode:** Invoke the `commitmsg` skill's methodology (read repo convention, draft message) and auto-commit. Print the commit hash and message. Continue to the next step.
 
