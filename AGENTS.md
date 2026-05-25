@@ -126,6 +126,25 @@ Linear ticket comments are the async handover protocol between Claude sessions a
 
 **Naming convention for handover comments:** Start with `**Handover**` so they're scannable in the comment thread. End with a clear "Next step" section.
 
+## CI workflows and branch protection
+
+The repo uses **two workflow files** with native GitHub Actions path filtering:
+
+- `.github/workflows/literate-config.yml` — runs on `*.org`, `flake.*`, `Makefile`, `.github/workflows/**` changes
+- `.github/workflows/agent-scripts.yml` — runs on `agents/**`, `.github/workflows/**` changes
+
+### ⚠️ Branch protection caveat
+
+Native `on.paths` filtering means a workflow **does not run at all** when no matching paths change. GitHub shows no check status on those PRs. If branch protection requires these checks to pass, PRs that don't touch the relevant paths will be **blocked from merging** — not because checks failed, but because they never appeared.
+
+**Solutions (pick one):**
+- **A. Don't mark these jobs as required status checks** (current stance — personal repo, no enforcement needed)
+- **B. Switch to `dorny/paths-filter`** so jobs are *skipped* (not absent) — skipped checks satisfy required-check rules
+
+Relevant GitHub docs:
+- [Required status checks](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches#require-status-checks-before-merging)
+- [Workflow trigger path filters](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#running-your-workflow-only-when-a-push-affects-specific-files)
+
 ## Commit message conventions
 
 - **Format:** `<type>(<scope>): <subject> [ai:claude]` — the `[ai:claude]` tag always goes at the end of the subject line for AI-authored commits

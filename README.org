@@ -122,12 +122,11 @@ tangle:
 	<<emacs-batch-tangle>>
 	@echo "✅ Tangling complete"
 
-# Check parity between tangled and committed files
-# Fails if org files were modified but tangled outputs weren't committed
-# Use this in CI/CD to enforce literate config discipline
+# Verify parity between tangled outputs and committed files.
+# Fails if org sources were modified but tangled outputs weren't committed.
 # Note: Only checks tangled outputs (.org files are excluded from diff)
-.PHONY: check-parity
-check-parity:
+.PHONY: verify-parity
+verify-parity:
 	@echo "🔄 Checking parity..."
 	@if ! git diff --exit-code -- ':!*.org'; then \
 		echo "❌ Parity check failed - run 'make tangle' and commit"; \
@@ -145,12 +144,12 @@ validate:
 	@nix build .#darwinConfigurations.berlin-4corei7.system --dry-run
 	@echo "✅ Validation complete"
 
-# Run all checks locally (simulates CI pipeline)
-# Fast checks: tangle, parity, validation (no actual build)
-# Use before committing changes
-.PHONY: ci
-ci: tangle check-parity validate
-	@echo "✅ All CI checks passed"
+# Verify literate config integrity: tangle org sources, confirm parity
+# with committed outputs, and validate the resulting Nix configuration.
+# Run before pushing. Fast path (~10s with warm cache): no build step.
+.PHONY: check-config
+check-config: tangle verify-parity validate
+	@echo "✅ All checks passed"
 
 # Build nix-darwin configuration (thorough but slower)
 # Actually builds packages - catches compilation errors that validate misses
@@ -171,9 +170,9 @@ nix-darwin-switch:
 help:
 	@echo "Available targets:"
 	@echo "  make tangle            - Tangle all org files to generate config files"
-	@echo "  make check-parity      - Check tangled files match committed files"
+	@echo "  make verify-parity     - Verify tangled outputs match committed files"
 	@echo "  make validate          - Validate Nix configuration without building"
-	@echo "  make ci                - Run all CI checks locally"
+	@echo "  make check-config      - Verify literate config (tangle + parity + nix validate)"
 	@echo "  make nix-darwin-build  - Build nix-darwin config"
 	@echo "  make nix-darwin-switch - Switch nix-darwin config"
 

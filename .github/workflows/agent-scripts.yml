@@ -1,0 +1,50 @@
+name: Agent Scripts
+
+# Triggers only when agent script source or CI config change.
+#
+# ⚠️  BRANCH PROTECTION WARNING — read literate-config.yml for the full
+# explanation. Native on.paths filtering means this workflow does NOT run
+# when unmatched paths change. Do not mark its jobs as required status
+# checks without reading that note first.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'agents/**'
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - 'agents/**'
+      - '.github/workflows/**'
+
+# Cancel in-progress runs for the same branch when a new push arrives.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agents
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: agents/package.json
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: agents/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test
+        run: pnpm test:run
