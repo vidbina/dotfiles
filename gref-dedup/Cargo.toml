@@ -1,0 +1,8 @@
+[package]
+name = "gref-dedup"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "gref-dedup"
+path = "src/main.rs"

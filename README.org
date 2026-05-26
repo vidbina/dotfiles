@@ -2264,6 +2264,26 @@ alias = {
 };
 #+end_src
 
+**** gref-dedup
+
+[[file:gref-dedup/src/main.rs][gref-dedup]] is a local Rust filter that deduplicates remote-prefix segments in
+=git log --decorate= output. When a commit is annotated with both =origin/vidbina/foo=
+and =vidbina/foo=, it collapses them to =[origin/]vidbina/foo= — the remote prefix
+in dim text, the canonical branch path in normal color.
+
+The =glog= zsh function (defined in [[file:zsh/functions.zsh]]) pipes =git glog= through
+=gref-dedup= and =less -RF=, combining the existing alias with deduplication and paging.
+
+#+begin_src nix :noweb-ref home-darwin-packages
+(rustPlatform.buildRustPackage {
+  pname = "gref-dedup";
+  version = "0.1.0";
+  src = ./gref-dedup;
+  # Run `nix build .#packages.aarch64-darwin.default 2>&1 | grep 'got:'` to compute.
+  cargoHash = lib.fakeHash;
+})
+#+end_src
+
 **** Git Extra Configuration
 
 Let's opt for naming our default branch "main", using nvim as our editor, using gpg2 are our GPG tool and setting git up to [[https://git-scm.com/docs/git-send-email][send patches by mail]].
