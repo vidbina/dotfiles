@@ -67,6 +67,13 @@
     pkgs.llama-cpp
     # home-darwin-packages
     pywal
+    (rustPlatform.buildRustPackage {
+      pname = "gref-dedup";
+      version = "0.1.0";
+      src = ./gref-dedup;
+      # Run `nix build .#packages.aarch64-darwin.default 2>&1 | grep 'got:'` to compute.
+      cargoHash = "sha256-MH3+teduU3ZQU9ZEMhxST8G0WOrxUqVoLdPEnYK8iws=";
+    })
   ];
 
   home.file = {

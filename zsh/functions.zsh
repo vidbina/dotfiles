@@ -24,3 +24,7 @@ tree () {
 dict () {
   command dict "$@" | colorit
 }
+
+glog() {
+  git glog --color=always "$@" | gref-dedup | less -RF
+}

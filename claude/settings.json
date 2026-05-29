@@ -8,9 +8,7 @@
       "Write",
       "WebFetch",
       "Agent",
-
       "Bash(make *)",
-
       "Bash(git log*)",
       "Bash(git glog*)",
       "Bash(git status*)",
@@ -43,7 +41,6 @@
       "Bash(git cherry-pick*)",
       "Bash(git tag*)",
       "Bash(git remote*)",
-
       "Bash(nix develop*)",
       "Bash(nix build*)",
       "Bash(nix run*)",
@@ -59,7 +56,6 @@
       "Bash(nix store ls*)",
       "Bash(nix store cat*)",
       "Bash(nix store diff-closures*)",
-
       "Bash(gh pr list*)",
       "Bash(gh pr view*)",
       "Bash(gh pr checks*)",
@@ -84,7 +80,6 @@
       "Bash(gh release list*)",
       "Bash(gh release view*)",
       "Bash(gh api*)",
-
       "mcp__claude_ai_Linear__save_issue",
       "mcp__claude_ai_Linear__save_comment",
       "mcp__claude_ai_Linear__save_document",

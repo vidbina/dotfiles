@@ -1,5 +1,7 @@
 # Agent Usage Guidelines
 
+Before making any contributions, read and follow [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## 🔥 CRITICAL RULE: ALWAYS WRITE COMMAND OUTPUT TO FILES
 
 ### ⚠️ MANDATORY for ALL commands with potentially long output:
@@ -21,6 +23,17 @@
 ## 🔥 CRITICAL RULE: ALWAYS PREFER DECLARATIVE SYSTEM CHANGES
 
 This repo uses literate config — `README.org` is the system config. Editing it IS the system change, expressed declaratively and version-controlled. The user runs `darwin-rebuild switch` (or `make switch`) to apply, as part of their normal workflow.
+
+### Tangled files
+
+Some files in this repo are **tangled** (auto-generated) from `README.org`. These files are identified by a `# Tangled from README.org` comment on line 1 — this is a repo convention (see `CONTRIBUTING.md`).
+
+**Workflow for tangled files:**
+- For simple changes, start directly in `README.org` — edit the source block, `make tangle`, verify. This is the recommended default.
+- For complex work (new tools, multi-step wiring), build the thing first, then figure out where it goes in the nix config and `README.org`. See `CONTRIBUTING.md` for the full pattern.
+- Editing tangled output files directly for rapid iteration is fine — just port the change back to `README.org` once it works.
+- Run `make tangle` to regenerate the output files from `README.org`.
+- **ALWAYS** run `make verify-parity` before committing — parity must hold at commit time.
 
 ### ⚠️ MANDATORY for ALL package/service/config changes:
 - **NEVER** run or suggest imperative installs (`brew install`, `gh extension install`, `pip install`, `npm install -g`, `cargo install`, etc.) — these bypass version control and leave ghost state
