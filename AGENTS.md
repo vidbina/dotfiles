@@ -39,10 +39,18 @@ Some files in this repo are **tangled** (auto-generated) from `README.org`. Thes
 - **NEVER** run or suggest imperative installs (`brew install`, `gh extension install`, `pip install`, `npm install -g`, `cargo install`, etc.) — these bypass version control and leave ghost state
 - **ALWAYS** make the change in `README.org` (via the appropriate `noweb-ref` block) or the relevant nix module — that IS the install
 
+### Package source preference (nix-first)
+
+When adding a new package, prefer nixpkgs over Homebrew:
+
+1. **Check nixpkgs first:** `nix-env -qaP <pkg>` — if it exists, use a `dev-packages` noweb-ref block in `README.org`.
+2. **Check freshness:** compare the nixpkgs version against the upstream release. If nixpkgs is more than one major version behind, note it and consider Homebrew as a fallback.
+3. **Fall back to Homebrew** only for macOS-only GUI apps (casks) or when the nixpkgs version is too stale. Use `homebrew-brews` or `homebrew-casks` noweb-ref blocks.
+
 ### Declarative paths in this repo:
+- **Nix packages (preferred):** `#+begin_src nix :noweb-ref dev-packages` or system/home-manager modules
 - **Homebrew brews:** `#+begin_src nix :noweb-ref homebrew-brews` in `README.org`
 - **Homebrew casks:** `#+begin_src nix :noweb-ref homebrew-casks` in `README.org`
-- **Nix packages:** `#+begin_src nix :noweb-ref dev-packages` or system/home-manager modules
 - **Services:** use nix-darwin launchd via object-form brew entry (`start_service = true`) or home-manager service modules
 
 ### ❌ Never do imperatively:
