@@ -167,9 +167,25 @@ fn render_decoration(plain_inner: &str, remotes: &[String]) -> String {
     let sep = format!("{YELLOW}, {RESET}");
     let mut parts: Vec<String> = Vec::new();
 
-    // HEAD pointer first, with remote prefix if origin/HEAD was present
-    let head_prefix = if !head_remotes.is_empty() {
-        let prefix_str = head_remotes.join(",");
+    // Fold remote prefixes of the HEAD branch into the HEAD display.
+    // E.g. HEAD -> foo + origin/foo → [origin/]HEAD -> foo
+    let mut head_branch_remotes: Vec<String> = head_remotes.clone();
+    if let Some(b) = head_branch {
+        if !b.is_empty() {
+            let head_canon = canonical(b, remotes).to_owned();
+            if let Some((remote_prefixes, _)) = groups.remove(&head_canon) {
+                for rm in remote_prefixes {
+                    if !head_branch_remotes.contains(&rm) {
+                        head_branch_remotes.push(rm);
+                    }
+                }
+                order.retain(|c| *c != head_canon);
+            }
+        }
+    }
+
+    let head_prefix = if !head_branch_remotes.is_empty() {
+        let prefix_str = head_branch_remotes.join(",");
         format!("{DIM}[{prefix_str}/]{RESET}")
     } else {
         String::new()
@@ -418,6 +434,33 @@ mod tests {
         let plain = strip_ansi(&result);
         assert!(plain.contains("[origin/]HEAD"));
         assert!(!plain.contains("origin/HEAD"));
+    }
+
+    #[test]
+    fn render_head_branch_with_remote_counterpart() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration(
+            "HEAD -> vidbina/foo, origin/vidbina/foo",
+            &remotes,
+        );
+        let plain = strip_ansi(&result);
+        // Should collapse to [origin/]HEAD -> vidbina/foo
+        assert!(plain.contains("[origin/]HEAD -> vidbina/foo"));
+        // origin/vidbina/foo should NOT appear as a separate ref
+        assert!(!plain.contains(", origin/vidbina/foo"));
+    }
+
+    #[test]
+    fn render_head_branch_remote_and_other_refs() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration(
+            "HEAD -> vidbina/foo, origin/vidbina/foo, origin/main, main",
+            &remotes,
+        );
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("[origin/]HEAD -> vidbina/foo"));
+        assert!(plain.contains("[origin/]main"));
+        assert!(!plain.contains(", origin/vidbina/foo"));
     }
 
     #[test]
