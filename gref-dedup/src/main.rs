@@ -211,31 +211,80 @@ fn render_decoration(plain_inner: &str, remotes: &[String]) -> String {
     )
 }
 
+/// Check if a single ref token looks like a git ref.
+///
+/// Matches: `HEAD`, `HEAD -> branch/name`, `tag: v1.0`,
+/// `origin/main`, `vidbina/vid-123-slug`, `main`, etc.
+///
+/// A ref segment is `[a-zA-Z0-9][a-zA-Z0-9_.@-]*`, segments joined by `/`.
+fn looks_like_ref(token: &str) -> bool {
+    let token = token.trim();
+    if token.is_empty() {
+        return false;
+    }
+    if token == "HEAD" || token.starts_with("HEAD -> ") {
+        return true;
+    }
+    if token.starts_with("tag: ") {
+        return true;
+    }
+    token.split('/').all(|seg| {
+        !seg.is_empty()
+            && seg.chars().next().map(|c| c.is_ascii_alphanumeric()).unwrap_or(false)
+            && seg.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '.' | '-' | '@'))
+    })
+}
+
+/// Check if the content inside parens looks like a git decoration block.
+///
+/// Requires every comma-separated entry to be a valid ref AND at least one
+/// "strong" signal (HEAD, tag:, or a ref containing `/`) to avoid false
+/// positives on commit message parens like `(WIP)` or `(see #123)`.
+fn looks_like_decoration(inner: &str) -> bool {
+    let parts: Vec<&str> = inner.split(", ").collect();
+    if parts.is_empty() || !parts.iter().all(|p| looks_like_ref(p)) {
+        return false;
+    }
+    parts.iter().any(|p| {
+        let p = p.trim();
+        p == "HEAD"
+            || p.starts_with("HEAD -> ")
+            || p.starts_with("tag: ")
+            || p.contains('/')
+    })
+}
+
 /// Find the byte span of the decoration block `(...)` in `line`.
 ///
-/// Strips ANSI to locate the `(` and `)` in plain text, validates that the
-/// token immediately before `(` looks like a git short hash (7–40 hex chars),
-/// then maps the positions back to byte offsets in the original ANSI string.
+/// Strips ANSI, then scans each `(...)` pair and validates by content — the
+/// inner text must look like a comma-separated list of git refs with at least
+/// one strong signal. Position-independent: works whether decorations appear
+/// before, after, or between other text.
 ///
-/// Returns `None` if no decoration block is found or the heuristic doesn't match.
+/// Returns `None` if no decoration block is found.
 fn find_decoration(line: &str) -> Option<(usize, usize)> {
     let stripped = strip_ansi(line);
 
-    let open = stripped.find('(')?;
+    let mut search_from = 0;
+    while search_from < stripped.len() {
+        let open = match stripped[search_from..].find('(') {
+            Some(pos) => search_from + pos,
+            None => return None,
+        };
+        let close = match stripped[open..].find(')') {
+            Some(pos) => open + pos,
+            None => return None,
+        };
 
-    // Validate: last whitespace-delimited token before '(' is a hex short hash
-    let before = stripped[..open].trim_end();
-    let last_tok = before.split_whitespace().last()?;
-    if last_tok.len() < 7
-        || last_tok.len() > 40
-        || !last_tok.chars().all(|c| c.is_ascii_hexdigit())
-    {
-        return None;
+        let inner = &stripped[open + 1..close];
+        if looks_like_decoration(inner) {
+            return Some((text_to_byte(line, open), text_to_byte(line, close + 1)));
+        }
+
+        search_from = open + 1;
     }
 
-    let close = stripped[open..].find(')')? + open;
-
-    Some((text_to_byte(line, open), text_to_byte(line, close + 1)))
+    None
 }
 
 fn process_line(line: &str, remotes: &[String]) -> String {
@@ -405,9 +454,51 @@ mod tests {
 
     #[test]
     fn subject_parens_ignored() {
-        // Subject contains parens but no decoration block after hash
+        // Content doesn't look like refs — no strong signal
         let line = "* a1b2c3d fix: update (closes #123)";
-        // The ( appears after non-hex token "fix:", so no decoration found
         assert_eq!(process_line(line, &[]), line);
+    }
+
+    #[test]
+    fn wip_parens_ignored() {
+        let line = "* a1b2c3d fix (WIP) some message";
+        assert_eq!(process_line(line, &[]), line);
+    }
+
+    #[test]
+    fn decoration_at_end_of_line() {
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d commit message (HEAD -> main, origin/main, main)";
+        let result = process_line(line, &remotes);
+        assert!(result.contains("[origin/]"));
+        assert!(result.starts_with("* a1b2c3d commit message"));
+    }
+
+    #[test]
+    fn decoration_at_end_remote_only() {
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d commit message (HEAD -> feature, origin/main)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("origin/main"));
+        assert!(plain.contains("HEAD -> feature"));
+    }
+
+    #[test]
+    fn decoration_after_non_ref_parens() {
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d fix (WIP) (HEAD -> main, origin/main, main) more text";
+        let result = process_line(line, &remotes);
+        assert!(result.contains("(WIP)"));
+        assert!(result.contains("[origin/]"));
+    }
+
+    #[test]
+    fn decoration_requires_strong_signal() {
+        assert!(!looks_like_decoration("WIP"));
+        assert!(!looks_like_decoration("FIXME"));
+        assert!(looks_like_decoration("HEAD -> main"));
+        assert!(looks_like_decoration("origin/main"));
+        assert!(looks_like_decoration("tag: v1.0"));
     }
 }
