@@ -85,6 +85,18 @@ fn canonical<'a>(refname: &'a str, remotes: &[String]) -> &'a str {
     refname
 }
 
+/// Maximum display length for branch names before truncation.
+const MAX_BRANCH_LEN: usize = 30;
+
+/// Truncate a branch name to `MAX_BRANCH_LEN`, appending `…` if shortened.
+fn truncate_branch(name: &str) -> String {
+    if name.chars().count() <= MAX_BRANCH_LEN {
+        return name.to_owned();
+    }
+    let truncated: String = name.chars().take(MAX_BRANCH_LEN - 1).collect();
+    format!("{truncated}…")
+}
+
 /// Render a new ANSI-colored decoration string from plain inner text.
 ///
 /// `plain_inner` — the decoration text with parens and ANSI stripped, e.g.:
@@ -111,13 +123,30 @@ fn render_decoration(plain_inner: &str, remotes: &[String]) -> String {
         }
     }
 
+    // Check if any remote/HEAD refs exist and collect their remote prefixes.
+    // These get folded into the HEAD display rather than shown as separate refs.
+    let mut head_remotes: Vec<String> = Vec::new();
+    let mut non_head_refs: Vec<&str> = Vec::new();
+    for r in &refs {
+        let is_remote_head = remotes.iter().any(|rm| *r == format!("{rm}/HEAD"));
+        if is_remote_head {
+            if let Some(rm) = remotes.iter().find(|rm| r.starts_with(&format!("{rm}/"))) {
+                if !head_remotes.contains(rm) {
+                    head_remotes.push(rm.clone());
+                }
+            }
+        } else {
+            non_head_refs.push(r);
+        }
+    }
+
     // Group refs by canonical branch name, preserving first-seen order.
     // Entry: (remote_prefixes_seen, has_local_copy)
     let mut order: Vec<String> = Vec::new();
     let mut groups: std::collections::HashMap<String, (Vec<String>, bool)> =
         std::collections::HashMap::new();
 
-    for r in &refs {
+    for r in &non_head_refs {
         let canon = canonical(r, remotes);
         let remote_prefix = remotes.iter().find(|rm| r.starts_with(&format!("{rm}/")));
 
@@ -138,25 +167,53 @@ fn render_decoration(plain_inner: &str, remotes: &[String]) -> String {
     let sep = format!("{YELLOW}, {RESET}");
     let mut parts: Vec<String> = Vec::new();
 
-    // HEAD pointer first
+    // Fold remote prefixes of the HEAD branch into the HEAD display.
+    // E.g. HEAD -> foo + origin/foo → [origin/]HEAD -> foo
+    let mut head_branch_remotes: Vec<String> = head_remotes.clone();
+    if let Some(b) = head_branch {
+        if !b.is_empty() {
+            let head_canon = canonical(b, remotes).to_owned();
+            if let Some((remote_prefixes, _)) = groups.remove(&head_canon) {
+                for rm in remote_prefixes {
+                    if !head_branch_remotes.contains(&rm) {
+                        head_branch_remotes.push(rm);
+                    }
+                }
+                order.retain(|c| *c != head_canon);
+            }
+        }
+    }
+
+    let head_prefix = if !head_branch_remotes.is_empty() {
+        let prefix_str = head_branch_remotes.join(",");
+        format!("{DIM}[{prefix_str}/]{RESET}")
+    } else {
+        String::new()
+    };
     match head_branch {
-        Some("") => parts.push(format!("{CYAN_BOLD}HEAD{RESET}")),
-        Some(b) => parts.push(format!("{CYAN_BOLD}HEAD -> {RESET}{GREEN_BOLD}{b}{RESET}")),
+        Some("") => parts.push(format!("{head_prefix}{CYAN_BOLD}HEAD{RESET}")),
+        Some(b) => {
+            let tb = truncate_branch(b);
+            parts.push(format!(
+                "{head_prefix}{CYAN_BOLD}HEAD -> {RESET}{GREEN_BOLD}{tb}{RESET}"
+            ));
+        }
         None => {}
     }
 
     for canon in &order {
         let (remote_prefixes, has_local) = &groups[canon];
+        let tc = truncate_branch(canon);
         if remote_prefixes.is_empty() {
             // local branch only
-            parts.push(format!("{GREEN_BOLD}{canon}{RESET}"));
+            parts.push(format!("{GREEN_BOLD}{tc}{RESET}"));
         } else if !has_local && remote_prefixes.len() == 1 {
             // remote-only, single remote — keep full name in red
-            parts.push(format!("{RED_BOLD}{}/{canon}{RESET}", remote_prefixes[0]));
+            parts.push(format!("{RED_BOLD}{}/{tc}{RESET}", remote_prefixes[0]));
         } else {
             // local + remote(s), or multiple remotes — collapse
             let prefix_str = remote_prefixes.join(",");
-            parts.push(format!("{DIM}[{prefix_str}/]{RESET}{GREEN_BOLD}{canon}{RESET}"));
+            parts.push(format!("{DIM}[{prefix_str}/]{RESET}{GREEN_BOLD}{tc}{RESET}"));
         }
     }
 
@@ -170,31 +227,80 @@ fn render_decoration(plain_inner: &str, remotes: &[String]) -> String {
     )
 }
 
+/// Check if a single ref token looks like a git ref.
+///
+/// Matches: `HEAD`, `HEAD -> branch/name`, `tag: v1.0`,
+/// `origin/main`, `vidbina/vid-123-slug`, `main`, etc.
+///
+/// A ref segment is `[a-zA-Z0-9][a-zA-Z0-9_.@-]*`, segments joined by `/`.
+fn looks_like_ref(token: &str) -> bool {
+    let token = token.trim();
+    if token.is_empty() {
+        return false;
+    }
+    if token == "HEAD" || token.starts_with("HEAD -> ") {
+        return true;
+    }
+    if token.starts_with("tag: ") {
+        return true;
+    }
+    token.split('/').all(|seg| {
+        !seg.is_empty()
+            && seg.chars().next().map(|c| c.is_ascii_alphanumeric()).unwrap_or(false)
+            && seg.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '.' | '-' | '@'))
+    })
+}
+
+/// Check if the content inside parens looks like a git decoration block.
+///
+/// Requires every comma-separated entry to be a valid ref AND at least one
+/// "strong" signal (HEAD, tag:, or a ref containing `/`) to avoid false
+/// positives on commit message parens like `(WIP)` or `(see #123)`.
+fn looks_like_decoration(inner: &str) -> bool {
+    let parts: Vec<&str> = inner.split(", ").collect();
+    if parts.is_empty() || !parts.iter().all(|p| looks_like_ref(p)) {
+        return false;
+    }
+    parts.iter().any(|p| {
+        let p = p.trim();
+        p == "HEAD"
+            || p.starts_with("HEAD -> ")
+            || p.starts_with("tag: ")
+            || p.contains('/')
+    })
+}
+
 /// Find the byte span of the decoration block `(...)` in `line`.
 ///
-/// Strips ANSI to locate the `(` and `)` in plain text, validates that the
-/// token immediately before `(` looks like a git short hash (7–40 hex chars),
-/// then maps the positions back to byte offsets in the original ANSI string.
+/// Strips ANSI, then scans each `(...)` pair and validates by content — the
+/// inner text must look like a comma-separated list of git refs with at least
+/// one strong signal. Position-independent: works whether decorations appear
+/// before, after, or between other text.
 ///
-/// Returns `None` if no decoration block is found or the heuristic doesn't match.
+/// Returns `None` if no decoration block is found.
 fn find_decoration(line: &str) -> Option<(usize, usize)> {
     let stripped = strip_ansi(line);
 
-    let open = stripped.find('(')?;
+    let mut search_from = 0;
+    while search_from < stripped.len() {
+        let open = match stripped[search_from..].find('(') {
+            Some(pos) => search_from + pos,
+            None => return None,
+        };
+        let close = match stripped[open..].find(')') {
+            Some(pos) => open + pos,
+            None => return None,
+        };
 
-    // Validate: last whitespace-delimited token before '(' is a hex short hash
-    let before = stripped[..open].trim_end();
-    let last_tok = before.split_whitespace().last()?;
-    if last_tok.len() < 7
-        || last_tok.len() > 40
-        || !last_tok.chars().all(|c| c.is_ascii_hexdigit())
-    {
-        return None;
+        let inner = &stripped[open + 1..close];
+        if looks_like_decoration(inner) {
+            return Some((text_to_byte(line, open), text_to_byte(line, close + 1)));
+        }
+
+        search_from = open + 1;
     }
 
-    let close = stripped[open..].find(')')? + open;
-
-    Some((text_to_byte(line, open), text_to_byte(line, close + 1)))
+    None
 }
 
 fn process_line(line: &str, remotes: &[String]) -> String {
@@ -287,6 +393,103 @@ mod tests {
     }
 
     #[test]
+    fn render_head_with_origin_head() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration("HEAD -> vid/topic, origin/HEAD", &remotes);
+        assert!(result.contains("[origin/]"));
+        assert!(result.contains("HEAD -> "));
+        assert!(result.contains("vid/topic"));
+        // origin/HEAD should not appear as a separate ref
+        assert!(!result.contains("origin/HEAD"));
+    }
+
+    #[test]
+    fn render_head_full_dedup() {
+        let remotes = vec!["origin".to_owned()];
+        let result =
+            render_decoration("HEAD -> vid/topic, origin/main, origin/HEAD, main", &remotes);
+        assert!(result.contains("[origin/]"));
+        assert!(result.contains("HEAD -> "));
+        assert!(result.contains("vid/topic"));
+        // main should be deduped too
+        let plain = strip_ansi(&result);
+        assert!(!plain.contains("origin/main"));
+        assert!(!plain.contains("origin/HEAD"));
+    }
+
+    #[test]
+    fn render_head_no_origin_head() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration("HEAD -> vid/topic", &remotes);
+        // No [origin/] prefix when origin/HEAD is absent
+        let plain = strip_ansi(&result);
+        assert!(!plain.contains("[origin/]HEAD"));
+        assert!(plain.contains("HEAD -> vid/topic"));
+    }
+
+    #[test]
+    fn render_detached_head_with_origin() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration("HEAD, origin/HEAD, origin/main", &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("[origin/]HEAD"));
+        assert!(!plain.contains("origin/HEAD"));
+    }
+
+    #[test]
+    fn render_head_branch_with_remote_counterpart() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration(
+            "HEAD -> vidbina/foo, origin/vidbina/foo",
+            &remotes,
+        );
+        let plain = strip_ansi(&result);
+        // Should collapse to [origin/]HEAD -> vidbina/foo
+        assert!(plain.contains("[origin/]HEAD -> vidbina/foo"));
+        // origin/vidbina/foo should NOT appear as a separate ref
+        assert!(!plain.contains(", origin/vidbina/foo"));
+    }
+
+    #[test]
+    fn render_head_branch_remote_and_other_refs() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration(
+            "HEAD -> vidbina/foo, origin/vidbina/foo, origin/main, main",
+            &remotes,
+        );
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("[origin/]HEAD -> vidbina/foo"));
+        assert!(plain.contains("[origin/]main"));
+        assert!(!plain.contains(", origin/vidbina/foo"));
+    }
+
+    #[test]
+    fn truncate_short_name_unchanged() {
+        assert_eq!(truncate_branch("main"), "main");
+        assert_eq!(truncate_branch("vidbina/dev"), "vidbina/dev");
+    }
+
+    #[test]
+    fn truncate_long_name() {
+        let long = "vidbina/vid-655-fix-glog-move-from-zsh-function-to-git-alias";
+        let result = truncate_branch(long);
+        assert!(result.ends_with('…'));
+        assert_eq!(result.chars().count(), 30);
+    }
+
+    #[test]
+    fn render_truncates_long_branch() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration(
+            "origin/vidbina/vid-655-fix-glog-move-from-zsh-function-to-git-alias, vidbina/vid-655-fix-glog-move-from-zsh-function-to-git-alias",
+            &remotes,
+        );
+        let plain = strip_ansi(&result);
+        assert!(plain.contains('…'));
+        assert!(!plain.contains("to-git-alias"));
+    }
+
+    #[test]
     fn no_decoration_passes_through() {
         let line = "| graph line only";
         assert_eq!(process_line(line, &[]), line);
@@ -294,9 +497,51 @@ mod tests {
 
     #[test]
     fn subject_parens_ignored() {
-        // Subject contains parens but no decoration block after hash
+        // Content doesn't look like refs — no strong signal
         let line = "* a1b2c3d fix: update (closes #123)";
-        // The ( appears after non-hex token "fix:", so no decoration found
         assert_eq!(process_line(line, &[]), line);
+    }
+
+    #[test]
+    fn wip_parens_ignored() {
+        let line = "* a1b2c3d fix (WIP) some message";
+        assert_eq!(process_line(line, &[]), line);
+    }
+
+    #[test]
+    fn decoration_at_end_of_line() {
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d commit message (HEAD -> main, origin/main, main)";
+        let result = process_line(line, &remotes);
+        assert!(result.contains("[origin/]"));
+        assert!(result.starts_with("* a1b2c3d commit message"));
+    }
+
+    #[test]
+    fn decoration_at_end_remote_only() {
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d commit message (HEAD -> feature, origin/main)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("origin/main"));
+        assert!(plain.contains("HEAD -> feature"));
+    }
+
+    #[test]
+    fn decoration_after_non_ref_parens() {
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d fix (WIP) (HEAD -> main, origin/main, main) more text";
+        let result = process_line(line, &remotes);
+        assert!(result.contains("(WIP)"));
+        assert!(result.contains("[origin/]"));
+    }
+
+    #[test]
+    fn decoration_requires_strong_signal() {
+        assert!(!looks_like_decoration("WIP"));
+        assert!(!looks_like_decoration("FIXME"));
+        assert!(looks_like_decoration("HEAD -> main"));
+        assert!(looks_like_decoration("origin/main"));
+        assert!(looks_like_decoration("tag: v1.0"));
     }
 }
