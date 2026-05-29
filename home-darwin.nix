@@ -158,6 +158,7 @@
         alias = {
           wdiff = "diff --word-diff --word-diff-regex='\\w+'";
           glog = "log --oneline --graph --all --decorate";
+          ready = "!git checkout main && git pull --ff-only";
         };
         init = {
           defaultBranch = "main";

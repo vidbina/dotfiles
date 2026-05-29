@@ -116,6 +116,7 @@ The subagent should:
    - Report to the user: "CI passed on PR #N. Ready to merge."
    - Check the repo's merge strategy: `gh api repos/{owner}/{repo} --jq '.allow_merge_commit, .allow_squash_merge, .allow_rebase_merge'`
    - Offer to merge using the repo's preferred strategy, or let the user choose if multiple are enabled. Wait for explicit approval before running `gh pr merge`.
+   - **After merge:** run `git checkout main && git pull --ff-only` (i.e. `git ready`) to return to a clean, up-to-date main. This is the ready position for starting new work. Transition linked tickets to Done.
 3. **On any check red:**
    - Report the failure: which check failed, link to the logs.
    - Fetch the failure details: `gh pr checks <pr-number>` and `gh run view <run-id> --log-failed` for actionable output.
