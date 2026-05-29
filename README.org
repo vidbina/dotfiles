@@ -2985,11 +2985,12 @@ pkgs.tree-sitter
 #+end_src
 
 *** DSL
-**** jq, yq
+**** jq, yq, jless
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.jq
 pkgs.yq
+pkgs.jless
 #+end_src
 
 *** DB
@@ -3004,6 +3005,16 @@ pkgs.sqlite-interactive
 
 #+begin_src nix :noweb-ref dev-packages
 pkgs.redis
+#+end_src
+
+*** File system
+
+**** fswatch
+
+[[https://github.com/emcrisostomo/fswatch][fswatch]] is a cross-platform file change monitor using native OS APIs (FSEvents on macOS, inotify on Linux). Useful for triggering rebuilds or redraws on file changes.
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.fswatch
 #+end_src
 
 *** Linux Hacking

@@ -1,7 +1,7 @@
 ---
 name: pr
 description: "Use this skill when the user wants to create a pull request for the current branch. Trigger for prompts like 'create a PR', 'open a PR', 'make a pull request', 'pr this', 'ship it', or when the user invokes `/pr`. Also invoked by other skills (/pairprog, /troubleshoot) at wrap-up. The skill detects the correct base branch automatically — if the current branch is stacked on another feature branch rather than main, it uses that branch as the base. It reads the Linear ticket (if any) and recent commits to draft a title and body, pitches the draft in chat for the operator to review, and creates the PR via `gh pr create` on approval. DX-first: fast, good defaults, minimal ceremony. Do NOT trigger for reviewing existing PRs, for merging, or for anything other than creating a new PR."
-allowed-tools: Bash Glob Grep Read AskUserQuestion mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_comments
+allowed-tools: Bash Glob Grep Read Agent AskUserQuestion mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_comments
 ---
 
 # pr
@@ -105,7 +105,30 @@ Use `AskUserQuestion` to get the response. Options:
 3. **Print the PR URL** returned by `gh`.
 4. **Transition the ticket:** if a ticket ID was extracted from the branch name in Phase 1, call `save_issue` with `id: {ticket-id}` and `state: "In Review"`. This is unconditional — a PR being open means the work is ready for review.
 
-Done. No further action — merging, labeling, and assignment are human operations.
+## Phase 6 — Monitor CI
+
+After the PR is created, launch a **background subagent** to monitor CI status. Do not suggest merging or offer to merge until CI results are in.
+
+The subagent should:
+
+1. **Poll CI checks** using `gh pr checks <pr-number> --watch` or periodic `gh pr checks <pr-number>` until all checks complete or a timeout (10 minutes) is reached.
+2. **On all checks green:**
+   - Report to the user: "CI passed on PR #N. Ready to merge."
+   - Check the repo's merge strategy: `gh api repos/{owner}/{repo} --jq '.allow_merge_commit, .allow_squash_merge, .allow_rebase_merge'`
+   - Offer to merge using the repo's preferred strategy, or let the user choose if multiple are enabled. Wait for explicit approval before running `gh pr merge`.
+3. **On any check red:**
+   - Report the failure: which check failed, link to the logs.
+   - Fetch the failure details: `gh pr checks <pr-number>` and `gh run view <run-id> --log-failed` for actionable output.
+   - Summarize what went wrong and suggest next steps (e.g. "lint failure in X — fixable here" or "test timeout — needs investigation").
+   - Ask the user how to proceed: fix it now (resume pairprog), investigate further, or leave it for later.
+4. **On timeout (no checks appear within 2 minutes):**
+   - Report: "No CI checks have started on PR #N. This repo may not have CI configured for this path, or checks are queued."
+   - Do not suggest merging.
+
+**Key rules:**
+- **Never suggest merging before CI results are known.** A freshly created PR has no check data — don't offer to merge it.
+- The subagent runs in the background so the user can continue other work.
+- If the user explicitly asks to merge before CI completes, warn them that checks haven't finished and confirm they want to proceed.
 
 ## Anti-patterns
 
@@ -114,3 +137,4 @@ Done. No further action — merging, labeling, and assignment are human operatio
 - **Don't fabricate the test plan.** Derive it from the diff or say "verify manually" — don't invent test steps that don't exist.
 - **Don't push without noting it.** If a push is needed, say so before running it.
 - **Don't ask more than one round of questions.** All clarification happens in the pitch → edit loop, not via separate `AskUserQuestion` calls before Phase 4.
+- **Don't suggest merging before CI is green.** A freshly created PR has no check data. Wait for the CI monitor subagent to report results before offering merge options.
