@@ -17,7 +17,9 @@ The defining design principles are:
 >
 > **Derisk first.** Before writing production code, identify what's uncertain and spike on it. Feasibility unknowns resolved early prevent wasted work late.
 >
-> **Atomic steps with checkpoints.** Each change is small enough to review in one pass. The human sees the change, gives feedback, and commits when satisfied. No large PRs assembled silently.
+> **Atomic steps with checkpoints.** Each change is small enough to steer in one pass. The human sees the change, gives design feedback, and the session continues. Checkpoints are for steering, not code review.
+>
+> **PR-always.** Code review happens on GitHub, not in the CLI chat. Every session that produces code ends with a PR. GitHub has line comments, a mobile app, and formal review flows — it's a better review surface than chat. If a PR turns out wrong, close it or drop commits — PRs are cheap.
 >
 > **Parallel where possible.** Use subagents for independent exploration and implementation tasks. Don't serialize work that can run concurrently. But always reconvene with the navigator before acting on findings.
 >
@@ -25,16 +27,18 @@ The defining design principles are:
 
 ## Commit modes
 
-The skill supports two commit modes. Default is **checkpoint mode**. The navigator can switch to **yolo mode** at any time during the session.
+The skill supports two commit modes. The navigator can switch between them at any time during the session. A typical pattern on non-trivial work: start in checkpoint to refine the design through implementation, then switch to yolo once the remaining work is known and trivial.
 
-- **Checkpoint mode (default):** The skill presents each atomic change, the navigator reviews it, and the navigator commits manually. The skill never runs git write commands.
-- **Yolo mode:** The skill auto-commits each atomic step using the `commitmsg` skill for message generation, and gates at PR creation. The navigator can switch back to checkpoint mode at any time.
+- **Checkpoint mode:** The skill presents each atomic change and pauses for the navigator's steering input — design decisions, dropping constructs, changing approach. The navigator commits when satisfied. The skill never runs git write commands in this mode.
+- **Yolo mode:** The skill auto-commits each atomic step using the `commitmsg` skill for message generation. The navigator can interrupt at any time to steer.
 
 At the start of the session, if the skill detects this is a fresh ticket with no prior work, ask:
 
-> "Checkpoint mode (you review and commit each step) or yolo mode (I auto-commit, you review at PR time)?"
+> "Checkpoint or yolo? (You can switch anytime.)"
 
-If prior work exists on the branch, default to checkpoint without asking (the navigator is resuming deliberate work).
+Default to **checkpoint** for non-trivial work (multiple steps, unknowns). Default to **yolo** for simple/mechanical work (adding a package, small config change). If prior work exists on the branch, default to checkpoint without asking (the navigator is resuming deliberate work).
+
+**Important:** In both modes, code review happens via PR on GitHub — not in the CLI chat. Checkpoints are for design steering, not line-by-line code review. When the navigator wants to review code, offer to prep a PR: "Shall I ship a PR so you can review on GitHub?"
 
 ## Phase 0 — Pick up the ticket
 
@@ -277,7 +281,7 @@ For each step:
 4. **Run quality checks** if the repo has them (lint, typecheck, test). Use `Bash` for this. If a check fails, fix it before presenting.
 5. **Present the change.** Print a concise summary of what changed and why. Don't dump the full diff — describe the intent and highlight non-obvious decisions.
 6. **Checkpoint.**
-   - **Checkpoint mode:** Pause for the navigator's feedback. If the navigator says "looks good," they commit. If they want changes, iterate.
+   - **Checkpoint mode:** Pause for the navigator's steering input. This is about design direction — does this approach hold up? Should we change course? If the navigator says "looks good," they commit. If they want changes, iterate. Don't ask the navigator to review code line-by-line in chat — that's what the PR is for.
    - **Yolo mode:** Invoke the `commitmsg` skill's methodology (read repo convention, draft message) and auto-commit. Print the commit hash and message. Continue to the next step.
 
    **Yolo commit discipline:** Commit immediately after each step passes quality checks — before starting the next step. Do not batch changes across steps and commit at the end. Committing on the go preserves the cleanest atomic boundary: each step's files haven't yet been mixed with the next step's. When a step spans multiple files (implementation + its tests), include all of them in the same commit. If the step also updates docs/config (env var examples, changelogs), bundle those in the same commit too — one logical concern, one commit.
