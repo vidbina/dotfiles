@@ -2,7 +2,7 @@
 name: pairprog
 description: "Use this skill when the user wants to pair-program on a ticket — working through a Linear issue collaboratively with the AI driving and the human navigating. Trigger for prompts like 'let's work on this ticket', 'pair on LIN-123', 'pairprog', 'let's tackle this branch', 'work on the current branch', 'pick up LIN-123', 'start working on this', 'let's pair on this'. Also trigger when the user invokes `/pairprog`. The skill reads the current branch (or a specified ticket/branch), looks up the Linear ticket, explores the codebase for context, identifies unknowns and feasibility risks, asks the human navigator for direction on key decisions, then executes the work in atomic steps with frequent HITL checkpoints. It uses concurrent subagents to parallelize independent exploration and implementation work. It comments assessments, spike findings, and plans back to the Linear ticket so context survives across sessions. In default mode, the human commits after reviewing each atomic change. In yolo mode, the skill auto-commits atomically and gates at PR creation. This is NOT a walk-away skill. It is an interactive pairing session where the human stays engaged as navigator. Do NOT trigger for autonomous background work (use designnote or direct implementation), for ticket creation (use linearissue), for research without implementation (use qsearch), or for commit message drafting (use commitmsg)."
 api_description: "Pair-program on a Linear ticket: explore the codebase, assess unknowns, spike on feasibility, plan atomic steps, and implement with frequent HITL checkpoints. Posts assessments, spike findings, and progress back to the Linear ticket. Human commits each step; AI drives."
-allowed-tools: Bash Glob Grep Read Write Edit Task AskUserQuestion WebFetch mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__save_comment mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_issue_statuses mcp__claude_ai_Linear__list_issue_labels
+allowed-tools: Bash Glob Grep Read Write Edit Task Skill AskUserQuestion WebFetch mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__save_comment mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_issue_statuses mcp__claude_ai_Linear__list_issue_labels
 ---
 
 # pairprog
@@ -359,14 +359,11 @@ If there are uncommitted changes (checkpoint mode only):
 
 ### PR creation
 
-If the branch looks complete relative to the ticket scope:
+If the branch looks complete relative to the ticket scope, **delegate to the `/pr` skill.** Do not duplicate PR creation logic here — invoke it via the `Skill` tool with `skill: "pr"`.
 
-1. **Draft the PR pitch in chat.** Show the proposed title, body (summary of changes, test plan), and target branch. Format it so the navigator can review before anything is created.
-2. **Ask:** "Ready to create this PR via `gh`?" with options: **Yes, create it** / **Edit first** / **Not yet — more work needed**
-3. On approval, push the branch (`git push -u origin {branch}`) then create the PR using `gh pr create` via `Bash`.
-4. After `gh pr create` succeeds: call `save_issue` with `id: {ticket-id}` and `state: "In Review"`. No comment needed.
-5. On "Edit first," let the navigator adjust the pitch, then create.
-6. On "Not yet," skip. The navigator will create it when ready.
+The `/pr` skill handles: base branch detection (including stacked PRs), drafting the title and body from commits and the Linear ticket, pitching in chat for approval, pushing, creating via `gh`, transitioning the ticket to In Review, and launching a background CI monitor.
+
+If the navigator says "not yet" or "more work needed," skip. The navigator will create it when ready.
 
 ### Comment wrap-up to Linear
 
