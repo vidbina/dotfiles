@@ -157,7 +157,7 @@
         #user.email = "vid@bina.me";
         alias = {
           wdiff = "diff --word-diff --word-diff-regex='\\w+'";
-          glog = "log --oneline --graph --all --decorate";
+          glog = "!git log --oneline --graph --all --decorate --color=always \"$@\" | gref-dedup | less -RF #";
           ready = "!git checkout main && git pull --ff-only";
         };
         init = {

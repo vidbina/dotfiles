@@ -85,6 +85,18 @@ fn canonical<'a>(refname: &'a str, remotes: &[String]) -> &'a str {
     refname
 }
 
+/// Maximum display length for branch names before truncation.
+const MAX_BRANCH_LEN: usize = 30;
+
+/// Truncate a branch name to `MAX_BRANCH_LEN`, appending `…` if shortened.
+fn truncate_branch(name: &str) -> String {
+    if name.chars().count() <= MAX_BRANCH_LEN {
+        return name.to_owned();
+    }
+    let truncated: String = name.chars().take(MAX_BRANCH_LEN - 1).collect();
+    format!("{truncated}…")
+}
+
 /// Render a new ANSI-colored decoration string from plain inner text.
 ///
 /// `plain_inner` — the decoration text with parens and ANSI stripped, e.g.:
@@ -111,13 +123,30 @@ fn render_decoration(plain_inner: &str, remotes: &[String]) -> String {
         }
     }
 
+    // Check if any remote/HEAD refs exist and collect their remote prefixes.
+    // These get folded into the HEAD display rather than shown as separate refs.
+    let mut head_remotes: Vec<String> = Vec::new();
+    let mut non_head_refs: Vec<&str> = Vec::new();
+    for r in &refs {
+        let is_remote_head = remotes.iter().any(|rm| *r == format!("{rm}/HEAD"));
+        if is_remote_head {
+            if let Some(rm) = remotes.iter().find(|rm| r.starts_with(&format!("{rm}/"))) {
+                if !head_remotes.contains(rm) {
+                    head_remotes.push(rm.clone());
+                }
+            }
+        } else {
+            non_head_refs.push(r);
+        }
+    }
+
     // Group refs by canonical branch name, preserving first-seen order.
     // Entry: (remote_prefixes_seen, has_local_copy)
     let mut order: Vec<String> = Vec::new();
     let mut groups: std::collections::HashMap<String, (Vec<String>, bool)> =
         std::collections::HashMap::new();
 
-    for r in &refs {
+    for r in &non_head_refs {
         let canon = canonical(r, remotes);
         let remote_prefix = remotes.iter().find(|rm| r.starts_with(&format!("{rm}/")));
 
@@ -138,25 +167,37 @@ fn render_decoration(plain_inner: &str, remotes: &[String]) -> String {
     let sep = format!("{YELLOW}, {RESET}");
     let mut parts: Vec<String> = Vec::new();
 
-    // HEAD pointer first
+    // HEAD pointer first, with remote prefix if origin/HEAD was present
+    let head_prefix = if !head_remotes.is_empty() {
+        let prefix_str = head_remotes.join(",");
+        format!("{DIM}[{prefix_str}/]{RESET}")
+    } else {
+        String::new()
+    };
     match head_branch {
-        Some("") => parts.push(format!("{CYAN_BOLD}HEAD{RESET}")),
-        Some(b) => parts.push(format!("{CYAN_BOLD}HEAD -> {RESET}{GREEN_BOLD}{b}{RESET}")),
+        Some("") => parts.push(format!("{head_prefix}{CYAN_BOLD}HEAD{RESET}")),
+        Some(b) => {
+            let tb = truncate_branch(b);
+            parts.push(format!(
+                "{head_prefix}{CYAN_BOLD}HEAD -> {RESET}{GREEN_BOLD}{tb}{RESET}"
+            ));
+        }
         None => {}
     }
 
     for canon in &order {
         let (remote_prefixes, has_local) = &groups[canon];
+        let tc = truncate_branch(canon);
         if remote_prefixes.is_empty() {
             // local branch only
-            parts.push(format!("{GREEN_BOLD}{canon}{RESET}"));
+            parts.push(format!("{GREEN_BOLD}{tc}{RESET}"));
         } else if !has_local && remote_prefixes.len() == 1 {
             // remote-only, single remote — keep full name in red
-            parts.push(format!("{RED_BOLD}{}/{canon}{RESET}", remote_prefixes[0]));
+            parts.push(format!("{RED_BOLD}{}/{tc}{RESET}", remote_prefixes[0]));
         } else {
             // local + remote(s), or multiple remotes — collapse
             let prefix_str = remote_prefixes.join(",");
-            parts.push(format!("{DIM}[{prefix_str}/]{RESET}{GREEN_BOLD}{canon}{RESET}"));
+            parts.push(format!("{DIM}[{prefix_str}/]{RESET}{GREEN_BOLD}{tc}{RESET}"));
         }
     }
 
@@ -284,6 +325,76 @@ mod tests {
         let result = render_decoration("HEAD -> main, origin/main, main", &remotes);
         assert!(result.contains("HEAD -> "));
         assert!(result.contains("[origin/]"));
+    }
+
+    #[test]
+    fn render_head_with_origin_head() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration("HEAD -> vid/topic, origin/HEAD", &remotes);
+        assert!(result.contains("[origin/]"));
+        assert!(result.contains("HEAD -> "));
+        assert!(result.contains("vid/topic"));
+        // origin/HEAD should not appear as a separate ref
+        assert!(!result.contains("origin/HEAD"));
+    }
+
+    #[test]
+    fn render_head_full_dedup() {
+        let remotes = vec!["origin".to_owned()];
+        let result =
+            render_decoration("HEAD -> vid/topic, origin/main, origin/HEAD, main", &remotes);
+        assert!(result.contains("[origin/]"));
+        assert!(result.contains("HEAD -> "));
+        assert!(result.contains("vid/topic"));
+        // main should be deduped too
+        let plain = strip_ansi(&result);
+        assert!(!plain.contains("origin/main"));
+        assert!(!plain.contains("origin/HEAD"));
+    }
+
+    #[test]
+    fn render_head_no_origin_head() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration("HEAD -> vid/topic", &remotes);
+        // No [origin/] prefix when origin/HEAD is absent
+        let plain = strip_ansi(&result);
+        assert!(!plain.contains("[origin/]HEAD"));
+        assert!(plain.contains("HEAD -> vid/topic"));
+    }
+
+    #[test]
+    fn render_detached_head_with_origin() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration("HEAD, origin/HEAD, origin/main", &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("[origin/]HEAD"));
+        assert!(!plain.contains("origin/HEAD"));
+    }
+
+    #[test]
+    fn truncate_short_name_unchanged() {
+        assert_eq!(truncate_branch("main"), "main");
+        assert_eq!(truncate_branch("vidbina/dev"), "vidbina/dev");
+    }
+
+    #[test]
+    fn truncate_long_name() {
+        let long = "vidbina/vid-655-fix-glog-move-from-zsh-function-to-git-alias";
+        let result = truncate_branch(long);
+        assert!(result.ends_with('…'));
+        assert_eq!(result.chars().count(), 30);
+    }
+
+    #[test]
+    fn render_truncates_long_branch() {
+        let remotes = vec!["origin".to_owned()];
+        let result = render_decoration(
+            "origin/vidbina/vid-655-fix-glog-move-from-zsh-function-to-git-alias, vidbina/vid-655-fix-glog-move-from-zsh-function-to-git-alias",
+            &remotes,
+        );
+        let plain = strip_ansi(&result);
+        assert!(plain.contains('…'));
+        assert!(!plain.contains("to-git-alias"));
     }
 
     #[test]
