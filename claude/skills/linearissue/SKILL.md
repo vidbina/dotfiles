@@ -2,7 +2,7 @@
 name: linearissue
 description: "Use this skill when the user asks you to turn a design note's action items into Linear issues, OR when the user wants to iterate on an existing Linear issue. Filing mode triggers: 'file tickets from this note', 'linearize X', 'create Linear issues for the action items in X', 'turn this note into tickets', 'ship this to Linear', 'file these TODOs from the design note', 'make tickets from X', 'linearissue this note', 'create issues from X.md'. Iteration mode triggers: user passes a Linear issue URL (e.g. https://linear.app/...) or issue ID (e.g. VID-123) with a follow-on prompt like 'help me refine this', 'roast this scope', 'add context about X', 'what questions should we answer first', 'sharpen the description', or any request to think about, improve, or comment on an existing issue. Also trigger when the user invokes `/linearissue`. Do NOT trigger for creating Linear documents (that's the designnote skill's strategy-routing path), for filing tickets from `docs/decisions/` ADRs (decisions are made; they don't spawn tickets), or for any operation that would also commit to git."
 api_description: "File action items from a design note as Linear issues with bidirectional cross-references and idempotent re-runs, or iterate on an existing Linear issue by posting analysis, context, or refinements as comments. Two modes: filing (from a note) and iteration (from a ticket ID or URL)."
-allowed-tools: Glob Grep Read Edit WebFetch AskUserQuestion mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__save_comment mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_issue_statuses mcp__claude_ai_Linear__list_issue_labels
+allowed-tools: Bash Glob Grep Read Edit WebFetch AskUserQuestion mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__save_comment mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_issue_statuses mcp__claude_ai_Linear__list_issue_labels
 ---
 
 # linearissue
@@ -63,6 +63,32 @@ Examine the first argument (or the full prompt if no explicit argument):
 
 - **Iteration mode** — if the input contains a Linear issue URL (`https://linear.app/...`) or a bare issue identifier matching the pattern `[A-Z]+-\d+` (e.g. `VID-123`, `Z-419`), enter **iteration mode**. Capture the issue ID and the rest of the prompt as the user's intent. Skip to the [Iteration mode](#iteration-mode) section below; do not run the filing-mode phases.
 - **Filing mode** — otherwise, treat the input as a design note path or infer one. Continue with the filing-mode phases below.
+
+### Triage: check for duplicates and scope overlap
+
+Before creating any new issue — whether from a design note or freeform — run a tiered check to avoid duplicates, scope overlap, and contradictions in the backlog. This applies in both filing mode and when other skills (pairprog, freeform conversation) route through `save_issue` to create a ticket.
+
+**Tier 1 — Current work (always run, lightweight):**
+- Check the current branch and the last 2 branches worked on (`git branch --sort=-committerdate | head -3`).
+- Cross-reference with GitHub (`gh pr list`, `gh pr view`) to confirm merge state — local state may be stale.
+- If an in-progress branch covers this scope, surface it: "This looks like it fits in VID-XYZ which is still on branch X — want me to fold it in?"
+
+**Tier 2 — Related issues (always run):**
+- If a ticket ID is known (from the branch name, the design note, or the user's prompt), fetch it and check its related issues (`get_issue` with `includeRelations: true`).
+- Scan the related issues for scope overlap or contradictions with the proposed new ticket.
+
+**Tier 3 — Backlog scan (run when the issue is complex or duplicates seem likely):**
+- Search the project backlog (`list_issues` filtered by project and team) for tickets with similar titles or keywords.
+- If matches are found, present them: "These existing tickets look related — should we extend one of them, or is this genuinely new?"
+- Propose resolution: merge scopes, re-prioritize an existing ticket, mark as duplicate, or confirm isolation.
+
+If the triage surfaces a match, present options via `AskUserQuestion`:
+- **Fold into VID-XYZ** — add scope to the existing ticket (comment the new context)
+- **Stack on VID-XYZ** — create as a sub-issue or related issue
+- **Create new** — confirmed isolated, proceed with filing
+- **Cancel** — the user decides to handle it differently
+
+Only proceed to filing after the user confirms the triage result.
 
 ### Filing mode: parse invocation
 
