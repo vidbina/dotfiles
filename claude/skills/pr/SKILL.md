@@ -1,7 +1,7 @@
 ---
 name: pr
-description: "Use this skill when the user wants to create a pull request for the current branch. Trigger for prompts like 'create a PR', 'open a PR', 'make a pull request', 'pr this', 'ship it', or when the user invokes `/pr`. Also invoked by other skills (/pairprog, /troubleshoot) at wrap-up. The skill detects the correct base branch automatically — if the current branch is stacked on another feature branch rather than main, it uses that branch as the base. It reads the Linear ticket (if any) and recent commits to draft a title and body, pitches the draft in chat for the operator to review, and creates the PR via `gh pr create` on approval. DX-first: fast, good defaults, minimal ceremony. Do NOT trigger for reviewing existing PRs, for merging, or for anything other than creating a new PR."
-allowed-tools: Bash Glob Grep Read Agent AskUserQuestion mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_comments
+description: "Use this skill when the user wants to create a pull request for the current branch. Trigger for prompts like 'create a PR', 'open a PR', 'make a pull request', 'pr this', 'ship it', or when the user invokes `/pr`. Also invoked by other skills (/pairprog, /troubleshoot) at wrap-up. The skill detects the correct base branch automatically — if the current branch is stacked on another feature branch rather than main, it uses that branch as the base. It reads the Linear ticket (if any) and recent commits to draft a title and body, pitches the draft in chat for the operator to review, and creates the PR via the GitHub MCP on approval. DX-first: fast, good defaults, minimal ceremony. Do NOT trigger for reviewing existing PRs, for merging, or for anything other than creating a new PR."
+allowed-tools: Bash Glob Grep Read Agent AskUserQuestion mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_comments mcp__github__create_pull_request mcp__github__list_pull_requests mcp__github__pull_request_read mcp__github__merge_pull_request mcp__github__update_pull_request mcp__github__search_repositories mcp__github__get_file_contents mcp__github__list_branches
 ---
 
 # pr
@@ -23,7 +23,7 @@ Run in parallel:
 - **Branch:** `git branch --show-current`
 - **Commits on branch:** `git log --oneline main..HEAD` (or `git log --oneline HEAD ^origin/main` if on remote)
 - **Push state:** `git status -sb` — is the branch already pushed to origin?
-- **Remote default branch:** `gh repo view --json defaultBranchRef -q .defaultBranchRef.name` — don't hardcode `main`
+- **Remote default branch:** use `mcp__github__get_file_contents` or `mcp__github__list_branches` to determine the default branch — don't hardcode `main`
 
 Extract a ticket ID from the branch name if present (e.g. `vidbina/vid-123-some-slug` → `VID-123`). If found, fetch the Linear issue (`get_issue`) for title and description.
 
@@ -101,8 +101,8 @@ Use `AskUserQuestion` to get the response. Options:
 ## Phase 5 — Create
 
 1. **Push if needed:** if the branch isn't on origin yet, run `git push -u origin <branch>`. Print the push result.
-2. **Create:** run `gh pr create --base <base> --title "<title>" --body "<body>"` via `Bash`.
-3. **Print the PR URL** returned by `gh`.
+2. **Create:** use `mcp__github__create_pull_request` with the owner, repo, title, body, base, and head branch.
+3. **Print the PR URL** from the response.
 4. **Transition the ticket:** if a ticket ID was extracted from the branch name in Phase 1, call `save_issue` with `id: {ticket-id}` and `state: "In Review"`. This is unconditional — a PR being open means the work is ready for review.
 
 ## Phase 6 — Monitor CI
@@ -111,15 +111,15 @@ After the PR is created, launch a **background subagent** to monitor CI status. 
 
 The subagent should:
 
-1. **Poll CI checks** using `gh pr checks <pr-number> --watch` or periodic `gh pr checks <pr-number>` until all checks complete or a timeout (10 minutes) is reached.
+1. **Poll CI checks** using `mcp__github__pull_request_read` periodically or `Bash` with `gh pr checks <pr-number> --watch` until all checks complete or a timeout (10 minutes) is reached.
 2. **On all checks green:**
    - Report to the user: "CI passed on PR #N. Ready to merge."
-   - Check the repo's merge strategy: `gh api repos/{owner}/{repo} --jq '.allow_merge_commit, .allow_squash_merge, .allow_rebase_merge'`
-   - Offer to merge using the repo's preferred strategy, or let the user choose if multiple are enabled. Wait for explicit approval before running `gh pr merge`.
+   - Check the repo's merge strategy via `mcp__github__search_repositories` or `mcp__github__get_file_contents`.
+   - Offer to merge using `mcp__github__merge_pull_request`. Wait for explicit approval.
    - **After merge:** run `git checkout main && git pull --ff-only` (i.e. `git ready`) to return to a clean, up-to-date main. This is the ready position for starting new work. Transition linked tickets to Done.
 3. **On any check red:**
    - Report the failure: which check failed, link to the logs.
-   - Fetch the failure details: `gh pr checks <pr-number>` and `gh run view <run-id> --log-failed` for actionable output.
+   - Fetch the failure details via `mcp__github__pull_request_read` and `Bash` with `gh run view <run-id> --log-failed` for actionable output.
    - Summarize what went wrong and suggest next steps (e.g. "lint failure in X — fixable here" or "test timeout — needs investigation").
    - Ask the user how to proceed: fix it now (resume pairprog), investigate further, or leave it for later.
 4. **On timeout (no checks appear within 2 minutes):**
