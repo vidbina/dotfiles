@@ -157,6 +157,35 @@ Before creating a new ticket, check whether the work fits in an existing one. Ru
 
 If an existing ticket covers the scope, surface it: "This looks like it fits in VID-XYZ which is still on branch X — want me to fold it in?" Don't file a new ticket unless the work is genuinely isolated.
 
+## GitHub MCP
+
+This repo uses the GitHub MCP (Insiders) for GitHub operations instead of shelling out to `gh` CLI. This keeps skill permissions precise — skills declare exactly which GitHub operations they need rather than getting broad `Bash` access.
+
+### Setup
+
+```bash
+TOKEN=$(gh auth token) && claude mcp add github https://api.githubcopilot.com/mcp/insiders \
+  --transport http --scope user --header "Authorization: Bearer $TOKEN"
+```
+
+Then run `/mcp` inside Claude Code to verify the server connects.
+
+### Available tools
+
+GitHub MCP tools follow the naming pattern `mcp__github__<tool_name>`. Key tools used by skills:
+
+- **PRs:** `create_pull_request`, `list_pull_requests`, `pull_request_read`, `merge_pull_request`, `update_pull_request`
+- **Issues:** `issue_read`, `issue_write`, `list_issues`, `search_issues`
+- **Repos:** `get_file_contents`, `list_branches`, `list_commits`, `search_repositories`
+- **CI:** `pull_request_read` (includes check status)
+
+### When to still use Bash
+
+Some operations have no MCP equivalent and still require `Bash`:
+- `git` commands (commit, branch, push, log, diff, etc.)
+- `gh run view --log-failed` (workflow run log inspection)
+- `make` targets (tangle, verify-parity, switch)
+
 ## CI workflows and branch protection
 
 The repo uses **two workflow files** with native GitHub Actions path filtering:
