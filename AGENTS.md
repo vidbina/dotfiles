@@ -147,6 +147,16 @@ Linear ticket comments are the async handover protocol between Claude sessions a
 
 **Naming convention for handover comments:** Start with `**Handover**` so they're scannable in the comment thread. End with a clear "Next step" section.
 
+## Before filing a new Linear issue
+
+Before creating a new ticket, check whether the work fits in an existing one. Run these checks in order:
+
+1. **Current and recent branches.** Check the current branch and the last 2 branches worked on — is this fix in scope of work that's already in progress? Cross-reference with GitHub (`gh pr list`, `gh pr view`) to confirm merge state, since local state may be stale. If the branch hasn't merged, fold the fix into that scope.
+2. **Related issues.** Check the current ticket's related issues in Linear. This surfaces nearby tickets that might already cover the scope or should be extended.
+3. **Project backlog (when warranted).** For complex issues or when duplicates seem likely, scan the project backlog. Look for conflicts, duplicates, or tickets that should be merged. Propose resolution rather than silently creating a new ticket.
+
+If an existing ticket covers the scope, surface it: "This looks like it fits in VID-XYZ which is still on branch X — want me to fold it in?" Don't file a new ticket unless the work is genuinely isolated.
+
 ## CI workflows and branch protection
 
 The repo uses **two workflow files** with native GitHub Actions path filtering:
