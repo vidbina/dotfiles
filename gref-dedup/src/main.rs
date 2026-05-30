@@ -3,7 +3,6 @@ use std::process::Command;
 
 // ANSI color codes matching git's default decoration scheme
 const RESET: &str = "\x1b[0m";
-const DIM: &str = "\x1b[2m";
 const CYAN_BOLD: &str = "\x1b[1;36m";
 const GREEN_BOLD: &str = "\x1b[1;32m";
 const RED_BOLD: &str = "\x1b[1;31m";
@@ -186,7 +185,7 @@ fn render_decoration(plain_inner: &str, remotes: &[String]) -> String {
 
     let head_prefix = if !head_branch_remotes.is_empty() {
         let prefix_str = head_branch_remotes.join(",");
-        format!("{DIM}[{prefix_str}/]{RESET}")
+        format!("{RED_BOLD}[{prefix_str}/]{RESET}")
     } else {
         String::new()
     };
@@ -213,7 +212,7 @@ fn render_decoration(plain_inner: &str, remotes: &[String]) -> String {
         } else {
             // local + remote(s), or multiple remotes — collapse
             let prefix_str = remote_prefixes.join(",");
-            parts.push(format!("{DIM}[{prefix_str}/]{RESET}{GREEN_BOLD}{tc}{RESET}"));
+            parts.push(format!("{RED_BOLD}[{prefix_str}/]{RESET}{GREEN_BOLD}{tc}{RESET}"));
         }
     }
 
