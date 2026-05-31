@@ -111,6 +111,31 @@ If no mismatch is detected, proceed without comment.
 
 After the branch is checked out and the ticket is loaded, call `save_issue` with `id: {ticket-id}` and `state: "In Progress"`. Do this unconditionally — picking up the branch is the signal that work has started. No comment needed; the state change speaks for itself.
 
+### Rename the session
+
+After the ticket is loaded, rename the session to reflect the scope of work:
+
+```
+/rename NUMBER SHORT_TITLE (pairprog)
+```
+
+Where `NUMBER` is the ticket identifier (e.g. `VID-662`) and `SHORT_TITLE` is a 2–4 word summary derived from the ticket title. Examples:
+
+- `/rename VID-662 rename titles (pairprog)`
+- `/rename VID-123 OAuth2 Google login (pairprog)`
+- `/rename Z-419 frame routing decouple (pairprog)`
+
+If no ticket is available (working from a branch name only), use the branch slug:
+
+- `/rename fix-typo-readme (pairprog)`
+
+Update the session name at major phase transitions by appending the phase:
+
+- Phase 1: `/rename VID-662 rename titles (pairprog:assess)`
+- Phase 2: `/rename VID-662 rename titles (pairprog:plan)`
+- Phase 3: `/rename VID-662 rename titles (pairprog:exec)`
+- Phase 4: `/rename VID-662 rename titles (pairprog:wrapup)`
+
 ### Present the ticket
 
 Print a compact summary:
