@@ -57,7 +57,51 @@ The branch with the **fewest commits between its tip and HEAD** is the most like
 **Title:**
 1. Use the Linear ticket title if available.
 2. Otherwise, derive from the branch name slug (strip the owner prefix and ticket ID, humanize the remainder).
-3. Keep it under 72 characters.
+3. Run the title through the **title quality gate** below.
+
+### Title quality gate
+
+Evaluate the drafted title against these criteria. The gate is **advisory** — warn and suggest, never block.
+
+**Principles:**
+1. **Value over mechanism** — frame what the PR delivers, not how it's implemented. "Stable room link for live AV" not "Implement re-entrancy for Daily transport".
+2. **Distinguishing phrase first** — the most identifiable words lead, so truncated branch names (`~25 chars` after the ticket prefix) stay meaningful.
+3. **Brevity** — keep titles under 60 characters. Warn above 60.
+4. **No metadata in the title** — priority, work type (spike, research), and category belong in labels, not bracket tags or prefixes.
+
+**Anti-patterns to detect:**
+- **Mechanism verbs leading** — "Wire up", "Implement", "Add", "Decouple", "Compose", "Inject", "Conduct", "Redesign" as the first word describe implementation, not value. Exception: action verbs that describe user-facing behavior are fine ("Allow bot to interrupt").
+- **Bracket tags** — `[Research]`, `[Spike]`, `[WIP]` waste leading characters. Use labels instead.
+- **"Explore/Research/Spike:" prefixes** — front-load metadata that belongs in labels.
+- **"Draft design note:" prefixes** — the work type is obvious from context.
+- **"Fix broken..." with mechanism** — "Fix broken X — replace Y with Z" buries the value. Prefer "X works again" or name the symptom.
+- **Parenthetical lists** — "(Meet, Zoom, WhatsApp)" or "(Cartesia disconnect, room leave)" add precision but kill branch readability.
+- **Question-format titles** — "Does X expose Y?" belongs in the description.
+- **Kitchen-sink titles** — "Improve X — reduce Y and explore Z" tries to do too much in one title.
+
+**When the gate fires:**
+
+If any issues are detected, draft a suggested rewrite alongside the original. Present both in the Phase 4 pitch so the operator can choose:
+
+```
+Title:     <original title>
+Suggested: <rewritten title>  ← value-oriented, distinguishing phrase first
+Warning:   <what triggered the gate — e.g. "mechanism verb 'Implement' leading", "67 chars (>60)">
+```
+
+**Examples (before → after):**
+- "Wire up Logfire for APM and distributed tracing" → "Logfire APM and tracing"
+- "Implement e2e tests: HTTP contract and Daily room verification" → "E2e tests for /connect and Daily"
+- "Explore service-level hooks for production frame-level observability" → "Production frame-level o11y hooks"
+- "Decouple FilterSink frame-type routing from pipecat string class names" → "Decouple frame routing from pipecat"
+- "Architectural spike: bot-as-participant in external video calls (Meet, Zoom, WhatsApp)" → "Bot joins Meet/Zoom/WhatsApp calls"
+- "Graceful LLM provider fallback when primary flakes" → "LLM fallback on provider outage"
+
+**Titles that pass (no rewrite needed):**
+- "Select auth provider" — short, clear, distinguishing
+- "Optimise for showtime" — punchy, value obvious
+- "Allow bot to interrupt" — user-facing behavior, 4 words
+- "Uncensor STT input" — brief, clear what it delivers
 
 **Body:**
 ```markdown
@@ -82,6 +126,8 @@ Print the full draft before doing anything:
 PR draft
 
 Title:  <title>
+Suggested: <rewritten title>              ← only if quality gate fired
+Warning:   <what triggered>               ← only if quality gate fired
 Base:   <base-branch>  [stacked ⚠] or [default branch]
 Branch: <current-branch>
 
@@ -92,6 +138,8 @@ Body:
 
 Create this PR? yes / edit / cancel
 ```
+
+If the title quality gate fired, the `Suggested:` and `Warning:` lines appear. The operator can accept the original, use the suggestion, or type their own via the `edit` flow. If no issues were detected, omit those lines.
 
 Use `AskUserQuestion` to get the response. Options:
 - **yes** → proceed to Phase 5
