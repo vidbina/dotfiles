@@ -28,6 +28,22 @@ If `WebSearch` and `WebFetch` are unavailable in the current session (e.g. polic
 
 ## Phase 1 — Interpret
 
+### Rename the session
+
+After interpreting the request, rename the session to reflect the research topic:
+
+```
+/rename SHORT_TITLE (qsearch)
+```
+
+Where `SHORT_TITLE` is a 2–4 word summary of the research question. Examples:
+
+- `/rename LLM eval frameworks (qsearch)`
+- `/rename nix flake best practices (qsearch)`
+- `/rename Rust vs Go for CLI (qsearch)`
+
+### Restate
+
 Restate the request in one or two sentences as you understand it. Be explicit about what deliverable you think is being asked for: a short answer, a prose summary, a comparison table, a ranked list, a recommendation, a literature overview, a fact-check, etc.
 
 ## Phase 2 — Clarify once, up front
