@@ -206,6 +206,23 @@ Relevant GitHub docs:
 - [Required status checks](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches#require-status-checks-before-merging)
 - [Workflow trigger path filters](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#running-your-workflow-only-when-a-push-affects-specific-files)
 
+## Session restart for config changes
+
+This repo contains Claude Code's own configuration (`claude/settings.json`, `claude/skills/**`). Some config — particularly hooks and permissions — is loaded at session start and **not hot-reloaded** during a session. MCP servers can be refreshed via `/mcp` and hooks can be listed via `/hooks`, but neither re-evaluates the hooks at runtime.
+
+**When you discover a change requires a session restart:**
+
+1. **Don't say "we're blocked."** Instead, prepare a clean handoff.
+2. **Commit the config change** (or present it for commit in checkpoint mode) so the next session loads the updated config.
+3. **Post a handover comment to the Linear ticket** with:
+   - What was changed and why
+   - Exact command to resume: e.g. `claude` or `claude --continue` from the repo directory
+   - What to test on restart (e.g. "edit `flake.nix` and check that CHECKPOINT appears in chat")
+   - What remains after verification (e.g. "remove debug log line, commit fix")
+4. **Tell the navigator** what to type after starting the new session so they can resume without remembering context. Be specific — e.g. "Start a new session and type: `/pairprog VID-661` — the ticket comment has the full context."
+
+**Why this matters:** A cancelled session with no handover comment means lost context. The ticket comment is durable — it survives across sessions, machines, and people. Always write it before suggesting a restart.
+
 ## Commit message conventions
 
 - **Format:** `<type>(<scope>): <subject> [ai:claude]` — the `[ai:claude]` tag always goes at the end of the subject line for AI-authored commits
