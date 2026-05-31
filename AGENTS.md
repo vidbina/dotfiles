@@ -37,6 +37,7 @@ Some files in this repo are **tangled** (auto-generated) from `README.org`. Thes
 
 ### ⚠️ MANDATORY for ALL package/service/config changes:
 - **NEVER** run or suggest imperative installs (`brew install`, `gh extension install`, `pip install`, `npm install -g`, `cargo install`, etc.) — these bypass version control and leave ghost state
+- This rule applies **regardless of commit mode** — even in yolo mode, system-scope commands are always HITL. When a tool is missing, surface it to the user with context (e.g. "gitleaks is required by the pre-commit hook — install via `nix develop` or add to `README.org`?") rather than resolving it silently
 - **ALWAYS** make the change in `README.org` (via the appropriate `noweb-ref` block) or the relevant nix module — that IS the install
 
 ### Package source preference (nix-first)
