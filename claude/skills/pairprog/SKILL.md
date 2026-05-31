@@ -32,6 +32,8 @@ The skill supports two commit modes. The navigator can switch between them at an
 - **Checkpoint mode:** The skill presents each atomic change and pauses for the navigator's steering input — design decisions, dropping constructs, changing approach. The navigator commits when satisfied. The skill never runs git write commands in this mode.
 - **Yolo mode:** The skill auto-commits each atomic step using the `commitmsg` skill for message generation. The navigator can interrupt at any time to steer.
 
+**System-scope commands are always HITL, even in yolo mode.** Commands that modify system state (`brew install`, `npm install -g`, `pip install`, `cargo install`, etc.) are never auto-approved. When a tool is missing, surface it to the navigator with context (e.g. "gitleaks is required by the pre-commit hook — install via `nix develop` or approve `brew install gitleaks`?") rather than resolving it silently. Imperative installs bypass version control and can't be reviewed or rolled back.
+
 At the start of the session, if the skill detects this is a fresh ticket with no prior work, ask:
 
 > "Checkpoint or yolo? (You can switch anytime.)"

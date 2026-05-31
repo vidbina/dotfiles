@@ -99,6 +99,20 @@
       "mcp__claude_ai_Linear__delete_comment"
     ]
   },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.command // \"\"' | grep -qE '(^|[[:space:];|&])(brew (install|uninstall|remove|upgrade)|pip install|npm install -g|cargo install|gem install|go install|gh extension install|nix-env -[iueq]|nix profile (install|remove)|nix-channel)' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"Imperative system modifications are blocked. Add packages declaratively via README.org (nix/homebrew noweb-ref blocks) instead. See AGENTS.md.\"}}' || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "input=$(cat); echo \"$(echo \"$input\" | jq -r '.cwd')\""
