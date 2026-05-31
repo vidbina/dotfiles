@@ -111,6 +111,18 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // \"\"'); BASE=$(basename \"$FILE\"); if echo \"$BASE\" | grep -qE '^(package\\.json|package-lock\\.json|pnpm-lock\\.yaml|yarn\\.lock|Cargo\\.toml|Cargo\\.lock|flake\\.nix|flake\\.lock|pyproject\\.toml|poetry\\.lock|uv\\.lock|go\\.mod|go\\.sum|Gemfile|Gemfile\\.lock|mix\\.exs|mix\\.lock)$' || echo \"$BASE\" | grep -qE '\\.cabal$'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"CHECKPOINT: You just edited a milestone file ('\"$BASE\"'). In pairprog checkpoint mode, you MUST present this change and pause for a commit before continuing to the next step. Do NOT proceed with further implementation until this change is committed.\"}}'; fi",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   },
   "statusLine": {

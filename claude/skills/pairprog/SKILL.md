@@ -32,6 +32,14 @@ The skill supports two commit modes. The navigator can switch between them at an
 - **Checkpoint mode:** The skill presents each atomic change and pauses for the navigator's steering input — design decisions, dropping constructs, changing approach. The navigator commits when satisfied. The skill never runs git write commands in this mode.
 - **Yolo mode:** The skill auto-commits each atomic step using the `commitmsg` skill for message generation. The navigator can interrupt at any time to steer.
 
+**Milestone file commit gate.** A `PostToolUse` hook monitors edits to milestone files (package manifests, lock files, flake.nix, etc.). When you see a `CHECKPOINT:` message from this hook, you **MUST** immediately:
+1. Stop implementation work
+2. Present the milestone file change to the navigator with a summary of what was added/changed
+3. Wait for the navigator to commit (checkpoint mode) or auto-commit immediately (yolo mode)
+4. Only then proceed to the next implementation step
+
+This prevents atomic steps (like adding a dependency) from being tangled with subsequent implementation changes in the same uncommitted working tree. The hook fires on: package.json, package-lock.json, pnpm-lock.yaml, yarn.lock, Cargo.toml, Cargo.lock, flake.nix, flake.lock, pyproject.toml, poetry.lock, uv.lock, go.mod, go.sum, Gemfile, Gemfile.lock, mix.exs, mix.lock, and *.cabal files.
+
 **System-scope commands are always HITL, even in yolo mode.** Commands that modify system state (`brew install`, `npm install -g`, `pip install`, `cargo install`, etc.) are never auto-approved. When a tool is missing, surface it to the navigator with context (e.g. "gitleaks is required by the pre-commit hook — install via `nix develop` or approve `brew install gitleaks`?") rather than resolving it silently. Imperative installs bypass version control and can't be reviewed or rolled back.
 
 At the start of the session, if the skill detects this is a fresh ticket with no prior work, ask:
