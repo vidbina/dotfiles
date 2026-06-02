@@ -43,6 +43,23 @@ Once the target is known, load in parallel:
 - **Error artifacts**: any log files, CI output files, or stack traces already present in the repo — glob for `*.log`, `*.txt` in common output directories, or paths the user mentioned.
 - **Repo orientation**: `Task` subagent to identify the areas of the codebase most relevant to the failure (based on the error message or ticket keywords).
 
+### Rename the session
+
+After loading context, rename the session to reflect what's being investigated:
+
+```
+/rename NUMBER SHORT_TITLE (troubleshoot)
+```
+
+Where `NUMBER` is the ticket identifier (if available) and `SHORT_TITLE` is a 2–4 word summary of the failure. Examples:
+
+- `/rename VID-456 CI flake auth tests (troubleshoot)`
+- `/rename VID-789 migration timeout (troubleshoot)`
+
+If no ticket is involved, derive the title from the error or symptom:
+
+- `/rename segfault on startup (troubleshoot)`
+
 ### Clarify once, up front
 
 Identify any inputs that would materially change the investigation path (environment, reproduction steps, constraints). Batch them into a **single** `AskUserQuestion` call. Keep it short. If the ticket or error is clear enough, skip this entirely.

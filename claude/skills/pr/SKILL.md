@@ -27,6 +27,23 @@ Run in parallel:
 
 Extract a ticket ID from the branch name if present (e.g. `vidbina/vid-123-some-slug` → `VID-123`). If found, fetch the Linear issue (`get_issue`) for title and description.
 
+### Rename the session
+
+After context is gathered, rename the session to reflect the scope:
+
+```
+/rename NUMBER SHORT_TITLE (pr)
+```
+
+Where `NUMBER` is the ticket identifier and `SHORT_TITLE` is a 2–4 word summary from the ticket title or branch slug. Examples:
+
+- `/rename VID-662 rename titles (pr)`
+- `/rename VID-123 OAuth2 Google login (pr)`
+
+If no ticket is available, derive the title from the branch slug:
+
+- `/rename fix-typo-readme (pr)`
+
 ## Phase 2 — Detect base branch
 
 Find the correct base using this algorithm:

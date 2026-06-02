@@ -64,6 +64,26 @@ Examine the first argument (or the full prompt if no explicit argument):
 - **Iteration mode** — if the input contains a Linear issue URL (`https://linear.app/...`) or a bare issue identifier matching the pattern `[A-Z]+-\d+` (e.g. `VID-123`, `Z-419`), enter **iteration mode**. Capture the issue ID and the rest of the prompt as the user's intent. Skip to the [Iteration mode](#iteration-mode) section below; do not run the filing-mode phases.
 - **Filing mode** — otherwise, treat the input as a design note path or infer one. Continue with the filing-mode phases below.
 
+### Rename the session
+
+After detecting the mode, rename the session to reflect the scope:
+
+**Filing mode:**
+```
+/rename SHORT_TITLE (linearissue)
+```
+Where `SHORT_TITLE` is derived from the design note's slug or title. Examples:
+- `/rename card layout abstraction (linearissue)`
+- `/rename auth token storage (linearissue)`
+
+**Iteration mode:**
+```
+/rename NUMBER SHORT_TITLE (linearissue:iterate)
+```
+Where `NUMBER` is the issue identifier and `SHORT_TITLE` is from the issue title. Examples:
+- `/rename VID-123 OAuth2 Google login (linearissue:iterate)`
+- `/rename Z-419 frame routing (linearissue:iterate)`
+
 ### Triage: check for duplicates and scope overlap
 
 Before creating any new issue — whether from a design note or freeform — run a tiered check to avoid duplicates, scope overlap, and contradictions in the backlog. This applies in both filing mode and when other skills (pairprog, freeform conversation) route through `save_issue` to create a ticket.

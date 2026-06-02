@@ -112,6 +112,24 @@ The kb's key test: *"Does this decision affect how code is written, deployed, or
 
 Write out the routing decision explicitly in your Phase 4 "locked decisions" commitment so the user can see and override.
 
+### Rename the session
+
+After interpreting the prompt, rename the session to reflect the design topic:
+
+```
+/rename SHORT_TITLE (designnote)
+```
+
+Where `SHORT_TITLE` is a 2–4 word summary of the design problem. Examples:
+
+- `/rename card layout abstraction (designnote)`
+- `/rename auth token storage (designnote)`
+- `/rename LLM fallback strategy (designnote)`
+
+If a Linear ticket is related, include the ticket number:
+
+- `/rename VID-123 auth token storage (designnote)`
+
 ## Phase 2 — Scope discovery (parallel, read-only)
 
 Fan out read-only queries to discover what already exists. These can run in parallel:
