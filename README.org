@@ -2994,6 +2994,16 @@ pkgs.yq
 pkgs.jless
 #+end_src
 
+*** Document tools
+
+**** Poppler
+
+[[https://poppler.freedesktop.org/][Poppler]] is a PDF rendering library that ships a suite of CLI utilities: =pdftotext=, =pdftoppm=, =pdfinfo=, =pdfimages=, =pdfseparate=, =pdfunite=, etc.
+
+#+begin_src nix :noweb-ref dev-packages
+pkgs.poppler-utils
+#+end_src
+
 *** DB
 
 **** SQLite
