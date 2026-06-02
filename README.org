@@ -5500,6 +5500,14 @@ We prefer Claude Code in a panel, so let's set that up so it will be honored in 
 "superwhisper"
 #+end_src
 
+**** Granola
+
+[[https://granola.ai][Granola]] is an AI meeting notepad for macOS that passively captures audio during meetings and generates structured notes.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"granola"
+#+end_src
+
 *** Gemini
 
 #+begin_src nix :noweb-ref dev-packages
