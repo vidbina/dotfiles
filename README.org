@@ -2440,6 +2440,27 @@ direnv = {
 zsh.enable = true;
 #+end_src
 
+**** Project .envrc
+
+When a project provides a =flake.nix= with a =devShells.default=, a
+one-line =.envrc= enables automatic shell activation on =cd= via direnv
++ nix-direnv:
+
+#+begin_src bash :tangle .envrc
+use flake
+#+end_src
+
+**Why this is safe to track.** A =use flake= directive is a declarative
+tooling instruction — comparable to a =Makefile= or =.tool-versions=.
+It contains no secrets and is idempotent. The overwhelming majority of
+the Nix ecosystem (4 700+ repos on GitHub) commits these files. The
+=direnv allow= gate ensures no =.envrc= runs without explicit opt-in.
+
+**Secrets belong elsewhere.** If a project needs environment variables
+with sensitive values (API keys, database URLs), put them in
+=.envrc.local= or =.env= and add those to the project's =.gitignore=.
+Never put secrets in =.envrc=.
+
 **** Devenv
 
 #+begin_src nix :noweb-ref dev-packages
