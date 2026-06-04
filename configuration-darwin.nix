@@ -240,6 +240,7 @@ with lib;
       "claude"
       "anthropics/tap/ant"
       "superwhisper"
+      "granola"
       (if pkgs.stdenv.hostPlatform.system == "aarch64-darwin" then "chatgpt" else null)
     ];
     masApps = {

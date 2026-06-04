@@ -59,6 +59,7 @@
     pkgs.jq
     pkgs.yq
     pkgs.jless
+    pkgs.poppler-utils
     pkgs.sqlite-interactive
     pkgs.redis
     pkgs.fswatch
