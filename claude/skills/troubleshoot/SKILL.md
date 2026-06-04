@@ -45,20 +45,9 @@ Once the target is known, load in parallel:
 
 ### Rename the session
 
-After loading context, rename the session to reflect what's being investigated:
+After loading context, rename the session so the user can identify it at a glance (e.g. in a terminal tab or session list). A good name includes the ticket number (if available) and a 2–4 word summary of the failure — e.g. "VID-456 CI flake auth tests (troubleshoot)" or "segfault on startup (troubleshoot)".
 
-```
-/rename NUMBER SHORT_TITLE (troubleshoot)
-```
-
-Where `NUMBER` is the ticket identifier (if available) and `SHORT_TITLE` is a 2–4 word summary of the failure. Examples:
-
-- `/rename VID-456 CI flake auth tests (troubleshoot)`
-- `/rename VID-789 migration timeout (troubleshoot)`
-
-If no ticket is involved, derive the title from the error or symptom:
-
-- `/rename segfault on startup (troubleshoot)`
+If a tool or command is available to rename the session programmatically, use it. Otherwise, suggest the user rename it — but don't block on this. Move on to investigation either way.
 
 ### Clarify once, up front
 

@@ -30,17 +30,9 @@ If `WebSearch` and `WebFetch` are unavailable in the current session (e.g. polic
 
 ### Rename the session
 
-After interpreting the request, rename the session to reflect the research topic:
+After interpreting the request, rename the session so the user can identify it at a glance (e.g. in a terminal tab). A good name is a 2–4 word summary of the research question — e.g. "LLM eval frameworks (qsearch)" or "nix flake best practices (qsearch)".
 
-```
-/rename SHORT_TITLE (qsearch)
-```
-
-Where `SHORT_TITLE` is a 2–4 word summary of the research question. Examples:
-
-- `/rename LLM eval frameworks (qsearch)`
-- `/rename nix flake best practices (qsearch)`
-- `/rename Rust vs Go for CLI (qsearch)`
+If a tool or command is available to rename the session programmatically, use it. Otherwise, suggest the user rename it — but don't block on this. Move on to research either way.
 
 ### Restate
 

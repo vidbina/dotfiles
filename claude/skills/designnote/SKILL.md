@@ -114,21 +114,9 @@ Write out the routing decision explicitly in your Phase 4 "locked decisions" com
 
 ### Rename the session
 
-After interpreting the prompt, rename the session to reflect the design topic:
+After interpreting the prompt, rename the session so the user can identify it at a glance (e.g. in a terminal tab). A good name is a 2–4 word summary of the design topic — e.g. "card layout abstraction (designnote)" or "VID-123 auth token storage (designnote)" if a ticket is related.
 
-```
-/rename SHORT_TITLE (designnote)
-```
-
-Where `SHORT_TITLE` is a 2–4 word summary of the design problem. Examples:
-
-- `/rename card layout abstraction (designnote)`
-- `/rename auth token storage (designnote)`
-- `/rename LLM fallback strategy (designnote)`
-
-If a Linear ticket is related, include the ticket number:
-
-- `/rename VID-123 auth token storage (designnote)`
+If a tool or command is available to rename the session programmatically, use it. Otherwise, suggest the user rename it — but don't block on this. Move on to scope discovery either way.
 
 ## Phase 2 — Scope discovery (parallel, read-only)
 
