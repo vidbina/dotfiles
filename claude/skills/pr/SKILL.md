@@ -29,20 +29,9 @@ Extract a ticket ID from the branch name if present (e.g. `vidbina/vid-123-some-
 
 ### Rename the session
 
-After context is gathered, rename the session to reflect the scope:
+After context is gathered, rename the session so the user can identify it at a glance (e.g. in a terminal tab). A good name includes the ticket number and a 2–4 word summary — e.g. "VID-662 rename titles (pr)".
 
-```
-/rename NUMBER SHORT_TITLE (pr)
-```
-
-Where `NUMBER` is the ticket identifier and `SHORT_TITLE` is a 2–4 word summary from the ticket title or branch slug. Examples:
-
-- `/rename VID-662 rename titles (pr)`
-- `/rename VID-123 OAuth2 Google login (pr)`
-
-If no ticket is available, derive the title from the branch slug:
-
-- `/rename fix-typo-readme (pr)`
+If a tool or command is available to rename the session programmatically, use it. Otherwise, suggest the user rename it — but don't block on this. Move on to drafting either way.
 
 ## Phase 2 — Detect base branch
 

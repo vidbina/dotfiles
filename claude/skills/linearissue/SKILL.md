@@ -70,29 +70,9 @@ Examine the first argument (or the full prompt if no explicit argument):
 
 After detecting the mode, rename the session to reflect the scope:
 
-**Filing mode:**
-```
-/rename SHORT_TITLE (linearissue)
-```
-Where `SHORT_TITLE` is derived from the design note's slug or title. Examples:
-- `/rename card layout abstraction (linearissue)`
-- `/rename auth token storage (linearissue)`
+Rename the session so the user can identify it at a glance (e.g. in a terminal tab). A good name reflects the mode and scope — e.g. "card layout abstraction (linearissue)" for filing, "VID-123 OAuth2 Google login (linearissue:iterate)" for iteration, or "auth token storage (linearissue:freeform)" for freeform.
 
-**Iteration mode:**
-```
-/rename NUMBER SHORT_TITLE (linearissue:iterate)
-```
-Where `NUMBER` is the issue identifier and `SHORT_TITLE` is from the issue title. Examples:
-- `/rename VID-123 OAuth2 Google login (linearissue:iterate)`
-- `/rename Z-419 frame routing (linearissue:iterate)`
-
-**Freeform mode:**
-```
-/rename SHORT_TITLE (linearissue:freeform)
-```
-Where `SHORT_TITLE` is derived from the user's prompt. Examples:
-- `/rename auth token storage (linearissue:freeform)`
-- `/rename CI for agents (linearissue:freeform)`
+If a tool or command is available to rename the session programmatically, use it. Otherwise, suggest the user rename it — but don't block on this. Move on to the next phase either way.
 
 ### Triage: check for duplicates and scope overlap
 
