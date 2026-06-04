@@ -2,7 +2,7 @@
 name: pairprog
 description: "Use this skill when the user wants to pair-program on a ticket — working through a Linear issue collaboratively with the AI driving and the human navigating. Trigger for prompts like 'let's work on this ticket', 'pair on LIN-123', 'pairprog', 'let's tackle this branch', 'work on the current branch', 'pick up LIN-123', 'start working on this', 'let's pair on this'. Also trigger when the user invokes `/pairprog`. The skill reads the current branch (or a specified ticket/branch), looks up the Linear ticket, explores the codebase for context, identifies unknowns and feasibility risks, asks the human navigator for direction on key decisions, then executes the work in atomic steps with frequent HITL checkpoints. It uses concurrent subagents to parallelize independent exploration and implementation work. It comments assessments, spike findings, and plans back to the Linear ticket so context survives across sessions. In default mode, the human commits after reviewing each atomic change. In yolo mode, the skill auto-commits atomically and gates at PR creation. This is NOT a walk-away skill. It is an interactive pairing session where the human stays engaged as navigator. Do NOT trigger for autonomous background work (use designnote or direct implementation), for ticket creation (use linearissue), for research without implementation (use qsearch), or for commit message drafting (use commitmsg)."
 api_description: "Pair-program on a Linear ticket: explore the codebase, assess unknowns, spike on feasibility, plan atomic steps, and implement with frequent HITL checkpoints. Posts assessments, spike findings, and progress back to the Linear ticket. Human commits each step; AI drives."
-allowed-tools: Bash Glob Grep Read Write Edit Task Skill AskUserQuestion WebFetch mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__save_comment mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_issue_statuses mcp__claude_ai_Linear__list_issue_labels
+allowed-tools: Bash Glob Grep Read Write Edit Task Skill AskUserQuestion WebFetch mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_issue_statuses mcp__claude_ai_Linear__list_issue_labels
 ---
 
 # pairprog
@@ -24,6 +24,8 @@ The defining design principles are:
 > **Parallel where possible.** Use subagents for independent exploration and implementation tasks. Don't serialize work that can run concurrently. But always reconvene with the navigator before acting on findings.
 >
 > **Comment everything back to the ticket.** Assessments, spike findings, plans, and step completions are posted as Linear comments. This means a cancelled session can be picked up later — the ticket carries the full context.
+
+**Commenting protocol.** All Linear comments are posted via the `commenting` skill (`Skill("commenting", ...)`). Pairprog describes what to comment; the commenting skill handles formatting, provenance, and threading. Store anchor comment IDs returned by the commenting skill to thread subsequent replies.
 
 ## Commit modes
 
@@ -170,19 +172,17 @@ Read the ticket and existing branch work. Categorize what remains:
 
 ### Comment the assessment to Linear
 
-Post a single comment to the ticket with the full assessment using `save_comment`:
+Post the assessment as an anchor comment via the commenting skill. Include the categorized unknowns (Clear and ready / Unclear / Feasibility unknowns / Blocked) as the body content:
 
-```markdown
-**Assessment** (pairprog)
-
-*[ai:claude-code]*
+```
+Skill("commenting", "Post an anchor comment on {ticket-id} titled \"Assessment\" from skill \"pairprog\" with body:
 
 **Clear and ready:**
 - Add Google OAuth callback endpoint
 - Store refresh tokens in existing session table
 
 **Unclear — need navigator input:**
-- Token expiry handling — ticket says "handle gracefully" but doesn't specify
+- Token expiry handling — ticket says \"handle gracefully\" but doesn't specify
 - Scope of Google permissions — email only, or also profile?
 
 **Feasibility unknowns — spiking:**
@@ -190,8 +190,10 @@ Post a single comment to the ticket with the full assessment using `save_comment
 - Session table schema — can we store tokens without a migration?
 
 **Blocked:**
-- (none)
+- (none)")
 ```
+
+Store the returned anchor comment ID — spike findings and other assessment follow-ups thread under it.
 
 ### Spike on feasibility (parallel)
 
@@ -203,12 +205,10 @@ For each feasibility unknown, spawn a `Task` subagent to investigate:
 
 Subagents are read-only investigators. They don't write production code.
 
-**Wait for all spikes to complete before commenting.** Don't post "starting spike" comments — post one consolidated findings comment per spike after the subagent returns:
+**Wait for all spikes to complete before commenting.** Don't post "starting spike" comments — post one consolidated findings anchor per spike after the subagent returns, via the commenting skill:
 
-```markdown
-**Spike: Google OAuth library compatibility** (pairprog)
-
-*[ai:claude-code]*
+```
+Skill("commenting", "Post an anchor comment on {ticket-id} titled \"Spike: Google OAuth library compatibility\" from skill \"pairprog\" with body:
 
 **Verdict:** Feasible ✓
 
@@ -216,7 +216,7 @@ Subagents are read-only investigators. They don't write production code.
 against our `tsconfig.json` paths — no conflicts. The `OAuth2Client` class exposes
 `getToken()` and `refreshToken()` which map directly to our needs.
 
-Relevant code: `src/config/auth.ts` already has a provider pattern we can extend.
+Relevant code: `src/config/auth.ts` already has a provider pattern we can extend.")
 ```
 
 ### Check in with the navigator
@@ -289,20 +289,18 @@ Wait for the navigator's approval or adjustment before proceeding.
 
 ### Comment the plan to Linear
 
-After the navigator approves (or adjusts) the plan, post it as a comment:
+After the navigator approves (or adjusts) the plan, post it as an anchor comment via the commenting skill:
 
-```markdown
-**Plan** (pairprog)
-
-*[ai:claude-code]*
+```
+Skill("commenting", "Post an anchor comment on {ticket-id} titled \"Plan\" from skill \"pairprog\" with body:
 
 - [ ] Step 1: Add Google OAuth callback route
 - [ ] Step 2: Token storage in session metadata (parallel with 3)
 - [ ] Step 3: Silent token refresh middleware (parallel with 2)
-- [ ] Step 4: Update login UI with Google button (after 1-3)
+- [ ] Step 4: Update login UI with Google button (after 1-3)")
 ```
 
-This checklist serves as the resumption point if the session is interrupted.
+Store the returned plan anchor comment ID — all step completions and mid-session adaptations thread under it. This checklist serves as the resumption point if the session is interrupted.
 
 ## Phase 3 — Execute
 
@@ -323,17 +321,15 @@ For each step:
 
 ### Comment step completions to Linear
 
-After each step is committed (by the navigator in checkpoint mode, or auto-committed in yolo mode), post a brief comment:
+After each step is committed (by the navigator in checkpoint mode, or auto-committed in yolo mode), post a reply threaded under the plan anchor via the commenting skill:
 
-```markdown
-**Step 1 complete** (pairprog)
-
-*[ai:claude-code]*
+```
+Skill("commenting", "Reply to anchor {plan-comment-id} on {ticket-id} titled \"Step 1 complete\" from skill \"pairprog\" with body:
 
 Added Google OAuth callback route in `src/routes/auth.ts` and `src/config/oauth.ts`.
 Test added in `src/routes/__tests__/auth.test.ts` — passing.
 
-Commit: `a1b2c3d`
+Commit: `a1b2c3d`")
 ```
 
 ### Parallel execution
@@ -358,15 +354,15 @@ Pair programming is fluid. The plan from Phase 2 is a starting point, not a cont
 
 Accommodate without friction. The navigator steers.
 
-When mid-session adaptation happens, comment the change to Linear with a recognizable marker:
+When mid-session adaptation happens, post the change as a reply to the plan anchor via the commenting skill. Use the appropriate emoji prefix in the title:
 
-```markdown
-🚨 **Plan adjusted** (pairprog)
+```
+Skill("commenting", "Reply to anchor {plan-comment-id} on {ticket-id} titled \"🚨 Plan adjusted\" from skill \"pairprog\" with body:
 
 Step 3 (Silent token refresh middleware) replaced with:
 Step 3a: Explicit re-login flow on token expiry
 
-Reason: Navigator decided silent refresh adds complexity without clear UX benefit.
+Reason: Navigator decided silent refresh adds complexity without clear UX benefit.")
 ```
 
 Use these emojis for mid-session events:
@@ -406,12 +402,10 @@ If the navigator says "not yet" or "more work needed," skip. The navigator will 
 
 ### Comment wrap-up to Linear
 
-Post a final session summary comment:
+Post a final session summary as a resolution reply to the plan anchor via the commenting skill:
 
-```markdown
-**Session complete** (pairprog)
-
-*[ai:claude-code]*
+```
+Skill("commenting", "Reply to anchor {plan-comment-id} on {ticket-id} titled \"✅ Session complete\" from skill \"pairprog\" with body:
 
 **Completed:**
 - [x] Step 1: OAuth callback route
@@ -422,7 +416,7 @@ Post a final session summary comment:
 **Remaining:**
 - (none — PR created: #47)
 
-**Commits:** a1b2c3d, d4e5f6a, b7c8d9e, f0a1b2c
+**Commits:** a1b2c3d, d4e5f6a, b7c8d9e, f0a1b2c")
 ```
 
 ## Anti-patterns

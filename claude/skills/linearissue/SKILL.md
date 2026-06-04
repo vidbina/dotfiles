@@ -2,7 +2,7 @@
 name: linearissue
 description: "Use this skill when the user asks you to turn a design note's action items into Linear issues, OR when the user wants to iterate on an existing Linear issue. Filing mode triggers: 'file tickets from this note', 'linearize X', 'create Linear issues for the action items in X', 'turn this note into tickets', 'ship this to Linear', 'file these TODOs from the design note', 'make tickets from X', 'linearissue this note', 'create issues from X.md'. Iteration mode triggers: user passes a Linear issue URL (e.g. https://linear.app/...) or issue ID (e.g. VID-123) with a follow-on prompt like 'help me refine this', 'roast this scope', 'add context about X', 'what questions should we answer first', 'sharpen the description', or any request to think about, improve, or comment on an existing issue. Also trigger when the user invokes `/linearissue`. Do NOT trigger for creating Linear documents (that's the designnote skill's strategy-routing path), for filing tickets from `docs/decisions/` ADRs (decisions are made; they don't spawn tickets), or for any operation that would also commit to git."
 api_description: "File action items from a design note as Linear issues with bidirectional cross-references and idempotent re-runs, or iterate on an existing Linear issue by posting analysis, context, or refinements as comments. Two modes: filing (from a note) and iteration (from a ticket ID or URL)."
-allowed-tools: Bash Glob Grep Read Edit WebFetch AskUserQuestion mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__save_comment mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_issue_statuses mcp__claude_ai_Linear__list_issue_labels mcp__github__list_pull_requests mcp__github__pull_request_read mcp__github__search_pull_requests
+allowed-tools: Bash Glob Grep Read Edit WebFetch AskUserQuestion Skill mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_issue mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__claude_ai_Linear__list_issue_statuses mcp__claude_ai_Linear__list_issue_labels mcp__github__list_pull_requests mcp__github__pull_request_read mcp__github__search_pull_requests
 ---
 
 # linearissue
@@ -49,7 +49,8 @@ The human gate on the design note itself is where the real review happens. By th
 - `WebFetch` — follow URLs referenced in the note when enriching ticket descriptions
 - `AskUserQuestion` — the confirmation gate (and batched clarification if needed)
 - Linear MCP read tools — search for existing tickets, resolve teams/projects, look up statuses and labels
-- Linear MCP write tools — `save_issue`, `save_comment`
+- `Skill` — invoke the `commenting` skill for posting comments to Linear issues
+- Linear MCP write tools — `save_issue`
 
 The skill does not declare `Task` — there is no parallel research phase. Ticket derivation is deterministic and serial.
 
@@ -289,7 +290,7 @@ For mixed intents, address all of them in a single pass rather than asking for c
 
 Produce one or both of:
 
-1. **Comment draft** — the primary output in almost all cases. Write it as you would a thoughtful comment from a collaborator: direct, specific, actionable. Scope crystallization, analysis, questions, and context all belong here. Always open the comment with `*[ai:claude-code]*` so readers know before the content.
+1. **Comment draft** — the primary output in almost all cases. Write it as you would a thoughtful comment from a collaborator: direct, specific, actionable. Scope crystallization, analysis, questions, and context all belong here. (Provenance and formatting are handled by the commenting skill — do not add `*[ai:claude-code]*` manually.)
 2. **Anchor update** — only if the intent is explicitly to fix the title or description. Draft the new title and/or description. Keep to 2–4 sentences. Do not migrate comment-appropriate content into the description.
 
 Print both drafts in chat before asking for confirmation. Make it easy to scan.
@@ -306,7 +307,7 @@ On "Edit first": ask what to change, revise, re-present, confirm again.
 
 On approval, write in this order:
 1. `save_issue` for any title/description changes (only if confirmed)
-2. `save_comment` for the comment (only if confirmed)
+2. `Skill("commenting", ...)` to delegate the comment to the commenting skill (only if confirmed) — describe the issue ID, comment title (e.g. "Assessment", "Context", "Scope refinement"), the originating skill name ("linearissue"), and the comment body. The commenting skill handles formatting, provenance, and threading.
 
 ### Summary
 
@@ -350,4 +351,4 @@ The skill's `allowed-tools` declaration pre-approves the tool categories. For sc
 
 The skill checks for this grant in Phase 0 and warns if it's missing.
 
-Linear MCP write tools (`save_issue`, `save_comment`) are declared in `allowed-tools` and should not require per-call approval. If they do, the walk-away UX breaks — configure pre-approval before first use.
+Linear MCP write tool (`save_issue`) is declared in `allowed-tools` and should not require per-call approval. If it does, the walk-away UX breaks — configure pre-approval before first use. Comments are posted via `Skill("commenting", ...)`, which requires the `Skill` tool to be allowed so the commenting skill can be invoked.

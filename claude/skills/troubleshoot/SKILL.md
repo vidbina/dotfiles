@@ -2,7 +2,7 @@
 name: troubleshoot
 description: "Use this skill when the user wants to diagnose an error, investigate a failure, or root-cause a bug — without necessarily fixing it right away. Trigger for prompts like 'troubleshoot X', 'why is Y failing', 'debug this error', 'investigate LIN-123', 'figure out what's wrong with Z', 'look into this CI failure', 'root-cause this crash', or when the user invokes `/troubleshoot`. The skill is a walk-away investigator: it runs read-only commands, tees output to files, investigates in parallel via subagents, formulates a root-cause hypothesis, and confirms it with a minimal reproducible test — all with minimal interrupts so the operator can step away and return to a finished report. Findings are posted as Linear comments or design note updates depending on context. If a fix is needed after the diagnosis, the skill hands off to /pairprog. Do NOT trigger when the user wants to immediately implement a fix (use /pairprog), when pure web research suffices (use /qsearch), or when the issue is a design decision rather than a failure (use /designnote)."
 api_description: "Diagnose a failure autonomously: run read-only commands, investigate in parallel via subagents, formulate a root-cause hypothesis, confirm with a minimal repro, and post findings as a Linear comment or design note update. Walk-away investigation; hands off to pairprog if a fix is needed."
-allowed-tools: Bash Glob Grep Read Task AskUserQuestion WebSearch WebFetch mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__save_comment mcp__claude_ai_Linear__get_document mcp__claude_ai_Linear__list_documents mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__github__pull_request_read mcp__github__list_pull_requests mcp__github__get_commit mcp__github__list_commits mcp__github__search_code
+allowed-tools: Bash Glob Grep Read Task AskUserQuestion WebSearch WebFetch Skill mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__get_document mcp__claude_ai_Linear__list_documents mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__github__pull_request_read mcp__github__list_pull_requests mcp__github__get_commit mcp__github__list_commits mcp__github__search_code
 ---
 
 # troubleshoot
@@ -180,12 +180,10 @@ Wait for the operator's answer before writing anything to disk, posting any comm
 
 ### Persist on confirmation
 
-If the operator selects Linear comment, post:
+If the operator selects Linear comment, delegate to the commenting skill:
 
-```markdown
-**Troubleshoot findings** (troubleshoot)
-
-*[ai:claude-code]*
+```
+Skill("commenting", "Post an anchor comment on {TICKET-ID} titled \"Troubleshoot findings\" from skill \"troubleshoot\" with body:
 
 **Root cause:**
 <one-sentence hypothesis>
@@ -195,9 +193,9 @@ If the operator selects Linear comment, post:
 - <finding 2>
 
 **Reproduction:**
-```bash
+\`\`\`bash
 <minimal repro command>
-```
+\`\`\`
 Output: `troubleshoot-output/repro.txt`
 
 **Ruled out:**
@@ -206,10 +204,12 @@ Output: `troubleshoot-output/repro.txt`
 **Confidence:** high / medium / low — <reason>
 
 **Recommended next step:**
-<fix suggestion, or "needs human input on X before proceeding">
+<fix suggestion, or \"needs human input on X before proceeding\">
 
-**Investigation artifacts:** `troubleshoot-output/` (in working directory)
+**Investigation artifacts:** `troubleshoot-output/` (in working directory)")
 ```
+
+The commenting skill handles heading format, provenance markers, and threading. Do not format these yourself.
 
 If the operator selects design note update or local file, write the same content to the appropriate target.
 
