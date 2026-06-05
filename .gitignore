@@ -38,3 +38,6 @@ devenv.local.nix
 
 # Knowledge base symlink
 kb
+
+# Dispatch run state (managed agent session IDs and results)
+dispatch-runs/
