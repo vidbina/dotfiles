@@ -1,5 +1,5 @@
 # Tangled from README.org
-{ config, pkgs, lib, dotfilesPath, ... }:
+{ config, pkgs, lib, inputs, dotfilesPath, ... }:
 
 {
   imports = [
@@ -36,7 +36,7 @@
     pkgs.jujutsu
     pkgs.gh
     pkgs.glab
-    devenv
+    inputs.devenv.packages.${pkgs.system}.devenv
     alacritty
     wezterm
     xxd
