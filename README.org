@@ -5467,6 +5467,27 @@ I manage my Claude Code skills (and eventually agents and slash commands) from t
 
 Only the specific subpaths I own are symlinked — runtime state like =history.jsonl=, =sessions/=, =projects/=, =todos/=, and =shell-snapshots/= stays untouched under =~/.claude/=. If I want to add =agents/= or =commands/= later, they each get their own =home.file= entry alongside this one rather than symlinking =~/.claude= as a whole.
 
+****** Skill sources
+
+Some skills are authored directly in this repo (=context7-mcp=, =dispatch=, =qsearch=, =troubleshoot=, =untypo=). Others live canonically in external repos and are resolved via local symlinks — not tracked in git, since the paths are machine-specific.
+
+After cloning, create these symlinks manually:
+
+#+begin_src bash :eval no
+# Engineering skills from the KB repo (asabina-de/kb)
+ln -s /path/to/kb/skills/commenting   claude/skills/commenting
+ln -s /path/to/kb/skills/commitmsg    claude/skills/commitmsg
+ln -s /path/to/kb/skills/designnote   claude/skills/designnote
+ln -s /path/to/kb/skills/linearissue  claude/skills/linearissue
+ln -s /path/to/kb/skills/pairprog     claude/skills/pairprog
+ln -s /path/to/kb/skills/pr           claude/skills/pr
+
+# Project-specific skills from other repos
+ln -s /path/to/philipps-byrne/claude/skills/techddreport  claude/skills/techddreport
+#+end_src
+
+These symlinks are followed by the =mkOutOfStoreSymlink= chain — =~/.claude/skills/= points to this directory, and the symlinks within resolve to the external repos. Editing a skill in the KB repo is immediately visible to Claude Code.
+
 #+begin_src nix :noweb-ref home-darwin-home-file
 ".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/skills";
 #+end_src
