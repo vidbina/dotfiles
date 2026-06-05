@@ -18,6 +18,7 @@
     linsk.inputs.nixpkgs.follows = "nixpkgs";
     vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
     vscode-extensions.inputs.nixpkgs.follows = "nixpkgs";
+    devenv.url = "github:cachix/devenv/v2.1.2";
   };
 
   outputs =
@@ -53,6 +54,7 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = {
+                inherit inputs;
                 inherit (machine) username dotfilesPath;
               };
               home-manager.users.${machine.username} = import ./home-darwin.nix;

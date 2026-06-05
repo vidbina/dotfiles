@@ -328,7 +328,7 @@ Navigate to the "Full Disk Access" setting and enable access for the Terminal.
 
 #+begin_src nix :noweb yes :tangle home-darwin.nix
 # Tangled from README.org
-{ config, pkgs, lib, dotfilesPath, ... }:
+{ config, pkgs, lib, inputs, dotfilesPath, ... }:
 
 {
   imports = [
@@ -2463,8 +2463,11 @@ Never put secrets in =.envrc=.
 
 **** Devenv
 
+Pinned via flake input to get ahead of nixpkgs (which lags behind).
+The =inputs= argument is passed through =extraSpecialArgs= in =flake.nix=.
+
 #+begin_src nix :noweb-ref dev-packages
-devenv
+inputs.devenv.packages.${pkgs.system}.devenv
 #+end_src
 
 **** Xcode
