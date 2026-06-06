@@ -223,6 +223,21 @@ This repo contains Claude Code's own configuration (`claude/settings.json`, `cla
 
 **Why this matters:** A cancelled session with no handover comment means lost context. The ticket comment is durable — it survives across sessions, machines, and people. Always write it before suggesting a restart.
 
+## Issue labeling conventions
+
+This is a system configuration repo (dotfiles), not an application. The meaning of labels shifts accordingly:
+
+- **Feature** — a new capability enabled on the system. Installing an app, enabling a service, adding a new workflow, wiring a new MCP. In an app repo this might be "Tooling" but here every new capability IS the product.
+- **Improvement** — an existing capability works better. Faster devenv, colored ls, shorter shell startup. The thing already existed; now it's nicer.
+- **Tooling** — meta: changes to *how we configure*, not *what we configure*. Flake refactors, switching literate config frameworks, devenv vs nix-develop, CI pipeline structure, skill infrastructure. If it's about the machinery of managing config rather than the config itself, it's Tooling.
+- **Research** — investigation with a decision deliverable. Often paired with Feature (deciding whether to enable something) or Tooling (deciding how to restructure).
+- **Security** — commit signing, permission models, secret management, hook guardrails.
+- **Debt** — dead code removal, stale config cleanup, migration leftovers.
+- **Docs** — AGENTS.md, README.org prose, CONTRIBUTING.md updates that aren't tied to a code change.
+- **Engineering** — CI, testing infrastructure, validation jobs. The plumbing that keeps the repo healthy.
+
+When in doubt between Feature and Tooling: if a user of this machine would notice the change (new app available, new command works), it's Feature. If only the maintainer of the config notices (cleaner flake, better tangle workflow), it's Tooling.
+
 ## Commit message conventions
 
 - **Format:** `<type>(<scope>): <subject> [ai:claude]` — the `[ai:claude]` tag always goes at the end of the subject line for AI-authored commits
