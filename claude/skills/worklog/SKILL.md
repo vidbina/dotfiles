@@ -79,21 +79,72 @@ Derive from (in priority order):
 
 Keep to ~3-6 words. This is for calendar glanceability, not precision.
 
+## Heartbeat database
+
+Activity is tracked via a SQLite database at `~/.claude/worklog.db`. A `UserPromptSubmit` hook appends a heartbeat on every user message — this captures thinking/reviewing/discussing time that git history misses.
+
+### Schema
+
+```sql
+CREATE TABLE IF NOT EXISTS heartbeats (
+  ts TEXT NOT NULL,
+  project TEXT NOT NULL,
+  cwd TEXT NOT NULL,
+  flushed INTEGER DEFAULT 0  -- 0 = pending, 1 = written to calendar
+);
+CREATE INDEX IF NOT EXISTS idx_heartbeats_project_flushed ON heartbeats(project, flushed);
+```
+
+### UserPromptSubmit hook
+
+The hook appends one row per user message:
+
+```bash
+sqlite3 ~/.claude/worklog.db "
+  CREATE TABLE IF NOT EXISTS heartbeats (ts TEXT NOT NULL, project TEXT NOT NULL, cwd TEXT NOT NULL, flushed INTEGER DEFAULT 0);
+  INSERT INTO heartbeats(ts, project, cwd) VALUES(
+    strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
+    '$(cd \"\$PWD\" && basename \"\$(git remote get-url origin 2>/dev/null || echo \"\$PWD\")\" | cut -d- -f1 | tr '[:upper:]' '[:lower:]')',
+    '\$PWD'
+  );
+"
+```
+
+The `CREATE TABLE IF NOT EXISTS` makes the hook idempotent — first run creates the table, subsequent runs just insert.
+
+### Lifecycle
+
+1. **Hook writes heartbeats** — one per user prompt, with project code and timestamp
+2. **Cron reads unflushed heartbeats** — clusters them into work blocks
+3. **Cron writes to calendar** — creates/extends entries
+4. **Cron marks heartbeats as flushed** — `UPDATE heartbeats SET flushed = 1 WHERE ...`
+5. **Periodic purge** — `DELETE FROM heartbeats WHERE flushed = 1 AND ts < datetime('now', '-30 days')`
+
 ## Cron behavior (every 31 min)
 
 On each cron fire:
 
-### 1. Check staleness
+### 1. Read unflushed heartbeats
 
-Determine when the last meaningful activity occurred in this session. Meaningful activity = last user prompt or last tool use (whichever is more recent).
+```sql
+SELECT ts, project FROM heartbeats
+WHERE project = '{project}' AND flushed = 0
+ORDER BY ts;
+```
 
-| Last activity | Action |
+If no unflushed heartbeats exist, exit immediately. Don't touch the calendar.
+
+### 2. Check staleness
+
+Determine when the most recent heartbeat occurred for this project.
+
+| Last heartbeat | Action |
 |---|---|
-| **Within 20 min** | Create or extend the calendar entry (active work) |
-| **20-30 min ago** | Extend entry to the last activity timestamp, then stop updating (close off the block) |
-| **31+ min ago** | Do nothing. Don't touch the calendar. Exit immediately. |
+| **Within 20 min of now** | Create or extend the calendar entry (active work) |
+| **20-30 min ago** | Extend entry to the last heartbeat timestamp, then flush (close off the block) |
+| **31+ min ago** | Flush heartbeats up to that point, close the entry. Exit. |
 
-### 2. Find or create the entry
+### 3. Find or create the calendar entry
 
 Search for today's entries on the Work Log calendar matching this project:
 
@@ -112,11 +163,28 @@ list_events(
 
 **If no matching entry exists:** create a new entry:
 - `summary`: `{project}: {short description}`
-- `startTime`: now (rounded down to 10-min)
+- `startTime`: earliest unflushed heartbeat (rounded down to 10-min)
 - `endTime`: now + 15 min (rounded to 10-min)
 - `calendarId`: the Work Log calendar ID
 
-### 3. Round to 10-min boundaries
+### 4. Flush heartbeats
+
+After successfully writing to the calendar:
+
+```sql
+UPDATE heartbeats SET flushed = 1
+WHERE project = '{project}' AND flushed = 0 AND ts <= '{latest_ts}';
+```
+
+### 5. Purge old data
+
+On each cron fire, clean up flushed heartbeats older than 30 days:
+
+```sql
+DELETE FROM heartbeats WHERE flushed = 1 AND ts < datetime('now', '-30 days');
+```
+
+### 6. Round to 10-min boundaries
 
 All times round to the nearest 10 minutes:
 - 14:03 → 14:00
@@ -127,17 +195,19 @@ All times round to the nearest 10 minutes:
 
 On the first cron fire for a project (determined by zero matching entries in the Work Log calendar for that project in the last 30 days), reconstruct historical work blocks from git history.
 
+Backpopulated entries use git commit timestamps only — they miss thinking/reviewing/discussing time between commits. The `[backfill]` postfix makes this quality distinction visible so backfilled entries are never confused with heartbeat-sourced entries.
+
 ### Algorithm
 
 ```bash
-# Get all commits by the user in the last 30 days, with timestamps
-git log --format="%aI" --author="David" --since="30 days ago" --all
+# Get all commits by the user in the last 30 days, with timestamps and subjects
+git log --format="%aI|%s" --author="David" --since="30 days ago" --all
 ```
 
 **Clustering:** Group commits into work blocks. Two commits are in the same block if they're within 30 min of each other. Each block's:
 - `startTime` = first commit in the cluster (rounded down to 10-min)
 - `endTime` = last commit in the cluster + 15 min (rounded up to 10-min)
-- `summary` = `{project}: backfill` (or derive from the most common commit scope in the cluster)
+- `summary` = `{project}: {scope} [backfill]` — scope derived from the most common conventional commit scope in the cluster (e.g. `skills`, `hooks`, `git tooling`, `nix config`). Always postfixed with `[backfill]`.
 
 **Guard:** Only backpopulate if the Work Log calendar has zero entries for this project in the 30-day window. If any entries exist, skip backpopulation entirely — the user may have manually logged some blocks.
 
@@ -165,15 +235,29 @@ Create all {N} entries? yes / edit / cancel
 
 After backpopulation, post a one-line summary in the session: "Backpopulated {N} work blocks for {project} from git history (last 30 days)."
 
-## SessionStart setup
+## Hook and cron setup
+
+Two hooks work together:
+
+### UserPromptSubmit hook (heartbeat writer)
+
+Configured in `claude/settings.json`. Fires on every user message. Writes a heartbeat to the SQLite database. This is the activity signal the cron reads.
+
+The hook is a shell command — it does NOT call MCP tools. It's purely a local file write.
+
+### SessionStart hook (cron bootstrapper)
 
 The `SessionStart` hook should output text that tells the agent to:
 
 1. Detect the project from the working directory
-2. Set up a `CronCreate` with `recurring: true`, cron expression `*/31 * * * *` (every 31 min), and a prompt that executes the worklog cron behavior described above
+2. Set up a `CronCreate` with `recurring: true`, firing every 31 min, and a prompt that executes the worklog cron behavior described above
 3. On the first fire, check for backpopulation eligibility
 
 The hook output is injected into the session context, so the agent picks it up naturally.
+
+### Why two hooks
+
+The `UserPromptSubmit` hook runs on every message — it must be fast and side-effect-free (just a SQLite insert). The cron fires every 31 min and does the expensive work (Calendar MCP reads/writes). Separating collection from processing keeps the prompt-response loop fast.
 
 ## Anti-patterns
 
