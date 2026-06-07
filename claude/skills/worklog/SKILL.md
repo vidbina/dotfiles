@@ -41,28 +41,34 @@ This skill is set up by a `SessionStart` hook and maintained by a `CronCreate` i
 
 Two elements only. No categories, no tags, no brackets.
 
+The project code must be a single non-whitespace token before the colon — no spaces, no special characters. This makes entries easy to visually scan and grep.
+
 **Examples:**
-- `KB: skill migration`
-- `Dotfiles: devenv upgrade`
-- `I+D #2: junction tooling`
-- `Yo Convo Bot: frame routing`
-- `Philipps-Byrne: techdd report`
-- `Flash Decks: ci pipeline`
+- `kb: skill migration`
+- `dotfiles: devenv upgrade`
+- `ivos: junction tooling`
+- `yo: frame routing`
+- `pb: techdd report`
+- `flashy: ci pipeline`
 
 ### Project detection
 
-Derive the project name from the working directory's git remote or directory name. Map to the Linear project name:
+Derive the project code from the repo directory name. The heuristic: take the first path component of the repo folder name (before any hyphens that aren't part of the code), lowercased.
 
-| Directory / remote pattern | Project name |
+For repos under an org folder (e.g. `Code/asabina-de/yo-convo-bot`), the first segment of the repo name is the code: `yo`.
+
+| Repo directory | Project code |
 |---|---|
-| `*/kb` or `*/kb.git` | KB |
-| `*/dotfiles` or `*/dotfiles.git` | Dotfiles |
-| `*/yo-convo-bot` or `*/yo-convo-bot.git` | Yo Convo Bot |
-| `*/ivos-trades` or `*/ivos-trades.git` | I+D #2 |
-| `*/flash-decks` or `*/flash-decks.git` | Flash Decks |
-| `*/philipps-byrne` or `*/philipps-byrne.git` | Philipps-Byrne |
+| `kb` | kb |
+| `yo-convo-bot` | yo |
+| `ivos-trades` | ivos |
+| `flashy-flutter-app` | flashy |
+| `dotfiles` | dotfiles |
+| `philipps-byrne` | pb |
 
-If the directory doesn't match any known project, use the directory basename as the project name.
+**Fallback:** If the directory doesn't match any known pattern, use the full directory basename lowercased as the project code.
+
+**Override:** If the repo has a `.worklog-project` file at the root, its contents (trimmed) override the heuristic. This handles edge cases like `philipps-byrne` → `pb` where the first segment doesn't match the desired code.
 
 ### Short description
 
