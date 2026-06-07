@@ -100,15 +100,20 @@ CREATE INDEX IF NOT EXISTS idx_heartbeats_project_flushed ON heartbeats(project,
 The hook appends one row per user message:
 
 ```bash
-sqlite3 ~/.claude/worklog.db "
+INPUT=$(cat)
+DIR=$(echo "$INPUT" | jq -r '.cwd // empty')
+PROJECT=$(cd "$DIR" 2>/dev/null && basename "$(git remote get-url origin 2>/dev/null || echo "$DIR")" .git | cut -d- -f1 | tr '[:upper:]' '[:lower:]')
+[ -n "$PROJECT" ] && sqlite3 ~/.claude/worklog.db "
   CREATE TABLE IF NOT EXISTS heartbeats (ts TEXT NOT NULL, project TEXT NOT NULL, cwd TEXT NOT NULL, flushed INTEGER DEFAULT 0);
   INSERT INTO heartbeats(ts, project, cwd) VALUES(
     strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
-    '$(cd \"\$PWD\" && basename \"\$(git remote get-url origin 2>/dev/null || echo \"\$PWD\")\" | cut -d- -f1 | tr '[:upper:]' '[:lower:]')',
-    '\$PWD'
+    '$PROJECT',
+    '$DIR'
   );
 "
 ```
+
+**Note:** Claude Code passes session context (including `cwd`) via JSON on stdin, not as environment variables. The hook must read stdin first.
 
 The `CREATE TABLE IF NOT EXISTS` makes the hook idempotent — first run creates the table, subsequent runs just insert.
 
