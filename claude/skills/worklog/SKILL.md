@@ -1,19 +1,23 @@
 ---
 name: worklog
-description: "Auto-log working time to the Work Log Google Calendar. Fires on a 31-min cron interval during active sessions. Creates/extends calendar entries per-project with 10-min granularity. On first use per project, backpopulates 30 days of history from git log (HITL — presents entries for approval). Do NOT invoke this skill manually — it is set up automatically via SessionStart and runs via CronCreate. The skill only writes to the dedicated Work Log calendar, never to any other calendar."
-api_description: "Automatic work time logging to Google Calendar. Creates and extends calendar entries per-project based on session activity. Manages staleness detection, entry deduplication, and git-based backpopulation."
-allowed-tools: Bash Grep Read mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_Google_Calendar__create_event mcp__claude_ai_Google_Calendar__update_event mcp__claude_ai_Google_Calendar__list_calendars
+description: "Auto-log working time to the Work Log Google Calendar. Two modes: (1) auto-sync via 31-min cron creates/extends calendar entries silently, (2) /worklog review mode shows all unreviewed entries across all projects for approval. Heartbeats are never purged until the user explicitly approves them. On first use per project, backpopulates 30 days of history from git log (HITL). The skill only writes to the dedicated Work Log calendar, never to any other calendar."
+api_description: "Work time logging to Google Calendar with two modes: auto-sync (cron, silent) and review (/worklog, cross-project approval). Three-state heartbeat lifecycle: pending → synced → approved."
+allowed-tools: Bash Grep Read AskUserQuestion mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_Google_Calendar__create_event mcp__claude_ai_Google_Calendar__update_event mcp__claude_ai_Google_Calendar__list_calendars
 ---
 
 # worklog
 
-Auto-log working time to Google Calendar. **Runs automatically — not user-invoked.**
+Auto-log working time to Google Calendar. **Two modes: auto-sync (cron) and review (user-invoked).**
 
-This skill is set up by a `SessionStart` hook and maintained by a `CronCreate` interval. It writes exclusively to the **Work Log** calendar.
+Auto-sync runs via `SessionStart` hook + `CronCreate` interval — silently writes to the **Work Log** calendar. Review mode (`/worklog`) is user-invoked and shows all unreviewed entries across all projects for approval.
 
 ## Design principles
 
 > **Invisible when working.** The cron fires every 31 min. If you're active, it silently extends the calendar entry. If you're idle, it closes the entry and goes quiet. No prompts, no noise.
+>
+> **Review when ready.** `/worklog` is the user's single review surface across all projects. It shows everything auto-synced since the last review. The user approves, corrects, or flags entries — on their schedule, not the cron's.
+>
+> **Heartbeats persist until approved.** Auto-sync marks heartbeats as `synced` (written to calendar) but never purges them. Only after the user explicitly approves via `/worklog` are they marked `approved` and eligible for purge. This preserves traceability.
 >
 > **10-minute granularity.** All timestamps round to the nearest 10-min boundary. Good enough for time allocation; not a timeclock.
 >
@@ -92,10 +96,18 @@ CREATE TABLE IF NOT EXISTS heartbeats (
   ts TEXT NOT NULL,
   project TEXT NOT NULL,
   cwd TEXT NOT NULL,
-  flushed INTEGER DEFAULT 0  -- 0 = pending, 1 = written to calendar
+  flushed INTEGER DEFAULT 0  -- 0 = pending, 1 = synced, 2 = approved
 );
 CREATE INDEX IF NOT EXISTS idx_heartbeats_project_flushed ON heartbeats(project, flushed);
 ```
+
+**Three states:**
+
+| Value | State | Meaning |
+|---|---|---|
+| 0 | pending | Heartbeat recorded, not yet written to calendar |
+| 1 | synced | Auto-flushed to calendar by cron, awaiting user review |
+| 2 | approved | User signed off via `/worklog`, safe to purge |
 
 ### UserPromptSubmit hook
 
@@ -121,11 +133,13 @@ The `CREATE TABLE IF NOT EXISTS` makes the hook idempotent — first run creates
 
 ### Lifecycle
 
-1. **Hook writes heartbeats** — one per user prompt, with project code and timestamp
-2. **Cron reads unflushed heartbeats** — clusters them into work blocks
+1. **Hook writes heartbeats** — one per user prompt, with project code and timestamp (`flushed=0`)
+2. **Cron reads pending heartbeats** — clusters `flushed=0` rows into work blocks
 3. **Cron writes to calendar** — creates/extends entries
-4. **Cron marks heartbeats as flushed** — `UPDATE heartbeats SET flushed = 1 WHERE ...`
-5. **Periodic purge** — `DELETE FROM heartbeats WHERE flushed = 1 AND ts < datetime('now', '-30 days')`
+4. **Cron marks heartbeats as synced** — `UPDATE heartbeats SET flushed = 1 WHERE ...`
+5. **User runs `/worklog`** — reviews all `flushed=1` rows across all projects
+6. **User approves** — `UPDATE heartbeats SET flushed = 2 WHERE ...`
+7. **Periodic purge** — `DELETE FROM heartbeats WHERE flushed = 2 AND ts < datetime('now', '-30 days')`
 
 ## Cron behavior (every 31 min)
 
@@ -174,22 +188,24 @@ list_events(
 - `endTime`: now + 15 min (rounded to 10-min)
 - `calendarId`: the Work Log calendar ID
 
-### 4. Flush heartbeats
+### 4. Mark heartbeats as synced
 
-After successfully writing to the calendar:
+After successfully writing to the calendar, mark as `synced` (not purged — user must approve first):
 
 ```sql
 UPDATE heartbeats SET flushed = 1
 WHERE project = '{project}' AND flushed = 0 AND ts <= '{latest_ts}';
 ```
 
-### 5. Purge old data
+### 5. Purge approved data
 
-On each cron fire, clean up flushed heartbeats older than 30 days:
+On each cron fire, clean up **approved** heartbeats older than 30 days:
 
 ```sql
-DELETE FROM heartbeats WHERE flushed = 1 AND ts < datetime('now', '-30 days');
+DELETE FROM heartbeats WHERE flushed = 2 AND ts < datetime('now', '-30 days');
 ```
+
+Only `flushed=2` (user-approved) rows are purged. Synced (`flushed=1`) rows persist until the user reviews them via `/worklog`.
 
 ### 6. Round to 10-min boundaries
 
@@ -266,6 +282,48 @@ The hook output is injected into the session context, so the agent picks it up n
 
 The `UserPromptSubmit` hook runs on every message — it must be fast and side-effect-free (just a SQLite insert). The cron fires every 31 min and does the expensive work (Calendar MCP reads/writes). Separating collection from processing keeps the prompt-response loop fast.
 
+## Review mode (`/worklog`)
+
+User-invoked. Shows all synced-but-unreviewed heartbeats across **all projects** — not just the current one. This is the single review surface.
+
+### 1. Read synced heartbeats
+
+```sql
+SELECT project, MIN(ts) as first, MAX(ts) as last, COUNT(*) as beats
+FROM heartbeats
+WHERE flushed = 1
+GROUP BY project
+ORDER BY MAX(ts) DESC;
+```
+
+If no synced heartbeats exist, report "Nothing to review — all entries approved." and exit.
+
+### 2. Present the review
+
+```
+Worklog review — {N} projects with unreviewed entries
+
+| # | Project  | First activity | Last activity | Heartbeats | Calendar entries |
+|---|----------|----------------|---------------|------------|------------------|
+| 1 | dotfiles | Jun 07 05:43   | Jun 07 06:10  | 12         | 1 (extended)     |
+| 2 | ivos     | Jun 07 05:50   | Jun 07 05:55  | 2          | 1 (new)          |
+| 3 | yo       | Jun 06 14:20   | Jun 06 16:30  | 8          | 2 (new)          |
+
+Approve all? yes / project {name} / cancel
+```
+
+Cross-reference with the Work Log calendar to show whether entries were created or extended.
+
+### 3. Process approval
+
+- **yes** — approve all: `UPDATE heartbeats SET flushed = 2 WHERE flushed = 1;`
+- **project {name}** — approve one project: `UPDATE heartbeats SET flushed = 2 WHERE flushed = 1 AND project = '{name}';`
+- **cancel** — exit without approving. Entries stay as `flushed=1`.
+
+### 4. Handle pending heartbeats during review
+
+If there are also `flushed=0` (pending, not yet synced to calendar) heartbeats, flush them to the calendar first, then include them in the review. This handles the case where the user runs `/worklog` before the cron has fired.
+
 ## Anti-patterns
 
 - **Don't write to any calendar other than Work Log.** The calendar ID is hardcoded. Period.
@@ -273,5 +331,6 @@ The `UserPromptSubmit` hook runs on every message — it must be fast and side-e
 - **Don't create duplicate entries.** Always search before creating. Extend existing entries within the 30-min window.
 - **Don't backpopulate twice.** Check for existing entries before backpopulating. If any exist for the project, skip.
 - **Don't over-describe.** Entry summaries are 3-6 words. Calendar glanceability matters more than precision.
-- **Don't prompt the user.** This skill runs silently. No `AskUserQuestion`, no chat output except the backpopulation summary and errors.
+- **Don't prompt the user during cron.** The cron path runs silently. No `AskUserQuestion`, no chat output except errors. Prompting is only for `/worklog` review mode and backpopulation.
+- **Don't purge synced heartbeats.** Only `flushed=2` (approved) rows older than 30 days are purged. Never delete `flushed=1` rows — the user hasn't reviewed them yet.
 - **Don't round-trip on errors.** If a Calendar MCP call fails, log it in chat once and move on. Don't retry in a loop.
