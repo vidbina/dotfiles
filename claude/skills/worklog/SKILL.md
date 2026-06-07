@@ -70,6 +70,8 @@ For repos under an org folder (e.g. `Code/asabina-de/yo-convo-bot`), the first s
 
 **Override:** If the repo has a `.worklog-project` file at the root, its contents (trimmed) override the heuristic. This handles edge cases like `philipps-byrne` → `pb` where the first segment doesn't match the desired code.
 
+**First-use confirmation:** On `SessionStart`, if `.worklog-project` does not exist, the hook outputs a prompt telling the agent to confirm the heuristic-derived code with the user before bootstrapping the cron. On confirmation (or correction), the agent writes the code to `.worklog-project` so the user is never asked again. The `UserPromptSubmit` hook does not prompt — it falls back to the heuristic silently when the file is missing (it can't interact with the user from a shell hook).
+
 ### Short description
 
 Derive from (in priority order):

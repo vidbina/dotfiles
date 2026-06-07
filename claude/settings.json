@@ -117,7 +117,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "INPUT=$(cat); DIR=$(echo \"$INPUT\" | jq -r '.cwd // empty'); PROJECT=$(cd \"$DIR\" 2>/dev/null && basename \"$(git remote get-url origin 2>/dev/null || echo \"$DIR\")\" .git | cut -d- -f1 | tr '[:upper:]' '[:lower:]'); echo \"Worklog: bootstrap cron for project '$PROJECT' in '$DIR'. Run the worklog skill now — use CronCreate with intervalMs 1860000 (31 min), recurring true, and the prompt: 'Run the worklog skill to flush heartbeats to Google Calendar for project $PROJECT'.\"",
+            "command": "INPUT=$(cat); DIR=$(echo \"$INPUT\" | jq -r '.cwd // empty'); ROOT=$(cd \"$DIR\" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null || echo \"$DIR\"); WPF=\"$ROOT/.worklog-project\"; if [ -f \"$WPF\" ]; then PROJECT=$(tr -d '[:space:]' < \"$WPF\"); CONFIRMED=yes; else PROJECT=$(cd \"$DIR\" 2>/dev/null && basename \"$(git remote get-url origin 2>/dev/null || echo \"$DIR\")\" .git | cut -d- -f1 | tr '[:upper:]' '[:lower:]'); CONFIRMED=no; fi; if [ \"$CONFIRMED\" = yes ]; then echo \"Worklog: project '$PROJECT' (from .worklog-project) in '$DIR'. Run the worklog skill now — use CronCreate with intervalMs 1860000 (31 min), recurring true, and the prompt: 'Run the worklog skill to flush heartbeats to Google Calendar for project $PROJECT'.\"; else echo \"Worklog: project code heuristically derived as '$PROJECT' for '$DIR', but no .worklog-project file found. Before bootstrapping the cron, confirm with the user: 'Worklog will track this project as **$PROJECT** — is that the right code? (I will save it to .worklog-project so you are not asked again.)' If the user confirms, write '$PROJECT' to '$ROOT/.worklog-project' and then bootstrap the cron. If the user provides a different code, use that instead.\"; fi",
             "timeout": 5
           }
         ]
@@ -128,7 +128,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "INPUT=$(cat); DIR=$(echo \"$INPUT\" | jq -r '.cwd // empty'); DB=\"$HOME/.claude/worklog.db\"; PROJECT=$(cd \"$DIR\" 2>/dev/null && basename \"$(git remote get-url origin 2>/dev/null || echo \"$DIR\")\" .git | cut -d- -f1 | tr '[:upper:]' '[:lower:]'); [ -n \"$PROJECT\" ] && sqlite3 \"$DB\" \"CREATE TABLE IF NOT EXISTS heartbeats (ts TEXT NOT NULL, project TEXT NOT NULL, cwd TEXT NOT NULL, flushed INTEGER DEFAULT 0); CREATE INDEX IF NOT EXISTS idx_hb ON heartbeats(project, flushed); INSERT INTO heartbeats(ts, project, cwd) VALUES(strftime('%Y-%m-%dT%H:%M:%S','now','localtime'), '$PROJECT', '$DIR');\" 2>/dev/null; echo 'OK'",
+            "command": "INPUT=$(cat); DIR=$(echo \"$INPUT\" | jq -r '.cwd // empty'); ROOT=$(cd \"$DIR\" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null || echo \"$DIR\"); WPF=\"$ROOT/.worklog-project\"; if [ -f \"$WPF\" ]; then PROJECT=$(tr -d '[:space:]' < \"$WPF\"); else PROJECT=$(cd \"$DIR\" 2>/dev/null && basename \"$(git remote get-url origin 2>/dev/null || echo \"$DIR\")\" .git | cut -d- -f1 | tr '[:upper:]' '[:lower:]'); fi; DB=\"$HOME/.claude/worklog.db\"; [ -n \"$PROJECT\" ] && sqlite3 \"$DB\" \"CREATE TABLE IF NOT EXISTS heartbeats (ts TEXT NOT NULL, project TEXT NOT NULL, cwd TEXT NOT NULL, flushed INTEGER DEFAULT 0); CREATE INDEX IF NOT EXISTS idx_hb ON heartbeats(project, flushed); INSERT INTO heartbeats(ts, project, cwd) VALUES(strftime('%Y-%m-%dT%H:%M:%S','now','localtime'), '$PROJECT', '$DIR');\" 2>/dev/null; echo 'OK'",
             "timeout": 5
           }
         ]
