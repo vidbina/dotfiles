@@ -162,7 +162,7 @@ Cluster heartbeats by project. For each project:
 
 Group heartbeats into continuous work blocks. Two heartbeats are in the same block if they're within 30 min of each other. Each block's:
 - `startTime` = first heartbeat in the cluster (rounded down to 10-min)
-- `endTime` = last heartbeat in the cluster + 15 min (rounded up to 10-min)
+- `endTime` = last heartbeat in the cluster + 10 min (rounded up to 10-min)
 
 ### 4. Find or create calendar entries
 
@@ -293,7 +293,7 @@ git log --format="%aI|%s" --author="David" --since="30 days ago" --all
 
 **Clustering:** Group commits into work blocks. Two commits are in the same block if they're within 30 min of each other. Each block's:
 - `startTime` = first commit in the cluster (rounded down to 10-min)
-- `endTime` = last commit in the cluster + 15 min (rounded up to 10-min)
+- `endTime` = last commit in the cluster + 10 min (rounded up to 10-min)
 - `summary` = `{project}: {scope} [backfill]` — scope derived from the most common conventional commit scope in the cluster. Always postfixed with `[backfill]`.
 
 **Guard:** Only backpopulate if the Work Log calendar has zero entries for this project in the 30-day window.
