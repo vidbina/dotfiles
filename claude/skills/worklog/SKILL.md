@@ -160,7 +160,19 @@ Cluster heartbeats by project. For each project:
 
 ### 3. Cluster into work blocks
 
-Group heartbeats into continuous work blocks. Two heartbeats are in the same block if they're within 30 min of each other. Each block's:
+Group heartbeats into continuous work blocks using **density-aware merging**. Instead of a fixed merge window, the gap threshold adapts to recent heartbeat density:
+
+1. Sort heartbeats chronologically.
+2. Walk the sorted list. For each consecutive pair, compute the gap.
+3. Compute the **local density** of the trailing cluster: `cluster_heartbeat_count / cluster_duration_minutes`. A dense cluster (e.g. 10 heartbeats in 20 min = 0.5/min) tolerates a wider merge gap; a sparse cluster (e.g. 2 heartbeats in 15 min = 0.13/min) demands a tighter one.
+4. **Merge threshold** = `min(20, max(5, cluster_heartbeat_count * 2))` minutes. In practice:
+   - 1–2 heartbeats in the cluster → 5 min threshold (sporadic check-in)
+   - 3–4 heartbeats → 6–8 min (light activity)
+   - 5–10 heartbeats → 10–20 min (focused seated work)
+   - 10+ heartbeats → capped at 20 min
+5. If the gap exceeds the threshold, start a new block.
+
+Each block's:
 - `startTime` = first heartbeat in the cluster (rounded down to 10-min)
 - `endTime` = last heartbeat in the cluster + 10 min (rounded up to 10-min)
 
@@ -177,9 +189,9 @@ list_events(
 )
 ```
 
-**If a matching entry exists and its `endTime` is within 30 min of the block's start:** extend it by updating `endTime` to the block's `endTime`.
+**If a matching entry exists and its `endTime` is within 20 min of the block's start:** extend it by updating `endTime` to the block's `endTime`.
 
-**If a matching entry exists but its `endTime` is >30 min before the block's start:** this is a previous work block. Create a new entry.
+**If a matching entry exists but its `endTime` is >20 min before the block's start:** this is a previous work block. Create a new entry.
 
 **If no matching entry exists:** create a new entry:
 - `summary`: `{project}: {short description}`
@@ -291,7 +303,7 @@ Backpopulated entries use git commit timestamps only — they miss thinking/revi
 git log --format="%aI|%s" --author="David" --since="30 days ago" --all
 ```
 
-**Clustering:** Group commits into work blocks. Two commits are in the same block if they're within 30 min of each other. Each block's:
+**Clustering:** Group commits into work blocks using the same density-aware merging algorithm as sync mode (see Section 3). Commits are sparser than heartbeats, so the threshold naturally stays tighter — a few scattered commits won't inflate into a mega-block. Each block's:
 - `startTime` = first commit in the cluster (rounded down to 10-min)
 - `endTime` = last commit in the cluster + 10 min (rounded up to 10-min)
 - `summary` = `{project}: {scope} [backfill]` — scope derived from the most common conventional commit scope in the cluster. Always postfixed with `[backfill]`.
