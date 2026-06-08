@@ -1,31 +1,29 @@
 ---
 name: worklog
-description: "Auto-log working time to the Work Log Google Calendar. Two modes: (1) auto-sync via 31-min cron creates/extends calendar entries silently, (2) /worklog review mode shows all unreviewed entries across all projects for approval. Heartbeats are never purged until the user explicitly approves them. On first use per project, backpopulates 30 days of history from git log (HITL). The skill only writes to the dedicated Work Log calendar, never to any other calendar."
-api_description: "Work time logging to Google Calendar with two modes: auto-sync (cron, silent) and review (/worklog, cross-project approval). Three-state heartbeat lifecycle: pending → synced → approved."
+description: "Auto-log working time to the Work Log Google Calendar. Three modes: (1) collect — silent heartbeat recording via UserPromptSubmit hook, (2) sync — flush pending heartbeats across all projects to Calendar (run in a dedicated session), (3) review — show all unreviewed entries for approval. Heartbeats are never purged until the user explicitly approves them. On first use per project, backpopulates 30 days of history from git log (HITL). The skill only writes to the dedicated Work Log calendar, never to any other calendar."
+api_description: "Work time logging to Google Calendar with three modes: collect (hook, silent), sync (dedicated session, cross-project flush), and review (/worklog, cross-project approval). Three-state heartbeat lifecycle: pending → synced → approved."
 allowed-tools: Bash Grep Read AskUserQuestion mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_Google_Calendar__create_event mcp__claude_ai_Google_Calendar__update_event mcp__claude_ai_Google_Calendar__list_calendars
 ---
 
 # worklog
 
-Auto-log working time to Google Calendar. **Two modes: auto-sync (cron) and review (user-invoked).**
-
-Auto-sync runs via `SessionStart` hook + `CronCreate` interval — silently writes to the **Work Log** calendar. Review mode (`/worklog`) is user-invoked and shows all unreviewed entries across all projects for approval.
+Auto-log working time to Google Calendar. **Three modes: collect (automatic), sync (dedicated session), and review (user-invoked).**
 
 ## Design principles
 
-> **Invisible when working.** The cron fires every 31 min. If you're active, it silently extends the calendar entry. If you're idle, it closes the entry and goes quiet. No prompts, no noise.
+> **Collection is invisible.** The `UserPromptSubmit` hook writes heartbeats to SQLite on every user message. It's a local file write — no MCP calls, no chat output, no interruption. Work sessions never know it's happening.
 >
-> **Review when ready.** `/worklog` is the user's single review surface across all projects. It shows everything auto-synced since the last review. The user approves, corrects, or flags entries — on their schedule, not the cron's.
+> **Sync is explicit.** Calendar writes happen only when the user explicitly runs `/worklog sync` — typically in a dedicated session whose sole purpose is time-tracking. This session is allowed to be noisy because that's what it's for. Sync operates across ALL projects, not just the current one.
 >
-> **Heartbeats persist until approved.** Auto-sync marks heartbeats as `synced` (written to calendar) but never purges them. Only after the user explicitly approves via `/worklog` are they marked `approved` and eligible for purge. This preserves traceability.
+> **Review when ready.** `/worklog` (or `/worklog review`) is the user's single review surface across all projects. It shows everything synced since the last review. The user approves, corrects, or flags entries — on their schedule.
+>
+> **Heartbeats persist until approved.** Sync marks heartbeats as `synced` (written to calendar) but never purges them. Only after the user explicitly approves via review are they marked `approved` and eligible for purge.
 >
 > **10-minute granularity.** All timestamps round to the nearest 10-min boundary. Good enough for time allocation; not a timeclock.
 >
-> **One calendar, hardcoded.** All writes go to the Work Log calendar. No other calendar is ever touched. This is a scope constraint, not a suggestion.
+> **One calendar, hardcoded.** All writes go to the Work Log calendar. No other calendar is ever touched.
 >
-> **Git history as ground truth for backpopulation.** On first use per project, reconstruct 30 days of work blocks from commit timestamps. Backpopulation is HITL — present the entries for approval before creating them.
->
-> **31-min interval.** Guarantees crossing at least one 30-min threshold between fires. ~16 fires for an 8h workday. Cheaper than 15-min and still well within tolerance.
+> **Git history as ground truth for backpopulation.** On first use per project, reconstruct 30 days of work blocks from commit timestamps. Backpopulation is HITL.
 
 ## Calendar
 
@@ -45,7 +43,7 @@ Auto-sync runs via `SessionStart` hook + `CronCreate` interval — silently writ
 
 Two elements only. No categories, no tags, no brackets.
 
-The project code must be a single non-whitespace token before the colon — no spaces, no special characters. This makes entries easy to visually scan and grep.
+The project code must be a single non-whitespace token before the colon — no spaces, no special characters.
 
 **Examples:**
 - `kb: skill migration`
@@ -72,16 +70,16 @@ For repos under an org folder (e.g. `Code/asabina-de/yo-convo-bot`), the first s
 
 **Fallback:** If the directory doesn't match any known pattern, use the full directory basename lowercased as the project code.
 
-**Override:** If the repo has a `.worklog-project` file at the root, its contents (trimmed) override the heuristic. This handles edge cases like `philipps-byrne` → `pb` where the first segment doesn't match the desired code.
+**Override:** If the repo has a `.worklog-project` file at the root, its contents (trimmed) override the heuristic.
 
-**First-use confirmation:** On `SessionStart`, if `.worklog-project` does not exist, the hook outputs a prompt telling the agent to confirm the heuristic-derived code with the user before bootstrapping the cron. On confirmation (or correction), the agent writes the code to `.worklog-project` so the user is never asked again. The `UserPromptSubmit` hook does not prompt — it falls back to the heuristic silently when the file is missing (it can't interact with the user from a shell hook).
+**First-use confirmation:** On `SessionStart`, if `.worklog-project` does not exist, the hook outputs a prompt telling the agent to confirm the heuristic-derived code with the user. On confirmation (or correction), the agent writes the code to `.worklog-project` so the user is never asked again.
 
 ### Short description
 
 Derive from (in priority order):
-1. **Session name** — if the session has been renamed, use that
-2. **Branch name** — strip the owner prefix and ticket ID, humanize the slug (e.g. `vidbina/vid-676-auto-log-work-sessions` → `auto-log work sessions`)
-3. **Last commit subject** — if no session name or meaningful branch
+1. **Branch name** — strip the owner prefix and ticket ID, humanize the slug (e.g. `vidbina/vid-676-auto-log-work-sessions` → `auto-log work sessions`)
+2. **Last commit subject** — if no meaningful branch
+3. **Project code alone** — as a last resort (e.g. `dotfiles: misc`)
 
 Keep to ~3-6 words. This is for calendar glanceability, not precision.
 
@@ -106,10 +104,10 @@ CREATE INDEX IF NOT EXISTS idx_heartbeats_project_flushed ON heartbeats(project,
 | Value | State | Meaning |
 |---|---|---|
 | 0 | pending | Heartbeat recorded, not yet written to calendar |
-| 1 | synced | Auto-flushed to calendar by cron, awaiting user review |
-| 2 | approved | User signed off via `/worklog`, safe to purge |
+| 1 | synced | Flushed to calendar by sync, awaiting user review |
+| 2 | approved | User signed off via review, safe to purge |
 
-### UserPromptSubmit hook
+### UserPromptSubmit hook (collect mode)
 
 The hook appends one row per user message:
 
@@ -127,164 +125,120 @@ PROJECT=$(cd "$DIR" 2>/dev/null && basename "$(git remote get-url origin 2>/dev/
 "
 ```
 
-**Note:** Claude Code passes session context (including `cwd`) via JSON on stdin, not as environment variables. The hook must read stdin first.
+**Note:** Claude Code passes session context (including `cwd`) via JSON on stdin. The hook reads stdin first.
 
 The `CREATE TABLE IF NOT EXISTS` makes the hook idempotent — first run creates the table, subsequent runs just insert.
 
 ### Lifecycle
 
 1. **Hook writes heartbeats** — one per user prompt, with project code and timestamp (`flushed=0`)
-2. **Cron reads pending heartbeats** — clusters `flushed=0` rows into work blocks
-3. **Cron writes to calendar** — creates/extends entries
-4. **Cron marks heartbeats as synced** — `UPDATE heartbeats SET flushed = 1 WHERE ...`
-5. **User runs `/worklog`** — reviews all `flushed=1` rows across all projects
-6. **User approves** — `UPDATE heartbeats SET flushed = 2 WHERE ...`
-7. **Periodic purge** — `DELETE FROM heartbeats WHERE flushed = 2 AND ts < datetime('now', '-30 days')`
+2. **User runs `/worklog sync`** — reads pending heartbeats, clusters into work blocks, writes to calendar
+3. **Sync marks heartbeats as synced** — `UPDATE heartbeats SET flushed = 1 WHERE ...`
+4. **User runs `/worklog review`** — reviews all `flushed=1` rows across all projects
+5. **User approves** — `UPDATE heartbeats SET flushed = 2 WHERE ...`
+6. **Periodic purge** — `DELETE FROM heartbeats WHERE flushed = 2 AND ts < datetime('now', '-30 days')`
 
-## Cron behavior (every 31 min)
+## Sync mode (`/worklog sync`)
 
-On each cron fire:
+Flushes pending heartbeats across **all projects** to the Work Log calendar. This is the only mode that writes to Google Calendar.
 
-### 1. Read unflushed heartbeats
+**Intended usage:** Run in a dedicated Claude session whose sole purpose is time-tracking. The user spins up a "worklog" session, runs `/worklog sync` (or sets up a `/loop` to repeat it), and leaves it running. The sync session is allowed to produce visible output — tool calls, status messages — because the user has opted into that by opening the session.
+
+### 1. Read all unflushed heartbeats
 
 ```sql
-SELECT ts, project FROM heartbeats
-WHERE project = '{project}' AND flushed = 0
-ORDER BY ts;
+SELECT project, ts, cwd FROM heartbeats
+WHERE flushed = 0
+ORDER BY project, ts;
 ```
 
-If no unflushed heartbeats exist, exit immediately. Don't touch the calendar.
+If no unflushed heartbeats exist, report "Nothing to sync — no pending heartbeats." and exit.
 
-### 2. Check staleness
+### 2. Group by project
 
-Determine when the most recent heartbeat occurred for this project.
+Cluster heartbeats by project. For each project:
 
-| Last heartbeat | Action |
-|---|---|
-| **Within 20 min of now** | Create or extend the calendar entry (active work) |
-| **20-30 min ago** | Extend entry to the last heartbeat timestamp, then flush (close off the block) |
-| **31+ min ago** | Flush heartbeats up to that point, close the entry. Exit. |
+### 3. Cluster into work blocks
 
-### 3. Find or create the calendar entry
+Group heartbeats into continuous work blocks. Two heartbeats are in the same block if they're within 30 min of each other. Each block's:
+- `startTime` = first heartbeat in the cluster (rounded down to 10-min)
+- `endTime` = last heartbeat in the cluster + 15 min (rounded up to 10-min)
 
-Search for today's entries on the Work Log calendar matching this project:
+### 4. Find or create calendar entries
+
+For each work block, search for today's entries on the Work Log calendar matching this project:
 
 ```
 list_events(
   calendarId: WORKLOG_CALENDAR_ID,
-  startTime: today 00:00,
-  endTime: today 23:59,
+  startTime: block date 00:00,
+  endTime: block date 23:59,
   fullText: "{project}:"
 )
 ```
 
-**If a matching entry exists and its `endTime` is within 30 min of now:** extend it by updating `endTime` to now (rounded to 10-min).
+**If a matching entry exists and its `endTime` is within 30 min of the block's start:** extend it by updating `endTime` to the block's `endTime`.
 
-**If a matching entry exists but its `endTime` is >30 min ago:** this is a previous work block from earlier today. Create a new entry (don't extend a stale block from this morning).
+**If a matching entry exists but its `endTime` is >30 min before the block's start:** this is a previous work block. Create a new entry.
 
 **If no matching entry exists:** create a new entry:
 - `summary`: `{project}: {short description}`
-- `startTime`: earliest unflushed heartbeat (rounded down to 10-min)
-- `endTime`: now + 15 min (rounded to 10-min)
+- `startTime`: block start
+- `endTime`: block end
 - `calendarId`: the Work Log calendar ID
 
-### 4. Mark heartbeats as synced
+For the short description, derive it from the `cwd` field of the heartbeats — look up the branch name via `git -C {cwd} branch --show-current` for each unique cwd, then apply the short description heuristic.
 
-After successfully writing to the calendar, mark as `synced` (not purged — user must approve first):
+### 5. Mark heartbeats as synced
+
+After successfully writing to the calendar:
 
 ```sql
 UPDATE heartbeats SET flushed = 1
 WHERE project = '{project}' AND flushed = 0 AND ts <= '{latest_ts}';
 ```
 
-### 5. Purge approved data
+### 6. Purge approved data
 
-On each cron fire, clean up **approved** heartbeats older than 30 days:
+Clean up approved heartbeats older than 30 days:
 
 ```sql
 DELETE FROM heartbeats WHERE flushed = 2 AND ts < datetime('now', '-30 days');
 ```
 
-Only `flushed=2` (user-approved) rows are purged. Synced (`flushed=1`) rows persist until the user reviews them via `/worklog`.
+### 7. Report
 
-### 6. Round to 10-min boundaries
+After processing all projects, print a summary:
+
+```
+Synced {N} projects:
+  dotfiles: 1 entry extended (07:30–08:20)
+  yo: 1 new entry (09:10–10:40)
+  kb: nothing to sync
+
+Next sync: run `/worklog sync` again or set up `/loop 31m /worklog sync`
+```
+
+### Running sync on a loop
+
+In a dedicated worklog session, the user can set up continuous syncing:
+
+```
+/loop 31m /worklog sync
+```
+
+This fires every 31 minutes, flushing all projects. The loop runs in the dedicated session — work sessions are never interrupted. The 31-min interval guarantees crossing at least one 30-min threshold between fires.
+
+### Round to 10-min boundaries
 
 All times round to the nearest 10 minutes:
 - 14:03 → 14:00
 - 14:07 → 14:10
 - 14:25 → 14:30
 
-## Backpopulation (first use per project)
+## Review mode (`/worklog` or `/worklog review`)
 
-On the first cron fire for a project (determined by zero matching entries in the Work Log calendar for that project in the last 30 days), reconstruct historical work blocks from git history.
-
-Backpopulated entries use git commit timestamps only — they miss thinking/reviewing/discussing time between commits. The `[backfill]` postfix makes this quality distinction visible so backfilled entries are never confused with heartbeat-sourced entries.
-
-### Algorithm
-
-```bash
-# Get all commits by the user in the last 30 days, with timestamps and subjects
-git log --format="%aI|%s" --author="David" --since="30 days ago" --all
-```
-
-**Clustering:** Group commits into work blocks. Two commits are in the same block if they're within 30 min of each other. Each block's:
-- `startTime` = first commit in the cluster (rounded down to 10-min)
-- `endTime` = last commit in the cluster + 15 min (rounded up to 10-min)
-- `summary` = `{project}: {scope} [backfill]` — scope derived from the most common conventional commit scope in the cluster (e.g. `skills`, `hooks`, `git tooling`, `nix config`). Always postfixed with `[backfill]`.
-
-**Guard:** Only backpopulate if the Work Log calendar has zero entries for this project in the 30-day window. If any entries exist, skip backpopulation entirely — the user may have manually logged some blocks.
-
-**HITL gate:** Backpopulation is a significant calendar mutation. Before creating any entries:
-
-1. Present the proposed entries as a table:
-
-```
-Backpopulation for {project} — {N} work blocks from git history (last 30 days)
-
-| # | Date | Start | End | Duration | Summary |
-|---|------|-------|-----|----------|---------|
-| 1 | Jun 03 | 10:20 | 12:40 | 2h20m | {project}: {derived from commits} |
-| 2 | Jun 03 | 14:30 | 16:10 | 1h40m | {project}: {derived from commits} |
-...
-
-Create all {N} entries? yes / edit / cancel
-```
-
-2. Wait for explicit approval via `AskUserQuestion`. The operator can approve all, edit individual entries, or cancel.
-
-**Cap at 100 entries.** If git history produces more than 100 work blocks, present only the 100 most recent and note how many were truncated.
-
-**No bulk API.** Google Calendar MCP only supports one `create_event` call per entry. Backpopulation of 100 entries = 100 sequential API calls. This is slow but runs once per project.
-
-After backpopulation, post a one-line summary in the session: "Backpopulated {N} work blocks for {project} from git history (last 30 days)."
-
-## Hook and cron setup
-
-Two hooks work together:
-
-### UserPromptSubmit hook (heartbeat writer)
-
-Configured in `claude/settings.json`. Fires on every user message. Writes a heartbeat to the SQLite database. This is the activity signal the cron reads.
-
-The hook is a shell command — it does NOT call MCP tools. It's purely a local file write.
-
-### SessionStart hook (cron bootstrapper)
-
-The `SessionStart` hook should output text that tells the agent to:
-
-1. Detect the project from the working directory
-2. Set up a `CronCreate` with `recurring: true`, firing every 31 min, and a prompt that executes the worklog cron behavior described above
-3. On the first fire, check for backpopulation eligibility
-
-The hook output is injected into the session context, so the agent picks it up naturally.
-
-### Why two hooks
-
-The `UserPromptSubmit` hook runs on every message — it must be fast and side-effect-free (just a SQLite insert). The cron fires every 31 min and does the expensive work (Calendar MCP reads/writes). Separating collection from processing keeps the prompt-response loop fast.
-
-## Review mode (`/worklog`)
-
-User-invoked. Shows all synced-but-unreviewed heartbeats across **all projects** — not just the current one. This is the single review surface.
+User-invoked. Shows all synced-but-unreviewed heartbeats across **all projects**.
 
 ### 1. Read synced heartbeats
 
@@ -322,15 +276,64 @@ Cross-reference with the Work Log calendar to show whether entries were created 
 
 ### 4. Handle pending heartbeats during review
 
-If there are also `flushed=0` (pending, not yet synced to calendar) heartbeats, flush them to the calendar first, then include them in the review. This handles the case where the user runs `/worklog` before the cron has fired.
+If there are also `flushed=0` (pending, not yet synced to calendar) heartbeats, flush them to the calendar first, then include them in the review. This handles the case where the user runs `/worklog` before syncing.
+
+## Backpopulation (first use per project)
+
+On the first sync for a project (determined by zero matching entries in the Work Log calendar for that project in the last 30 days), reconstruct historical work blocks from git history.
+
+Backpopulated entries use git commit timestamps only — they miss thinking/reviewing/discussing time between commits. The `[backfill]` postfix makes this quality distinction visible.
+
+### Algorithm
+
+```bash
+# Get all commits by the user in the last 30 days, with timestamps and subjects
+git log --format="%aI|%s" --author="David" --since="30 days ago" --all
+```
+
+**Clustering:** Group commits into work blocks. Two commits are in the same block if they're within 30 min of each other. Each block's:
+- `startTime` = first commit in the cluster (rounded down to 10-min)
+- `endTime` = last commit in the cluster + 15 min (rounded up to 10-min)
+- `summary` = `{project}: {scope} [backfill]` — scope derived from the most common conventional commit scope in the cluster. Always postfixed with `[backfill]`.
+
+**Guard:** Only backpopulate if the Work Log calendar has zero entries for this project in the 30-day window.
+
+**HITL gate:** Backpopulation is a significant calendar mutation. Before creating any entries:
+
+1. Present the proposed entries as a table:
+
+```
+Backpopulation for {project} — {N} work blocks from git history (last 30 days)
+
+| # | Date | Start | End | Duration | Summary |
+|---|------|-------|-----|----------|---------|
+| 1 | Jun 03 | 10:20 | 12:40 | 2h20m | {project}: {derived from commits} |
+| 2 | Jun 03 | 14:30 | 16:10 | 1h40m | {project}: {derived from commits} |
+...
+
+Create all {N} entries? yes / edit / cancel
+```
+
+2. Wait for explicit approval via `AskUserQuestion`.
+
+**Cap at 100 entries.** If git history produces more than 100 work blocks, present only the 100 most recent and note how many were truncated.
+
+After backpopulation, post a one-line summary: "Backpopulated {N} work blocks for {project} from git history (last 30 days)."
+
+## SessionStart hook
+
+The `SessionStart` hook handles project detection only. It does NOT bootstrap any cron or sync — that's the dedicated session's job.
+
+If `.worklog-project` exists: output a one-line acknowledgment ("Worklog: project '{project}' — heartbeats collecting.").
+
+If `.worklog-project` does not exist: output a prompt telling the agent to confirm the heuristic-derived code with the user and write it to `.worklog-project`.
 
 ## Anti-patterns
 
 - **Don't write to any calendar other than Work Log.** The calendar ID is hardcoded. Period.
-- **Don't fire when idle.** If last activity was 31+ min ago, exit immediately. Don't burn tokens.
+- **Don't sync in work sessions.** Sync belongs in a dedicated session. Work sessions only collect heartbeats.
 - **Don't create duplicate entries.** Always search before creating. Extend existing entries within the 30-min window.
-- **Don't backpopulate twice.** Check for existing entries before backpopulating. If any exist for the project, skip.
+- **Don't backpopulate twice.** Check for existing entries before backpopulating.
 - **Don't over-describe.** Entry summaries are 3-6 words. Calendar glanceability matters more than precision.
-- **Don't prompt the user during cron.** The cron path runs silently. No `AskUserQuestion`, no chat output except errors. Prompting is only for `/worklog` review mode and backpopulation.
-- **Don't purge synced heartbeats.** Only `flushed=2` (approved) rows older than 30 days are purged. Never delete `flushed=1` rows — the user hasn't reviewed them yet.
-- **Don't round-trip on errors.** If a Calendar MCP call fails, log it in chat once and move on. Don't retry in a loop.
+- **Don't purge synced heartbeats.** Only `flushed=2` (approved) rows older than 30 days are purged. Never delete `flushed=1` rows.
+- **Don't round-trip on errors.** If a Calendar MCP call fails, log it once and move on. Don't retry in a loop.
