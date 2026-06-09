@@ -160,7 +160,67 @@ Cluster heartbeats by project. For each project:
 
 ### 3. Cluster into work blocks
 
-Group heartbeats into continuous work blocks. Two heartbeats are in the same block if they're within 30 min of each other. Each block's:
+Group heartbeats into continuous work blocks using **adaptive merging**. Instead of a fixed merge window, the gap threshold grows with the size of the current cluster:
+
+1. Sort heartbeats chronologically.
+2. Walk the sorted list. For each consecutive pair, compute the gap.
+3. Compute the **merge threshold** from the current cluster's heartbeat count (`N`): `min(20, 8 + N)` minutes. More heartbeats in the cluster = more confidence that work is ongoing = wider tolerance for the next gap.
+   - N = 1 → 9 min threshold (new cluster, moderate window)
+   - N = 2–3 → 10–11 min (establishing activity)
+   - N = 5–8 → 13–16 min (focused seated work)
+   - N ≥ 12 → capped at 20 min
+4. If the gap exceeds the threshold, start a new block. Reset N to 1.
+
+**Worked example** (real data from a mixed seated/road session):
+
+```
+Heartbeats: 14:34, 14:38, 14:45, 14:50, 14:58, 15:06, 15:14,
+            [29 min gap],
+            15:43, 15:55, 16:07,
+            [29 min gap],
+            16:36, 16:43,
+            [87 min gap],
+            18:10, 18:15, 18:22, 18:30, 18:42, 18:52
+
+Walk-through:
+  14:34        → N=1, start block A
+  14:38 (+4m)  → threshold=min(20,8+1)=9, 4<9   → merge. N=2
+  14:45 (+7m)  → threshold=min(20,8+2)=10, 7<10  → merge. N=3
+  14:50 (+5m)  → threshold=min(20,8+3)=11, 5<11  → merge. N=4
+  14:58 (+8m)  → threshold=min(20,8+4)=12, 8<12  → merge. N=5
+  15:06 (+8m)  → threshold=min(20,8+5)=13, 8<13  → merge. N=6
+  15:14 (+8m)  → threshold=min(20,8+6)=14, 8<14  → merge. N=7
+  15:43 (+29m) → threshold=min(20,8+7)=15, 29>15 → SPLIT. Block A = 14:34–15:14
+  15:43        → N=1, start block B
+  15:55 (+12m) → threshold=9, 12>9               → SPLIT. Block B = 15:43–15:43
+  15:55        → N=1, start block C
+  16:07 (+12m) → threshold=9, 12>9               → SPLIT. Block C = 15:55–15:55
+  16:07        → N=1, start block D
+  16:36 (+29m) → threshold=9, 29>9               → SPLIT. Block D = 16:07–16:07
+  16:36        → N=1, start block E
+  16:43 (+7m)  → threshold=9, 7<9                → merge. N=2
+  18:10 (+87m) → threshold=10, 87>10             → SPLIT. Block E = 16:36–16:43
+  18:10        → N=1, start block F
+  18:15 (+5m)  → threshold=9, 5<9                → merge. N=2
+  18:22 (+7m)  → threshold=10, 7<10              → merge. N=3
+  18:30 (+8m)  → threshold=11, 8<11              → merge. N=4
+  18:42 (+12m) → threshold=12, 12≤12             → merge. N=5
+  18:52 (+10m) → threshold=13, 10<13             → merge. N=6
+
+Result: 6 blocks
+  A: 14:30–15:20 (dense seated work — 7 heartbeats)
+  B: 15:40–15:50 (single road check-in)
+  C: 15:50–16:10 (single road check-in)
+  D: 16:00–16:20 (single road check-in)
+  E: 16:30–16:50 (brief check — 2 heartbeats)
+  F: 18:10–19:00 (evening session — 6 heartbeats)
+```
+
+The dense seated block (A) stays merged because the threshold grows with each heartbeat. The sparse road check-ins (B, C, D) split correctly because the 12-min gaps exceed the threshold for small clusters. The evening session (F) merges correctly as heartbeats accumulate.
+
+**Key insight:** the algorithm is self-correcting. Each merged heartbeat grows N, raising the threshold for the next gap. Each split resets N to 1, tightening the threshold. This means dense work earns progressively more tolerance, while sporadic check-ins stay conservative.
+
+Each block's:
 - `startTime` = first heartbeat in the cluster (rounded down to 10-min)
 - `endTime` = last heartbeat in the cluster + 10 min (rounded up to 10-min)
 
@@ -177,9 +237,9 @@ list_events(
 )
 ```
 
-**If a matching entry exists and its `endTime` is within 30 min of the block's start:** extend it by updating `endTime` to the block's `endTime`.
+**If a matching entry exists and its `endTime` is within 20 min of the block's start:** extend it by updating `endTime` to the block's `endTime`.
 
-**If a matching entry exists but its `endTime` is >30 min before the block's start:** this is a previous work block. Create a new entry.
+**If a matching entry exists but its `endTime` is >20 min before the block's start:** this is a previous work block. Create a new entry.
 
 **If no matching entry exists:** create a new entry:
 - `summary`: `{project}: {short description}`
@@ -291,7 +351,7 @@ Backpopulated entries use git commit timestamps only — they miss thinking/revi
 git log --format="%aI|%s" --author="David" --since="30 days ago" --all
 ```
 
-**Clustering:** Group commits into work blocks. Two commits are in the same block if they're within 30 min of each other. Each block's:
+**Clustering:** Group commits into work blocks using the same adaptive merging algorithm as sync mode (see Section 3). Commits are sparser than heartbeats, so the threshold naturally stays tighter — a few scattered commits won't inflate into a mega-block. Each block's:
 - `startTime` = first commit in the cluster (rounded down to 10-min)
 - `endTime` = last commit in the cluster + 10 min (rounded up to 10-min)
 - `summary` = `{project}: {scope} [backfill]` — scope derived from the most common conventional commit scope in the cluster. Always postfixed with `[backfill]`.
