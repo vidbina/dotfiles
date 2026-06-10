@@ -280,19 +280,22 @@ fn looks_like_decoration(inner: &str) -> bool {
 fn find_decoration(line: &str) -> Option<(usize, usize)> {
     let stripped = strip_ansi(line);
 
+    // Work with char indices, not byte indices — `text_to_byte` expects char positions.
+    // Using byte indices would drift when multi-byte chars (e.g. em dash) precede the decoration.
+    let chars: Vec<char> = stripped.chars().collect();
     let mut search_from = 0;
-    while search_from < stripped.len() {
-        let open = match stripped[search_from..].find('(') {
+    while search_from < chars.len() {
+        let open = match chars[search_from..].iter().position(|&c| c == '(') {
             Some(pos) => search_from + pos,
             None => return None,
         };
-        let close = match stripped[open..].find(')') {
+        let close = match chars[open..].iter().position(|&c| c == ')') {
             Some(pos) => open + pos,
             None => return None,
         };
 
-        let inner = &stripped[open + 1..close];
-        if looks_like_decoration(inner) {
+        let inner: String = chars[open + 1..close].iter().collect();
+        if looks_like_decoration(&inner) {
             return Some((text_to_byte(line, open), text_to_byte(line, close + 1)));
         }
 
@@ -533,6 +536,104 @@ mod tests {
         let result = process_line(line, &remotes);
         assert!(result.contains("(WIP)"));
         assert!(result.contains("[origin/]"));
+    }
+
+    #[test]
+    fn multibyte_subject_with_parens_and_decoration() {
+        // Reproduces VID-682: em dash (3-byte UTF-8) + subject parens + long branch
+        // decoration. The `(decisions)` parens should be skipped (not a decoration),
+        // and the actual decoration should be cleanly replaced without garbling HEAD.
+        let remotes = vec!["origin".to_owned()];
+        let line = "* 0b2cb36 docs(decisions): lock in disclosure schema \u{2014} update-in-place, scope boundary [ai:claude] (HEAD -> vidbina/idt-11-live-congressional-disclosures-flowing-into-the-system)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        // The subject must be preserved intact (including em dash and parens)
+        assert!(plain.contains("docs(decisions)"));
+        assert!(plain.contains("\u{2014}"));
+        // The decoration must start with `(HEAD` — not `H(EAD` or other garbling
+        assert!(plain.contains("(HEAD -> "));
+        // The branch name should be truncated (it's > 30 chars)
+        assert!(plain.contains("\u{2026}"));  // ellipsis from truncation
+        // No double parens or leaked characters
+        assert!(!plain.contains("H(EAD"));
+        assert!(!plain.contains("(("));
+    }
+
+    #[test]
+    fn multibyte_subject_with_ansi_and_decoration() {
+        // Same scenario but with ANSI color codes as git would produce with %C(auto)
+        let remotes = vec!["origin".to_owned()];
+        let line = "* \x1b[33m0b2cb36\x1b[0m docs(decisions): lock in disclosure schema \u{2014} update-in-place, scope boundary [ai:claude]\x1b[33m (\x1b[1;36mHEAD -> \x1b[1;32mvidbina/idt-11-live-congressional-disclosures-flowing-into-the-system\x1b[33m)\x1b[0m";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("docs(decisions)"));
+        assert!(plain.contains("\u{2014}"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+        assert!(!plain.contains("(("));
+    }
+
+    #[test]
+    fn emoji_single_codepoint_in_subject() {
+        // 🔥 = U+1F525, 4 bytes UTF-8
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d feat: 🔥 hot reload support (HEAD -> vidbina/feature-branch)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("🔥"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+    }
+
+    #[test]
+    fn emoji_multi_codepoint_flag_in_subject() {
+        // 🇩🇪 = U+1F1E9 U+1F1EA, two 4-byte codepoints = 8 bytes, 2 chars
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d docs: 🇩🇪 locale support (HEAD -> vidbina/i18n-de)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("🇩🇪"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+    }
+
+    #[test]
+    fn emoji_zwj_sequence_in_subject() {
+        // 👨‍💻 = U+1F468 U+200D U+1F4BB, three codepoints = 11 bytes
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d feat: 👨‍💻 dev mode (HEAD -> vidbina/dev-mode)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("👨\u{200d}💻"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+    }
+
+    #[test]
+    fn multiple_emojis_and_parens_in_subject() {
+        // Multiple emojis + conventional commit parens + decoration
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d fix(parser): 🐛 handle 🔧 edge case —� regression (HEAD -> vidbina/fix-parser)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("fix(parser)"));
+        assert!(plain.contains("🐛"));
+        assert!(plain.contains("🔧"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+    }
+
+    #[test]
+    fn emoji_with_ansi_codes_and_decoration() {
+        // Emojis + ANSI colors as git would produce
+        let remotes = vec!["origin".to_owned()];
+        let line = "* \x1b[33ma1b2c3d\x1b[0m feat(ui): ✨ sparkle — new dashboard 🚀\x1b[33m (\x1b[1;36mHEAD -> \x1b[1;32mvidbina/new-dashboard\x1b[33m)\x1b[0m";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("✨"));
+        assert!(plain.contains("🚀"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
     }
 
     #[test]
