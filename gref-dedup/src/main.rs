@@ -574,6 +574,69 @@ mod tests {
     }
 
     #[test]
+    fn emoji_single_codepoint_in_subject() {
+        // 🔥 = U+1F525, 4 bytes UTF-8
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d feat: 🔥 hot reload support (HEAD -> vidbina/feature-branch)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("🔥"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+    }
+
+    #[test]
+    fn emoji_multi_codepoint_flag_in_subject() {
+        // 🇩🇪 = U+1F1E9 U+1F1EA, two 4-byte codepoints = 8 bytes, 2 chars
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d docs: 🇩🇪 locale support (HEAD -> vidbina/i18n-de)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("🇩🇪"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+    }
+
+    #[test]
+    fn emoji_zwj_sequence_in_subject() {
+        // 👨‍💻 = U+1F468 U+200D U+1F4BB, three codepoints = 11 bytes
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d feat: 👨‍💻 dev mode (HEAD -> vidbina/dev-mode)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("👨\u{200d}💻"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+    }
+
+    #[test]
+    fn multiple_emojis_and_parens_in_subject() {
+        // Multiple emojis + conventional commit parens + decoration
+        let remotes = vec!["origin".to_owned()];
+        let line = "* a1b2c3d fix(parser): 🐛 handle 🔧 edge case —� regression (HEAD -> vidbina/fix-parser)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("fix(parser)"));
+        assert!(plain.contains("🐛"));
+        assert!(plain.contains("🔧"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+    }
+
+    #[test]
+    fn emoji_with_ansi_codes_and_decoration() {
+        // Emojis + ANSI colors as git would produce
+        let remotes = vec!["origin".to_owned()];
+        let line = "* \x1b[33ma1b2c3d\x1b[0m feat(ui): ✨ sparkle — new dashboard 🚀\x1b[33m (\x1b[1;36mHEAD -> \x1b[1;32mvidbina/new-dashboard\x1b[33m)\x1b[0m";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("✨"));
+        assert!(plain.contains("🚀"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+    }
+
+    #[test]
     fn decoration_requires_strong_signal() {
         assert!(!looks_like_decoration("WIP"));
         assert!(!looks_like_decoration("FIXME"));
