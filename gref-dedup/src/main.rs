@@ -280,19 +280,22 @@ fn looks_like_decoration(inner: &str) -> bool {
 fn find_decoration(line: &str) -> Option<(usize, usize)> {
     let stripped = strip_ansi(line);
 
+    // Work with char indices, not byte indices — `text_to_byte` expects char positions.
+    // Using byte indices would drift when multi-byte chars (e.g. em dash) precede the decoration.
+    let chars: Vec<char> = stripped.chars().collect();
     let mut search_from = 0;
-    while search_from < stripped.len() {
-        let open = match stripped[search_from..].find('(') {
+    while search_from < chars.len() {
+        let open = match chars[search_from..].iter().position(|&c| c == '(') {
             Some(pos) => search_from + pos,
             None => return None,
         };
-        let close = match stripped[open..].find(')') {
+        let close = match chars[open..].iter().position(|&c| c == ')') {
             Some(pos) => open + pos,
             None => return None,
         };
 
-        let inner = &stripped[open + 1..close];
-        if looks_like_decoration(inner) {
+        let inner: String = chars[open + 1..close].iter().collect();
+        if looks_like_decoration(&inner) {
             return Some((text_to_byte(line, open), text_to_byte(line, close + 1)));
         }
 
