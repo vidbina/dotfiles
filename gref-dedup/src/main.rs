@@ -536,6 +536,41 @@ mod tests {
     }
 
     #[test]
+    fn multibyte_subject_with_parens_and_decoration() {
+        // Reproduces VID-682: em dash (3-byte UTF-8) + subject parens + long branch
+        // decoration. The `(decisions)` parens should be skipped (not a decoration),
+        // and the actual decoration should be cleanly replaced without garbling HEAD.
+        let remotes = vec!["origin".to_owned()];
+        let line = "* 0b2cb36 docs(decisions): lock in disclosure schema \u{2014} update-in-place, scope boundary [ai:claude] (HEAD -> vidbina/idt-11-live-congressional-disclosures-flowing-into-the-system)";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        // The subject must be preserved intact (including em dash and parens)
+        assert!(plain.contains("docs(decisions)"));
+        assert!(plain.contains("\u{2014}"));
+        // The decoration must start with `(HEAD` — not `H(EAD` or other garbling
+        assert!(plain.contains("(HEAD -> "));
+        // The branch name should be truncated (it's > 30 chars)
+        assert!(plain.contains("\u{2026}"));  // ellipsis from truncation
+        // No double parens or leaked characters
+        assert!(!plain.contains("H(EAD"));
+        assert!(!plain.contains("(("));
+    }
+
+    #[test]
+    fn multibyte_subject_with_ansi_and_decoration() {
+        // Same scenario but with ANSI color codes as git would produce with %C(auto)
+        let remotes = vec!["origin".to_owned()];
+        let line = "* \x1b[33m0b2cb36\x1b[0m docs(decisions): lock in disclosure schema \u{2014} update-in-place, scope boundary [ai:claude]\x1b[33m (\x1b[1;36mHEAD -> \x1b[1;32mvidbina/idt-11-live-congressional-disclosures-flowing-into-the-system\x1b[33m)\x1b[0m";
+        let result = process_line(line, &remotes);
+        let plain = strip_ansi(&result);
+        assert!(plain.contains("docs(decisions)"));
+        assert!(plain.contains("\u{2014}"));
+        assert!(plain.contains("(HEAD -> "));
+        assert!(!plain.contains("H(EAD"));
+        assert!(!plain.contains("(("));
+    }
+
+    #[test]
     fn decoration_requires_strong_signal() {
         assert!(!looks_like_decoration("WIP"));
         assert!(!looks_like_decoration("FIXME"));
