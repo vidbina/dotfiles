@@ -35,9 +35,9 @@ The defining design principles:
 
 | Resource | ID | Notes |
 |---|---|---|
-| Agent | `agent_01QfZL1GJS9KnSiG2RDDMsMH` | "Coding Assistant", claude-opus-4-7, full sandbox |
-| Environment | `env_01C7wJ2yBNzNuZG4dmVDKPnm` | "research-env", org-scoped, unrestricted networking |
-| Workspace | `wrkspc_01NWo31ZpJLwkJeAcTeyaQxm` | For constructing console URLs |
+| Agent | `agent_01EXAMPLE` | "Coding Assistant", claude-opus-4-7, full sandbox |
+| Environment | `env_01EXAMPLE` | "research-env", org-scoped, unrestricted networking |
+| Workspace | `wrkspc_01EXAMPLE` | For constructing console URLs |
 
 These are defaults. The caller can override agent and environment IDs.
 
@@ -49,15 +49,15 @@ All state is persisted to a JSON file in the `dispatch-runs/` directory at the r
 {
   "id": "20260605-085200",
   "created_at": "2026-06-05T08:52:00Z",
-  "agent_id": "agent_01QfZL1GJS9KnSiG2RDDMsMH",
-  "environment_id": "env_01C7wJ2yBNzNuZG4dmVDKPnm",
-  "workspace_id": "wrkspc_01NWo31ZpJLwkJeAcTeyaQxm",
-  "context": "IA-6 junction tooling research",
+  "agent_id": "agent_01EXAMPLE",
+  "environment_id": "env_01EXAMPLE",
+  "workspace_id": "wrkspc_01EXAMPLE",
+  "context": "PROJ-42 market landscape research",
   "sessions": [
     {
-      "id": "sesn_01Mk1X7c9WeTiPbUNwPf7MQk",
+      "id": "sesn_01EXAMPLE",
       "topic": "Enterprise search landscape",
-      "url": "https://console.anthropic.com/workspaces/wrkspc_01NWo31ZpJLwkJeAcTeyaQxm/sessions/sesn_01Mk1X7c9WeTiPbUNwPf7MQk",
+      "url": "https://console.anthropic.com/workspaces/wrkspc_01EXAMPLE/sessions/sesn_01EXAMPLE",
       "status": null,
       "created_at": null,
       "updated_at": null,
@@ -83,7 +83,7 @@ Examine the input to determine what phase to enter:
 
 ### Rename the session
 
-Rename the session to reflect the scope — e.g. "VID-669 dispatch 8 topics (dispatch)" or "gather IA-6 results (dispatch)". If no programmatic rename is available, suggest it to the user and move on.
+Rename the session to reflect the scope — e.g. "VID-669 dispatch 8 topics (dispatch)" or "gather PROJ-42 results (dispatch)". If no programmatic rename is available, suggest it to the user and move on.
 
 ## Phase 1 — Dispatch
 
@@ -108,8 +108,8 @@ Print the dispatch plan:
 ```
 Dispatch plan: {N} sessions
 
-Agent:       agent_01QfZL1GJS9KnSiG2RDDMsMH (Coding Assistant, opus-4-7)
-Environment: env_01C7wJ2yBNzNuZG4dmVDKPnm (research-env)
+Agent:       agent_01EXAMPLE (Coding Assistant, opus-4-7)
+Environment: env_01EXAMPLE (research-env)
 
 | # | Topic | Prompt preview (first 80 chars) |
 |---|-------|----------------------------------|
@@ -214,7 +214,7 @@ URL = https://console.anthropic.com/workspaces/{workspace_id}/sessions/{session_
 
 where `workspace_id` comes from the run file's top-level `workspace_id` field and `session_id` is the session's `id` field. Construct this URL immediately after polling each session — before writing any output (table, file, comment, or run file update). The `url` field is the single source of truth; every output surface reads from it. Never reconstruct the URL ad-hoc and never display a bare session ID.
 
-**Every rendered session reference must be a markdown hyperlink:** `[sesn_01Mk...](url)` — truncate the display ID to the first 12 characters for readability. This applies to:
+**Every rendered session reference must be a markdown hyperlink:** `[sesn_01Aa...](url)` — truncate the display ID to the first 12 characters for readability. This applies to:
 
 - The in-chat completion table
 - Local markdown output files
@@ -235,8 +235,8 @@ If the `workspace_id` is missing from the run file, **stop and ask the user** ra
 
 ```markdown
 ---
-session_id: sesn_01Mk1X7c9WeTiPbUNwPf7MQk
-session_url: https://console.anthropic.com/workspaces/wrkspc_.../sessions/sesn_01Mk...
+session_id: sesn_01AaEXAMPLE
+session_url: https://console.anthropic.com/workspaces/wrkspc_.../sessions/sesn_01Aa...
 topic: Enterprise search landscape
 status: idle
 runtime: 3m14s
@@ -264,16 +264,16 @@ Dispatch run {id} — {done}/{total} complete
 
 | # | Topic | Status | Runtime | Tokens (out) | Session |
 |---|-------|--------|---------|--------------|---------|
-| 1 | Enterprise search | idle | 3m14s | 3,803 | [sesn_01Mk...](https://console.anthropic.com/workspaces/wrkspc_01NWo31ZpJLwkJeAcTeyaQxm/sessions/sesn_01Mk1X7c9WeTiPbUNwPf7MQk) |
-| 2 | Graph databases | idle | 2m58s | 3,540 | [sesn_01Mo...](https://console.anthropic.com/workspaces/wrkspc_01NWo31ZpJLwkJeAcTeyaQxm/sessions/sesn_01MoL1w7MzsfCNPD8NV2Yw3t) |
-| 3 | Auth patterns | terminated | 1m02s | 0 | [sesn_01Bh...](https://console.anthropic.com/workspaces/wrkspc_01NWo31ZpJLwkJeAcTeyaQxm/sessions/sesn_01Bhmus6WTcoDEfn8Z2ma8ej) |
+| 1 | Enterprise search | idle | 3m14s | 3,803 | [sesn_01Aa...](https://console.anthropic.com/workspaces/wrkspc_01EXAMPLE/sessions/sesn_01AaEXAMPLE) |
+| 2 | Graph databases | idle | 2m58s | 3,540 | [sesn_01Bb...](https://console.anthropic.com/workspaces/wrkspc_01EXAMPLE/sessions/sesn_01BbEXAMPLE) |
+| 3 | Auth patterns | terminated | 1m02s | 0 | [sesn_01Cc...](https://console.anthropic.com/workspaces/wrkspc_01EXAMPLE/sessions/sesn_01CcEXAMPLE) |
 
 Output files: dispatch-runs/{id}/
 
 Totals: 3m14s avg runtime | 11,146 output tokens | $X.XX estimated cost
 ```
 
-**The Session column must always contain a markdown hyperlink.** Use the `url` field from the run file — never a bare session ID. Truncate the display label to `sesn_01Mk...` (first 12 characters) for readability.
+**The Session column must always contain a markdown hyperlink.** Use the `url` field from the run file — never a bare session ID. Truncate the display label to `sesn_01Aa...` (first 12 characters) for readability.
 
 Runtime is computed as `updated_at - created_at` from the session metadata.
 
