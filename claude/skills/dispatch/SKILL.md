@@ -43,7 +43,7 @@ These are defaults. The caller can override agent and environment IDs.
 
 ## Run file format
 
-All state is persisted to a JSON file in the `dispatch-runs/` directory at the repo root:
+All state is persisted to a JSON file in the `.dispatch-runs/` directory at the repo root:
 
 ```json
 {
@@ -69,7 +69,7 @@ All state is persisted to a JSON file in the `dispatch-runs/` directory at the r
 }
 ```
 
-The `dispatch-runs/` directory should be gitignored (add to `.gitignore` if not present). Run files are local state, not version-controlled.
+The `.dispatch-runs/` directory should be gitignored (add to `.gitignore` if not present). Run files are local state, not version-controlled.
 
 ## Phase 0 — Detect mode
 
@@ -77,8 +77,8 @@ The `dispatch-runs/` directory should be gitignored (add to `.gitignore` if not 
 
 Examine the input to determine what phase to enter:
 
-1. **Explicit run file** — if the user passes a path to an existing run file (`dispatch-runs/20260605-085200.json`), load it and enter **gather** phase.
-2. **Existing run in context** — if `dispatch-runs/` contains a run file with sessions still in `running` or `null` status, ask: "Found an in-progress run ({id}, {N} sessions). Gather results, or start a new dispatch?"
+1. **Explicit run file** — if the user passes a path to an existing run file (`.dispatch-runs/20260605-085200.json`), load it and enter **gather** phase.
+2. **Existing run in context** — if `.dispatch-runs/` contains a run file with sessions still in `running` or `null` status, ask: "Found an in-progress run ({id}, {N} sessions). Gather results, or start a new dispatch?"
 3. **New dispatch** — if neither applies, enter **dispatch** phase. The user's prompt contains the topics/prompts to dispatch.
 
 ### Rename the session
@@ -153,10 +153,10 @@ Dispatch sessions in parallel where possible (background with `&`). But always w
 After all sessions are dispatched:
 
 ```
-Dispatched {N} sessions. Run file: dispatch-runs/{id}.json
+Dispatched {N} sessions. Run file: .dispatch-runs/{id}.json
 
 You can close the laptop now. Sessions run server-side.
-To check progress later: /dispatch dispatch-runs/{id}.json
+To check progress later: /dispatch .dispatch-runs/{id}.json
 ```
 
 ## Phase 2 — Gather
@@ -227,7 +227,7 @@ If the `workspace_id` is missing from the run file, **stop and ask the user** ra
 
 **Mandatory step — do not skip.** For each session with a non-null `result`, write the full output to a local markdown file so it survives provider session retention windows.
 
-**Directory:** `dispatch-runs/{run-id}/` (create if it doesn't exist).
+**Directory:** `.dispatch-runs/{run-id}/` (create if it doesn't exist).
 
 **Filename:** `{N}-{topic-slug}.md` where `{N}` is the 1-based session index (zero-padded to 2 digits) and `{topic-slug}` is the topic label lowercased with spaces replaced by hyphens and non-alphanumeric characters (except hyphens) removed. Example: `01-enterprise-search.md`.
 
@@ -247,7 +247,7 @@ extracted_at: 2026-06-05T09:15:00Z
 {full extracted result text}
 ```
 
-Store the relative file path (`dispatch-runs/{run-id}/01-enterprise-search.md`) in the session's `output_file` field in the run file. This creates a cross-reference: the run file points to the output files, and each output file's frontmatter points back to the session.
+Store the relative file path (`.dispatch-runs/{run-id}/01-enterprise-search.md`) in the session's `output_file` field in the run file. This creates a cross-reference: the run file points to the output files, and each output file's frontmatter points back to the session.
 
 For `terminated` sessions with no result, skip file creation and leave `output_file` as `null`.
 
@@ -268,7 +268,7 @@ Dispatch run {id} — {done}/{total} complete
 | 2 | Graph databases | idle | 2m58s | 3,540 | [sesn_01Bb...](https://console.anthropic.com/workspaces/wrkspc_01EXAMPLE/sessions/sesn_01BbEXAMPLE) |
 | 3 | Auth patterns | terminated | 1m02s | 0 | [sesn_01Cc...](https://console.anthropic.com/workspaces/wrkspc_01EXAMPLE/sessions/sesn_01CcEXAMPLE) |
 
-Output files: dispatch-runs/{id}/
+Output files: .dispatch-runs/{id}/
 
 Totals: 3m14s avg runtime | 11,146 output tokens | $X.XX estimated cost
 ```
@@ -320,4 +320,4 @@ If the caller asks to post results to a Linear ticket:
 - **Don't assume the computer stays open.** The entire design assumes the laptop may close between dispatch and gather. Never rely on in-memory state surviving between phases.
 - **Don't skip the report table.** Every gather must print the completion table with runtime, token counts, and session links. This data informs future decisions about local vs cloud execution.
 - **Don't output bare session IDs.** Every session reference in every output surface (chat, file, comment) must be a markdown hyperlink built from the `url` field. A bare `sesn_01X3...` without a link is a bug — the reader cannot navigate to the session without manually constructing the URL, and the ID alone is useless once the session expires.
-- **Don't skip output file extraction.** Every gather must write output files to `dispatch-runs/{id}/`. The run file JSON alone is not archival — session results must exist as standalone markdown files that survive independent of the run file and the provider's retention window.
+- **Don't skip output file extraction.** Every gather must write output files to `.dispatch-runs/{id}/`. The run file JSON alone is not archival — session results must exist as standalone markdown files that survive independent of the run file and the provider's retention window.

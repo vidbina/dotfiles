@@ -1,5 +1,6 @@
 # AI Agents
 .claude
+.dispatch-runs
 .worklog-project
 
 # Created by https://www.toptal.com/developers/gitignore/api/emacs,vim,direnv
