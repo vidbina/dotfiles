@@ -238,6 +238,31 @@ This is a system configuration repo (dotfiles), not an application. The meaning 
 
 When in doubt between Feature and Tooling: if a user of this machine would notice the change (new app available, new command works), it's Feature. If only the maintainer of the config notices (cleaner flake, better tangle workflow), it's Tooling.
 
+## KB skill symlink maintenance
+
+Skills shared across repos live in the knowledge base (`./kb` symlink → the KB repo). This repo consumes them via symlinks in `claude/skills/`. Some skills are local-only (real directories, not symlinks) — those are personal or experimental and not managed by this process.
+
+### When to run
+
+When the user asks to "sync skills", "update KB links", or when you notice a skill reference that doesn't resolve.
+
+### Procedure
+
+1. **Discover what the KB offers:** list `kb/skills/*/` (directories only, skip files like README.md).
+2. **Discover what's already linked:** list symlinks in `claude/skills/` whose target points into the KB repo (i.e. target contains the KB path from `readlink kb/`). Ignore symlinks pointing elsewhere (other repos) and real directories (local skills).
+3. **Diff:**
+   - **New in KB** — skill dir exists in KB but has no symlink here. Offer to create: `ln -s $(readlink kb)/skills/<name> claude/skills/<name>`.
+   - **Stale** — symlink exists here but target dir no longer exists in KB (renamed or removed). Report the broken link and offer to remove it.
+   - **Current** — symlink exists and target is valid. No action needed.
+4. **Report** the diff as a table (skill name, status, proposed action) and wait for confirmation before making changes.
+5. **Apply** confirmed changes. Stale removals and new links are separate operations — don't batch them if the user only approves some.
+
+### What this does NOT cover
+
+- **Local skills** (real directories in `claude/skills/`): managed manually, not part of sync.
+- **Non-KB symlinks** (e.g. `techddreport` → a different repo): left untouched. These are one-off arrangements.
+- **Creating the `kb` symlink itself:** that's a human setup step (`ln -s /path/to/kb-repo kb`).
+
 ## Commit message conventions
 
 - **Format:** `<type>(<scope>): <subject> [ai:claude]` — the `[ai:claude]` tag always goes at the end of the subject line for AI-authored commits
