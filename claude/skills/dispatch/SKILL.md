@@ -305,7 +305,7 @@ For each `terminated` session, create a new session with the same prompt. Update
 
 If the caller asks to post results to a Linear ticket:
 
-1. Post an anchor comment with the completion table (via commenting skill)
+1. Post an anchor comment with the completion table (via comment skill)
 2. Post one threaded reply per completed session with the full result text
 3. Optionally post a synthesis reply if the caller provides synthesis instructions
 

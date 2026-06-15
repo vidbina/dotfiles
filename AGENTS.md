@@ -219,7 +219,7 @@ This repo contains Claude Code's own configuration (`claude/settings.json`, `cla
    - Exact command to resume: e.g. `claude` or `claude --continue` from the repo directory
    - What to test on restart (e.g. "edit `flake.nix` and check that CHECKPOINT appears in chat")
    - What remains after verification (e.g. "remove debug log line, commit fix")
-4. **Tell the navigator** what to type after starting the new session so they can resume without remembering context. Be specific — e.g. "Start a new session and type: `/pairprog VID-661` — the ticket comment has the full context."
+4. **Tell the navigator** what to type after starting the new session so they can resume without remembering context. Be specific — e.g. "Start a new session and type: `/pair VID-661` — the ticket comment has the full context."
 
 **Why this matters:** A cancelled session with no handover comment means lost context. The ticket comment is durable — it survives across sessions, machines, and people. Always write it before suggesting a restart.
 
@@ -256,7 +256,13 @@ When the user asks to "sync skills", "update KB links", or when you notice a ski
    - **Broken** — symlink exists but target is gone (renamed or removed in KB). Report the broken link, show the old target path, and look for a likely rename by matching the old skill's basename against current KB skill names. Offer to remove the broken link and create a new one if a rename candidate is found.
    - **Stale** — symlink target exists but points to an outdated path (e.g. KB restructured its directory layout). Offer to re-link.
    - **Current** — symlink exists and target is valid. No action needed.
-5. **Report** the diff as a table (skill name, status, old target, proposed action) and wait for confirmation before making changes.
+5. **Report** the diff as a markdown table and wait for confirmation before making changes. Table format:
+
+   | Skill | Status | Old target | Rename candidate | Proposed action |
+   |-------|--------|-----------|-----------------|----------------|
+   | `name` | Current / Broken / New / Stale | old path or — | new KB name or — | — / Remove + relink / Create link |
+
+   Only show rows that need action first (Broken, New, Stale), then Current rows below a separator. This keeps the actionable items scannable.
 6. **Apply** confirmed changes. Broken removals, re-links, and new links are separate operations — don't batch them if the user only approves some.
 
 ### What this does NOT cover
