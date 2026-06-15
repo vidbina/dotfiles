@@ -40,4 +40,4 @@ devenv.local.nix
 kb
 
 # Dispatch run state (managed agent session IDs and results)
-dispatch-runs/
+.dispatch-runs/

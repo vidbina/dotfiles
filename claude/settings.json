@@ -149,7 +149,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "input=$(cat); echo \"$(echo \"$input\" | jq -r '.cwd')\""
+    "command": "input=$(cat); cwd=$(echo \"$input\" | jq -r '.cwd'); branch=$(cd \"$cwd\" && git rev-parse --abbrev-ref HEAD 2>/dev/null || echo ''); ticket=$(echo \"$branch\" | grep -oiE '[A-Z]+-[0-9]+' | head -1 | tr '[:lower:]' '[:upper:]'); if [ -n \"$ticket\" ]; then printf '%b' \"\\e]8;;https://linear.app/asabina/issue/$ticket\\a$ticket\\e]8;;\\a | $cwd\"; else echo \"$cwd\"; fi"
   },
   "enabledPlugins": {
     "obsidian@obsidian-skills": true,

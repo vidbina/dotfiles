@@ -219,7 +219,7 @@ This repo contains Claude Code's own configuration (`claude/settings.json`, `cla
    - Exact command to resume: e.g. `claude` or `claude --continue` from the repo directory
    - What to test on restart (e.g. "edit `flake.nix` and check that CHECKPOINT appears in chat")
    - What remains after verification (e.g. "remove debug log line, commit fix")
-4. **Tell the navigator** what to type after starting the new session so they can resume without remembering context. Be specific — e.g. "Start a new session and type: `/pairprog VID-661` — the ticket comment has the full context."
+4. **Tell the navigator** what to type after starting the new session so they can resume without remembering context. Be specific — e.g. "Start a new session and type: `/pair VID-661` — the ticket comment has the full context."
 
 **Why this matters:** A cancelled session with no handover comment means lost context. The ticket comment is durable — it survives across sessions, machines, and people. Always write it before suggesting a restart.
 
@@ -237,6 +237,39 @@ This is a system configuration repo (dotfiles), not an application. The meaning 
 - **Engineering** — CI, testing infrastructure, validation jobs. The plumbing that keeps the repo healthy.
 
 When in doubt between Feature and Tooling: if a user of this machine would notice the change (new app available, new command works), it's Feature. If only the maintainer of the config notices (cleaner flake, better tangle workflow), it's Tooling.
+
+## KB skill symlink maintenance
+
+Skills shared across repos live in the knowledge base (`./kb` symlink → the KB repo). This repo consumes them via symlinks in `claude/skills/`. Some skills are local-only (real directories, not symlinks) — those are personal or experimental and not managed by this process.
+
+### When to run
+
+When the user asks to "sync skills", "update KB links", or when you notice a skill reference that doesn't resolve.
+
+### Procedure
+
+1. **Discover what the KB offers:** list `kb/skills/*/` (directories only, skip files like README.md).
+2. **Discover what's already linked:** list symlinks in `claude/skills/` whose target path contains the KB path (from `readlink kb/`). Use `[ -L "$f" ]` to detect symlinks (not `[ -d ]`, which follows through to the target). Ignore symlinks pointing elsewhere (other repos) and real directories (local skills).
+3. **Check symlink health:** for each KB symlink found in step 2, test whether the target still exists using `[ -e "$f" ]` on the symlink path. A symlink where `-L` is true but `-e` is false is **broken** — the target was renamed or removed.
+4. **Diff:**
+   - **New in KB** — skill dir exists in KB but has no symlink here. Offer to create: `ln -s $(readlink kb)/skills/<name> claude/skills/<name>`.
+   - **Broken** — symlink exists but target is gone (renamed or removed in KB). Report the broken link, show the old target path, and look for a likely rename by matching the old skill's basename against current KB skill names. Offer to remove the broken link and create a new one if a rename candidate is found.
+   - **Stale** — symlink target exists but points to an outdated path (e.g. KB restructured its directory layout). Offer to re-link.
+   - **Current** — symlink exists and target is valid. No action needed.
+5. **Report** the diff as a markdown table and wait for confirmation before making changes. Table format:
+
+   | Skill | Status | Old target | Rename candidate | Proposed action |
+   |-------|--------|-----------|-----------------|----------------|
+   | `name` | Current / Broken / New / Stale | old path or — | new KB name or — | — / Remove + relink / Create link |
+
+   Only show rows that need action first (Broken, New, Stale), then Current rows below a separator. This keeps the actionable items scannable.
+6. **Apply** confirmed changes. Broken removals, re-links, and new links are separate operations — don't batch them if the user only approves some.
+
+### What this does NOT cover
+
+- **Local skills** (real directories in `claude/skills/`): managed manually, not part of sync.
+- **Non-KB symlinks** (e.g. `techddreport` → a different repo): left untouched. These are one-off arrangements.
+- **Creating the `kb` symlink itself:** that's a human setup step (`ln -s /path/to/kb-repo kb`).
 
 ## Commit message conventions
 

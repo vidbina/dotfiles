@@ -1,7 +1,7 @@
 ---
 name: troubleshoot
-description: "Use this skill when the user wants to diagnose an error, investigate a failure, or root-cause a bug — without necessarily fixing it right away. Trigger for prompts like 'troubleshoot X', 'why is Y failing', 'debug this error', 'investigate LIN-123', 'figure out what's wrong with Z', 'look into this CI failure', 'root-cause this crash', or when the user invokes `/troubleshoot`. The skill is a walk-away investigator: it runs read-only commands, tees output to files, investigates in parallel via subagents, formulates a root-cause hypothesis, and confirms it with a minimal reproducible test — all with minimal interrupts so the operator can step away and return to a finished report. Findings are posted as Linear comments or design note updates depending on context. If a fix is needed after the diagnosis, the skill hands off to /pairprog. Do NOT trigger when the user wants to immediately implement a fix (use /pairprog), when pure web research suffices (use /qsearch), or when the issue is a design decision rather than a failure (use /designnote)."
-api_description: "Diagnose a failure autonomously: run read-only commands, investigate in parallel via subagents, formulate a root-cause hypothesis, confirm with a minimal repro, and post findings as a Linear comment or design note update. Walk-away investigation; hands off to pairprog if a fix is needed."
+description: "Use this skill when the user wants to diagnose an error, investigate a failure, or root-cause a bug — without necessarily fixing it right away. Trigger for prompts like 'troubleshoot X', 'why is Y failing', 'debug this error', 'investigate LIN-123', 'figure out what's wrong with Z', 'look into this CI failure', 'root-cause this crash', or when the user invokes `/troubleshoot`. The skill is a walk-away investigator: it runs read-only commands, tees output to files, investigates in parallel via subagents, formulates a root-cause hypothesis, and confirms it with a minimal reproducible test — all with minimal interrupts so the operator can step away and return to a finished report. Findings are posted as Linear comments or design note updates depending on context. If a fix is needed after the diagnosis, the skill hands off to /pair. Do NOT trigger when the user wants to immediately implement a fix (use /pair), when pure web research suffices (use /qsearch), or when the issue is a design decision rather than a failure (use /decision)."
+api_description: "Diagnose a failure autonomously: run read-only commands, investigate in parallel via subagents, formulate a root-cause hypothesis, confirm with a minimal repro, and post findings as a Linear comment or design note update. Walk-away investigation; hands off to pair if a fix is needed."
 allowed-tools: Bash Glob Grep Read Task AskUserQuestion WebSearch WebFetch Skill mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__list_issues mcp__claude_ai_Linear__list_comments mcp__claude_ai_Linear__get_document mcp__claude_ai_Linear__list_documents mcp__claude_ai_Linear__list_teams mcp__claude_ai_Linear__get_team mcp__claude_ai_Linear__list_projects mcp__claude_ai_Linear__get_project mcp__github__pull_request_read mcp__github__list_pull_requests mcp__github__get_commit mcp__github__list_commits mcp__github__search_code
 ---
 
@@ -9,7 +9,7 @@ allowed-tools: Bash Glob Grep Read Task AskUserQuestion WebSearch WebFetch Skill
 
 Diagnose a failure. **You investigate autonomously; the human reviews findings.**
 
-This is the opposite of /pairprog. The operator may be away. You cover as much ground as possible uninterrupted, tee every command's output to a file, and return a clear root-cause report with a reproducible test. The human returns to findings, not questions.
+This is the opposite of /pair. The operator may be away. You cover as much ground as possible uninterrupted, tee every command's output to a file, and return a clear root-cause report with a reproducible test. The human returns to findings, not questions.
 
 The defining design principles are:
 
@@ -169,10 +169,10 @@ Wait for the operator's answer before writing anything to disk, posting any comm
 
 ### Persist on confirmation
 
-If the operator selects Linear comment, delegate to the commenting skill:
+If the operator selects Linear comment, delegate to the comment skill:
 
 ```
-Skill("commenting", "Post an anchor comment on {TICKET-ID} titled \"Troubleshoot findings\" from skill \"troubleshoot\" with body:
+Skill("comment", "Post an anchor comment on {TICKET-ID} titled \"Troubleshoot findings\" from skill \"troubleshoot\" with body:
 
 **Root cause:**
 <one-sentence hypothesis>
@@ -198,23 +198,23 @@ Output: `troubleshoot-output/repro.txt`
 **Investigation artifacts:** `troubleshoot-output/` (in working directory)")
 ```
 
-The commenting skill handles heading format, provenance markers, and threading. Do not format these yourself.
+The comment skill handles heading format, provenance markers, and threading. Do not format these yourself.
 
 If the operator selects design note update or local file, write the same content to the appropriate target.
 
-## Phase 5 — Optional: hand off to /pairprog
+## Phase 5 — Optional: hand off to /pair
 
 If the root cause is confirmed and a fix is clearly scoped, offer to hand off:
 
-> "Root cause confirmed. Ready to fix? I can invoke `/pairprog` to implement the fix atomically. The fix scope would be: [brief description]. Shall I proceed?"
+> "Root cause confirmed. Ready to fix? I can invoke `/pair` to implement the fix atomically. The fix scope would be: [brief description]. Shall I proceed?"
 
-On approval, invoke the `pairprog` skill. Pass the diagnosis as context so pairprog can skip its own Phase 1 spike on this issue.
+On approval, invoke the `pair` skill. Pass the diagnosis as context so pair can skip its own Phase 1 spike on this issue.
 
 On "not yet" or "no," leave the findings in the ticket comment. The operator decides when and how to fix.
 
 ## Anti-patterns
 
-- **Don't fix code during investigation.** Diagnosis and repair are separate phases. Troubleshoot diagnoses; pairprog repairs. Mixing them produces unreviewed changes.
+- **Don't fix code during investigation.** Diagnosis and repair are separate phases. Troubleshoot diagnoses; pair repairs. Mixing them produces unreviewed changes.
 - **Don't discard command output.** Every non-trivial command goes to `troubleshoot-output/`. Never run and discard.
 - **Don't report a hypothesis without a repro.** If you can't reproduce, say so — don't present an unconfirmed hypothesis as fact.
 - **Don't ask multiple rounds of questions.** One up-front batch at most. The operator walks away after that.

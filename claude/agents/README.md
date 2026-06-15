@@ -25,7 +25,7 @@ agents/
   // Allowlist of skill names to deploy to this workspace.
   // Only skills listed here are uploaded; everything else in claude/skills/ is ignored.
   // Omit skills that are not compliant or not relevant for this workspace.
-  "skills": ["pairprog", "qsearch", "linearissue", "pr", "commitmsg"],
+  "skills": ["pair", "qsearch", "issue", "pr", "commit"],
 
   // Tool secrets — resolved from 1Password at deploy/run time via `op read`.
   // Values with an "op" key are secret references; plain strings are literals.
