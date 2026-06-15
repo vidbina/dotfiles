@@ -273,7 +273,15 @@ When the user asks to "sync skills", "update KB links", or when you notice a ski
 
 ## Commit message conventions
 
-- **Format:** `<type>(<scope>): <subject> [ai:claude]` — the `[ai:claude]` tag always goes at the end of the subject line for AI-authored commits
+> **Read `CONTRIBUTING.md` before drafting or making any commit.** It is the canonical source of truth for the commit format, AI co-authorship trailers, and PR title convention.
+
+Summary:
+
+- **Format:** `<type>(<scope>): <subject> [ai:<agent>]`
 - **No ticket ID in subject:** the branch name already encodes the ticket (e.g. `vidbina/vid-616-...`); don't repeat it in the commit subject
-- **Always include:** `Co-Authored-By: Claude Code <noreply@anthropic.com>` trailer in the commit body
+- **AI co-authorship:** always include both trailers (see CONTRIBUTING.md for details):
+  ```
+  Co-authored-by: Claude Code <noreply@anthropic.com>
+  Assisted-by: Claude:claude-opus-4-6
+  ```
 - **Commit via nix develop:** pre-commit hooks require tools only available in the dev shell — always use `nix develop --command git commit`
