@@ -1,13 +1,19 @@
 ---
 name: dispatch
-description: "Use this skill to dispatch N parallel managed agent sessions (fire-and-forget), then gather results after they complete. The skill owns infrastructure only — session creation, ID persistence, polling, result extraction, and reporting. The caller owns prompt content, output shape, and merge logic. Trigger for prompts like 'dispatch research on X', 'run these topics in parallel', 'fire off N sessions', 'gather results', 'check on my dispatch run', 'dispatch these to the cloud', or when the user invokes `/dispatch`. Also trigger when another skill needs to fan out work to managed agents."
-api_description: "Dispatch N parallel managed agent sessions via the ant CLI, persist session IDs to disk, poll for completion, extract results, and report with runtime and token metrics. Fire-and-forget pattern — laptop can close between dispatch and gather."
+description: "Use this skill to dispatch N parallel managed agent sessions (fire-and-forget), then gather results after they complete. For local dev workstations only — laptops where sessions are interruptible (lid close, Wi-Fi drop). Not useful for cloud runners or CI which have persistent infrastructure. The skill owns infrastructure only — session creation, ID persistence, polling, result extraction, and reporting. The caller owns prompt content, output shape, and merge logic. Trigger for prompts like 'dispatch research on X', 'run these topics in parallel', 'fire off N sessions', 'gather results', 'check on my dispatch run', 'dispatch these to the cloud', or when the user invokes `/dispatch`. Also trigger when another skill needs to fan out work to managed agents."
+api_description: "Dispatch N parallel managed agent sessions via the ant CLI, persist session IDs to disk, poll for completion, extract results, and report with runtime and token metrics. For local dev workstations — fire-and-forget pattern that survives laptop sleep and connectivity loss."
 allowed-tools: Bash Glob Grep Read Write AskUserQuestion Skill mcp__claude_ai_Linear__get_issue mcp__claude_ai_Linear__save_comment mcp__claude_ai_Linear__list_comments
 ---
 
 # dispatch
 
 Dispatch N parallel managed agent sessions and gather results. **Fire-and-forget — the laptop can close between dispatch and gather.**
+
+## When to use this skill
+
+This skill exists for **local dev workstations** — specifically laptops running Claude Code interactively, where the session is inherently interruptible (lid close, Wi-Fi drop, context switch to another task). The dispatch pattern offloads long-running parallel work to server-side managed agent sessions that keep running regardless of client state.
+
+**Not useful for:** cloud-based agent runners, CI pipelines, Linear AI, or any environment with persistent infrastructure. Those systems don't sleep, don't lose connectivity, and don't need a fire-and-forget recovery mechanism. Including this skill in a cloud runner's tool context adds noise without benefit — the runner can simply spawn subagents directly and wait.
 
 The defining design principles:
 
