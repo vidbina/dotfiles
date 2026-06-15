@@ -249,13 +249,15 @@ When the user asks to "sync skills", "update KB links", or when you notice a ski
 ### Procedure
 
 1. **Discover what the KB offers:** list `kb/skills/*/` (directories only, skip files like README.md).
-2. **Discover what's already linked:** list symlinks in `claude/skills/` whose target points into the KB repo (i.e. target contains the KB path from `readlink kb/`). Ignore symlinks pointing elsewhere (other repos) and real directories (local skills).
-3. **Diff:**
+2. **Discover what's already linked:** list symlinks in `claude/skills/` whose target path contains the KB path (from `readlink kb/`). Use `[ -L "$f" ]` to detect symlinks (not `[ -d ]`, which follows through to the target). Ignore symlinks pointing elsewhere (other repos) and real directories (local skills).
+3. **Check symlink health:** for each KB symlink found in step 2, test whether the target still exists using `[ -e "$f" ]` on the symlink path. A symlink where `-L` is true but `-e` is false is **broken** — the target was renamed or removed.
+4. **Diff:**
    - **New in KB** — skill dir exists in KB but has no symlink here. Offer to create: `ln -s $(readlink kb)/skills/<name> claude/skills/<name>`.
-   - **Stale** — symlink exists here but target dir no longer exists in KB (renamed or removed). Report the broken link and offer to remove it.
+   - **Broken** — symlink exists but target is gone (renamed or removed in KB). Report the broken link, show the old target path, and look for a likely rename by matching the old skill's basename against current KB skill names. Offer to remove the broken link and create a new one if a rename candidate is found.
+   - **Stale** — symlink target exists but points to an outdated path (e.g. KB restructured its directory layout). Offer to re-link.
    - **Current** — symlink exists and target is valid. No action needed.
-4. **Report** the diff as a table (skill name, status, proposed action) and wait for confirmation before making changes.
-5. **Apply** confirmed changes. Stale removals and new links are separate operations — don't batch them if the user only approves some.
+5. **Report** the diff as a table (skill name, status, old target, proposed action) and wait for confirmation before making changes.
+6. **Apply** confirmed changes. Broken removals, re-links, and new links are separate operations — don't batch them if the user only approves some.
 
 ### What this does NOT cover
 
