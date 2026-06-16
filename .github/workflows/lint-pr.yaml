@@ -1,0 +1,73 @@
+name: Lint PR
+
+# Why `pull_request` (not `pull_request_target`):
+#
+# The two triggers differ in which branch supplies the workflow file:
+#
+#   pull_request        → runs the workflow from the PR's HEAD branch
+#   pull_request_target → runs the workflow from the BASE branch (e.g. main)
+#
+# `pull_request_target` exists to protect repos that accept PRs from
+# forks. A forked PR using `pull_request` can modify the workflow to
+# exfiltrate repo secrets. `pull_request_target` prevents this by
+# ignoring the PR branch's workflow entirely — it always runs the base
+# branch copy. But this comes at a cost:
+#
+#   1. A workflow introduced in a PR won't run on that PR (the base
+#      branch doesn't have the file yet).
+#   2. Changes to an existing workflow are invisible on PRs — the base
+#      branch version runs, not yours. There is no partial pick-up.
+#   3. The only way to test workflow changes is to temporarily switch to
+#      `pull_request`, push, verify, then revert before merging.
+#
+# This repo is private with no fork contributions. The security benefit
+# of `pull_request_target` does not apply, and the testing friction is
+# pure cost. We use `pull_request` so workflow changes are testable on
+# the PRs that introduce them.
+#
+# If this repo ever accepts fork contributions, migrate to
+# `pull_request_target`:
+#   - Change `pull_request` → `pull_request_target` below
+#   - Accept that workflow changes require the test-revert dance above
+#   - Review GITHUB_TOKEN permissions (base branch context, not PR)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+permissions:
+  pull-requests: read
+
+jobs:
+  validate-pr-title:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        with:
+          # Conventional commit types matching CONTRIBUTING.md
+          types: |
+            feat
+            fix
+            refactor
+            doc
+            test
+            chore
+            style
+            perf
+          # Ticket ID suffix is recommended but not required —
+          # ad-hoc branches without a ticket are valid.
+          subjectPattern: ^.+(\s\[[A-Z]+-\d+\])?$
+          subjectPatternError: |
+            The subject "{subject}" doesn't look right.
+            Expected format: type(scope): description [TICKET-ID]
+            Examples:
+              feat(auth): add OAuth callback [KB-31]
+              fix: handle null response [KB-45]
+              doc: update contributing guide
+            Ticket ID suffix is optional for branches without a ticket.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
