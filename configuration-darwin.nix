@@ -208,7 +208,6 @@ with lib;
       "1password-cli"
       "iterm2"
       "kitty"
-      "warp"
       "ghostty"
       "cmux"
       "kap"

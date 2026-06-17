@@ -2681,7 +2681,7 @@ config.keys = {
 "kitty"
 #+end_src
 
-**** Warp
+**** COMMENT Warp
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "warp"
