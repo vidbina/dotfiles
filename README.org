@@ -2497,7 +2497,9 @@ sudo xcodebuild -license accept
 #+end_src
 
 *** Password Managers
-**** Pass
+**** COMMENT Pass
+
+Replaced by 1Password. The =pass= CLI and its GPG-based workflow are no longer in use.
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
 pass

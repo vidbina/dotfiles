@@ -13,7 +13,6 @@ with lib;
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
     # common Darwin packages
-    pass
     pdftk
     hunspell
     hunspellDicts.nl_NL
