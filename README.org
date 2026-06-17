@@ -3766,7 +3766,9 @@ Manual setup:
 1. Open Raycast Settings → Window Management
 2. Set *Gap* to *Small* (8 pt gaps work well; Tiny causes bottom-screen trimming when [[*JankyBorders][JankyBorders]] borders are active, because the border overlay adds ~5 px that Raycast's geometry doesn't account for)
 
-*** Nightlight
+*** COMMENT Nightlight
+
+Replaced by macOS native Night Shift (System Settings > Displays > Night Shift).
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "smudge/smudge/nightlight"
