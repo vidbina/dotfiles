@@ -183,6 +183,8 @@ with lib;
       "anomalyco/tap"
     ];
     brews = [
+      "pinentry-mac"
+
       "coreutils"
       "wimlib"
       "micromamba"

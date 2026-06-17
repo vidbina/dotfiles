@@ -1698,6 +1698,12 @@ programs.gnupg.agent = {
 };
 #+end_src
 
+Install =pinentry-mac= for the native macOS GPG passphrase dialog:
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"pinentry-mac"
+#+end_src
+
 *** Setup zsh on Darwin
 
 #+begin_src nix :noweb-ref nix-darwin
