@@ -57,10 +57,9 @@ with lib;
     };
   };
 
-  # NOTE: Copied from home-linux.nix
   programs.gnupg.agent = {
     enable = true;
-    enableSSHSupport = true;
+    enableSSHSupport = false;
   };
 
   # Create /etc/zshrc that loads the nix-darwin environment.

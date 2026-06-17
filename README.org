@@ -1690,11 +1690,12 @@ trusted-users = [
 
 *** Use gpg-agent on Darwin
 
+SSH agent is handled by 1Password (via =IdentityAgent= in =~/.ssh/config=), so =enableSSHSupport= is disabled to avoid =SSH_AUTH_SOCK= pointing at a stale gpg-agent socket that conflicts with the 1Password agent.
+
 #+begin_src nix :noweb-ref nix-darwin
-# NOTE: Copied from home-linux.nix
 programs.gnupg.agent = {
   enable = true;
-  enableSSHSupport = true;
+  enableSSHSupport = false;
 };
 #+end_src
 
