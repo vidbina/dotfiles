@@ -1690,12 +1690,19 @@ trusted-users = [
 
 *** Use gpg-agent on Darwin
 
+SSH agent is handled by 1Password (via =IdentityAgent= in =~/.ssh/config=), so =enableSSHSupport= is disabled to avoid =SSH_AUTH_SOCK= pointing at a stale gpg-agent socket that conflicts with the 1Password agent.
+
 #+begin_src nix :noweb-ref nix-darwin
-# NOTE: Copied from home-linux.nix
 programs.gnupg.agent = {
   enable = true;
-  enableSSHSupport = true;
+  enableSSHSupport = false;
 };
+#+end_src
+
+Install =pinentry-mac= for the native macOS GPG passphrase dialog:
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"pinentry-mac"
 #+end_src
 
 *** Setup zsh on Darwin
@@ -2491,7 +2498,9 @@ sudo xcodebuild -license accept
 #+end_src
 
 *** Password Managers
-**** Pass
+**** COMMENT Pass
+
+Replaced by 1Password. The =pass= CLI and its GPG-based workflow are no longer in use.
 
 #+begin_src nix :noweb-ref nix-darwin-packages-common
 pass
@@ -2681,7 +2690,7 @@ config.keys = {
 "kitty"
 #+end_src
 
-**** Warp
+**** COMMENT Warp
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "warp"

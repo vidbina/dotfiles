@@ -4152,15 +4152,14 @@ Sometimes the auto-save file has the following content:
 
 ** Secrets management with auth-source
 
-#+begin_src elisp :noweb yes
+#+begin_src elisp
 (use-package auth-source
-  :straight (:type built-in)
-
-  :config
-  <<auth-source-config>>)
+  :straight (:type built-in))
 #+end_src
 
-*** Using the Linux password store (pass) with auth-source
+*** COMMENT Using the Linux password store (pass) with auth-source
+
+Replaced by 1Password. The =pass= backend is no longer configured.
 
 I use [[https://www.passwordstore.org/][pass]] to manage passwords on my system.
 The following configuration, demonstrates how to set up the =auth-source= package to use the password-store backend. You can confirm the backend by verifying that the =auth-sources= customizable variable is set to ~(password-store)~.
