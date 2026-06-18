@@ -13,7 +13,6 @@ with lib;
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
     # common Darwin packages
-    pass
     pdftk
     hunspell
     hunspellDicts.nl_NL
@@ -58,10 +57,9 @@ with lib;
     };
   };
 
-  # NOTE: Copied from home-linux.nix
   programs.gnupg.agent = {
     enable = true;
-    enableSSHSupport = true;
+    enableSSHSupport = false;
   };
 
   # Create /etc/zshrc that loads the nix-darwin environment.
@@ -183,6 +181,8 @@ with lib;
       "anomalyco/tap"
     ];
     brews = [
+      "pinentry-mac"
+
       "coreutils"
       "wimlib"
       "micromamba"
@@ -208,7 +208,6 @@ with lib;
       "1password-cli"
       "iterm2"
       "kitty"
-      "warp"
       "ghostty"
       "cmux"
       "kap"
