@@ -195,7 +195,6 @@ with lib;
       "pidof"
       "usbutils"
       "pcalc"
-      "smudge/smudge/nightlight"
       "anomalyco/tap/opencode"
       "pi-coding-agent"
     ];
