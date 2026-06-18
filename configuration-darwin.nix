@@ -234,7 +234,7 @@ with lib;
       "zoom"
       "google-drive"
       "obsidian" # best-in-class with mobile app support
-      "linear-linear"
+      "linear"
       "claude"
       "anthropics/tap/ant"
       "superwhisper"

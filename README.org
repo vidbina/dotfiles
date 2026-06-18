@@ -5411,7 +5411,7 @@ For work, we may need Notion installed on our MacOS systems:
 **** Linear
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
-"linear-linear"
+"linear"
 #+end_src
 
 **** Remarkable
