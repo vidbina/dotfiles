@@ -3255,6 +3255,14 @@ For MacOS, we just install pcalc using the brew:
 "pcalc"
 #+end_src
 
+**** duti
+
+The [[https://github.com/moretension/duti/][duti]] utility allows us to set default applications for document types and URL schemes on macOS from the CLI. We use it in a nix-darwin activation script to declaratively enforce app handlers on every =darwin-rebuild switch=.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"duti"
+#+end_src
+
 *** Syncthing
 
 Navigate to [[http://localhost:8384/][Syncthing portal]] to configure your setup. As per [2022-05-05 Thu 12:08], the syncthing service in home-manager is only declarative to the extend of turning it on and providing extra CLI options to start the service with.
