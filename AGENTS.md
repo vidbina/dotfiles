@@ -60,6 +60,23 @@ When adding a new package, prefer nixpkgs over Homebrew:
 - `gh extension install <ext>` → check if a standalone cask or nix package exists; prefer that
 - `pip install`, `npm install -g`, `cargo install` → use nix packages or home-manager
 
+## Design Work
+
+**Before starting or continuing any design work** (UI implementation, component creation, visual changes, Figma collaboration), read these resources:
+
+1. **`DESIGN.md`** — the project's visual design specification. Follows the [DESIGN.md open spec](https://github.com/google-labs-code/design.md/blob/main/docs/spec.md). Contains color tokens, typography scale, spacing system, component token mappings, and design rationale. The YAML frontmatter is machine-readable; the Markdown body explains the "why."
+2. **Figma workflow conventions** — if the project uses Figma, consult the team's Figma workflow guidance for patterns on variable architecture, component editing discipline (always edit the base component, not instances), and visual verification after changes.
+
+If `DESIGN.md` does not exist yet, consult the [KB template](https://github.com/google-labs-code/design.md/blob/main/docs/spec.md) and the project lead before creating one. A DESIGN.md can be seeded from an existing Figma file using the [Figma-to-DESIGN.md plugin](https://github.com/bergside/design-md-figma) or authored manually following the spec.
+
+Sections marked `<!-- PROJECT-SPECIFIC -->` must be authored per project (brand personality, color palette, ICP framing, component inventory). Sections marked `<!-- CROSS-PROJECT -->` carry reusable structure — customize values but keep the structure.
+
+**Keeping DESIGN.md in sync:**
+
+- When making design decisions during implementation (choosing a color, adding a spacing value, introducing a new component pattern), check whether the decision is already captured in DESIGN.md. If not, flag it to the operator: "This introduces [a new color / spacing value / component pattern] not yet in DESIGN.md — should we codify it?"
+- When design files (Figma, code) conflict with what DESIGN.md documents (e.g., a component uses a color not in the palette, or spacing deviates from the scale), surface the conflict to the operator. Don't silently follow either source — the operator decides which is correct and whether DESIGN.md needs updating.
+- Quick decisions made under time pressure to unblock work should still be surfaced after the fact: "I used [value/pattern] to keep moving — this should be reviewed for inclusion in DESIGN.md."
+
 ## Best Practices
 
 ### For Long Command Output:
