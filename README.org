@@ -2269,6 +2269,9 @@ alias = {
   wdiff = "diff --word-diff --word-diff-regex='\\w+'";
   glog = "!git log --graph --all --format='%C(auto)%h %s%d' --color=always \"$@\" | gref-dedup | less -RF #";
   ready = "!git checkout main && git pull --ff-only";
+  # Touch ID-free aliases for remote/agent sessions
+  mcommit = "-c commit.gpgsign=false commit";
+  mpush = "!git -c url.\"https://github.com/\".pushInsteadOf=\"git@github.com:\" push \"$@\" #";
 };
 #+end_src
 
