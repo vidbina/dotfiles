@@ -195,6 +195,7 @@ with lib;
       "pidof"
       "usbutils"
       "pcalc"
+      "duti"
       "anomalyco/tap/opencode"
       "pi-coding-agent"
     ];
