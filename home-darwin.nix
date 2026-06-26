@@ -164,6 +164,7 @@
           # Touch ID-free aliases for remote/agent sessions
           mcommit = "-c commit.gpgsign=false commit";
           mpush = "!git -c url.\"https://github.com/\".pushInsteadOf=\"git@github.com:\" push \"$@\" #";
+          mpull = "!git -c url.\"https://github.com/\".insteadOf=\"git@github.com:\" pull \"$@\" #";
         };
         init = {
           defaultBranch = "main";
