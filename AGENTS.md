@@ -288,6 +288,10 @@ When the user asks to "sync skills", "update KB links", or when you notice a ski
 - **Non-KB symlinks** (e.g. `techddreport` → a different repo): left untouched. These are one-off arrangements.
 - **Creating the `kb` symlink itself:** that's a human setup step (`ln -s /path/to/kb-repo kb`).
 
+## Merge strategy
+
+Merge via `/pr` — it reads the repo's merge convention from CONTRIBUTING.md and `.github-settings.yaml`, handles stack-aware retargeting, and checks for child PRs before deleting branches. Do not merge from the GitHub web UI for stacked PRs.
+
 ## Commit message conventions
 
 > **Read `CONTRIBUTING.md` before drafting or making any commit.** It is the canonical source of truth for the commit format, AI co-authorship trailers, and PR title convention.
