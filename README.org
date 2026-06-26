@@ -2269,6 +2269,10 @@ alias = {
   wdiff = "diff --word-diff --word-diff-regex='\\w+'";
   glog = "!git log --graph --all --format='%C(auto)%h %s%d' --color=always \"$@\" | gref-dedup | less -RF #";
   ready = "!git checkout main && git pull --ff-only";
+  # Touch ID-free aliases for remote/agent sessions
+  mcommit = "-c commit.gpgsign=false commit";
+  mpush = "!git -c url.\"https://github.com/\".pushInsteadOf=\"git@github.com:\" push \"$@\" #";
+  mpull = "!git -c url.\"https://github.com/\".insteadOf=\"git@github.com:\" pull \"$@\" #";
 };
 #+end_src
 
@@ -5517,6 +5521,12 @@ We also track our Claude settings file such that we can reproduce our setup rela
 
 #+begin_src nix :noweb-ref home-darwin-home-file
 ".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/settings.json";
+#+end_src
+
+Global Claude rules (=~/.claude/rules/=) are personal behavioral guidance that applies across all projects on this machine. Tracked here so they survive machine rebuilds.
+
+#+begin_src nix :noweb-ref home-darwin-home-file
+".claude/rules".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/rules";
 #+end_src
 
 #+begin_quote org

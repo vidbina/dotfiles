@@ -89,6 +89,7 @@
     ".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
     ".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/skills";
     ".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/settings.json";
+    ".claude/rules".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/rules";
   };
   programs.vscode = {
     enable = true;
@@ -160,6 +161,10 @@
           wdiff = "diff --word-diff --word-diff-regex='\\w+'";
           glog = "!git log --graph --all --format='%C(auto)%h %s%d' --color=always \"$@\" | gref-dedup | less -RF #";
           ready = "!git checkout main && git pull --ff-only";
+          # Touch ID-free aliases for remote/agent sessions
+          mcommit = "-c commit.gpgsign=false commit";
+          mpush = "!git -c url.\"https://github.com/\".pushInsteadOf=\"git@github.com:\" push \"$@\" #";
+          mpull = "!git -c url.\"https://github.com/\".insteadOf=\"git@github.com:\" pull \"$@\" #";
         };
         init = {
           defaultBranch = "main";
