@@ -5522,6 +5522,12 @@ We also track our Claude settings file such that we can reproduce our setup rela
 ".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/settings.json";
 #+end_src
 
+Global Claude rules (=~/.claude/rules/=) are personal behavioral guidance that applies across all projects on this machine. Tracked here so they survive machine rebuilds.
+
+#+begin_src nix :noweb-ref home-darwin-home-file
+".claude/rules".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/rules";
+#+end_src
+
 #+begin_quote org
 [!WARNING]
 Pay attention to what ends up making its way to =~/.claude/settings.json= as you don't ever want secrets to make it into this repo.

@@ -89,6 +89,7 @@
     ".hammerspoon".source = config.lib.file.mkOutOfStoreSymlink ./hammerspoon;
     ".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/skills";
     ".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/settings.json";
+    ".claude/rules".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/rules";
   };
   programs.vscode = {
     enable = true;
