@@ -90,6 +90,9 @@
     ".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/skills";
     ".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/settings.json";
     ".claude/rules".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/claude/rules";
+    # OpenCode config and plugins
+    ".config/opencode/opencode.jsonc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/opencode/opencode.jsonc";
+    ".config/opencode/plugins".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/opencode/plugins";
   };
   programs.vscode = {
     enable = true;
