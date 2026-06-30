@@ -154,7 +154,8 @@
   "enabledPlugins": {
     "obsidian@obsidian-skills": true,
     "pyright-lsp@claude-plugins-official": true,
-    "figma@claude-plugins-official": true
+    "figma@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "obsidian-skills": {
