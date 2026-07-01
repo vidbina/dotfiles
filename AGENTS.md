@@ -2,24 +2,6 @@
 
 Before making any contributions, read and follow [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-## 🔥 CRITICAL RULE: ALWAYS WRITE COMMAND OUTPUT TO FILES
-
-### ⚠️ MANDATORY for ALL commands with potentially long output:
-- **NEVER** run commands directly that might produce more than a few lines
-- **ALWAYS** redirect output to files: `command > output.txt 2>&1`
-- **ALWAYS** use files for post-exec grepping and re-analysis
-
-### ❌ DO NOT Use Agent Tool For:
-- Long search operations that might produce extensive output
-- Complex analysis that could generate large results
-- Any operation where the output might be truncated or overwhelming
-
-### ✅ Instead, Use Direct Tools:
-- **Bash tool**: Write command output to files for later analysis
-- **Grep tool**: For targeted searches
-- **Read tool**: For examining specific files
-- **Glob tool**: For finding files by pattern
-
 ## 🔥 CRITICAL RULE: ALWAYS PREFER DECLARATIVE SYSTEM CHANGES
 
 This repo uses literate config — `README.org` is the system config. Editing it IS the system change, expressed declaratively and version-controlled. The user runs `darwin-rebuild switch` (or `make switch`) to apply, as part of their normal workflow.
@@ -60,58 +42,69 @@ When adding a new package, prefer nixpkgs over Homebrew:
 - `gh extension install <ext>` → check if a standalone cask or nix package exists; prefer that
 - `pip install`, `npm install -g`, `cargo install` → use nix packages or home-manager
 
-## Design Work
+## 📋 Long-running commands
 
-**Before starting or continuing any design work** (UI implementation, component creation, visual changes, Figma collaboration), read these resources:
+For searches and file inspection, use the native tools (Grep, Glob, Read) — they handle pagination natively. Only redirect to files for genuinely expensive compute where you need to slice through large output later:
 
-1. **`DESIGN.md`** — the project's visual design specification. Follows the [DESIGN.md open spec](https://github.com/google-labs-code/design.md/blob/main/docs/spec.md). Contains color tokens, typography scale, spacing system, component token mappings, and design rationale. The YAML frontmatter is machine-readable; the Markdown body explains the "why."
-2. **Figma workflow conventions** — if the project uses Figma, consult the team's Figma workflow guidance for patterns on variable architecture, component editing discipline (always edit the base component, not instances), and visual verification after changes.
-
-If `DESIGN.md` does not exist yet, consult the [KB template](https://github.com/google-labs-code/design.md/blob/main/docs/spec.md) and the project lead before creating one. A DESIGN.md can be seeded from an existing Figma file using the [Figma-to-DESIGN.md plugin](https://github.com/bergside/design-md-figma) or authored manually following the spec.
-
-Sections marked `<!-- PROJECT-SPECIFIC -->` must be authored per project (brand personality, color palette, ICP framing, component inventory). Sections marked `<!-- CROSS-PROJECT -->` carry reusable structure — customize values but keep the structure.
-
-**Keeping DESIGN.md in sync:**
-
-- When making design decisions during implementation (choosing a color, adding a spacing value, introducing a new component pattern), check whether the decision is already captured in DESIGN.md. If not, flag it to the operator: "This introduces [a new color / spacing value / component pattern] not yet in DESIGN.md — should we codify it?"
-- When design files (Figma, code) conflict with what DESIGN.md documents (e.g., a component uses a color not in the palette, or spacing deviates from the scale), surface the conflict to the operator. Don't silently follow either source — the operator decides which is correct and whether DESIGN.md needs updating.
-- Quick decisions made under time pressure to unblock work should still be surfaced after the fact: "I used [value/pattern] to keep moving — this should be reviewed for inclusion in DESIGN.md."
-
-## Best Practices
-
-### For Long Command Output:
 ```bash
-# Instead of running commands that produce long output directly
-command_with_long_output > analysis_results.txt 2>&1
-
-# Then read the file
-# Use Read tool to examine analysis_results.txt
-```
-
-### For Comprehensive Searches:
-```bash
-# Write search results to files
-grep -r "pattern" . > search_results.txt 2>&1
-find . -name "*.nix" -exec grep -l "problematic_package" {} \; > problematic_files.txt
-```
-
-### For Build Traces:
-```bash
-# Capture build traces to files for analysis
+# Nix build traces
 nix build .#config --show-trace > build_trace.txt 2>&1
+
+# Then inspect with Read
 ```
 
-## Example Workflow:
-1. Run command and redirect output to file
-2. Use Read tool to examine the file
-3. Extract specific information needed
-4. Continue with targeted approach
+## 🧪 Dev shell (`nix develop`)
 
-This prevents:
-- Truncated outputs
-- Overwhelming the conversation
-- Loss of important information
-- Need to repeat expensive operations
+This repo uses a nix dev shell to provide a **declarative, reproducible environment**. Pre-commit hooks (gitleaks), linters, and build tools are only available inside the dev shell — they are not installed globally.
+
+**When to use:**
+- **Committing:** `nix develop --command git commit` — required because pre-commit hooks need tools from the dev shell
+- **Running quality checks:** any linting or validation that depends on tools not on your global PATH
+- **Building:** `make nix-darwin-switch` handles this implicitly
+
+**Why:** The dev shell ensures every contributor (human or AI) has the same toolset. Without it, pre-commit hooks fail with "command not found" errors (e.g. `gitleaks`).
+
+**Note:** `nix develop --command git commit` requires Touch ID for 1Password commit signing (local sessions only). For remote/walk-away sessions where Touch ID is unavailable, see `claude/rules/remote-commits.md` for the `git mcommit`/`git mpush` alias pattern.
+
+## 🔧 Make targets
+
+Run `make` with no arguments to see all available targets with descriptions. Key targets referenced throughout:
+
+- `make tangle` — regenerate tangled output files from `README.org`
+- `make verify-parity` — check that tangled outputs match `README.org` (must pass before committing)
+- `make nix-darwin-switch` — build and apply the nix-darwin configuration (the de facto validation step)
+
+## ✅ Validation
+
+`make nix-darwin-switch` is the primary validation path for nix changes — it builds the configuration and applies it in one step. A separate `make nix-darwin-build` exists but is redundant since switch includes the build.
+
+For tangled file changes, always run `make verify-parity` before committing to ensure the tangled output matches `README.org`.
+
+## 📖 README.org orientation
+
+`README.org` is the canonical source for most nix configuration. It uses org-babel source blocks with `noweb-ref` headers that tangle into output files.
+
+**Key noweb-ref blocks (where to add things):**
+
+| To add... | Use noweb-ref | Example |
+|-----------|---------------|---------|
+| Nix package | `dev-packages` | `pkgs.ripgrep` |
+| Homebrew formula | `homebrew-brews` | `"wget"` |
+| Homebrew cask | `homebrew-casks` | `"figma"` |
+| Home-manager file | `home-darwin-home-file` | symlink entries |
+| macOS default | `darwin-defaults` | system preferences |
+
+**Structure:** The file is organized by concern — shell, editors, terminals, design tools, browsers, services, etc. Each section contains prose documentation around the nix source blocks. Search for the `noweb-ref` name or the tool name to find where to add things.
+
+## 🔑 Credentials and .envrc.local
+
+**Project-scoped credentials** (API tokens, PATs) use a memory-based pattern: the skill checks project memory on first use, prompts the user if absent, and saves for future sessions. No secrets in committed files.
+
+**Global skill config** (worklog calendar ID, dispatch agent IDs) uses layered JSON config files: `~/.claude/worklog.json` and `~/.claude/dispatch.json` as global defaults, with project-local `.worklog-config` / `.dispatch-config` overrides.
+
+**Managed agent configs** use `op://` references in `claude/agents/asabina/workspace.json` — these are org-specific and personal.
+
+**`.envrc.local`** is the gitignored local override for direnv. Use it for machine-specific env vars that shouldn't be committed.
 
 ## Worktree workflow
 
@@ -206,10 +199,11 @@ Some operations have no MCP equivalent and still require `Bash`:
 
 ## CI workflows and branch protection
 
-The repo uses **two workflow files** with native GitHub Actions path filtering:
+The repo uses **three workflow files**:
 
-- `.github/workflows/literate-config.yml` — runs on `*.org`, `flake.*`, `Makefile`, `.github/workflows/**` changes
-- `.github/workflows/agent-scripts.yml` — runs on `agents/**`, `.github/workflows/**` changes
+- `.github/workflows/literate-config.yml` — runs on `*.org`, `flake.*`, `Makefile`, `.github/workflows/**` changes (path-filtered)
+- `.github/workflows/agent-scripts.yml` — runs on `agents/**`, `.github/workflows/**` changes (path-filtered)
+- `.github/workflows/lint-pr.yaml` — validates PR titles against the `type(scope): subject` convention via [`amannn/action-semantic-pull-request`](https://github.com/amannn/action-semantic-pull-request) (runs on all PRs)
 
 ### ⚠️ Branch protection caveat
 
@@ -305,4 +299,5 @@ Summary:
   Co-authored-by: Claude Code <noreply@anthropic.com>
   Assisted-by: Claude:claude-opus-4-6
   ```
-- **Commit via nix develop:** pre-commit hooks require tools only available in the dev shell — always use `nix develop --command git commit`
+- **Commit via nix develop (local sessions):** pre-commit hooks require tools only available in the dev shell — use `nix develop --command git commit`. This requires Touch ID for 1Password signing.
+- **Remote/walk-away sessions:** Touch ID is unavailable. See `claude/rules/remote-commits.md` for the `git mcommit`/`git mpush` alias pattern that bypasses Touch ID signing.
