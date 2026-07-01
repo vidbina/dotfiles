@@ -91,15 +91,31 @@ Activity is tracked via a SQLite database at `~/.claude/worklog.db`. A `UserProm
 
 ```sql
 CREATE TABLE IF NOT EXISTS heartbeats (
-  ts TEXT NOT NULL,
-  project TEXT NOT NULL,
-  cwd TEXT NOT NULL,
-  flushed INTEGER DEFAULT 0  -- 0 = pending, 1 = synced, 2 = approved
+  ts      TEXT    NOT NULL,
+  project TEXT    NOT NULL,
+  cwd     TEXT    NOT NULL,
+  source  TEXT    DEFAULT 'claude-code',  -- which tool recorded this heartbeat
+  flushed INTEGER DEFAULT 0              -- 0 = pending, 1 = synced, 2 = approved
 );
 CREATE INDEX IF NOT EXISTS idx_heartbeats_project_flushed ON heartbeats(project, flushed);
 ```
 
-**Three states:**
+**Migration for existing databases:** The hook's `CREATE TABLE IF NOT EXISTS` handles new installs. For existing DBs, run once:
+
+```sql
+ALTER TABLE heartbeats ADD COLUMN source TEXT DEFAULT 'claude-code';
+```
+
+Existing rows get `source='claude-code'` (the default). This is backwards-compatible — queries that don't select `source` continue to work.
+
+**Source values:**
+
+| Value | Tool |
+|---|---|
+| `claude-code` | Claude Code (via `UserPromptSubmit` hook) |
+| `opencode` | OpenCode (via `chat.message` plugin) |
+
+**Three flushed states:**
 
 | Value | State | Meaning |
 |---|---|---|
@@ -116,11 +132,12 @@ INPUT=$(cat)
 DIR=$(echo "$INPUT" | jq -r '.cwd // empty')
 PROJECT=$(cd "$DIR" 2>/dev/null && basename "$(git remote get-url origin 2>/dev/null || echo "$DIR")" .git | cut -d- -f1 | tr '[:upper:]' '[:lower:]')
 [ -n "$PROJECT" ] && sqlite3 ~/.claude/worklog.db "
-  CREATE TABLE IF NOT EXISTS heartbeats (ts TEXT NOT NULL, project TEXT NOT NULL, cwd TEXT NOT NULL, flushed INTEGER DEFAULT 0);
-  INSERT INTO heartbeats(ts, project, cwd) VALUES(
+  CREATE TABLE IF NOT EXISTS heartbeats (ts TEXT NOT NULL, project TEXT NOT NULL, cwd TEXT NOT NULL, source TEXT DEFAULT 'claude-code', flushed INTEGER DEFAULT 0);
+  INSERT INTO heartbeats(ts, project, cwd, source) VALUES(
     strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
     '$PROJECT',
-    '$DIR'
+    '$DIR',
+    'claude-code'
   );
 "
 ```
@@ -224,6 +241,8 @@ Each block's:
 - `startTime` = first heartbeat in the cluster (rounded down to 10-min)
 - `endTime` = last heartbeat in the cluster + 10 min (rounded up to 10-min)
 
+**Known imprecision: pre-prompt thinking time.** Heartbeats fire on user messages, not on session start. Time spent before the first prompt — reading context, researching, formulating the question — is only captured incidentally via the round-down on `startTime`. A prompt at 14:07 gets a start of 14:00 (7 min buffer); a prompt at 14:01 gets 14:00 (1 min buffer). This is inconsistent and unrelated to actual thinking time. The tail end is more generous (`+ 10 min` after the last heartbeat), which roughly compensates. Both imprecisions are a trade-off for calendar legibility at 10-minute granularity.
+
 ### 4. Find or create calendar entries
 
 For each work block, search for today's entries on the Work Log calendar matching this project:
@@ -268,12 +287,12 @@ DELETE FROM heartbeats WHERE flushed = 2 AND ts < datetime('now', '-30 days');
 
 ### 7. Report
 
-After processing all projects, print a summary:
+After processing all projects, print a summary. When heartbeats come from multiple sources, show the breakdown:
 
 ```
 Synced {N} projects:
-  dotfiles: 1 entry extended (07:30–08:20)
-  yo: 1 new entry (09:10–10:40)
+  dotfiles: 1 entry extended (07:30–08:20) [claude-code: 8, opencode: 4]
+  yo: 1 new entry (09:10–10:40) [opencode: 6]
   kb: nothing to sync
 
 Next sync: run `/worklog sync` again or set up `/loop 31m /worklog sync`
@@ -303,10 +322,10 @@ User-invoked. Shows all synced-but-unreviewed heartbeats across **all projects**
 ### 1. Read synced heartbeats
 
 ```sql
-SELECT project, MIN(ts) as first, MAX(ts) as last, COUNT(*) as beats
+SELECT project, source, MIN(ts) as first, MAX(ts) as last, COUNT(*) as beats
 FROM heartbeats
 WHERE flushed = 1
-GROUP BY project
+GROUP BY project, source
 ORDER BY MAX(ts) DESC;
 ```
 
@@ -317,11 +336,12 @@ If no synced heartbeats exist, report "Nothing to review — all entries approve
 ```
 Worklog review — {N} projects with unreviewed entries
 
-| # | Project  | First activity | Last activity | Heartbeats | Calendar entries |
-|---|----------|----------------|---------------|------------|------------------|
-| 1 | dotfiles | Jun 07 05:43   | Jun 07 06:10  | 12         | 1 (extended)     |
-| 2 | ivos     | Jun 07 05:50   | Jun 07 05:55  | 2          | 1 (new)          |
-| 3 | yo       | Jun 06 14:20   | Jun 06 16:30  | 8          | 2 (new)          |
+| # | Project  | Source      | First activity | Last activity | Heartbeats | Calendar entries |
+|---|----------|-------------|----------------|---------------|------------|------------------|
+| 1 | dotfiles | claude-code | Jun 07 05:43   | Jun 07 06:10  | 12         | 1 (extended)     |
+| 2 | dotfiles | opencode    | Jun 07 06:15   | Jun 07 06:30  | 4          | 1 (extended)     |
+| 3 | ivos     | claude-code | Jun 07 05:50   | Jun 07 05:55  | 2          | 1 (new)          |
+| 4 | yo       | opencode    | Jun 06 14:20   | Jun 06 16:30  | 8          | 2 (new)          |
 
 Approve all? yes / project {name} / cancel
 ```

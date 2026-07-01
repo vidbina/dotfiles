@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "Composio MCP (Asabina GmbH)": {
+      "type": "remote",
+      "url": "https://connect.composio.dev/mcp",
+      "oauth": {}
+    }
+  }
+}
