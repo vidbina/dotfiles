@@ -241,6 +241,8 @@ Each block's:
 - `startTime` = first heartbeat in the cluster (rounded down to 10-min)
 - `endTime` = last heartbeat in the cluster + 10 min (rounded up to 10-min)
 
+**Known imprecision: pre-prompt thinking time.** Heartbeats fire on user messages, not on session start. Time spent before the first prompt — reading context, researching, formulating the question — is only captured incidentally via the round-down on `startTime`. A prompt at 14:07 gets a start of 14:00 (7 min buffer); a prompt at 14:01 gets 14:00 (1 min buffer). This is inconsistent and unrelated to actual thinking time. The tail end is more generous (`+ 10 min` after the last heartbeat), which roughly compensates. Both imprecisions are a trade-off for calendar legibility at 10-minute granularity.
+
 ### 4. Find or create calendar entries
 
 For each work block, search for today's entries on the Work Log calendar matching this project:
