@@ -31,15 +31,22 @@ The defining design principles:
 - `jq` installed (for NDJSON extraction)
 - Anthropic API key accessible (used by `ant` under the hood)
 
-### Validated resources
+### Resource config
 
-| Resource | ID | Notes |
-|---|---|---|
-| Agent | `agent_01EXAMPLE` | "Coding Assistant", claude-opus-4-7, full sandbox |
-| Environment | `env_01EXAMPLE` | "research-env", org-scoped, unrestricted networking |
-| Workspace | `wrkspc_01EXAMPLE` | For constructing console URLs |
+Dispatch needs three Anthropic resource IDs: agent, environment, and workspace. These are resolved in this order (first match wins):
 
-These are defaults. The caller can override agent and environment IDs.
+1. **Caller override:** The caller passes `--agent`, `--environment`, or `--workspace` flags explicitly.
+2. **Project-local config:** `.dispatch-config` in the git root — a JSON file. Gitignored. Use when a project has a dedicated agent/environment.
+3. **Global default:** `~/.claude/dispatch.json` — same schema. Set once, applies everywhere without a local override.
+4. **First-use prompt:** If no config exists, prompt the user for agent ID, environment ID, and workspace ID. Write to `~/.claude/dispatch.json`.
+
+```json
+{
+  "agent_id": "agent_01EXAMPLE",
+  "environment_id": "env_01EXAMPLE",
+  "workspace_id": "wrkspc_01EXAMPLE"
+}
+```
 
 ## Run file format
 
@@ -316,7 +323,7 @@ If the caller asks to post results to a Linear ticket:
 - **Don't dispatch without confirmation.** Always show the plan and get explicit approval. Managed agent sessions cost money.
 - **Don't lose session IDs.** The run file MUST be written to disk before reporting "dispatched." This is the crash-recovery mechanism.
 - **Don't block on polling.** If sessions are still running, report progress and offer to poll again. Don't loop silently.
-- **Don't hardcode agent/environment.** Use the validated defaults but accept overrides from the caller.
+- **Don't hardcode agent/environment/workspace IDs in the skill file.** Read from config (project-local → global → first-use prompt). Accept caller overrides.
 - **Don't assume the computer stays open.** The entire design assumes the laptop may close between dispatch and gather. Never rely on in-memory state surviving between phases.
 - **Don't skip the report table.** Every gather must print the completion table with runtime, token counts, and session links. This data informs future decisions about local vs cloud execution.
 - **Don't output bare session IDs.** Every session reference in every output surface (chat, file, comment) must be a markdown hyperlink built from the `url` field. A bare `sesn_01X3...` without a link is a bug — the reader cannot navigate to the session without manually constructing the URL, and the ID alone is useless once the session expires.

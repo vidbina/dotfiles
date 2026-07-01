@@ -21,19 +21,26 @@ Auto-log working time to Google Calendar. **Three modes: collect (automatic), sy
 >
 > **10-minute granularity.** All timestamps round to the nearest 10-min boundary. Good enough for time allocation; not a timeclock.
 >
-> **One calendar, hardcoded.** All writes go to the Work Log calendar. No other calendar is ever touched.
+> **One calendar per context.** All writes go to a single Work Log calendar resolved from config. No other calendar is ever touched.
 >
 > **Git history as ground truth for backpopulation.** On first use per project, reconstruct 30 days of work blocks from commit timestamps. Backpopulation is HITL.
 
 ## Calendar
 
-| Field | Value |
-|---|---|
-| Name | Work log |
-| ID | `c_1e9d038a334d5c71f17ceb90e0b4c1563f2ef37c38ae0ae926f9c5434bc2c53a@group.calendar.google.com` |
-| Timezone | Europe/Berlin |
+The calendar ID is resolved in this order (first match wins):
 
-**This is the only calendar the skill writes to.** The ID is hardcoded. Do not parameterize it.
+1. **Project-local override:** `.worklog-config` in the git root — a JSON file with `{"calendar_id": "...", "timezone": "..."}`. Gitignored. Use when a project logs to a different calendar (e.g. client work).
+2. **Global default:** `~/.claude/worklog.json` — same schema. Set once, applies to all projects without a local override.
+3. **First-use prompt:** If neither file exists, prompt the user for the calendar ID and timezone, then write `~/.claude/worklog.json` so they're never asked again.
+
+```json
+{
+  "calendar_id": "c_abc123@group.calendar.google.com",
+  "timezone": "Europe/Berlin"
+}
+```
+
+**This is the only calendar the skill writes to per session.** The resolved calendar ID is used for all sync operations in that session. To switch calendars for a project, add a `.worklog-config` in its repo root.
 
 ## Entry format
 
@@ -161,6 +168,16 @@ Flushes pending heartbeats across **all projects** to the Work Log calendar. Thi
 
 **Intended usage:** Run in a dedicated Claude session whose sole purpose is time-tracking. The user spins up a "worklog" session, runs `/worklog sync` (or sets up a `/loop` to repeat it), and leaves it running. The sync session is allowed to produce visible output — tool calls, status messages — because the user has opted into that by opening the session.
 
+### 0. Resolve calendar config
+
+Before reading heartbeats, resolve the calendar ID:
+
+1. Check for `.worklog-config` in the git root of the current working directory. If found, read `calendar_id` and `timezone` from it.
+2. If no project-local config, check `~/.claude/worklog.json`. If found, use its values.
+3. If neither exists, prompt the user: "No worklog calendar configured. What's the Google Calendar ID for your Work Log calendar?" and "What timezone? (e.g. Europe/Berlin)". Write the response to `~/.claude/worklog.json` so they're never asked again.
+
+Store the resolved `calendar_id` and `timezone` for use in all subsequent steps.
+
 ### 1. Read all unflushed heartbeats
 
 ```sql
@@ -249,7 +266,7 @@ For each work block, search for today's entries on the Work Log calendar matchin
 
 ```
 list_events(
-  calendarId: WORKLOG_CALENDAR_ID,
+  calendarId: {resolved_calendar_id},
   startTime: block date 00:00,
   endTime: block date 23:59,
   fullText: "{project}:"
@@ -410,7 +427,7 @@ If `.worklog-project` does not exist: output a prompt telling the agent to confi
 
 ## Anti-patterns
 
-- **Don't write to any calendar other than Work Log.** The calendar ID is hardcoded. Period.
+- **Don't write to any calendar other than the resolved Work Log calendar.** The calendar ID comes from config (project-local → global → first-use prompt). Never override it ad-hoc.
 - **Don't sync in work sessions.** Sync belongs in a dedicated session. Work sessions only collect heartbeats.
 - **Don't create duplicate entries.** Always search before creating. Extend existing entries within the 30-min window.
 - **Don't backpopulate twice.** Check for existing entries before backpopulating.
