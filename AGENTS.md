@@ -199,10 +199,11 @@ Some operations have no MCP equivalent and still require `Bash`:
 
 ## CI workflows and branch protection
 
-The repo uses **two workflow files** with native GitHub Actions path filtering:
+The repo uses **three workflow files**:
 
-- `.github/workflows/literate-config.yml` — runs on `*.org`, `flake.*`, `Makefile`, `.github/workflows/**` changes
-- `.github/workflows/agent-scripts.yml` — runs on `agents/**`, `.github/workflows/**` changes
+- `.github/workflows/literate-config.yml` — runs on `*.org`, `flake.*`, `Makefile`, `.github/workflows/**` changes (path-filtered)
+- `.github/workflows/agent-scripts.yml` — runs on `agents/**`, `.github/workflows/**` changes (path-filtered)
+- `.github/workflows/lint-pr.yaml` — validates PR titles against the `type(scope): subject` convention via [`amannn/action-semantic-pull-request`](https://github.com/amannn/action-semantic-pull-request) (runs on all PRs)
 
 ### ⚠️ Branch protection caveat
 
@@ -298,4 +299,5 @@ Summary:
   Co-authored-by: Claude Code <noreply@anthropic.com>
   Assisted-by: Claude:claude-opus-4-6
   ```
-- **Commit via nix develop:** pre-commit hooks require tools only available in the dev shell — always use `nix develop --command git commit`
+- **Commit via nix develop (local sessions):** pre-commit hooks require tools only available in the dev shell — use `nix develop --command git commit`. This requires Touch ID for 1Password signing.
+- **Remote/walk-away sessions:** Touch ID is unavailable. See `claude/rules/remote-commits.md` for the `git mcommit`/`git mpush` alias pattern that bypasses Touch ID signing.
