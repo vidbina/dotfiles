@@ -1,0 +1,36 @@
+# Declares intended GitHub repo settings so the /pr skill can detect
+# configuration drift. Copy to your repo root as `.github-settings.yaml`
+# and customize.
+#
+# This file is read by LLMs (the /pr skill's Phase 1.1 repo config
+# check), not by CI or GitHub directly. Comments here give the LLM
+# context for why each setting matters.
+
+merge:
+  # Which merge buttons are enabled in GitHub Settings > Pull Requests.
+  allowed_methods:
+    - squash
+
+  # Which method is selected by default when merging a PR.
+  default_method: squash
+
+  # Squash-merge commit title source. GitHub's factory default uses the
+  # commit message for single-commit PRs but the PR title for multi-commit
+  # PRs — this inconsistency silently breaks commit conventions.
+  # Set to "pr_title" so squash-merged commits always use the PR title,
+  # producing consistent `type(scope): subject [TICKET-ID] (#N)` entries
+  # in git log.
+  squash_title: pr_title
+
+  # Auto-delete head branch after merge.
+  delete_branch_on_merge: true
+
+branch_protection:
+  # The branch these rules apply to.
+  default_branch: main
+
+  # Require PR review before merge.
+  require_pr_reviews: true
+
+  # Require CI status checks to pass before merge.
+  require_status_checks: true
