@@ -53,6 +53,59 @@ nix build .#config --show-trace > build_trace.txt 2>&1
 # Then inspect with Read
 ```
 
+## 🧪 Dev shell (`nix develop`)
+
+This repo uses a nix dev shell to provide a **declarative, reproducible environment**. Pre-commit hooks (gitleaks), linters, and build tools are only available inside the dev shell — they are not installed globally.
+
+**When to use:**
+- **Committing:** `nix develop --command git commit` — required because pre-commit hooks need tools from the dev shell
+- **Running quality checks:** any linting or validation that depends on tools not on your global PATH
+- **Building:** `make nix-darwin-switch` handles this implicitly
+
+**Why:** The dev shell ensures every contributor (human or AI) has the same toolset. Without it, pre-commit hooks fail with "command not found" errors (e.g. `gitleaks`).
+
+**Note:** `nix develop --command git commit` requires Touch ID for 1Password commit signing (local sessions only). For remote/walk-away sessions where Touch ID is unavailable, see `claude/rules/remote-commits.md` for the `git mcommit`/`git mpush` alias pattern.
+
+## 🔧 Make targets
+
+Run `make` with no arguments to see all available targets with descriptions. Key targets referenced throughout:
+
+- `make tangle` — regenerate tangled output files from `README.org`
+- `make verify-parity` — check that tangled outputs match `README.org` (must pass before committing)
+- `make nix-darwin-switch` — build and apply the nix-darwin configuration (the de facto validation step)
+
+## ✅ Validation
+
+`make nix-darwin-switch` is the primary validation path for nix changes — it builds the configuration and applies it in one step. A separate `make nix-darwin-build` exists but is redundant since switch includes the build.
+
+For tangled file changes, always run `make verify-parity` before committing to ensure the tangled output matches `README.org`.
+
+## 📖 README.org orientation
+
+`README.org` is the canonical source for most nix configuration. It uses org-babel source blocks with `noweb-ref` headers that tangle into output files.
+
+**Key noweb-ref blocks (where to add things):**
+
+| To add... | Use noweb-ref | Example |
+|-----------|---------------|---------|
+| Nix package | `dev-packages` | `pkgs.ripgrep` |
+| Homebrew formula | `homebrew-brews` | `"wget"` |
+| Homebrew cask | `homebrew-casks` | `"figma"` |
+| Home-manager file | `home-darwin-home-file` | symlink entries |
+| macOS default | `darwin-defaults` | system preferences |
+
+**Structure:** The file is organized by concern — shell, editors, terminals, design tools, browsers, services, etc. Each section contains prose documentation around the nix source blocks. Search for the `noweb-ref` name or the tool name to find where to add things.
+
+## 🔑 Credentials and .envrc.local
+
+**Project-scoped credentials** (API tokens, PATs) use a memory-based pattern: the skill checks project memory on first use, prompts the user if absent, and saves for future sessions. No secrets in committed files.
+
+**Global skill config** (worklog calendar ID, dispatch agent IDs) uses layered JSON config files: `~/.claude/worklog.json` and `~/.claude/dispatch.json` as global defaults, with project-local `.worklog-config` / `.dispatch-config` overrides.
+
+**Managed agent configs** use `op://` references in `claude/agents/asabina/workspace.json` — these are org-specific and personal.
+
+**`.envrc.local`** is the gitignored local override for direnv. Use it for machine-specific env vars that shouldn't be committed.
+
 ## Worktree workflow
 
 This repo uses a **slot-based worktree model** — fixed-path slots, not branch-named directories.
