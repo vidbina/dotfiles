@@ -42,16 +42,32 @@ When adding a new package, prefer nixpkgs over Homebrew:
 - `gh extension install <ext>` → check if a standalone cask or nix package exists; prefer that
 - `pip install`, `npm install -g`, `cargo install` → use nix packages or home-manager
 
-## 📋 Long-running commands
+## 📋 Command output strategy
 
-For searches and file inspection, use the native tools (Grep, Glob, Read) — they handle pagination natively. Only redirect to files for genuinely expensive compute where you need to slice through large output later:
+**For file searches and inspection:** use the native tools (Grep, Glob, Read) — they paginate natively and return results directly into context.
+
+**For Bash commands with unpredictable output size:** redirect to a file first. Output that only goes to stdout is ephemeral — it lives in the conversation context window and is lost on compaction or session end. There is no retroactive fix: if a command produces 100K lines to stdout and context can't hold it, the output is gone and the command must be re-run. Writing to a file first hedges against this.
 
 ```bash
-# Nix build traces
+# ✅ Hedge: always safe, output survives compaction and sessions
 nix build .#config --show-trace > build_trace.txt 2>&1
+curl -s https://api.example.com/large-response > response.json
+make nix-darwin-switch > switch_output.txt 2>&1
 
-# Then inspect with Read
+# Then inspect with Read/Grep
 ```
+
+**When the hedging pattern matters most:**
+- Build traces, test suite output, API responses — size is unpredictable
+- Expensive or non-idempotent commands (API calls, deploys) — re-running may not be possible
+- Output you need to reference across compaction boundaries or in a later session
+- Output you want searchable by parallel sessions working on the same repo
+
+**When native tools are sufficient (no file needed):**
+- `Grep` for searching file contents — paginated via `head_limit`/`offset`
+- `Read` for inspecting files — paginated via `offset`/`limit`
+- `Glob` for finding files by pattern
+- Short Bash commands with predictable, small output (`git status`, `git log --oneline -5`)
 
 ## 🧪 Dev shell (`nix develop`)
 
