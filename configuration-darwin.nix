@@ -214,6 +214,7 @@ with lib;
       "shottr"
       "drawio"
       "figma"
+      "open-design"
       "framer"
       "rive"
       "docker-desktop"

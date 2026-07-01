@@ -2869,6 +2869,14 @@ ghidra-bin
 "figma"
 #+end_src
 
+**** Open Design
+
+[[https://formulae.brew.sh/cask/open-design][Open Design]] is an open-source design tool.
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"open-design"
+#+end_src
+
 **** Framer
 
 #+begin_src nix :noweb-ref homebrew-casks :noweb yes
