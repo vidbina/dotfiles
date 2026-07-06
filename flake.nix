@@ -64,7 +64,7 @@
           ++ machine.extraModules;
         };
     in
-    flake-utils.lib.eachSystem [ "x86_64-darwin" "aarch64-darwin" ] (
+    flake-utils.lib.eachSystem [ "aarch64-darwin" ] (
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
