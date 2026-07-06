@@ -63,7 +63,6 @@
     pkgs.sqlite-interactive
     pkgs.redis
     pkgs.fswatch
-    pkgs.claude-code
     pkgs.gemini-cli
     pkgs.codex
     pkgs.ollama

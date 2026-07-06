@@ -243,6 +243,7 @@ with lib;
       "obsidian" # best-in-class with mobile app support
       "linear"
       "claude"
+      "claude-code"
       "anthropics/tap/ant"
       "superwhisper"
       "granola"
@@ -262,7 +263,6 @@ with lib;
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
     "vscode"
-    "claude-code"
   ];
 
   nixpkgs.overlays = [
