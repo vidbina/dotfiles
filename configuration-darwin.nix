@@ -9,6 +9,11 @@ with lib;
     ./system/darwin
   ];
 
+  # Disable manual generation — nix-darwin's --toc-depth flag is incompatible
+  # with the nixos-render-docs version in nixpkgs-unstable as of July 2026.
+  # Track upstream fix: nix-darwin needs to use --sidebar-depth instead.
+  documentation.enable = false;
+
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
