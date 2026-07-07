@@ -1965,13 +1965,14 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
 ];
 #+end_src
 
-**** Allow some nixpkgs overlays inn nix-darwin
+**** Allow some nixpkgs overlays in nix-darwin
 
 #+begin_src nix :noweb-ref nix-darwin :noweb yes
 nixpkgs.overlays = [
   <<darwin-overlays>>
 ];
 #+end_src
+
 
 ** Editors
 *** VsCode
@@ -5480,15 +5481,11 @@ https://apps.apple.com/de/app/amphetamine/id937984704?l=en-GB&mt=12b
 
 **** Claude Code
 
-See [[https://www.npmjs.com/package/@anthropic-ai/claude-code][NPM]] or [[https://github.com/anthropics/claude-code][GitHub]] for the Claude Code CLI tool which is in research preview as per <2025-05-22 Thu>.
+See [[https://www.npmjs.com/package/@anthropic-ai/claude-code][NPM]] or [[https://github.com/anthropics/claude-code][GitHub]] for the Claude Code CLI tool.
 
-#+begin_src nix :noweb-ref dev-packages
-pkgs.claude-code
-#+end_src
+Installed via Homebrew cask rather than nixpkgs. Claude Code's release cadence (~90 versions between nixpkgs-unstable and upstream as of <2026-07-06 Sun>) makes nixpkgs impractical — features like model selection (Fable requires ≥2.1.170) ship weeks before nixpkgs catches up. Homebrew tracks upstream closely (91K installs/month) and the =claude-code= cask is maintained by the community.
 
-Note that claude-code is unfree.
-
-#+begin_src nix :noweb-ref darwin-unfree
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
 "claude-code"
 #+end_src
 
