@@ -167,5 +167,6 @@
   },
   "editorMode": "vim",
   "preferredNotifChannel": "ghostty",
-  "model": "claude-fable-5[1m]"
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true
 }
