@@ -83,7 +83,7 @@
       {
         checks.pre-commit-check = pre-commit-check;
         devShells.default = pkgs.mkShell {
-          packages = [ pkgs.emacs pkgs.gitleaks pkgs.cargo pkgs.rustc ];
+          packages = [ pkgs.emacs pkgs.gitleaks pkgs.cargo pkgs.rustc pkgs.python3 pkgs.uv ];
           inherit (pre-commit-check) shellHook;
           buildInputs = pre-commit-check.enabledPackages;
         };

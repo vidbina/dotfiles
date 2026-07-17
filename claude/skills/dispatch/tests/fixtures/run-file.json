@@ -1,0 +1,43 @@
+{
+  "id": "20260708-test-run",
+  "created_at": "2026-07-08T12:32:57Z",
+  "agent_id": "agent_01TEST",
+  "environment_id": "env_01TEST",
+  "workspace_id": "wrkspc_01TEST",
+  "context": "Test dispatch run",
+  "sessions": [
+    {
+      "id": "sesn_01COMPLETE",
+      "topic": "Enterprise search landscape",
+      "url": "https://console.anthropic.com/workspaces/wrkspc_01TEST/sessions/sesn_01COMPLETE",
+      "status": "idle",
+      "created_at": "2026-07-08T12:32:57.000000Z",
+      "updated_at": "2026-07-08T12:35:33.000000Z",
+      "output_tokens": 3803,
+      "result": null,
+      "output_file": null
+    },
+    {
+      "id": "sesn_01EMPTY",
+      "topic": "Graph databases",
+      "url": "https://console.anthropic.com/workspaces/wrkspc_01TEST/sessions/sesn_01EMPTY",
+      "status": "idle",
+      "created_at": "2026-07-08T12:32:57.000000Z",
+      "updated_at": "2026-07-08T12:35:33.000000Z",
+      "output_tokens": 150,
+      "result": null,
+      "output_file": null
+    },
+    {
+      "id": "sesn_01TERMINATED",
+      "topic": "Auth patterns",
+      "url": "https://console.anthropic.com/workspaces/wrkspc_01TEST/sessions/sesn_01TERMINATED",
+      "status": "terminated",
+      "created_at": "2026-07-08T12:32:57.000000Z",
+      "updated_at": "2026-07-08T12:33:02.000000Z",
+      "output_tokens": 0,
+      "result": null,
+      "output_file": null
+    }
+  ]
+}
