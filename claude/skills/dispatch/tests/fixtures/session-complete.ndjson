@@ -1,0 +1,13 @@
+{"id":"sevt_01aaa","processed_at":"2026-07-08T12:32:57.893874Z","type":"session.status_running"}
+{"agent_name":"Coding Assistant","id":"sevt_01bbb","processed_at":"2026-07-08T12:32:57.893875Z","session_thread_id":"sthr_01xxx","type":"session.thread_status_running"}
+{"content":[{"text":"Research the enterprise search landscape.","type":"text"}],"id":"sevt_01ccc","processed_at":"2026-07-08T12:32:58.059505Z","type":"user.message"}
+{"id":"sevt_01ddd","processed_at":"2026-07-08T12:32:58.059506Z","type":"span.model_request_start"}
+{"id":"sevt_01eee","processed_at":"2026-07-08T12:33:00.972230Z","type":"agent.thinking"}
+{"evaluated_permission":"allow","id":"sevt_01fff","input":{"query":"enterprise search landscape 2026"},"name":"web_search","processed_at":"2026-07-08T12:33:01.123456Z","type":"agent.tool_use"}
+{"id":"sevt_01ggg","processed_at":"2026-07-08T12:33:05.234567Z","type":"agent.tool_result","content":[{"text":"Search results...","type":"text"}]}
+{"content":[{"text":"I'll compile the findings now.","type":"text"}],"id":"sevt_01hhh","processed_at":"2026-07-08T12:34:05.040979Z","type":"agent.message"}
+{"id":"sevt_01iii","processed_at":"2026-07-08T12:34:06.000000Z","type":"span.model_request_end"}
+{"id":"sevt_01jjj","processed_at":"2026-07-08T12:34:06.100000Z","type":"span.model_request_start"}
+{"content":[{"text":"# Enterprise Search Landscape 2026\n\n## Key Players\n\n| Vendor | Type | Pricing |\n|---|---|---|\n| Elasticsearch | Open source | Free / Cloud from $95/mo |\n| Algolia | SaaS | From $1/1K requests |\n| Typesense | Open source | Free / Cloud from $29/mo |\n| Meilisearch | Open source | Free / Cloud from $30/mo |\n\n## Analysis\n\nThe enterprise search market continues to evolve with AI-native approaches.\nVector search capabilities are now table stakes.\n","type":"text"},{"text":"## Recommendations\n\nFor ivos-trades, Typesense offers the best balance of cost and capability.\nElasticsearch remains the safe enterprise choice.\n","type":"text"}],"id":"sevt_01kkk","processed_at":"2026-07-08T12:35:30.654300Z","type":"agent.message"}
+{"agent_name":"Coding Assistant","id":"sevt_01lll","processed_at":"2026-07-08T12:35:33.654379Z","session_thread_id":"sthr_01xxx","stop_reason":{"type":"end_turn"},"type":"session.thread_status_idle"}
+{"id":"sevt_01mmm","processed_at":"2026-07-08T12:35:33.654380Z","stop_reason":{"type":"end_turn"},"type":"session.status_idle"}
