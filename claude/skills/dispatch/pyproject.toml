@@ -1,0 +1,11 @@
+[project]
+name = "dispatch-skill"
+version = "0.1.0"
+description = "Dispatch skill scripts — managed agent session extraction"
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
