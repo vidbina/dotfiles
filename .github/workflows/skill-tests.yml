@@ -1,0 +1,48 @@
+name: Skill Tests
+
+# Uses dorny/paths-filter so the job always appears on PRs — either running
+# or reporting "skipped". This satisfies branch protection's required status
+# checks regardless of which files changed.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            skills:
+              - 'claude/skills/**/scripts/**'
+              - 'claude/skills/**/tests/**'
+              - 'claude/skills/**/pyproject.toml'
+              - '.github/workflows/skill-tests.yml'
+
+      - uses: astral-sh/setup-uv@v6
+        if: steps.filter.outputs.skills == 'true'
+
+      - name: Discover and test skills
+        if: steps.filter.outputs.skills == 'true'
+        run: |
+          exit_code=0
+          for pyproject in claude/skills/*/pyproject.toml; do
+            skill_dir="$(dirname "$pyproject")"
+            test_dir="$skill_dir/tests"
+            if [ -d "$test_dir" ]; then
+              echo "::group::Testing $skill_dir"
+              (cd "$skill_dir" && uv run pytest tests/ -v) || exit_code=1
+              echo "::endgroup::"
+            fi
+          done
+          exit $exit_code
