@@ -1,6 +1,7 @@
 """Tests for dispatch_create.py — the drop-proof assembly core."""
 
 import sys
+import types
 from pathlib import Path
 
 import pytest
@@ -101,3 +102,89 @@ class TestBuildRunFile:
         assert run["workspace_id"] == WORKSPACE
         assert run["context"] == "PROJ-42 research"
         assert run["sessions"] == sessions
+
+
+class FakeCreator:
+    """A stand-in for create_one_session that records calls.
+
+    Returns sequential fake IDs, or raises SessionCreateError on the Nth call
+    (1-based) when `fail_on` is set — used to simulate a preflight failure.
+    """
+
+    def __init__(self, fail_on=None):
+        self.calls = 0
+        self.fail_on = fail_on
+
+    def __call__(self, agent_id, environment_id):
+        self.calls += 1
+        if self.fail_on is not None and self.calls == self.fail_on:
+            raise dc.SessionCreateError("simulated create failure")
+        return f"sesn_{self.calls:02d}"
+
+
+class TestCreateSessions:
+    def test_happy_path_creates_one_per_topic(self):
+        creator = FakeCreator()
+        topics = ["Alpha", "Beta", "Gamma"]
+        sessions = dc.create_sessions(
+            topics, "agent_01", "env_01", WORKSPACE, creator=creator
+        )
+
+        assert creator.calls == 3
+        assert [s["id"] for s in sessions] == ["sesn_01", "sesn_02", "sesn_03"]
+        assert [s["topic"] for s in sessions] == topics
+
+    def test_empty_topics_creates_nothing(self):
+        creator = FakeCreator()
+        assert dc.create_sessions(
+            [], "agent_01", "env_01", WORKSPACE, creator=creator
+        ) == []
+        assert creator.calls == 0
+
+    def test_preflight_failure_stops_after_one_call(self):
+        # A bad credential must be discovered after ONE create, not N.
+        creator = FakeCreator(fail_on=1)
+        with pytest.raises(dc.CredentialError):
+            dc.create_sessions(
+                ["Alpha", "Beta", "Gamma"],
+                "agent_01", "env_01", WORKSPACE, creator=creator,
+            )
+        assert creator.calls == 1  # never attempted the rest of the batch
+
+
+class TestCreateOneSession:
+    def test_parses_id_from_json(self, monkeypatch):
+        def fake_run(*args, **kwargs):
+            return types.SimpleNamespace(
+                returncode=0, stdout='{"id": "sesn_01ABC"}', stderr=""
+            )
+
+        monkeypatch.setattr(dc.subprocess, "run", fake_run)
+        assert dc.create_one_session("agent_01", "env_01") == "sesn_01ABC"
+
+    def test_nonzero_exit_raises(self, monkeypatch):
+        def fake_run(*args, **kwargs):
+            return types.SimpleNamespace(
+                returncode=1, stdout="", stderr="unauthorized"
+            )
+
+        monkeypatch.setattr(dc.subprocess, "run", fake_run)
+        with pytest.raises(dc.SessionCreateError, match="unauthorized"):
+            dc.create_one_session("agent_01", "env_01")
+
+    def test_missing_id_raises(self, monkeypatch):
+        def fake_run(*args, **kwargs):
+            return types.SimpleNamespace(
+                returncode=0, stdout='{"foo": "bar"}', stderr=""
+            )
+
+        monkeypatch.setattr(dc.subprocess, "run", fake_run)
+        with pytest.raises(dc.SessionCreateError, match="no `id`"):
+            dc.create_one_session("agent_01", "env_01")
+
+
+class TestReadTopics:
+    def test_reads_one_per_line_ignoring_blanks(self, tmp_path):
+        f = tmp_path / "topics.txt"
+        f.write_text("Alpha\n\nBeta\n  \nGamma\n")
+        assert dc.read_topics(str(f)) == ["Alpha", "Beta", "Gamma"]
