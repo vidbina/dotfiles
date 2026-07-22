@@ -36,6 +36,14 @@ done
 echo "]"
 ```
 
+**Resolved (VID-705):** shipped as `scripts/dispatch_create.py` — but in Python,
+not shell. The `create` command owns the loop, pairs each session with its topic
+via `assemble_sessions` (an explicit length guard that errors rather than
+silently dropping), and writes the run file directly. It also folds in a
+credential preflight (the first create fails fast on a bad credential). Covered
+by `tests/test_dispatch_create.py`, including a 10-session regression guard for
+this exact drop. `SKILL.md` Phase 1 now calls it instead of an inline shell loop.
+
 ### Error 2: workspace_id not discoverable from `ant` CLI
 
 **What happened:** `ant beta:sessions create` output does not include

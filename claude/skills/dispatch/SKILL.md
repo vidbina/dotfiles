@@ -172,31 +172,39 @@ the caller's prompt text. Never dispatch a prompt without it.
 
 ### Create sessions and send prompts
 
-For each confirmed topic:
+**Create all sessions with the script — never hand-roll the create loop in
+shell.** `scripts/dispatch_create.py` owns session creation: it runs a
+credential preflight, pairs each session with its topic in Python (no shell-array
+indexing — the bug behind DISPATCH.md Error 1), builds each session's console
+URL, and writes the run file.
 
-1. **Create session:**
+1. **Create sessions + run file:** write the topic labels to a file (one per
+   line, in the same order as your prompts), then:
    ```bash
-   ant beta:sessions create \
+   python3 scripts/dispatch_create.py create topics.txt \
      --agent "$AGENT_ID" \
-     --environment-id "$ENV_ID"
+     --environment-id "$ENV_ID" \
+     --workspace-id "$WORKSPACE_ID" \
+     --context "$CONTEXT"
    ```
-   Parse the session ID from the JSON output.
+   The **first create is a credential preflight** — if the credential is
+   expired the script exits fast (exit 1) pointing at `ant auth login`, before
+   the rest of the batch is attempted. On success the run file is written to
+   `.dispatch-runs/{run-id}.json` with every session's ID, topic, and console
+   URL already populated.
 
-2. **Send prompt:**
-   Assemble the final prompt by prepending the output-capture envelope (above)
-   to the caller's prompt, write the result to a temp file to avoid shell
-   escaping issues, then:
+2. **Send each prompt:** for each session in the run file, assemble the final
+   prompt by prepending the output-capture envelope (above) to the caller's
+   prompt, write it to a temp file to avoid shell escaping issues, then:
    ```bash
    ant beta:sessions:events send \
      --session-id "$SID" \
      --event "{\"type\": \"user.message\", \"content\": [{\"type\": \"text\", \"text\": $(jq -Rs . < /tmp/prompt-N.txt)}]}"
    ```
+   Send prompts in parallel where possible (background with `&`).
 
-3. **Build session URL:** Construct `https://console.anthropic.com/workspaces/{workspace_id}/sessions/{session_id}` and store it in the session's `url` field. This happens at creation time so the URL is persisted from the start — not deferred to gather.
-
-4. **Record** the session ID, URL, and topic in the run file.
-
-Dispatch sessions in parallel where possible (background with `&`). But always write the run file to disk **before** reporting success — if the session dies mid-dispatch, the persisted IDs let us recover.
+The create script writes the run file to disk **before** any prompt is sent — if
+a send dies mid-dispatch, the persisted IDs let us recover.
 
 ### Report
 
