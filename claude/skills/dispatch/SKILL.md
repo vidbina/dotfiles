@@ -129,6 +129,42 @@ Dispatch all {N}? yes / edit / cancel
 
 Use `AskUserQuestion` for confirmation.
 
+### Output-capture envelope (mandatory)
+
+Cloud managed-agent sessions only surface `agent.message` text after they
+complete. Anything an agent writes to its sandbox filesystem
+(`/mnt/session/outputs/*.md` and friends) is **unextractable** once the session
+ends — and the tokens spent producing it are unrecoverable. The agent's default
+behaviour for large output is to reach for file tools, which silently drops the
+findings. To protect the extraction contract, the skill **always prepends** the
+following envelope to every caller prompt before sending it. This is
+infrastructure, not content: the caller still owns the substance of the prompt;
+the skill owns the guarantee that the output survives.
+
+```
+OUTPUT CONTRACT (mandatory — read first):
+Return ALL findings, reasoning, and source URLs as text in your chat messages.
+Do NOT write results to files, and do NOT rely on file tools for deliverables —
+only agent.message text is captured after this session ends. Anything written to
+the sandbox filesystem is lost, and the tokens spent producing it are unrecoverable.
+
+QUALITY CRITERIA:
+- Specific claims: include concrete numbers, dates, and names — not vague summaries.
+- Show reasoning: include the reasoning traces that led to each conclusion.
+- Cite inline: every external claim carries an inline source URL for traceability.
+
+FORMAT REQUIREMENTS:
+- Use standard markdown: headers, bullet lists, numbered lists, tables.
+- One source per line in numbered-list format: `1. Title — URL`.
+- For citations, use: `> "quoted text" — [Source](url)`.
+- Do NOT use empty bullet points followed by blockquotes.
+- Do NOT dump sources as inline run-on text.
+- Tables must have proper header separators (`|---|`).
+```
+
+Prepend this block verbatim, followed by a blank line and a divider, ahead of
+the caller's prompt text. Never dispatch a prompt without it.
+
 ### Create sessions and send prompts
 
 For each confirmed topic:
@@ -142,7 +178,9 @@ For each confirmed topic:
    Parse the session ID from the JSON output.
 
 2. **Send prompt:**
-   Write the prompt to a temp file to avoid shell escaping issues, then:
+   Assemble the final prompt by prepending the output-capture envelope (above)
+   to the caller's prompt, write the result to a temp file to avoid shell
+   escaping issues, then:
    ```bash
    ant beta:sessions:events send \
      --session-id "$SID" \
@@ -318,7 +356,7 @@ If the caller asks to post results to a Linear ticket:
 
 ## Anti-patterns
 
-- **Don't own prompt content.** The skill dispatches whatever the caller provides. It doesn't draft, improve, or constrain prompts (unless the caller asks for help drafting).
+- **Don't own prompt *content*.** The skill dispatches whatever the caller provides — it doesn't draft, improve, or constrain the *substance* of a prompt (unless the caller asks for help drafting). **Exception — the output-capture envelope:** the skill always prepends a fixed output/format contract (see Phase 1). That is not content ownership; it's an infrastructure guarantee. Cloud managed-agent sessions only surface `agent.message` text after they complete — findings written to the sandbox filesystem are unextractable and the tokens unrecoverable — so enforcing text-message output protects the extraction contract the skill is responsible for. The caller owns the substance; the skill owns the extraction-safety envelope.
 - **Don't own merge logic.** Synthesis, aggregation, and posting are the caller's responsibility. The skill extracts raw results and presents them.
 - **Don't dispatch without confirmation.** Always show the plan and get explicit approval. Managed agent sessions cost money.
 - **Don't lose session IDs.** The run file MUST be written to disk before reporting "dispatched." This is the crash-recovery mechanism.
