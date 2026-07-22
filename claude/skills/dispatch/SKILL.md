@@ -31,6 +31,11 @@ The defining design principles:
 - `jq` installed (for NDJSON extraction)
 - Anthropic API key accessible (used by `ant` under the hood)
 
+If `ant` calls fail with an authentication error, re-authenticate with `ant
+auth login` — **not** `anthropic auth login`, which does not exist and has been
+a recurring dead end. Run it before dispatching whenever the credential may have
+expired.
+
 ### Resource config
 
 Dispatch needs three Anthropic resource IDs: agent, environment, and workspace. These are resolved in this order (first match wins):
