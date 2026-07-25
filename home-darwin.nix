@@ -65,7 +65,6 @@
     pkgs.fswatch
     pkgs.gemini-cli
     pkgs.codex
-    pkgs.ollama
     pkgs.llama-cpp
     # home-darwin-packages
     pywal

@@ -5686,7 +5686,9 @@ On MacOS, we install Ollama using the [[https://formulae.brew.sh/formula/ollama]
 "ollama"
 #+end_src
 
-**** Install Ollama from nix packages
+**** COMMENT Install Ollama from nix packages
+
+Disabled <2026-07-25> (VID-594): migrating Ollama from nix to Homebrew so we track a newer release. Gemma 4 needs an Ollama newer than the nixpkgs-pinned 0.20.7 (=412: model requires a newer version of Ollama=). Staged migration — this block is commented first, applied via =make nix-darwin-switch=, then the Homebrew block above is enabled in a second switch.
 
 We still need to clean up my config to reuse the old dev.nix:
 
@@ -5762,7 +5764,9 @@ For Mixture-of-Experts models, *total* parameters live in RAM, but only *active*
 - Reach for raw =mlx-lm= / LM Studio only when benchmarking or hosting a single high-throughput inference endpoint (~130 tok/s vs ~71 for llama.cpp on large models).
 - Stay on GGUF/ollama for anything talking the OpenAI API, Continue.dev, agent integrations, or juggling multiple models.
 
-**** Auto-start the daemon via launchd
+**** COMMENT Auto-start the daemon via launchd
+
+Disabled <2026-07-25> (VID-594): this agent references =${pkgs.ollama}=, which would keep nix building Ollama even after the package block above is commented. Once Ollama moves to Homebrew, the daemon is owned by the Homebrew service (=start_service= on the object-form brew entry) instead of this custom launchd agent.
 
 Manual =ollama serve= is how we end up with a stale 0.15.6 daemon still running 6 days after a =darwin-rebuild switch= — the binary on PATH gets upgraded but the long-lived process keeps holding a file descriptor to the old store path. We can't trust ourselves to remember; let nix-darwin own the daemon's lifecycle.
 
