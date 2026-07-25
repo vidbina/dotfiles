@@ -216,6 +216,7 @@ with lib;
       "figma"
       "open-design"
       "framer"
+      "paper-design"
       "rive"
       "docker-desktop"
       "utm"
