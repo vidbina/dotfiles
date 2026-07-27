@@ -197,6 +197,7 @@ with lib;
       "pcalc"
       "duti"
       "anomalyco/tap/opencode"
+      { name = "ollama"; start_service = true; }
       "pi-coding-agent"
     ];
     casks = builtins.filter (x: x != null) [

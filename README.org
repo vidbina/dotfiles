@@ -5678,12 +5678,12 @@ Just in case the internet fails, we want to have a OSS coding tool that can wiel
 
 [[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
 
-**** COMMENT Install Ollama through homebrew
+**** Install Ollama through homebrew
 
-On MacOS, we install Ollama using the [[https://formulae.brew.sh/formula/ollama][brew]]:
+Enabled <2026-07-27> (VID-594): Ollama now comes from the [[https://formulae.brew.sh/formula/ollama][brew formula]] instead of nixpkgs, which tracks a newer release (the nixpkgs pin 0.20.7 is too old for Gemma 4). The object-form entry sets =start_service = true= so nix-darwin owns the =brew services= daemon — replacing the custom launchd agent we used under the nix package.
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
-"ollama"
+{ name = "ollama"; start_service = true; }
 #+end_src
 
 **** COMMENT Install Ollama from nix packages
@@ -5738,6 +5738,10 @@ ollama pull qwen3:8b                       # ~5 GB
 
 # 5. (Optional) Best-in-class tool-calling generalist (#2 on BFCL v3, 75.7%)
 ollama pull qwen3:32b                      # ~20 GB
+
+# 6. Google Gemma 4 — multimodal, reasoning, 256k context. General-purpose
+#    desktop pick (VID-594). Needs the Homebrew Ollama; nixpkgs 0.20.7 is too old.
+ollama pull gemma4:12b                      # ~8 GB
 #+end_src
 
 ***** Why these picks
