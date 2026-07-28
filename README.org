@@ -2884,6 +2884,14 @@ ghidra-bin
 "framer"
 #+end_src
 
+**** Paper
+
+[[https://paper.design/][Paper]] is a web-based "connected canvas" design tool for building interfaces and prototypes on web standards (HTML/CSS), with real-time design↔code sync and AI-agent/MCP integration. Installed via the [[https://formulae.brew.sh/cask/paper-design][=paper-design= cask]] (arm64, macOS >= 12).
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"paper-design"
+#+end_src
+
 **** Rive
 
 [[https://rive.app][Rive]], like Lottie provides tooling to animate assets for mobile apps but unlike Lottie owns the E2E stack where Lottie requires the use of multiple disconnected tools in order to author Lottie animations. Rive furthermore boasts support for state-aware animations.
