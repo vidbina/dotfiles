@@ -65,9 +65,6 @@ check-config: tangle verify-parity validate
 nix-darwin-build:
 	${DARWIN_REBUILD} check --flake .#${HOSTNAME}
 
-# Deploy nix-darwin configuration (builds and activates)
-# Actually switches your system to the new configuration
-# Use after testing with nix-darwin-build
 # Trust third-party Homebrew taps so `brew bundle` (run during the switch)
 # doesn't abort on an untrusted tap. Idempotent; runs as the invoking user,
 # which is the context whose trust.json the bundle reads.
@@ -76,6 +73,9 @@ trust-taps:
 	@echo "🔐 Trusting third-party Homebrew taps..."
 	@for tap in ${TRUSTED_TAPS}; do brew trust "$$tap"; done
 
+# Deploy nix-darwin configuration (builds and activates)
+# Actually switches your system to the new configuration
+# Use after testing with nix-darwin-build
 .PHONY: nix-darwin-switch
 nix-darwin-switch: trust-taps
 	${DARWIN_REBUILD} switch --flake .#${HOSTNAME}
