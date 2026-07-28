@@ -5,6 +5,12 @@ NIX_SHELL = nix-shell
 DARWIN_REBUILD = sudo darwin-rebuild
 HOSTNAME := $(shell hostname)
 
+# Third-party Homebrew taps that must be trusted before `brew bundle` runs —
+# Homebrew refuses to load formulae/casks from untrusted taps. `brew trust` is
+# idempotent, so we just re-assert these on every switch (no state to track).
+# Add new third-party taps here.
+TRUSTED_TAPS = felixkratz/formulae anomalyco/tap anthropics/tap
+
 # Tangle all org files to generate configuration files
 # Respects local variables in org files (e.g., trailing whitespace cleanup hooks)
 .PHONY: tangle
@@ -62,8 +68,16 @@ nix-darwin-build:
 # Deploy nix-darwin configuration (builds and activates)
 # Actually switches your system to the new configuration
 # Use after testing with nix-darwin-build
+# Trust third-party Homebrew taps so `brew bundle` (run during the switch)
+# doesn't abort on an untrusted tap. Idempotent; runs as the invoking user,
+# which is the context whose trust.json the bundle reads.
+.PHONY: trust-taps
+trust-taps:
+	@echo "🔐 Trusting third-party Homebrew taps..."
+	@for tap in ${TRUSTED_TAPS}; do brew trust "$$tap"; done
+
 .PHONY: nix-darwin-switch
-nix-darwin-switch:
+nix-darwin-switch: trust-taps
 	${DARWIN_REBUILD} switch --flake .#${HOSTNAME}
 
 # Default target - show help
