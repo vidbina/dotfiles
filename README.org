@@ -2898,6 +2898,14 @@ ghidra-bin
 "framer"
 #+end_src
 
+**** Paper
+
+[[https://paper.design/][Paper]] is a web-based "connected canvas" design tool for building interfaces and prototypes on web standards (HTML/CSS), with real-time design↔code sync and AI-agent/MCP integration. Installed via the [[https://formulae.brew.sh/cask/paper-design][=paper-design= cask]] (arm64, macOS >= 12).
+
+#+begin_src nix :noweb-ref homebrew-casks :noweb yes
+"paper-design"
+#+end_src
+
 **** Rive
 
 [[https://rive.app][Rive]], like Lottie provides tooling to animate assets for mobile apps but unlike Lottie owns the E2E stack where Lottie requires the use of multiple disconnected tools in order to author Lottie animations. Rive furthermore boasts support for state-aware animations.
@@ -5684,15 +5692,17 @@ Just in case the internet fails, we want to have a OSS coding tool that can wiel
 
 [[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
 
-**** COMMENT Install Ollama through homebrew
+**** Install Ollama through homebrew
 
-On MacOS, we install Ollama using the [[https://formulae.brew.sh/formula/ollama][brew]]:
+Enabled <2026-07-27> (VID-594): Ollama now comes from the [[https://formulae.brew.sh/formula/ollama][brew formula]] instead of nixpkgs, which tracks a newer release (the nixpkgs pin 0.20.7 is too old for Gemma 4). The object-form entry sets =start_service = true= so nix-darwin owns the =brew services= daemon — replacing the custom launchd agent we used under the nix package.
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
-"ollama"
+{ name = "ollama"; start_service = true; }
 #+end_src
 
-**** Install Ollama from nix packages
+**** COMMENT Install Ollama from nix packages
+
+Disabled <2026-07-25> (VID-594): migrating Ollama from nix to Homebrew so we track a newer release. Gemma 4 needs an Ollama newer than the nixpkgs-pinned 0.20.7 (=412: model requires a newer version of Ollama=). Staged migration — this block is commented first, applied via =make nix-darwin-switch=, then the Homebrew block above is enabled in a second switch.
 
 We still need to clean up my config to reuse the old dev.nix:
 
@@ -5742,6 +5752,10 @@ ollama pull qwen3:8b                       # ~5 GB
 
 # 5. (Optional) Best-in-class tool-calling generalist (#2 on BFCL v3, 75.7%)
 ollama pull qwen3:32b                      # ~20 GB
+
+# 6. Google Gemma 4 — multimodal, reasoning, 256k context. General-purpose
+#    desktop pick (VID-594). Needs the Homebrew Ollama; nixpkgs 0.20.7 is too old.
+ollama pull gemma4:12b                      # ~8 GB
 #+end_src
 
 ***** Why these picks
@@ -5768,7 +5782,9 @@ For Mixture-of-Experts models, *total* parameters live in RAM, but only *active*
 - Reach for raw =mlx-lm= / LM Studio only when benchmarking or hosting a single high-throughput inference endpoint (~130 tok/s vs ~71 for llama.cpp on large models).
 - Stay on GGUF/ollama for anything talking the OpenAI API, Continue.dev, agent integrations, or juggling multiple models.
 
-**** Auto-start the daemon via launchd
+**** COMMENT Auto-start the daemon via launchd
+
+Disabled <2026-07-25> (VID-594): this agent references =${pkgs.ollama}=, which would keep nix building Ollama even after the package block above is commented. Once Ollama moves to Homebrew, the daemon is owned by the Homebrew service (=start_service= on the object-form brew entry) instead of this custom launchd agent.
 
 Manual =ollama serve= is how we end up with a stale 0.15.6 daemon still running 6 days after a =darwin-rebuild switch= — the binary on PATH gets upgraded but the long-lived process keeps holding a file descriptor to the old store path. We can't trust ourselves to remember; let nix-darwin own the daemon's lifecycle.
 
