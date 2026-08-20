@@ -42,6 +42,23 @@ with lib;
   users.users.${username} = {
     home = "/Users/${username}";
   };
+  # GUI apps (Dock/Finder launches) never source a shell, so they inherit
+  # launchd's PATH, which knows nothing about nix. Widen it so GUI apps can
+  # shell out to nix-managed tools — cmux needs `gh` for its PR badges.
+  launchd.user.envVariables.PATH = [
+    "/opt/homebrew/bin"
+    "/opt/homebrew/sbin"
+    "/Users/${username}/.nix-profile/bin"
+    "/etc/profiles/per-user/${username}/bin"
+    "/run/current-system/sw/bin"
+    "/nix/var/nix/profiles/default/bin"
+    "/usr/local/bin"
+    "/usr/bin"
+    "/bin"
+    "/usr/sbin"
+    "/sbin"
+  ];
+
   nix = {
     enable = true;
     package = pkgs.nix;
