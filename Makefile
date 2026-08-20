@@ -48,7 +48,7 @@ verify-parity:
 validate:
 	@echo "🔍 Validating Nix configuration..."
 	@nix flake check --no-build
-	@nix build .#darwinConfigurations.berlin-4corei7.system --dry-run
+	@nix build .#darwinConfigurations.berlin26-m5pro.system --dry-run
 	@echo "✅ Validation complete"
 
 # Verify literate config integrity: tangle org sources, confirm parity

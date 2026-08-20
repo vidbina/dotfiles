@@ -21,11 +21,4 @@
     dotfilesPath = "/Users/vidbina/Code/vidbina/dotfiles";
     extraModules = [ ];
   }
-  {
-    name = "berlin-4corei7";
-    system = "x86_64-darwin";
-    username = "vidbina";
-    dotfilesPath = "/Users/vidbina/Code/vidbina/dotfiles";
-    extraModules = [ ];
-  }
 ]

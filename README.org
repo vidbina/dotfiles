@@ -147,7 +147,7 @@ verify-parity:
 validate:
 	@echo "🔍 Validating Nix configuration..."
 	@nix flake check --no-build
-	@nix build .#darwinConfigurations.berlin-4corei7.system --dry-run
+	@nix build .#darwinConfigurations.berlin26-m5pro.system --dry-run
 	@echo "✅ Validation complete"
 
 # Verify literate config integrity: tangle org sources, confirm parity
@@ -1544,6 +1544,8 @@ primaryUser = username;
 Machine-specific configuration lives in =machines.nix= which is
 tangled from this file and imported directly by =flake.nix=.
 
+Intel macOS is no longer supported. nixpkgs refuses to evaluate =x86_64-darwin= as of 26.11, so the =berlin-4corei7= entry was dropped <2026-08-20> (VID-713). Every remaining machine is =aarch64-darwin=, and =make validate= dry-builds =berlin26-m5pro= as the representative config.
+
 #+begin_src nix :tangle machines.nix
 # Per-machine configuration. Copy or symlink to machines.nix.
 # This is the single place to configure user and path settings.
@@ -1564,13 +1566,6 @@ tangled from this file and imported directly by =flake.nix=.
   {
     name = "tokyo23-m2";
     system = "aarch64-darwin";
-    username = "vidbina";
-    dotfilesPath = "/Users/vidbina/Code/vidbina/dotfiles";
-    extraModules = [ ];
-  }
-  {
-    name = "berlin-4corei7";
-    system = "x86_64-darwin";
     username = "vidbina";
     dotfilesPath = "/Users/vidbina/Code/vidbina/dotfiles";
     extraModules = [ ];
