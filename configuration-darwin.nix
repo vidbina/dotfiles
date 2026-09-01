@@ -215,6 +215,7 @@ with lib;
       "duti"
       "anomalyco/tap/opencode"
       { name = "ollama"; start_service = true; }
+      "llmfit"
       "pi-coding-agent"
     ];
     casks = builtins.filter (x: x != null) [
