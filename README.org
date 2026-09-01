@@ -5866,6 +5866,14 @@ See https://github.com/ggml-org/llama.cpp
 pkgs.llama-cpp
 #+end_src
 
+*** llmfit
+
+The [[https://github.com/AlexsJones/llmfit][llmfit]] util inspects the local hardware and reports which LLMs will actually fit and run on it, which beats discovering the hard way that a model swaps itself to death.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"llmfit"
+#+end_src
+
 *** Pi (coding agent)
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
