@@ -5844,6 +5844,16 @@ qwen3.6-vidbina:latest
 glm-5.1:cloud
 #+end_src
 
+***** Routing proxy: considered and dropped
+
+Decided <2026-09-02> (VID-721). [[https://github.com/mostlygeek/llama-swap][llama-swap]] — a proxy that loads models on demand and unloads them per-model after a configurable TTL — was the obvious candidate for "don't hold RAM we aren't using", and [[https://www.glukhov.org/llm-hosting/llama-cpp/llama-server-router-mode/][llama.cpp's router mode]] does something similar natively. Neither is being adopted. Three reasons:
+
+1. *The problem was mostly not what it looked like.* The measurements above put ~9 GB of a 15 GB resident footprint in the K/V cache, addressable by one environment variable. A proxy manages /when/ models are loaded; it does nothing about how expensive each one is while loaded.
+2. *A proxy cannot fix the =/v1= limitation either.* Its per-model TTL replaces ollama's keep-alive, but clients still cannot express intent per request through an OpenAI-compatible endpoint. We would be trading a global TTL for a differently-global TTL, plus a process to supervise.
+3. *Local inference is occasional here.* Frontier models carry the daily load; local models are for offline work and for =ddt=. A supervised proxy in front of a service used intermittently is more moving parts than the problem justifies.
+
+Revisit if either of these becomes true: local inference becomes the default rather than the exception, or llama.cpp starts being used directly alongside ollama (it is installed as =pkgs.llama-cpp= but currently unused), at which point a single front door for two backends starts to earn its keep.
+
 ***** Why these picks
 
 | Need                  | Pick                                                | Notes                                                                                          |
