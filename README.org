@@ -5807,9 +5807,9 @@ Disk footprint of the declared set is ~90 GB; at most two are resident at a time
 #
 # HARD DEPENDENCIES — something breaks if these are missing.
 
-# ddt (~/Code/philipps-byrne/ddt) RAG pipeline. Embeddings always go through
-# ollama even when chat is served by Anthropic — the Anthropic API has no
-# embedding endpoint. See ddt src/llm.rs.
+# ddt RAG pipeline. Embeddings always go through ollama even when chat is
+# served by Anthropic — the Anthropic API has no embedding endpoint.
+# See ddt src/llm.rs.
 nomic-embed-text:latest
 
 # ddt DEFAULT_MODEL (src/llm.rs). ddt sets num_ctx per request, so it is
@@ -5886,7 +5886,7 @@ Manual =ollama serve= is how we end up with a stale 0.15.6 daemon still running 
 
 ***** Why the environment lives here
 
-These are /server/-side settings, read by =ollama serve= at startup. That matters because clients speaking the OpenAI-compatible =/v1= endpoint cannot override them per request — measured under VID-721, =/v1/chat/completions= silently discards =keep_alive= (a native-API field), while =/api/chat= honours it. So for Pi and opencode, this block /is/ the entire control surface. Clients on the native =/api= endpoint can still override per request, and [[https://github.com/philipps-byrne/ddt][ddt]] does exactly that — it sets =num_ctx= on every call.
+These are /server/-side settings, read by =ollama serve= at startup. That matters because clients speaking the OpenAI-compatible =/v1= endpoint cannot override them per request — measured under VID-721, =/v1/chat/completions= silently discards =keep_alive= (a native-API field), while =/api/chat= honours it. So for Pi and opencode, this block /is/ the entire control surface. Clients on the native =/api= endpoint can still override per request, and =ddt= does exactly that — it sets =num_ctx= on every call.
 
 Context length is the dominant memory lever, well ahead of the keep-alive TTL. Measured on =deepseek-r1= (5.2 GB on disk) with the K/V cache already quantized to =q8_0=:
 

@@ -3,9 +3,9 @@
 #
 # HARD DEPENDENCIES — something breaks if these are missing.
 
-# ddt (~/Code/philipps-byrne/ddt) RAG pipeline. Embeddings always go through
-# ollama even when chat is served by Anthropic — the Anthropic API has no
-# embedding endpoint. See ddt src/llm.rs.
+# ddt RAG pipeline. Embeddings always go through ollama even when chat is
+# served by Anthropic — the Anthropic API has no embedding endpoint.
+# See ddt src/llm.rs.
 nomic-embed-text:latest
 
 # ddt DEFAULT_MODEL (src/llm.rs). ddt sets num_ctx per request, so it is
