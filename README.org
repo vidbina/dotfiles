@@ -5721,10 +5721,12 @@ Just in case the internet fails, we want to have a OSS coding tool that can wiel
 
 **** Install Ollama through homebrew
 
-Enabled <2026-07-27> (VID-594): Ollama now comes from the [[https://formulae.brew.sh/formula/ollama][brew formula]] instead of nixpkgs, which tracks a newer release (the nixpkgs pin 0.20.7 is too old for Gemma 4). The object-form entry sets =start_service = true= so nix-darwin owns the =brew services= daemon — replacing the custom launchd agent we used under the nix package.
+Enabled <2026-07-27> (VID-594): Ollama now comes from the [[https://formulae.brew.sh/formula/ollama][brew formula]] instead of nixpkgs, which tracks a newer release (the nixpkgs pin 0.20.7 is too old for Gemma 4).
+
+Amended <2026-09-02> (VID-721): dropped =start_service = true=. Homebrew still installs and upgrades the binary, but it no longer owns the daemon — the launchd agent below does. The reason is that =brew services= generates its plist from the formula, so any environment we want on the server (the residency policy) would live in an untracked file that a =brew reinstall= silently rewrites. Two settings were already in that plist and recorded nowhere in this repo.
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
-{ name = "ollama"; start_service = true; }
+"ollama"
 #+end_src
 
 **** COMMENT Install Ollama from nix packages
@@ -5809,11 +5811,26 @@ For Mixture-of-Experts models, *total* parameters live in RAM, but only *active*
 - Reach for raw =mlx-lm= / LM Studio only when benchmarking or hosting a single high-throughput inference endpoint (~130 tok/s vs ~71 for llama.cpp on large models).
 - Stay on GGUF/ollama for anything talking the OpenAI API, Continue.dev, agent integrations, or juggling multiple models.
 
-**** COMMENT Auto-start the daemon via launchd
+**** Auto-start the daemon via launchd
 
-Disabled <2026-07-25> (VID-594): this agent references =${pkgs.ollama}=, which would keep nix building Ollama even after the package block above is commented. Once Ollama moves to Homebrew, the daemon is owned by the Homebrew service (=start_service= on the object-form brew entry) instead of this custom launchd agent.
+Re-enabled <2026-09-02> (VID-721): this agent was disabled under VID-594 because it referenced =${pkgs.ollama}=, which kept nix building Ollama after the package moved to Homebrew. It now points at the brew-installed binary instead, so nix owns the daemon's /lifecycle and environment/ while brew owns the /bits/. Hardcoding a Homebrew path in the nix config is impure, but it is the same coupling =start_service = true= already carried — only now it is explicit and carries configuration with it.
 
 Manual =ollama serve= is how we end up with a stale 0.15.6 daemon still running 6 days after a =darwin-rebuild switch= — the binary on PATH gets upgraded but the long-lived process keeps holding a file descriptor to the old store path. We can't trust ourselves to remember; let nix-darwin own the daemon's lifecycle.
+
+***** Why the environment lives here
+
+These are /server/-side settings, read by =ollama serve= at startup. That matters because clients speaking the OpenAI-compatible =/v1= endpoint cannot override them per request — measured under VID-721, =/v1/chat/completions= silently discards =keep_alive= (a native-API field), while =/api/chat= honours it. So for Pi and opencode, this block /is/ the entire control surface. Clients on the native =/api= endpoint can still override per request, and [[https://github.com/philipps-byrne/ddt][ddt]] does exactly that — it sets =num_ctx= on every call.
+
+Context length is the dominant memory lever, well ahead of the keep-alive TTL. Measured on =deepseek-r1= (5.2 GB on disk) with the K/V cache already quantized to =q8_0=:
+
+| Context | Resident |
+|---------+----------|
+| 131072  | 15 GB    |
+| 8192    | 6.1 GB   |
+
+Nearly 9 GB of that is K/V cache. Ollama's own default scales with available VRAM ("4k/32k/256k based on VRAM" per =ollama serve --help=), so a 64 GB machine self-selects an expensive context on every load. 32k is the compromise: comfortably above what agent sessions actually use, well below what the default would charge us for.
+
+=OLLAMA_FLASH_ATTENTION= and =OLLAMA_KV_CACHE_TYPE= were already set — but only in the plist =brew services= generates, which is untracked and regenerated on reinstall. Carrying them here is the point: tuning that exists on exactly one machine and in no repository is tuning that is one =brew reinstall= from vanishing, with no symptom beyond the machine quietly getting slower.
 
 This block tangles into =configuration-darwin.nix= via the =nix-darwin= noweb-ref:
 
@@ -5821,9 +5838,26 @@ This block tangles into =configuration-darwin.nix= via the =nix-darwin= noweb-re
 launchd.user.agents.ollama = {
   serviceConfig = {
     ProgramArguments = [
-      "${pkgs.ollama}/bin/ollama"
+      # Homebrew-installed binary (VID-594 moved Ollama off nixpkgs).
+      "/opt/homebrew/opt/ollama/bin/ollama"
       "serve"
     ];
+
+    # Residency policy. Read by `ollama serve` at startup; clients on the
+    # OpenAI-compatible /v1 endpoint cannot override these per request.
+    EnvironmentVariables = {
+      # How LONG a model stays resident after its last request.
+      OLLAMA_KEEP_ALIVE = "5m";
+      # How MUCH a resident model costs. The dominant RAM lever — see the
+      # measurements above. Ollama's default scales with VRAM and is far
+      # more than agent sessions actually use.
+      OLLAMA_CONTEXT_LENGTH = "32768";
+      # Two models at 32k context fit comfortably in 64 GB.
+      OLLAMA_MAX_LOADED_MODELS = "2";
+      # Carried over from the untracked brew-generated plist (VID-721).
+      OLLAMA_FLASH_ATTENTION = "1";
+      OLLAMA_KV_CACHE_TYPE = "q8_0";
+    };
 
     # Start at login, restart on any exit
     RunAtLoad = true;
