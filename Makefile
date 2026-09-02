@@ -80,6 +80,44 @@ trust-taps:
 nix-darwin-switch: trust-taps
 	${DARWIN_REBUILD} switch --flake .#${HOSTNAME}
 
+# Report drift between the declared model set and what ollama actually has.
+# Read-only — it never pulls or removes anything. Deliberately NOT part of
+# check-config: it reflects machine state and needs a running ollama, whereas
+# check-config validates the repo and runs in CI where neither exists.
+.PHONY: ollama-sync
+ollama-sync:
+	@echo "🔍 Reconciling ollama models against ollama-models.txt..."
+	@tmp=$$(mktemp -d); \
+	grep -vE '^[[:space:]]*(#|$$)' ollama-models.txt | awk 'NF {print $$1}' | sort -u > $$tmp/declared; \
+	ollama list | tail -n +2 | awk 'NF {print $$1}' | sort -u > $$tmp/installed; \
+	missing=$$(comm -23 $$tmp/declared $$tmp/installed); \
+	extra=$$(comm -13 $$tmp/declared $$tmp/installed); \
+	rm -rf $$tmp; \
+	if [ -n "$$missing" ]; then \
+	  echo "❌ Declared but not installed — run 'make ollama-pull':"; \
+	  echo "$$missing" | sed 's/^/     /'; \
+	fi; \
+	if [ -n "$$extra" ]; then \
+	  echo "⚠️  Installed but not declared — adopt in README.org or 'ollama rm':"; \
+	  echo "$$extra" | sed 's/^/     /'; \
+	fi; \
+	if [ -z "$$missing" ] && [ -z "$$extra" ]; then \
+	  echo "✅ Model set matches the manifest"; \
+	fi
+
+# Pull every declared model. `ollama pull` is idempotent — it fetches what is
+# missing and updates what is stale — so this one operation covers both cases
+# without needing to introspect which is which. That is why ollama-sync does
+# not try to detect staleness: re-running the idempotent op is cheaper and
+# more reliable than querying the registry per model.
+.PHONY: ollama-pull
+ollama-pull:
+	@grep -vE '^[[:space:]]*(#|$$)' ollama-models.txt | awk 'NF {print $$1}' | while read -r model; do \
+	  echo "⬇️  $$model"; \
+	  ollama pull "$$model"; \
+	done
+	@echo "✅ All declared models present and current"
+
 # Default target - show help
 .PHONY: help
 help:
@@ -90,5 +128,7 @@ help:
 	@echo "  make check-config      - Verify literate config (tangle + parity + nix validate)"
 	@echo "  make nix-darwin-build  - Build nix-darwin config"
 	@echo "  make nix-darwin-switch - Switch nix-darwin config"
+	@echo "  make ollama-sync       - Report drift between ollama-models.txt and ollama list"
+	@echo "  make ollama-pull       - Pull/update every declared ollama model (idempotent)"
 
 .DEFAULT_GOAL := help
