@@ -1,0 +1,40 @@
+# Generated from README.org — edit the org source, then `make tangle`.
+# One model per line. Blank lines and # comments are ignored by `make ollama-sync`.
+#
+# HARD DEPENDENCIES — something breaks if these are missing.
+
+# ddt (~/Code/philipps-byrne/ddt) RAG pipeline. Embeddings always go through
+# ollama even when chat is served by Anthropic — the Anthropic API has no
+# embedding endpoint. See ddt src/llm.rs.
+nomic-embed-text:latest
+
+# ddt DEFAULT_MODEL (src/llm.rs). ddt sets num_ctx per request, so it is
+# unaffected by OLLAMA_CONTEXT_LENGTH.
+gpt-oss:20b
+
+# DISCRETIONARY — no hard consumer. First candidates if disk or RAM gets tight.
+# Intent (VID-721) is to let `llmfit` pick top performers here rather than
+# curating by hand.
+
+# Daily-driver coder. 30.5B total / 3.3B active MoE.
+qwen3-coder:30b-a3b-q4_K_M
+
+# Agentic coding. NOTE: tag drift — this was documented as
+# qwen3.6:35b-a3b-q4_K_M but is installed as :latest. Declaring reality;
+# re-pinning means re-pulling ~23 GB, deferred.
+qwen3.6:latest
+
+# Reasoning. NOTE: tag drift — documented as deepseek-r1:32b, installed
+# as :latest. Same deferral as above.
+deepseek-r1:latest
+
+# Multimodal generalist, added under VID-594.
+gemma4:12b
+
+# Custom Modelfile of unrecorded provenance. Declared so `ollama-sync` stops
+# flagging it; what it actually is remains an open question.
+qwen3.6-vidbina:latest
+
+# NOT LOCAL — cloud-routed, consumes no local RAM or disk. Declared only so
+# it does not show up as undeclared. `OLLAMA_NO_CLOUD=1` would disable it.
+glm-5.1:cloud

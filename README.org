@@ -5755,36 +5755,53 @@ Target hardware: MacBook Pro 16" M5 Pro, 64 GB unified memory.
 
 ***** Install set
 
-Pull in priority order. Disk footprint of the full set is ~128 GB; typically only one or two are loaded at a time.
+Rewritten <2026-09-02> (VID-721). This was a copy-paste =sh= block with no =:tangle=, so nothing ever reconciled it against reality — and it had drifted six ways: four models installed but undocumented, two documented under pinned tags but installed as =:latest=, and three documented but never pulled. A list nothing checks is a list that lies.
 
-#+begin_src sh
-# 1. Daily driver: coder + agent. ALWAYS LOADED.
-#    30.5B total / 3.3B active MoE, 256k context. Fast despite the size.
-ollama pull qwen3-coder:30b-a3b-q4_K_M     # ~19 GB
+It now tangles to =ollama-models.txt=, which =make ollama-sync= diffs against =ollama list=. The annotation that matters most is *who consumes each model* — that is the one fact =ollama list= can never tell you, and the one that decides whether a model is safe to prune.
 
-# 1b. Agentic coding alternative (released 2026-04-16, Apache 2.0).
-#     35B/3B MoE, same efficiency class as #1. Stronger on repo-level and frontend
-#     workflows. Run alongside #1 for a week; drop whichever underperforms on real tasks.
-#     If one has to go later, qwen3:32b is the more likely cut.
-ollama pull qwen3.6:35b-a3b-q4_K_M         # ~24 GB
+Disk footprint of the declared set is ~90 GB; at most two are resident at a time (=OLLAMA_MAX_LOADED_MODELS=2=).
 
-# 2. Reasoning workhorse (DeepSeek-R1 distilled into Qwen2.5-32B base)
-ollama pull deepseek-r1:32b                # ~20 GB
+#+begin_src text :tangle ollama-models.txt
+# Generated from README.org — edit the org source, then `make tangle`.
+# One model per line. Blank lines and # comments are ignored by `make ollama-sync`.
+#
+# HARD DEPENDENCIES — something breaks if these are missing.
 
-# 3. Stretch coder for hard problems (load on demand only).
-#    80B/3B MoE, frontier-tier SWE-Bench scores. Verify exact tag with:
-#      ollama search qwen3-coder
-ollama pull qwen3-coder:80b-a3b-q4_K_M     # ~45 GB, needs sysctl bump
+# ddt (~/Code/philipps-byrne/ddt) RAG pipeline. Embeddings always go through
+# ollama even when chat is served by Anthropic — the Anthropic API has no
+# embedding endpoint. See ddt src/llm.rs.
+nomic-embed-text:latest
 
-# 4. Small fast generalist for shell helpers, autocomplete, quick Q&A
-ollama pull qwen3:8b                       # ~5 GB
+# ddt DEFAULT_MODEL (src/llm.rs). ddt sets num_ctx per request, so it is
+# unaffected by OLLAMA_CONTEXT_LENGTH.
+gpt-oss:20b
 
-# 5. (Optional) Best-in-class tool-calling generalist (#2 on BFCL v3, 75.7%)
-ollama pull qwen3:32b                      # ~20 GB
+# DISCRETIONARY — no hard consumer. First candidates if disk or RAM gets tight.
+# Intent (VID-721) is to let `llmfit` pick top performers here rather than
+# curating by hand.
 
-# 6. Google Gemma 4 — multimodal, reasoning, 256k context. General-purpose
-#    desktop pick (VID-594). Needs the Homebrew Ollama; nixpkgs 0.20.7 is too old.
-ollama pull gemma4:12b                      # ~8 GB
+# Daily-driver coder. 30.5B total / 3.3B active MoE.
+qwen3-coder:30b-a3b-q4_K_M
+
+# Agentic coding. NOTE: tag drift — this was documented as
+# qwen3.6:35b-a3b-q4_K_M but is installed as :latest. Declaring reality;
+# re-pinning means re-pulling ~23 GB, deferred.
+qwen3.6:latest
+
+# Reasoning. NOTE: tag drift — documented as deepseek-r1:32b, installed
+# as :latest. Same deferral as above.
+deepseek-r1:latest
+
+# Multimodal generalist, added under VID-594.
+gemma4:12b
+
+# Custom Modelfile of unrecorded provenance. Declared so `ollama-sync` stops
+# flagging it; what it actually is remains an open question.
+qwen3.6-vidbina:latest
+
+# NOT LOCAL — cloud-routed, consumes no local RAM or disk. Declared only so
+# it does not show up as undeclared. `OLLAMA_NO_CLOUD=1` would disable it.
+glm-5.1:cloud
 #+end_src
 
 ***** Why these picks
