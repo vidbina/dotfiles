@@ -179,6 +179,44 @@ trust-taps:
 nix-darwin-switch: trust-taps
 	${DARWIN_REBUILD} switch --flake .#${HOSTNAME}
 
+# Report drift between the declared model set and what ollama actually has.
+# Read-only — it never pulls or removes anything. Deliberately NOT part of
+# check-config: it reflects machine state and needs a running ollama, whereas
+# check-config validates the repo and runs in CI where neither exists.
+.PHONY: ollama-sync
+ollama-sync:
+	@echo "🔍 Reconciling ollama models against ollama-models.txt..."
+	@tmp=$$(mktemp -d); \
+	grep -vE '^[[:space:]]*(#|$$)' ollama-models.txt | awk 'NF {print $$1}' | sort -u > $$tmp/declared; \
+	ollama list | tail -n +2 | awk 'NF {print $$1}' | sort -u > $$tmp/installed; \
+	missing=$$(comm -23 $$tmp/declared $$tmp/installed); \
+	extra=$$(comm -13 $$tmp/declared $$tmp/installed); \
+	rm -rf $$tmp; \
+	if [ -n "$$missing" ]; then \
+	  echo "❌ Declared but not installed — run 'make ollama-pull':"; \
+	  echo "$$missing" | sed 's/^/     /'; \
+	fi; \
+	if [ -n "$$extra" ]; then \
+	  echo "⚠️  Installed but not declared — adopt in README.org or 'ollama rm':"; \
+	  echo "$$extra" | sed 's/^/     /'; \
+	fi; \
+	if [ -z "$$missing" ] && [ -z "$$extra" ]; then \
+	  echo "✅ Model set matches the manifest"; \
+	fi
+
+# Pull every declared model. `ollama pull` is idempotent — it fetches what is
+# missing and updates what is stale — so this one operation covers both cases
+# without needing to introspect which is which. That is why ollama-sync does
+# not try to detect staleness: re-running the idempotent op is cheaper and
+# more reliable than querying the registry per model.
+.PHONY: ollama-pull
+ollama-pull:
+	@grep -vE '^[[:space:]]*(#|$$)' ollama-models.txt | awk 'NF {print $$1}' | while read -r model; do \
+	  echo "⬇️  $$model"; \
+	  ollama pull "$$model"; \
+	done
+	@echo "✅ All declared models present and current"
+
 # Default target - show help
 .PHONY: help
 help:
@@ -189,6 +227,8 @@ help:
 	@echo "  make check-config      - Verify literate config (tangle + parity + nix validate)"
 	@echo "  make nix-darwin-build  - Build nix-darwin config"
 	@echo "  make nix-darwin-switch - Switch nix-darwin config"
+	@echo "  make ollama-sync       - Report drift between ollama-models.txt and ollama list"
+	@echo "  make ollama-pull       - Pull/update every declared ollama model (idempotent)"
 
 .DEFAULT_GOAL := help
 #+end_src
@@ -5721,10 +5761,12 @@ Just in case the internet fails, we want to have a OSS coding tool that can wiel
 
 **** Install Ollama through homebrew
 
-Enabled <2026-07-27> (VID-594): Ollama now comes from the [[https://formulae.brew.sh/formula/ollama][brew formula]] instead of nixpkgs, which tracks a newer release (the nixpkgs pin 0.20.7 is too old for Gemma 4). The object-form entry sets =start_service = true= so nix-darwin owns the =brew services= daemon — replacing the custom launchd agent we used under the nix package.
+Enabled <2026-07-27> (VID-594): Ollama now comes from the [[https://formulae.brew.sh/formula/ollama][brew formula]] instead of nixpkgs, which tracks a newer release (the nixpkgs pin 0.20.7 is too old for Gemma 4).
+
+Amended <2026-09-02> (VID-721): dropped =start_service = true=. Homebrew still installs and upgrades the binary, but it no longer owns the daemon — the launchd agent below does. The reason is that =brew services= generates its plist from the formula, so any environment we want on the server (the residency policy) would live in an untracked file that a =brew reinstall= silently rewrites. Two settings were already in that plist and recorded nowhere in this repo.
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
-{ name = "ollama"; start_service = true; }
+"ollama"
 #+end_src
 
 **** COMMENT Install Ollama from nix packages
@@ -5753,37 +5795,64 @@ Target hardware: MacBook Pro 16" M5 Pro, 64 GB unified memory.
 
 ***** Install set
 
-Pull in priority order. Disk footprint of the full set is ~128 GB; typically only one or two are loaded at a time.
+Rewritten <2026-09-02> (VID-721). This was a copy-paste =sh= block with no =:tangle=, so nothing ever reconciled it against reality — and it had drifted six ways: four models installed but undocumented, two documented under pinned tags but installed as =:latest=, and three documented but never pulled. A list nothing checks is a list that lies.
 
-#+begin_src sh
-# 1. Daily driver: coder + agent. ALWAYS LOADED.
-#    30.5B total / 3.3B active MoE, 256k context. Fast despite the size.
-ollama pull qwen3-coder:30b-a3b-q4_K_M     # ~19 GB
+It now tangles to =ollama-models.txt=, which =make ollama-sync= diffs against =ollama list=. The annotation that matters most is *who consumes each model* — that is the one fact =ollama list= can never tell you, and the one that decides whether a model is safe to prune.
 
-# 1b. Agentic coding alternative (released 2026-04-16, Apache 2.0).
-#     35B/3B MoE, same efficiency class as #1. Stronger on repo-level and frontend
-#     workflows. Run alongside #1 for a week; drop whichever underperforms on real tasks.
-#     If one has to go later, qwen3:32b is the more likely cut.
-ollama pull qwen3.6:35b-a3b-q4_K_M         # ~24 GB
+Disk footprint of the declared set is ~90 GB; at most two are resident at a time (=OLLAMA_MAX_LOADED_MODELS=2=).
 
-# 2. Reasoning workhorse (DeepSeek-R1 distilled into Qwen2.5-32B base)
-ollama pull deepseek-r1:32b                # ~20 GB
+#+begin_src text :tangle ollama-models.txt
+# Generated from README.org — edit the org source, then `make tangle`.
+# One model per line. Blank lines and # comments are ignored by `make ollama-sync`.
+#
+# HARD DEPENDENCIES — something breaks if these are missing.
 
-# 3. Stretch coder for hard problems (load on demand only).
-#    80B/3B MoE, frontier-tier SWE-Bench scores. Verify exact tag with:
-#      ollama search qwen3-coder
-ollama pull qwen3-coder:80b-a3b-q4_K_M     # ~45 GB, needs sysctl bump
+# ddt RAG pipeline. Embeddings always go through ollama even when chat is
+# served by Anthropic — the Anthropic API has no embedding endpoint.
+# See ddt src/llm.rs.
+nomic-embed-text:latest
 
-# 4. Small fast generalist for shell helpers, autocomplete, quick Q&A
-ollama pull qwen3:8b                       # ~5 GB
+# ddt DEFAULT_MODEL (src/llm.rs). ddt sets num_ctx per request, so it is
+# unaffected by OLLAMA_CONTEXT_LENGTH.
+gpt-oss:20b
 
-# 5. (Optional) Best-in-class tool-calling generalist (#2 on BFCL v3, 75.7%)
-ollama pull qwen3:32b                      # ~20 GB
+# DISCRETIONARY — no hard consumer. First candidates if disk or RAM gets tight.
+# Intent (VID-721) is to let `llmfit` pick top performers here rather than
+# curating by hand.
 
-# 6. Google Gemma 4 — multimodal, reasoning, 256k context. General-purpose
-#    desktop pick (VID-594). Needs the Homebrew Ollama; nixpkgs 0.20.7 is too old.
-ollama pull gemma4:12b                      # ~8 GB
+# Daily-driver coder. 30.5B total / 3.3B active MoE.
+qwen3-coder:30b-a3b-q4_K_M
+
+# Agentic coding. NOTE: tag drift — this was documented as
+# qwen3.6:35b-a3b-q4_K_M but is installed as :latest. Declaring reality;
+# re-pinning means re-pulling ~23 GB, deferred.
+qwen3.6:latest
+
+# Reasoning. NOTE: tag drift — documented as deepseek-r1:32b, installed
+# as :latest. Same deferral as above.
+deepseek-r1:latest
+
+# Multimodal generalist, added under VID-594.
+gemma4:12b
+
+# Custom Modelfile of unrecorded provenance. Declared so `ollama-sync` stops
+# flagging it; what it actually is remains an open question.
+qwen3.6-vidbina:latest
+
+# NOT LOCAL — cloud-routed, consumes no local RAM or disk. Declared only so
+# it does not show up as undeclared. `OLLAMA_NO_CLOUD=1` would disable it.
+glm-5.1:cloud
 #+end_src
+
+***** Routing proxy: considered and dropped
+
+Decided <2026-09-02> (VID-721). [[https://github.com/mostlygeek/llama-swap][llama-swap]] — a proxy that loads models on demand and unloads them per-model after a configurable TTL — was the obvious candidate for "don't hold RAM we aren't using", and [[https://www.glukhov.org/llm-hosting/llama-cpp/llama-server-router-mode/][llama.cpp's router mode]] does something similar natively. Neither is being adopted. Three reasons:
+
+1. *The problem was mostly not what it looked like.* The measurements above put ~9 GB of a 15 GB resident footprint in the K/V cache, addressable by one environment variable. A proxy manages /when/ models are loaded; it does nothing about how expensive each one is while loaded.
+2. *A proxy cannot fix the =/v1= limitation either.* Its per-model TTL replaces ollama's keep-alive, but clients still cannot express intent per request through an OpenAI-compatible endpoint. We would be trading a global TTL for a differently-global TTL, plus a process to supervise.
+3. *Local inference is occasional here.* Frontier models carry the daily load; local models are for offline work and for =ddt=. A supervised proxy in front of a service used intermittently is more moving parts than the problem justifies.
+
+Revisit if either of these becomes true: local inference becomes the default rather than the exception, or llama.cpp starts being used directly alongside ollama (it is installed as =pkgs.llama-cpp= but currently unused), at which point a single front door for two backends starts to earn its keep.
 
 ***** Why these picks
 
@@ -5809,11 +5878,26 @@ For Mixture-of-Experts models, *total* parameters live in RAM, but only *active*
 - Reach for raw =mlx-lm= / LM Studio only when benchmarking or hosting a single high-throughput inference endpoint (~130 tok/s vs ~71 for llama.cpp on large models).
 - Stay on GGUF/ollama for anything talking the OpenAI API, Continue.dev, agent integrations, or juggling multiple models.
 
-**** COMMENT Auto-start the daemon via launchd
+**** Auto-start the daemon via launchd
 
-Disabled <2026-07-25> (VID-594): this agent references =${pkgs.ollama}=, which would keep nix building Ollama even after the package block above is commented. Once Ollama moves to Homebrew, the daemon is owned by the Homebrew service (=start_service= on the object-form brew entry) instead of this custom launchd agent.
+Re-enabled <2026-09-02> (VID-721): this agent was disabled under VID-594 because it referenced =${pkgs.ollama}=, which kept nix building Ollama after the package moved to Homebrew. It now points at the brew-installed binary instead, so nix owns the daemon's /lifecycle and environment/ while brew owns the /bits/. Hardcoding a Homebrew path in the nix config is impure, but it is the same coupling =start_service = true= already carried — only now it is explicit and carries configuration with it.
 
 Manual =ollama serve= is how we end up with a stale 0.15.6 daemon still running 6 days after a =darwin-rebuild switch= — the binary on PATH gets upgraded but the long-lived process keeps holding a file descriptor to the old store path. We can't trust ourselves to remember; let nix-darwin own the daemon's lifecycle.
+
+***** Why the environment lives here
+
+These are /server/-side settings, read by =ollama serve= at startup. That matters because clients speaking the OpenAI-compatible =/v1= endpoint cannot override them per request — measured under VID-721, =/v1/chat/completions= silently discards =keep_alive= (a native-API field), while =/api/chat= honours it. So for Pi and opencode, this block /is/ the entire control surface. Clients on the native =/api= endpoint can still override per request, and =ddt= does exactly that — it sets =num_ctx= on every call.
+
+Context length is the dominant memory lever, well ahead of the keep-alive TTL. Measured on =deepseek-r1= (5.2 GB on disk) with the K/V cache already quantized to =q8_0=:
+
+| Context | Resident |
+|---------+----------|
+| 131072  | 15 GB    |
+| 8192    | 6.1 GB   |
+
+Nearly 9 GB of that is K/V cache. Ollama's own default scales with available VRAM ("4k/32k/256k based on VRAM" per =ollama serve --help=), so a 64 GB machine self-selects an expensive context on every load. 32k is the compromise: comfortably above what agent sessions actually use, well below what the default would charge us for.
+
+=OLLAMA_FLASH_ATTENTION= and =OLLAMA_KV_CACHE_TYPE= were already set — but only in the plist =brew services= generates, which is untracked and regenerated on reinstall. Carrying them here is the point: tuning that exists on exactly one machine and in no repository is tuning that is one =brew reinstall= from vanishing, with no symptom beyond the machine quietly getting slower.
 
 This block tangles into =configuration-darwin.nix= via the =nix-darwin= noweb-ref:
 
@@ -5821,9 +5905,26 @@ This block tangles into =configuration-darwin.nix= via the =nix-darwin= noweb-re
 launchd.user.agents.ollama = {
   serviceConfig = {
     ProgramArguments = [
-      "${pkgs.ollama}/bin/ollama"
+      # Homebrew-installed binary (VID-594 moved Ollama off nixpkgs).
+      "/opt/homebrew/opt/ollama/bin/ollama"
       "serve"
     ];
+
+    # Residency policy. Read by `ollama serve` at startup; clients on the
+    # OpenAI-compatible /v1 endpoint cannot override these per request.
+    EnvironmentVariables = {
+      # How LONG a model stays resident after its last request.
+      OLLAMA_KEEP_ALIVE = "5m";
+      # How MUCH a resident model costs. The dominant RAM lever — see the
+      # measurements above. Ollama's default scales with VRAM and is far
+      # more than agent sessions actually use.
+      OLLAMA_CONTEXT_LENGTH = "32768";
+      # Two models at 32k context fit comfortably in 64 GB.
+      OLLAMA_MAX_LOADED_MODELS = "2";
+      # Carried over from the untracked brew-generated plist (VID-721).
+      OLLAMA_FLASH_ATTENTION = "1";
+      OLLAMA_KV_CACHE_TYPE = "q8_0";
+    };
 
     # Start at login, restart on any exit
     RunAtLoad = true;

@@ -214,7 +214,7 @@ with lib;
       "pcalc"
       "duti"
       "anomalyco/tap/opencode"
-      { name = "ollama"; start_service = true; }
+      "ollama"
       "llmfit"
       "pi-coding-agent"
     ];
@@ -285,4 +285,44 @@ with lib;
   ];
 
   environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];
+  launchd.user.agents.ollama = {
+    serviceConfig = {
+      ProgramArguments = [
+        # Homebrew-installed binary (VID-594 moved Ollama off nixpkgs).
+        "/opt/homebrew/opt/ollama/bin/ollama"
+        "serve"
+      ];
+
+      # Residency policy. Read by `ollama serve` at startup; clients on the
+      # OpenAI-compatible /v1 endpoint cannot override these per request.
+      EnvironmentVariables = {
+        # How LONG a model stays resident after its last request.
+        OLLAMA_KEEP_ALIVE = "5m";
+        # How MUCH a resident model costs. The dominant RAM lever — see the
+        # measurements above. Ollama's default scales with VRAM and is far
+        # more than agent sessions actually use.
+        OLLAMA_CONTEXT_LENGTH = "32768";
+        # Two models at 32k context fit comfortably in 64 GB.
+        OLLAMA_MAX_LOADED_MODELS = "2";
+        # Carried over from the untracked brew-generated plist (VID-721).
+        OLLAMA_FLASH_ATTENTION = "1";
+        OLLAMA_KV_CACHE_TYPE = "q8_0";
+      };
+
+      # Start at login, restart on any exit
+      RunAtLoad = true;
+      KeepAlive = true;
+      # Headless daemon, not a foreground app
+      ProcessType = "Background";
+
+      # Logs land here; truncate manually if they grow
+      StandardOutPath = "/Users/${username}/Library/Logs/ollama.stdout.log";
+      StandardErrorPath = "/Users/${username}/Library/Logs/ollama.stderr.log";
+    };
+
+    # launchd's default PATH is /usr/bin:/bin:/usr/sbin:/sbin which is too narrow
+    path = [
+      config.environment.systemPath
+    ];
+  };
 }
