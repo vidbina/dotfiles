@@ -2550,9 +2550,18 @@ the Nix ecosystem (4 700+ repos on GitHub) commits these files. The
 =direnv allow= gate ensures no =.envrc= runs without explicit opt-in.
 
 **Secrets belong elsewhere.** If a project needs environment variables
-with sensitive values (API keys, database URLs), put them in
+with sensitive /values/ (API keys, database URLs), put them in
 =.envrc.local= or =.env= and add those to the project's =.gitignore=.
 Never put secrets in =.envrc=.
+
+**A 1Password =op://= reference is not a secret.** It is a pointer —
+vault, item, section, field — and resolving it still requires an
+authenticated, unlocked account. References are therefore safe to
+track, the same way =claude/agents/asabina/workspace.json= already
+tracks them. Prefer a tracked reference over an untracked plaintext
+value: it survives a machine rebuild, it documents /which/ credential
+a project needs, and it cannot be the thing that leaks. See
+[[*Secrets via 1Password][Secrets via 1Password]] below.
 
 **** Devenv
 
@@ -2562,6 +2571,77 @@ The =inputs= argument is passed through =extraSpecialArgs= in =flake.nix=.
 #+begin_src nix :noweb-ref dev-packages
 inputs.devenv.packages.${pkgs.system}.devenv
 #+end_src
+
+**** Secrets via 1Password
+
+The pattern for any project that needs an API key: track the
+/reference/, resolve it at run time, never materialise the value.
+
+***** 1. Track the references
+
+Each project gets a =.env.1password= holding =KEY=op://...= lines and
+nothing else. It is committed. Using TypeSafe as the worked example:
+
+#+begin_src text
+TYPESAFE_API_KEY=op://Employee/TypeSafe/Saved on console.typesafe.ai/api-key-humanx-ams
+#+end_src
+
+Reference syntax is =op://vault/item/[section/]field=. The example
+above is a four-part reference: the section =Saved on
+console.typesafe.ai= sits between item and field. Sections and fields
+may contain spaces — quote the reference whenever it reaches a shell.
+
+***** 2. Scope the account
+
+A bare vault name resolves against /every/ signed-in account. =Employee=
+is the default personal vault in a 1Password Business membership, so it
+exists in both accounts here:
+
+| Account                 | Email             |
+|-------------------------+-------------------|
+| =my.1password.com=      | vid@bina.me       |
+| =asabina.1password.eu=  | david@asabina.de  |
+
+An unscoped =op read= picks whichever account happens to be unlocked,
+which makes resolution order-dependent and fails confusingly on a fresh
+login. Pin it in the project's =.envrc= — an account address is not a
+secret:
+
+#+begin_src bash
+use flake
+export OP_ACCOUNT="asabina.1password.eu"
+#+end_src
+
+=OP_ACCOUNT= is read by every =op= subcommand; =--account= overrides it
+per invocation.
+
+***** 3. Run
+
+=op run= resolves the references, injects them into the subprocess
+environment, and masks them in stdout/stderr. The values exist only for
+the life of that process — nothing is written to disk and nothing
+enters the interactive shell:
+
+#+begin_src bash
+op run --env-file=.env.1password -- python app.py
+#+end_src
+
+The =openv= helper in [[file:zsh/functions.zsh]] wraps this, defaulting to
+=./.env.1password= and warning when =OP_ACCOUNT= is unset:
+
+#+begin_src bash
+openv -- python app.py
+openv -f prod.env -- terraform plan
+openv --no-masking -- printenv TYPESAFE_API_KEY  # verify a reference
+#+end_src
+
+***** Why not resolve in =.envrc=?
+
+Putting =export KEY="$(op read ...)"= in =.envrc= works, but it fires a
+Touch ID prompt on every direnv reload, blocks =cd= on the 1Password
+unlock, and — the real cost — puts the plaintext key in the environment
+of /every/ process spawned from the directory, coding agents included.
+=op run= scopes the secret to the one command that needs it.
 
 **** Xcode
 
