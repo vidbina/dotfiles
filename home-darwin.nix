@@ -37,6 +37,7 @@
     pkgs.gh
     pkgs.glab
     inputs.devenv.packages.${pkgs.system}.devenv
+    secretspec
     alacritty
     wezterm
     xxd
