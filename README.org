@@ -2550,9 +2550,16 @@ the Nix ecosystem (4 700+ repos on GitHub) commits these files. The
 =direnv allow= gate ensures no =.envrc= runs without explicit opt-in.
 
 **Secrets belong elsewhere.** If a project needs environment variables
-with sensitive values (API keys, database URLs), put them in
+with sensitive /values/ (API keys, database URLs), put them in
 =.envrc.local= or =.env= and add those to the project's =.gitignore=.
 Never put secrets in =.envrc=.
+
+**Nor do the coordinates belong in =.envrc=.** A =op://= reference is
+not itself a credential, but vault, item and account names are store
+topology — useful reconnaissance in a public repo, and it aggregates
+across repos into a map of the whole vault. Declare /what/ a project
+needs, resolve /where/ it lives out of band. See
+[[*Secrets across repositories][Secrets across repositories]] below.
 
 **** Devenv
 
@@ -2561,6 +2568,142 @@ The =inputs= argument is passed through =extraSpecialArgs= in =flake.nix=.
 
 #+begin_src nix :noweb-ref dev-packages
 inputs.devenv.packages.${pkgs.system}.devenv
+#+end_src
+
+**** Secrets across repositories
+
+We use [[https://secretspec.dev/][SecretSpec]] for every repository that needs a credential.
+Read [[https://secretspec.dev/quick-start/][the quick start]] for how to declare, set and consume secrets;
+this section records /our/ conventions and the decisions behind them.
+
+***** The rule: commit the contract, never the coordinates
+
+Two files, and the split between them is the whole point:
+
+| File                             | Scope   | Tracked? | Contains                                              |
+|----------------------------------+---------+----------+-------------------------------------------------------|
+| =secretspec.toml=                | project | yes      | secret /names/, descriptions, =required= flags        |
+| =~/.config/secretspec/config.toml= | machine | **no**   | provider backend, account, vault, default profile     |
+
+A committed manifest declares only what the project expects:
+
+#+begin_src toml
+[project]
+name = "my-app"
+revision = "1.0"
+
+[profiles.default]
+TYPESAFE_API_KEY = { description = "TypeSafe API key", required = true }
+#+end_src
+
+The machine-local config, written by =secretspec config global init=, says
+where that resolves from. It is never written to the project or shared.
+
+**Why not commit the =op://= coordinates.** Vault, item, section and
+account names are not credentials — resolving one still needs an
+authenticated, unlocked account — but they are store topology. In a
+public repo (this one included) that is free reconnaissance: tenant and
+region, naming conventions, and often which client or engagement a key
+belongs to. It is a social-engineering aid, and it aggregates across
+repos. 1Password's own advice to commit references targets private team
+repos where the layout is already known to every reader; it does not
+transfer. Least disclosure costs us one =secretspec set= per secret.
+
+SecretSpec stores convention secrets at =secretspec/{project}/{profile}/{key}=,
+derived from values already public in the repo, so nothing extra leaks.
+
+**The escape hatch we avoid.** The =[providers]= block and per-secret
+=ref= field let a manifest point at items you already manage — at the
+cost of naming them in the repo. Use =ref= only in private repos, and
+prefer re-storing the value under the convention path.
+
+***** SecretSpec is a tool, not a devenv feature
+
+devenv's integration does /not/ put =secretspec= on =PATH=. The devenv
+CLI resolves secrets out of band and injects the values;
+=config.secretspec.secrets.NAME= only reads back what was already
+resolved. Anything that manages secrets — =secretspec set=, =check=,
+=run= — needs the binary, as does every repo that is not a devenv repo.
+So we install it globally and configure it per project:
+
+#+begin_src nix :noweb-ref dev-packages
+secretspec
+#+end_src
+
+***** Wiring a devenv repo
+
+Enable it in =devenv.yaml= (=secretspec.enable= is read-only in the
+module, so it cannot be set from =devenv.nix=):
+
+#+begin_src yaml
+secretspec:
+  enable: true
+  profile: default
+#+end_src
+
+Then consume the resolved values in =devenv.nix=:
+
+#+begin_src nix
+{ config, ... }:
+
+{
+  env.TYPESAFE_API_KEY = config.secretspec.secrets.TYPESAFE_API_KEY;
+}
+#+end_src
+
+#+begin_quote
+**Flakes are not supported.** The module asserts against
+=devenv.flakesIntegration= — loading =secretspec.toml= requires the
+devenv CLI, so this works under =use devenv= (as in [[file:agents/.envrc]])
+but not under =use flake=. Flake-based repos call =secretspec run= directly.
+#+end_quote
+
+Outside devenv, the standalone CLI covers everything:
+
+#+begin_src bash
+secretspec run -- python app.py
+#+end_src
+
+***** Providers
+
+Configured machine-locally, so migrating password managers never touches
+a repo — only =~/.config/secretspec/config.toml=. That portability is a
+large part of why we declare rather than reference.
+
+| Provider      | URI                            | Access         |
+|---------------+--------------------------------+----------------|
+| [[https://secretspec.dev/providers/onepassword/][1Password]]     | =onepassword://[account@]vault= | read and write |
+| [[https://secretspec.dev/providers/dashlane/][Dashlane]]      | =dashlane://[ITEM_TYPE]=        | **read-only**  |
+
+**1Password** (current). The =account@= prefix pins which account
+resolves a vault — necessary here because =Employee= is the default
+personal vault of a Business membership and therefore exists in /every/
+signed-in account. Without it, resolution depends on which account
+happens to be unlocked. Enable *Settings → Developer → Integrate with
+1Password CLI* in the desktop app so unlocks go through Touch ID.
+
+**Dashlane** (eventual migration target, 0.18+). Note the constraint
+before planning that move: the provider is **read-only**, because =dcli=
+can read and list vault items but has no command that creates or edits
+one. =secretspec set= does not work against it. Every secret must be
+authored by hand in a Dashlane app as an item titled
+=secretspec/{project}/{profile}/{key}=, then =dcli sync=. Dashlane also
+does not enforce unique titles, and SecretSpec refuses an ambiguous
+match rather than guessing.
+
+***** Agent access
+
+=require_reason= travels in the committed manifest and defaults to
+="agents"=: SecretSpec demands a =--reason= when it heuristically
+detects an AI agent reading secrets. Detection can miss an unknown
+harness, so set =require_reason = true= to require one from every
+caller on anything sensitive.
+
+#+begin_src toml
+[project]
+name = "my-app"
+revision = "1.0"
+require_reason = true
 #+end_src
 
 **** Xcode

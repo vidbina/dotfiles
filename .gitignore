@@ -64,3 +64,10 @@ __pycache__/
 
 # Ollama model recipes — models are installed ad hoc per machine, not declaratively
 ollama/
+
+# Secrets — plaintext env files are never committed. Secrets are declared
+# in a project's secretspec.toml (names only) and resolved at run time.
+# See README.org, "Secrets across repositories".
+.env
+.env.*
+.envrc.local
