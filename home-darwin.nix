@@ -127,7 +127,7 @@
         # https://www.roboleary.net/2021/11/06/vscode-you-dont-need-that-extension2.html#3-indentation-guides-colorization
         "editor.guides.bracketPairs" = true;
         "editor.guides.highlightActiveIndentation" = true;
-        "workbench.preferredDarkColorTheme" = "Dark 2026";
+        "workbench.preferredDarkColorTheme" = "Default Hight Contrast";
         "workbench.preferredLightColorTheme" = "Light 2026";
         "workbench.list.openMode" = "doubleClick";
         "claudeCode.preferredLocation" = "panel";
