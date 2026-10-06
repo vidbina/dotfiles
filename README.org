@@ -2236,7 +2236,7 @@ Define parts of the VsCode-specific fields are defined in the JSON format as fol
 ***** Theme configuration in VSCode
 
 #+begin_src nix :noweb-ref vscode-settings
-"workbench.preferredDarkColorTheme" = "Dark High Contrast";
+"workbench.preferredDarkColorTheme" = "Default High Contrast";
 "workbench.preferredLightColorTheme" = "Light 2026";
 #+end_src
 
