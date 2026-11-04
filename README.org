@@ -3031,6 +3031,14 @@ Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your Mac
 "wireguard-tools"
 #+end_src
 
+**** TorGuard
+
+[[https://torguard.net/][TorGuard]] is a VPN client which is available from the [[https://apps.apple.com/de/app/private-secure-vpn-torguard/id988743799?l=en-GB][Apple App Store]].
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"TorGuard" = 988743799;
+#+end_src
+
 *** Hex editors/viewers
 
 #+begin_src nix :noweb-ref dev-packages
