@@ -214,6 +214,7 @@ with lib;
       "pcalc"
       "duti"
       "anomalyco/tap/opencode"
+      "herdr"
       "ollama"
       "llmfit"
       "pi-coding-agent"
@@ -285,7 +286,7 @@ with lib;
 
   ];
 
-  environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];
+  environment.pathsToLink = [ "/share/myspell" "/share/hunspell" "/share/openrig" ];
   launchd.user.agents.ollama = {
     serviceConfig = {
       ProgramArguments = [

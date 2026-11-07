@@ -76,6 +76,29 @@
       # Run `nix build .#packages.aarch64-darwin.default 2>&1 | grep 'got:'` to compute.
       cargoHash = "sha256-MH3+teduU3ZQU9ZEMhxST8G0WOrxUqVoLdPEnYK8iws=";
     })
+    ((buildNpmPackage.override { nodejs = nodejs_22; }) rec {
+      pname = "openrig";
+      version = "0.7.9";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@openrig/cli/-/cli-${version}.tgz";
+        hash = "sha256-ZouTBaw47PkZJTkwp8ulwFNcLTCly8CxEHblmZ0xlTw=";
+      };
+      sourceRoot = "package";
+      postPatch = ''
+        cp ${./openrig/package-lock.json} package-lock.json
+      '';
+      npmDepsHash = "sha256-xJCyhlxQDxpOh/kXKJyN9nnlqCXAUYbLuoiKJvdTeRM=";
+      dontNpmBuild = true;
+      # better-sqlite3 compiles its native module with node-gyp.
+      nativeBuildInputs = [ python3 ];
+      postInstall = ''
+        cli=$out/lib/node_modules/@openrig/cli/daemon/assets
+        mkdir -p $out/share/openrig/skills
+        ln -s $cli/skills/rigs $out/share/openrig/skills/rigs
+        ln -s $cli/plugins/openrig-core/skills/openrig-skills $out/share/openrig/skills/openrig-skills
+        ln -s $cli/plugins/openrig-core/skills/refocusing $out/share/openrig/skills/refocusing
+      '';
+    })
   ];
 
   home.file = {
@@ -92,6 +115,10 @@
     # OpenCode config and plugins
     ".config/opencode/opencode.jsonc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/opencode/opencode.jsonc";
     ".config/opencode/plugins".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/opencode/plugins";
+  };
+  programs.tmux = {
+    enable = true;
+    extraConfig = builtins.readFile (./. + "/tmux.conf");
   };
   programs.vscode = {
     enable = true;
