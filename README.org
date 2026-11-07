@@ -3031,6 +3031,18 @@ Install Wireguard tools https://github.com/WireGuard/wireguard-tools on your Mac
 "wireguard-tools"
 #+end_src
 
+**** WireGuard
+
+We connect to [[https://torguard.net/][TorGuard]] VPN servers through the [[https://apps.apple.com/de/app/wireguard/id1451685025?l=en-GB&mt=12][WireGuard app]] from the Apple App Store, using WireGuard configs generated from the TorGuard account. The app manages tunnels from the menu bar.
+
+We tried TorGuard's own software first and dropped it:
+- The [[https://apps.apple.com/de/app/private-secure-vpn-torguard/id988743799?l=en-GB][TorGuard App Store listing]] is the iPhone/iPad build. Apple Silicon Macs can run it, but it skips macOS primitives (no menu bar item, no service) and =mas= cannot install it.
+- The native client from the =torguard= Homebrew cask (4.8.29, the latest on TorGuard's [[https://updates.torguard.biz/Software/MacOSX/][update server]]) only ships an =x86_64= binary, so it needs Rosetta.
+
+#+begin_src nix :noweb-ref homebrew-masapps :noweb yes
+"WireGuard" = 1451685025;
+#+end_src
+
 *** Hex editors/viewers
 
 #+begin_src nix :noweb-ref dev-packages

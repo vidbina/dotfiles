@@ -30,6 +30,22 @@ When adding a new package, prefer nixpkgs over Homebrew:
 2. **Check freshness:** compare the nixpkgs version against the upstream release. If nixpkgs is more than one major version behind, note it and consider Homebrew as a fallback.
 3. **Fall back to Homebrew** only for macOS-only GUI apps (casks) or when the nixpkgs version is too stale. Use `homebrew-brews` or `homebrew-casks` noweb-ref blocks.
 
+### App Store apps: native macOS builds only
+
+Apple Silicon Macs can run iPhone/iPad apps from the App Store. These are not what we want: they skip macOS primitives (no menu bar item, no launchd service, no system integration) and `mas` cannot install them, so a `masApps` entry fails `brew bundle` with `No apps found in the App Store for ADAM ID <id>`.
+
+Before adding a `homebrew-masapps` entry, confirm the ID is a Mac build:
+
+```bash
+curl -s "https://itunes.apple.com/lookup?id=<id>&entity=desktopSoftware"
+```
+
+A non-empty `results` array means a Mac build exists. An empty array means the ID is iPhone/iPad only. Do not go by `kind` alone: apps with one ID for iPhone and Mac (e.g. Endel) report `"kind": "software"` even though they have a Mac build.
+
+On an installed app, a bundle that holds `Wrapper/` and `WrappedBundle/` instead of `Contents/` is an iPhone/iPad build.
+
+When the App Store only offers an iPhone/iPad build, look for the vendor's native client (usually a `homebrew-casks` entry) and surface the choice to the user rather than declaring the App Store build.
+
 ### Declarative paths in this repo:
 - **Nix packages (preferred):** `#+begin_src nix :noweb-ref dev-packages` or system/home-manager modules
 - **Homebrew brews:** `#+begin_src nix :noweb-ref homebrew-brews` in `README.org`
