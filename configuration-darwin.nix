@@ -229,7 +229,6 @@ with lib;
       "kitty"
       "ghostty"
       "cmux"
-      "torguard"
       "kap"
       "shottr"
       "drawio"
@@ -268,6 +267,7 @@ with lib;
     masApps = {
       "Xcode" = 497799835;
       "1Password for Safari" = 1569813296;
+      "WireGuard" = 1451685025;
       "Hidden Bar" = 1452453066;
       "Remarkable Desktop" = 1276493162;
       "Endel" = 1346247457;
