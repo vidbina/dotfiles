@@ -286,7 +286,7 @@ with lib;
 
   ];
 
-  environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];
+  environment.pathsToLink = [ "/share/myspell" "/share/hunspell" "/share/openrig" ];
   launchd.user.agents.ollama = {
     serviceConfig = {
       ProgramArguments = [

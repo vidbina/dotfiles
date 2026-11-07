@@ -5584,7 +5584,7 @@ hunspellDicts.fr-any
 and set the path such that =hunspell -D= can actually find these dictionaries:
 
 #+begin_src nix :noweb-ref nix-darwin
-environment.pathsToLink = [ "/share/myspell" "/share/hunspell" ];
+environment.pathsToLink = [ "/share/myspell" "/share/hunspell" "/share/openrig" ];
 #+end_src
 
 ***** TODO COMMENT Hunspell dictionaries in NixOS
@@ -5968,6 +5968,8 @@ The package also exposes the skills the OpenRig daemon would otherwise copy into
   '';
 })
 #+end_src
+
+The user profile only links the =share/= folders listed in =environment.pathsToLink=, so that list includes =/share/openrig= for the skill links above to resolve.
 
 *** Ollama
 
