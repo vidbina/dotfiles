@@ -1406,6 +1406,15 @@ ln -s ${PATH_TO_DOTFILE}/tmux.conf ${HOME}/.config/tmux.conf
 - sets up vi key bindings in tmux
 - remaps colors
 
+On Darwin, we install tmux into our home-manager setup with the same config. Agent tooling such as [[https://herdr.dev][herdr]] and [[https://github.com/mvschwarz/openrig][OpenRig]] runs each agent in a tmux session, and relies on =mouse= and a long =history-limit=, which =tmux.conf= already sets.
+
+#+begin_src nix :noweb-ref home-darwin
+programs.tmux = {
+  enable = true;
+  extraConfig = builtins.readFile (./. + "/tmux.conf");
+};
+#+end_src
+
 *** Termite
 :PROPERTIES:
 :CUSTOM_ID: termite
@@ -5908,6 +5917,14 @@ Just in case the internet fails, we want to have a OSS coding tool that can wiel
 
 #+begin_src nix :noweb-ref homebrew-brews :noweb yes
 "anomalyco/tap/opencode"
+#+end_src
+
+*** herdr
+
+[[https://herdr.dev][herdr]] is an agent multiplexer: a terminal view that keeps coding agent sessions running and shows which ones are working, stuck or idle. We install it from Homebrew, which tracks upstream releases closely, rather than nixpkgs, which lags behind on this fast-moving 0.x tool.
+
+#+begin_src nix :noweb-ref homebrew-brews :noweb yes
+"herdr"
 #+end_src
 
 *** Ollama

@@ -214,6 +214,7 @@ with lib;
       "pcalc"
       "duti"
       "anomalyco/tap/opencode"
+      "herdr"
       "ollama"
       "llmfit"
       "pi-coding-agent"

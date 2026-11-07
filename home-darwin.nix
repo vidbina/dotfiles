@@ -93,6 +93,10 @@
     ".config/opencode/opencode.jsonc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/opencode/opencode.jsonc";
     ".config/opencode/plugins".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/opencode/plugins";
   };
+  programs.tmux = {
+    enable = true;
+    extraConfig = builtins.readFile (./. + "/tmux.conf");
+  };
   programs.vscode = {
     enable = true;
     profiles.default = {
