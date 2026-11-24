@@ -5946,16 +5946,16 @@ The package also exposes the skills the OpenRig daemon would otherwise copy into
 #+begin_src nix :noweb-ref home-darwin-packages
 ((buildNpmPackage.override { nodejs = nodejs_22; }) rec {
   pname = "openrig";
-  version = "0.7.9";
+  version = "0.7.20";
   src = fetchurl {
     url = "https://registry.npmjs.org/@openrig/cli/-/cli-${version}.tgz";
-    hash = "sha256-ZouTBaw47PkZJTkwp8ulwFNcLTCly8CxEHblmZ0xlTw=";
+    hash = "sha256-T75azuL8UBTiWit6eyphLMipqSM0YphYUcLfcJVAkGc=";
   };
   sourceRoot = "package";
   postPatch = ''
     cp ${./openrig/package-lock.json} package-lock.json
   '';
-  npmDepsHash = "sha256-xJCyhlxQDxpOh/kXKJyN9nnlqCXAUYbLuoiKJvdTeRM=";
+  npmDepsHash = "sha256-ZmH4EX/DrIDDRpkh/eKgPv3NnG9zpqHYIbGUh1AjGgI=";
   dontNpmBuild = true;
   # better-sqlite3 compiles its native module with node-gyp.
   nativeBuildInputs = [ python3 ];
