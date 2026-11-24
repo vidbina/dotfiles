@@ -6,6 +6,9 @@ person says go.
 
 ## How a change moves
 
+0. **lead** takes the person's request, files or finds its Linear issue, and
+   sets its mode: `mode:pair` (worked through with the person via `/pair`) or
+   `mode:yolo` (builder works to the "Done when" list and stops at the PR).
 1. **builder** edits `README.org`, runs `make tangle` and `make verify-parity`,
    commits on a branch and opens a PR. It never switches the system.
 2. **applier** checks out the change and runs `darwin-rebuild build` for this
@@ -19,6 +22,9 @@ person says go.
 
 ## Rules
 
+- Every change belongs to a Linear issue in the Dotfiles project. Findings and
+  decisions go into its threads with `/comment`; tickets are filed and edited
+  with `/issue`. Linear is where context outlives any one seat.
 - The go is the person's own message, recorded on the queue row. A go given
   for one change doesn't carry over to the next.
 - `README.org` is the source. Tangled `.nix` files are regenerated, never edited

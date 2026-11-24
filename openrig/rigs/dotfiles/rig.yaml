@@ -1,9 +1,10 @@
 version: "0.2"
 name: dotfiles
 summary: >
-  Changes this machine's dotfiles in three steps. The builder edits and commits,
-  the applier builds and switches only on the person's go, and the inspector
-  reads the system and the built result to say what a switch would change.
+  Changes this machine's dotfiles. The lead is the person's entry point and
+  keeps Linear current; the builder edits and commits; the applier builds and
+  switches only on the person's go; the inspector reads the system and the
+  built result to say what a switch would change.
 
 culture_file: CULTURE.md
 
@@ -11,6 +12,26 @@ pods:
   - id: dev
     label: Repo changes
     members:
+      - id: lead
+        agent_ref: "local:agents/lead"
+        runtime: claude-code
+        profile: default
+        cwd: "../../.."
+        claude_permissions:
+          allow:
+            - "Bash(git status *)"
+            - "Bash(git log *)"
+            - "Bash(gh pr view *)"
+            - "Bash(gh pr list *)"
+            - "Bash(gh pr checks *)"
+          deny:
+            - "Edit"
+            - "Write"
+            - "NotebookEdit"
+            - "Bash(sudo *)"
+            - "Bash(darwin-rebuild *)"
+            - "Bash(make nix-darwin-switch*)"
+            - "Bash(gh pr merge *)"
       - id: builder
         agent_ref: "local:agents/builder"
         runtime: claude-code
@@ -33,7 +54,10 @@ pods:
             - "Bash(darwin-rebuild *)"
             - "Bash(git push --force*)"
             - "Bash(gh pr merge *)"
-    edges: []
+    edges:
+      - kind: delegates_to
+        from: lead
+        to: builder
 
   - id: host
     label: Live system
@@ -109,3 +133,9 @@ edges:
   - kind: delegates_to
     from: dev.builder
     to: host.applier
+  - kind: delegates_to
+    from: dev.lead
+    to: host.applier
+  - kind: delegates_to
+    from: dev.lead
+    to: host.inspector
