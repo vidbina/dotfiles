@@ -97,6 +97,7 @@
         ln -s $cli/skills/rigs $out/share/openrig/skills/rigs
         ln -s $cli/plugins/openrig-core/skills/openrig-skills $out/share/openrig/skills/openrig-skills
         ln -s $cli/plugins/openrig-core/skills/refocusing $out/share/openrig/skills/refocusing
+        ln -s $out/lib/node_modules/@openrig/cli/daemon/specs $out/share/openrig/specs
       '';
     })
   ];
