@@ -176,6 +176,13 @@ with lib;
         "spans-displays" = false;
       };
     };
+
+    activationScripts.postActivation.text = lib.mkAfter ''
+      if [ -d /Applications/Xcode.app/Contents/Developer ]; then
+        echo "selecting /Applications/Xcode.app as the system Xcode..." >&2
+        /usr/bin/xcode-select --switch /Applications/Xcode.app/Contents/Developer
+      fi
+    '';
   };
 
   homebrew = {

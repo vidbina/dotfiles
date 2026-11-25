@@ -2735,6 +2735,32 @@ After installation, remember to run the following:
 sudo xcodebuild -license accept
 #+end_src
 
+***** System Xcode vs. project Xcode
+
+The App Store entry above installs the *system* Xcode at =/Applications/Xcode.app= and keeps it current. Versioned copies such as =/Applications/Xcode-26.4.1.app= come from [[https://github.com/XcodesOrg/xcodes][xcodes]], which names its installs that way. Install those only when a project needs a pinned Xcode.
+
+=xcode-select= is *not* project-scoped. =sudo xcode-select -s <path>= rewrites the machine-wide symlink =/var/db/xcode_select_link=, which every shell, =brew=, =clang=, =git= and =xcrun= follows. =xcodes select= does the same thing. Pinning one project this way silently pins the whole machine, and the pin goes stale when the App Store updates =Xcode.app=. Homebrew then refuses to build formulae with =Your Xcode (…) is too outdated=, even though a newer Xcode is installed.
+
+To pin Xcode for a single project, set =DEVELOPER_DIR= in that project's =.envrc= instead. It overrides =xcode-select= for that shell only:
+
+#+begin_src bash
+# .envrc of a project that needs a pinned Xcode
+export DEVELOPER_DIR=/Applications/Xcode-26.4.1.app/Contents/Developer
+#+end_src
+
+Our nix dev shells already work like this. =xcode-select -p= inside this repo prints a =/nix/store/…apple-sdk…= path, because the shell exports =DEVELOPER_DIR=. Use =env -u DEVELOPER_DIR xcode-select -p= to see the system-wide setting.
+
+On every switch, activation resets the system selection to the App Store Xcode. Nothing outside this file can quietly change it for long:
+
+#+begin_src nix :noweb-ref darwin-system
+activationScripts.postActivation.text = lib.mkAfter ''
+  if [ -d /Applications/Xcode.app/Contents/Developer ]; then
+    echo "selecting /Applications/Xcode.app as the system Xcode..." >&2
+    /usr/bin/xcode-select --switch /Applications/Xcode.app/Contents/Developer
+  fi
+'';
+#+end_src
+
 *** Password Managers
 **** COMMENT Pass
 
