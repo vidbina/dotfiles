@@ -1,0 +1,152 @@
+version: "0.2"
+name: dotfiles
+summary: >
+  Changes this machine's dotfiles. The lead is the person's entry point and
+  keeps Linear current; the builder edits and commits; the applier builds and
+  switches only on the person's go; the inspector reads the system and the
+  built result to say what a switch would change.
+
+culture_file: CULTURE.md
+
+pods:
+  - id: dev
+    label: Repo changes
+    members:
+      - id: lead
+        agent_ref: "local:agents/lead"
+        runtime: claude-code
+        profile: default
+        cwd: "../../.."
+        claude_permissions:
+          allow:
+            - "Bash(git status *)"
+            - "Bash(git log *)"
+            - "Bash(gh pr view *)"
+            - "Bash(gh pr list *)"
+            - "Bash(gh pr checks *)"
+            - "Bash(herdr status *)"
+            - "Bash(herdr session list *)"
+            - "Bash(herdr workspace list *)"
+            - "Bash(herdr tab list *)"
+            - "Bash(herdr agent list *)"
+            - "Bash(herdr pane list *)"
+            - "Bash(herdr pane get *)"
+            - "Bash(herdr pane layout *)"
+            - "Bash(herdr pane read *)"
+          deny:
+            - "Edit"
+            - "Write"
+            - "NotebookEdit"
+            - "Bash(sudo *)"
+            - "Bash(darwin-rebuild *)"
+            - "Bash(make nix-darwin-switch*)"
+            - "Bash(gh pr merge *)"
+      - id: builder
+        agent_ref: "local:agents/builder"
+        runtime: claude-code
+        profile: default
+        cwd: "../../.."
+        claude_permissions:
+          allow:
+            - "Bash(make tangle)"
+            - "Bash(make verify-parity)"
+            - "Bash(make validate)"
+            - "Bash(git status *)"
+            - "Bash(git diff *)"
+            - "Bash(git log *)"
+            - "Bash(git add *)"
+            - "Bash(git switch *)"
+            - "Bash(nix develop -c git commit *)"
+          deny:
+            - "Bash(sudo *)"
+            - "Bash(make nix-darwin-switch*)"
+            - "Bash(darwin-rebuild *)"
+            - "Bash(git push --force*)"
+            - "Bash(gh pr merge *)"
+    edges:
+      - kind: delegates_to
+        from: lead
+        to: builder
+
+  - id: host
+    label: Live system
+    members:
+      - id: applier
+        agent_ref: "local:agents/applier"
+        runtime: claude-code
+        profile: default
+        cwd: "../../.."
+        claude_permissions:
+          allow:
+            - "Bash(darwin-rebuild build *)"
+            - "Bash(git status *)"
+            - "Bash(git log *)"
+            - "Bash(git rev-parse *)"
+          deny:
+            - "Edit"
+            - "Write"
+            - "NotebookEdit"
+            - "Bash(git commit *)"
+            - "Bash(git push *)"
+            - "Bash(nix-collect-garbage *)"
+      - id: inspector
+        agent_ref: "local:agents/inspector"
+        runtime: claude-code
+        profile: default
+        cwd: "../../.."
+        claude_permissions:
+          allow:
+            - "Read(//nix/store/**)"
+            - "Read(//etc/**)"
+            - "Read(//run/**)"
+            - "Read(//Library/**)"
+            - "Read(//var/log/**)"
+            - "Read(~/**)"
+            - "Bash(nix why-depends *)"
+            - "Bash(nix path-info *)"
+            - "Bash(nix store diff-closures *)"
+            - "Bash(nix-store -q *)"
+            - "Bash(nix derivation show *)"
+            - "Bash(launchctl print *)"
+            - "Bash(launchctl list *)"
+            - "Bash(log show *)"
+            - "Bash(readlink *)"
+            - "Bash(realpath *)"
+            - "Bash(ls *)"
+            - "Bash(stat *)"
+            - "Bash(which *)"
+            - "Bash(ps *)"
+            - "Bash(lsof *)"
+            - "Bash(defaults read *)"
+            - "Bash(brew list *)"
+            - "Bash(brew info *)"
+            - "Bash(printenv *)"
+            - "Bash(env)"
+          deny:
+            - "Edit"
+            - "Write"
+            - "NotebookEdit"
+            - "Bash(sudo *)"
+            - "Bash(rm *)"
+            - "Bash(git commit *)"
+            - "Bash(git push *)"
+            - "Bash(launchctl bootout *)"
+            - "Bash(launchctl kickstart *)"
+            - "Bash(nix-collect-garbage *)"
+            - "Bash(nix store gc *)"
+            - "Bash(nix store delete *)"
+    edges:
+      - kind: delegates_to
+        from: applier
+        to: inspector
+
+edges:
+  - kind: delegates_to
+    from: dev.builder
+    to: host.applier
+  - kind: delegates_to
+    from: dev.lead
+    to: host.applier
+  - kind: delegates_to
+    from: dev.lead
+    to: host.inspector

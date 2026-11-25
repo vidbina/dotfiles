@@ -5943,6 +5943,8 @@ To bump OpenRig to a new version:
 
 The package also exposes the skills the OpenRig daemon would otherwise copy into =~/.claude/skills= under =share/openrig/skills=. [[file:claude/skills/]] links to them through the user profile, so Claude always sees the skills of the pinned version. The daemon leaves skill folders that it did not install alone.
 
+It also exposes OpenRig's bundled specs under =share/openrig/specs=. The dotfiles team in [[file:openrig/rigs/dotfiles/]] imports the shared agent base from there, a path that survives version bumps.
+
 #+begin_src nix :noweb-ref home-darwin-packages
 ((buildNpmPackage.override { nodejs = nodejs_22; }) rec {
   pname = "openrig";
@@ -5965,6 +5967,7 @@ The package also exposes the skills the OpenRig daemon would otherwise copy into
     ln -s $cli/skills/rigs $out/share/openrig/skills/rigs
     ln -s $cli/plugins/openrig-core/skills/openrig-skills $out/share/openrig/skills/openrig-skills
     ln -s $cli/plugins/openrig-core/skills/refocusing $out/share/openrig/skills/refocusing
+    ln -s $out/lib/node_modules/@openrig/cli/daemon/specs $out/share/openrig/specs
   '';
 })
 #+end_src

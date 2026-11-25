@@ -71,3 +71,8 @@ ollama/
 .env
 .env.*
 .envrc.local
+
+# Files an OpenRig team writes into its working folder at launch
+# (openrig/rigs/dotfiles). `rig down` removes them again.
+.openrig/
+.mcp.json
