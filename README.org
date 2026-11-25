@@ -2966,6 +2966,16 @@ config.keys = {
 "ghostty"
 #+end_src
 
+The cask installs only the app; it links no =ghostty= command. Ghostty's own shells find it because Ghostty adds its app directory to =PATH=, but other terminals and agent seats build =PATH= without it. A small package in the system profile links the binary inside the app bundle, so =ghostty= resolves everywhere. The link follows the cask's updates because it points at the app path, not a versioned one.
+
+#+begin_src nix :noweb-ref nix-darwin-packages-common
+# cask links no CLI; seats rebuild PATH without Ghostty's app dir
+(runCommand "ghostty-cli" { } ''
+  mkdir -p $out/bin
+  ln -s /Applications/Ghostty.app/Contents/MacOS/ghostty $out/bin/ghostty
+'')
+#+end_src
+
 We set up some reasonable defaults such as themes, which can be examined through =ghostty +list-themes= and greedy app quiting behavior after closing the last tab.
 
 #+begin_src nix :noweb-ref home-darwin-home-file

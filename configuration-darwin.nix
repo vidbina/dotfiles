@@ -13,6 +13,11 @@ with lib;
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
     # common Darwin packages
+    # cask links no CLI; seats rebuild PATH without Ghostty's app dir
+    (runCommand "ghostty-cli" { } ''
+      mkdir -p $out/bin
+      ln -s /Applications/Ghostty.app/Contents/MacOS/ghostty $out/bin/ghostty
+    '')
     pdftk
     hunspell
     hunspellDicts.nl_NL
