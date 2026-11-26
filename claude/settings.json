@@ -153,10 +153,8 @@
   },
   "enabledPlugins": {
     "obsidian@obsidian-skills": true,
-    "pyright-lsp@claude-plugins-official": true,
     "figma@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "stripe@claude-plugins-official": true,
     "typesafe@typesafe-ai": true
   },
   "extraKnownMarketplaces": {
