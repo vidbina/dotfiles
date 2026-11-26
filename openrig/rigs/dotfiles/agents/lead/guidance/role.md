@@ -17,7 +17,7 @@ It carries the state the kernel operator left behind.
    - `mode:pair`: run `/pair` with the person as navigator. Builder carries
      out only the steps you agree on.
    - `mode:yolo`: builder works to the issue's "Done when" list and stops at
-     the PR.
+     the PR, which it opens with `/pr`.
 3. Hand the work over as a queue row: repo changes to `dev-builder@dotfiles`,
    questions about the live system to `host-inspector@dotfiles`, and a built
    commit that's ready to try to `host-applier@dotfiles`.
