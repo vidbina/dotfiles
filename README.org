@@ -6139,6 +6139,211 @@ It refuses to run inside an OpenRig seat, since taking the rigs down would end t
 })
 #+end_src
 
+**** rigwake
+
+=rigwake= undoes =rignap=. It reads =~/.openrig/rignap-state.json=, starts the daemon if it isn't running, restores the recorded rigs (the kernel through =rig up kernel --existing= if the daemon didn't bring it back), opens their viewers, and removes the state file once every recorded rig is running. Without a state file and with the daemon down, it falls back to =rig start --last=.
+
+The daemon starts with a clean environment (=env -i=), so it doesn't inherit whatever terminal, devshell or seat =rigwake= runs from ([[https://linear.app/asabina/issue/VID-741][VID-741]]). It keeps =HOME=, =USER=, =LOGNAME=, =SHELL=, =TMPDIR= and =LANG=, and gets a =PATH= of the user and system profiles plus =/opt/homebrew/bin=: =rig= and =tmux= are in the user profile, and =herdr= and =claude= in Homebrew. =RIGWAKE_PATH= overrides that =PATH=, which is only meant for testing against a stub =rig=.
+
+Like =rignap=, it refuses inside a seat and asks first (=--yes= skips). With everything already up it changes nothing: it starts nothing and opens no viewers.
+
+#+begin_src nix :noweb-ref home-darwin-packages
+(writeShellApplication {
+  name = "rigwake";
+  runtimeInputs = [ jq coreutils ];
+  text = let
+    cleanPath = lib.concatStringsSep ":" [
+      "/etc/profiles/per-user/${config.home.username}/bin"
+      "${config.home.homeDirectory}/.nix-profile/bin"
+      "/run/current-system/sw/bin"
+      "/nix/var/nix/profiles/default/bin"
+      "/opt/homebrew/bin"
+      "/usr/bin"
+      "/bin"
+      "/usr/sbin"
+      "/sbin"
+    ];
+  in ''
+    state_file="$HOME/.openrig/rignap-state.json"
+    clean_path="''${RIGWAKE_PATH:-${cleanPath}}"
+    assume_yes=0
+
+    for arg in "$@"; do
+      case "$arg" in
+        --yes|-y) assume_yes=1 ;;
+        -h|--help)
+          echo "usage: rigwake [--yes]"
+          echo "Start the daemon and restore the rigs rignap put to sleep."
+          exit 0
+          ;;
+        *) echo "rigwake: unknown argument: $arg" >&2; exit 2 ;;
+      esac
+    done
+
+    if [ -n "''${OPENRIG_NODE_ID:-}" ]; then
+      echo "rigwake: this is an OpenRig seat; run rigwake from a plain terminal." >&2
+      exit 1
+    fi
+
+    daemon_up() {
+      local status
+      status=$(rig daemon status 2>/dev/null || true)
+      [[ "$status" == "Daemon running on port"* ]]
+    }
+
+    running=()
+    refresh_running() {
+      local ps_json
+      running=()
+      ps_json=$(rig ps --json)
+      mapfile -t running < <(jq -r '.[] | select(.status == "running") | .name' <<<"$ps_json")
+    }
+
+    is_running() {
+      local r
+      for r in "''${running[@]}"; do
+        if [ "$r" = "$1" ]; then return 0; fi
+      done
+      return 1
+    }
+
+    have_state=0
+    recorded=()
+    if [ -f "$state_file" ]; then
+      have_state=1
+      mapfile -t recorded < <(jq -r '.rigs[]' "$state_file")
+    fi
+
+    daemon_was_up=0
+    if daemon_up; then
+      daemon_was_up=1
+      refresh_running
+    fi
+
+    if [ "$have_state" -eq 0 ] && [ "$daemon_was_up" -eq 1 ]; then
+      echo "The daemon is running and no nap is recorded in $state_file: nothing to do."
+      exit 0
+    fi
+
+    to_start=()
+    kernel_recorded=0
+    for r in "''${recorded[@]}"; do
+      if [ "$r" = "kernel" ]; then
+        kernel_recorded=1
+      elif ! is_running "$r"; then
+        to_start+=("$r")
+      fi
+    done
+    kernel_needed=0
+    if { [ "$kernel_recorded" -eq 1 ] || [ "$have_state" -eq 0 ]; } && ! is_running kernel; then
+      kernel_needed=1
+    fi
+
+    if [ "$daemon_was_up" -eq 1 ] && [ "''${#to_start[@]}" -eq 0 ] && [ "$kernel_needed" -eq 0 ]; then
+      echo "Everything recorded is already running: ''${recorded[*]}"
+      rm -f "$state_file"
+      echo "Removed $state_file."
+      exit 0
+    fi
+
+    echo "rigwake will:"
+    if [ "$daemon_was_up" -eq 1 ]; then
+      echo "  - leave the daemon as it is (already running)"
+    else
+      echo "  - start the daemon with a clean environment and wait for the kernel"
+    fi
+    if [ "$have_state" -eq 0 ]; then
+      echo "  - restore the rigs that were last running (rig start --last): no state file at $state_file"
+    elif [ "''${#to_start[@]}" -gt 0 ]; then
+      echo "  - restore: ''${to_start[*]} (rig start --rigs)"
+    fi
+    echo "  - bring the kernel back with rig up kernel --existing if it isn't up by then"
+    echo "  - open viewers (rig terminal open --all, and the kernel in a window)"
+
+    if [ "$assume_yes" -ne 1 ]; then
+      printf 'Go ahead? [y/N] '
+      read -r answer || answer=""
+      case "$answer" in
+        y|Y|yes|YES) ;;
+        *) echo "Nothing started."; exit 1 ;;
+      esac
+    fi
+
+    if [ "$daemon_was_up" -eq 0 ]; then
+      rig_bin=""
+      IFS=: read -r -a path_dirs <<<"$clean_path"
+      for d in "''${path_dirs[@]}"; do
+        if [ -x "$d/rig" ]; then rig_bin="$d/rig"; break; fi
+      done
+      if [ -z "$rig_bin" ]; then
+        echo "rigwake: no rig found on $clean_path" >&2
+        exit 1
+      fi
+      echo "Starting the daemon ($rig_bin)..."
+      if ! env -i \
+          HOME="$HOME" \
+          USER="''${USER:-$(id -un)}" \
+          LOGNAME="''${LOGNAME:-$(id -un)}" \
+          SHELL="''${SHELL:-/bin/zsh}" \
+          TMPDIR="''${TMPDIR:-/tmp}" \
+          LANG="''${LANG:-en_US.UTF-8}" \
+          PATH="$clean_path" \
+          "$rig_bin" daemon start --wait-for-kernel; then
+        echo "rigwake: rig daemon start reported a problem; checking whether it came up." >&2
+      fi
+      if ! daemon_up; then
+        echo "rigwake: the daemon isn't running. Check rig daemon logs." >&2
+        exit 1
+      fi
+    fi
+
+    refresh_running
+    if [ "$have_state" -eq 0 ]; then
+      echo "No state file: restoring the rigs that were last running (rig start --last)."
+      rig start --last || echo "rigwake: rig start --last reported a problem." >&2
+    else
+      to_start=()
+      for r in "''${recorded[@]}"; do
+        if [ "$r" != "kernel" ] && ! is_running "$r"; then to_start+=("$r"); fi
+      done
+      if [ "''${#to_start[@]}" -gt 0 ]; then
+        echo "Restoring: ''${to_start[*]}"
+        rig start --rigs "''${to_start[@]}" || echo "rigwake: rig start reported a problem." >&2
+      fi
+    fi
+
+    refresh_running
+    if { [ "$kernel_recorded" -eq 1 ] || [ "$have_state" -eq 0 ]; } && ! is_running kernel; then
+      echo "The kernel isn't up yet: rig up kernel --existing"
+      rig up kernel --existing || echo "rigwake: rig up kernel reported a problem." >&2
+    fi
+
+    echo "Opening viewers..."
+    rig terminal open --all || echo "rigwake: rig terminal open --all reported a problem." >&2
+    rig terminal open saved:kernel --window || echo "rigwake: opening the kernel view reported a problem." >&2
+
+    refresh_running
+    if [ "$have_state" -eq 0 ]; then
+      echo
+      echo "Running: ''${running[*]}"
+      exit 0
+    fi
+    missing=()
+    for r in "''${recorded[@]}"; do
+      if ! is_running "$r"; then missing+=("$r"); fi
+    done
+    echo
+    if [ "''${#missing[@]}" -eq 0 ]; then
+      rm -f "$state_file"
+      echo "Awake: ''${recorded[*]}. Removed $state_file."
+    else
+      echo "Still down: ''${missing[*]}. Keeping $state_file; run rigwake again once they're fixed." >&2
+      exit 1
+    fi
+  '';
+})
+#+end_src
+
 *** Ollama
 
 [[https://github.com/ollama/ollama][Ollama]] is a convenient CLI tool to spin up LLMs locally for inference anad and to spawn local APIs that can be used with locally running tools. This should come in handy for offline LLM access and the general development of LLM-powered builds... even when the internet is down or when flying.
