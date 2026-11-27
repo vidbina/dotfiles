@@ -1,0 +1,12 @@
+onboarding = false
+
+[theme]
+name = "catppuccin"
+auto_switch = false
+
+[ui]
+# The Ghostty window title. {terminal_title} is the focused pane's title, which
+# tmux sets to its session name; OpenRig names each seat's session after its
+# address (dev-builder@dotfiles), so the title carries the rig and the seat.
+# {workspace} follows for Herdr workspaces that aren't OpenRig views.
+window_title = "{terminal_title} · {workspace}"
