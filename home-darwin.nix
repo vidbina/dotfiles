@@ -100,6 +100,124 @@
         ln -s $out/lib/node_modules/@openrig/cli/daemon/specs $out/share/openrig/specs
       '';
     })
+    (writeShellApplication {
+      name = "rignap";
+      runtimeInputs = [ jq coreutils ];
+      text = ''
+        state_file="$HOME/.openrig/rignap-state.json"
+        assume_yes=0
+
+        for arg in "$@"; do
+          case "$arg" in
+            --yes|-y) assume_yes=1 ;;
+            -h|--help)
+              echo "usage: rignap [--yes]"
+              echo "Snapshot and stop every running rig (kernel last), close viewers and stop the daemon."
+              exit 0
+              ;;
+            *) echo "rignap: unknown argument: $arg" >&2; exit 2 ;;
+          esac
+        done
+
+        if [ -n "''${OPENRIG_NODE_ID:-}" ]; then
+          echo "rignap: this is an OpenRig seat; running here would stop the seat running it." >&2
+          echo "Run rignap from a plain terminal." >&2
+          exit 1
+        fi
+
+        daemon_up() {
+          local status
+          status=$(rig daemon status 2>/dev/null || true)
+          [[ "$status" == "Daemon running on port"* ]]
+        }
+
+        if ! daemon_up; then
+          echo "The OpenRig daemon isn't running: everything is already asleep."
+          exit 0
+        fi
+
+        ps_json=$(rig ps --json)
+        mapfile -t running < <(jq -r '.[] | select(.status == "running") | .name' <<<"$ps_json" | sort)
+
+        others=()
+        kernel_up=0
+        for r in "''${running[@]}"; do
+          if [ "$r" = "kernel" ]; then kernel_up=1; else others+=("$r"); fi
+        done
+        order=("''${others[@]}")
+        if [ "$kernel_up" -eq 1 ]; then order+=("kernel"); fi
+
+        # Record what is running, merged with any earlier nap's list.
+        mkdir -p "$(dirname "$state_file")"
+        previous='[]'
+        if [ -f "$state_file" ]; then
+          previous=$(jq -c '.rigs // []' "$state_file" 2>/dev/null || echo '[]')
+        fi
+        now_json=$(printf '%s\n' "''${running[@]}" | jq -R . | jq -sc 'map(select(length > 0))')
+        jq -n --argjson prev "$previous" --argjson now "$now_json" \
+          --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+          '{rigs: ($prev + $now | unique), savedAt: $ts}' >"$state_file.tmp"
+        mv "$state_file.tmp" "$state_file"
+
+        echo "rignap will:"
+        if [ "''${#order[@]}" -eq 0 ]; then
+          echo "  - stop no rigs (none are running)"
+        else
+          i=1
+          for r in "''${order[@]}"; do
+            echo "  $i. rig down $r --snapshot"
+            i=$((i + 1))
+          done
+        fi
+        echo "  - close the viewers OpenRig opened (rig terminal close --all)"
+        echo "  - stop the daemon (rig daemon stop)"
+        echo "Rigs to bring back with rigwake are recorded in $state_file."
+
+        if [ "$assume_yes" -ne 1 ]; then
+          printf 'Go ahead? [y/N] '
+          read -r answer || answer=""
+          case "$answer" in
+            y|Y|yes|YES) ;;
+            *) echo "Nothing stopped."; exit 1 ;;
+          esac
+        fi
+
+        stopped=()
+        for idx in "''${!order[@]}"; do
+          r="''${order[$idx]}"
+          echo "Stopping $r..."
+          if rig down "$r" --snapshot --yes; then
+            stopped+=("$r")
+            echo "  $r: down"
+          else
+            echo "rignap: rig down $r failed; stopping here." >&2
+            echo "Still up: ''${order[*]:$idx}" >&2
+            echo "The daemon is still running. Fix $r and run rignap again." >&2
+            exit 1
+          fi
+        done
+
+        echo "Closing OpenRig viewers..."
+        if ! rig terminal close --all; then
+          echo "rignap: closing viewers failed; carrying on." >&2
+        fi
+
+        echo "Stopping the daemon..."
+        if ! rig daemon stop; then
+          echo "rignap: rig daemon stop failed; the daemon may still be running." >&2
+          exit 1
+        fi
+
+        echo
+        if [ "''${#stopped[@]}" -eq 0 ]; then
+          echo "No rigs were running. Daemon stopped."
+        else
+          echo "Asleep: ''${stopped[*]}. Daemon stopped."
+        fi
+        echo "rigwake will bring back: $(jq -r '.rigs | join(" ")' "$state_file")"
+        echo "Run rigwake to resume."
+      '';
+    })
   ];
 
   home.file = {
