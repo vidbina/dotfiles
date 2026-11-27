@@ -428,6 +428,10 @@
     # OpenCode config and plugins
     ".config/opencode/opencode.jsonc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/opencode/opencode.jsonc";
     ".config/opencode/plugins".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/opencode/plugins";
+    ".config/herdr/config.toml" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/herdr/config.toml";
+      force = true;
+    };
   };
   programs.tmux = {
     enable = true;

@@ -5963,6 +5963,17 @@ Just in case the internet fails, we want to have a OSS coding tool that can wiel
 "herdr"
 #+end_src
 
+We track herdr's config in [[file:herdr/config.toml]] and symlink it into =~/.config/herdr/=. It's an out-of-store symlink, so herdr's own settings screen still writes to it, and those changes show up as a diff here. Its =window_title= puts the focused pane's title in the window's title bar. tmux sets that title to the session name (see =set-titles= in [[file:tmux.conf]]), and OpenRig names each seat's session after its address, so every OpenRig window shows its rig and seat ([[https://linear.app/asabina/issue/VID-753][VID-753]]).
+
+The file existed before we tracked it, so =force= lets home-manager replace it on the first switch. Its old content (onboarding off, the catppuccin theme) is carried over. OpenRig only writes its own private herdr config when this file is missing.
+
+#+begin_src nix :noweb-ref home-darwin-home-file
+".config/herdr/config.toml" = {
+  source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/herdr/config.toml";
+  force = true;
+};
+#+end_src
+
 *** OpenRig
 
 [[https://github.com/mvschwarz/openrig][OpenRig]] runs teams of Claude Code and Codex agents, each agent in its own tmux session, with herdr as the view when it is installed. It only ships as the npm package =@openrig/cli=, which is in neither nixpkgs nor Homebrew, so we package the published tarball ourselves.
